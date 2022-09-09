@@ -37,25 +37,39 @@ void SetInlineHook(LPCSTR lpProcName, const char* funcName);
 void __stdcall CreateFileAHook(LPCSTR lpFileName, DWORD dwDesiredAccess, DWORD dwShareMode, LPSECURITY_ATTRIBUTES lpSecurityAttributes, DWORD dwCreationDisposition, DWORD dwFlagsAndAttributes, HANDLE hTemplateFile) {
 
 
-    std::cout << "----------intercepted call to CreateFileAHook----------\n";
+    std::cout << "\n----------intercepted call to CreateFileAHook----------\n";
 
-    //LOG("The name of the file or device to be created or opened is ", lpFileName);
-    //LOG("The requested access to the file or device ", dwDesiredAccess);
-    //LOG("The requested sharing mode of the file or device is ", dwShareMode);
+    LOG("The name of the file or device to be created or opened is ", lpFileName);
+    LOG("The requested access to the file or device ", dwDesiredAccess);
+    LOG("The requested sharing mode of the file or device is ", dwShareMode);
 
-    //if (dwCreationDisposition == 2)
-    //    LOG("An action to take on a file or device that exists or does not exist is ", "CREATE_ALWAYS");
-    //if (dwCreationDisposition == 1)
-    //    LOG("An action to take on a file or device that exists or does not exist is ", "CREATE_NEW");
-    //if (dwCreationDisposition == 4)
-    //    LOG("An action to take on a file or device that exists or does not exist is ", "OPEN_ALWAYS");
-    //if (dwCreationDisposition == 3)
-    //    LOG("An action to take on a file or device that exists or does not exist is ", "OPEN_EXISTING");
-    //if (dwCreationDisposition == 5)
-    //    LOG("An action to take on a file or device that exists or does not exist is ", "TRUNCATE_EXISTING");
+    if (dwCreationDisposition == 2)
+        LOG("An action to take on a file or device that exists or does not exist is ", "CREATE_ALWAYS");
+    if (dwCreationDisposition == 1)
+        LOG("An action to take on a file or device that exists or does not exist is ", "CREATE_NEW");
+    if (dwCreationDisposition == 4)
+        LOG("An action to take on a file or device that exists or does not exist is ", "OPEN_ALWAYS");
+    if (dwCreationDisposition == 3)
+        LOG("An action to take on a file or device that exists or does not exist is ", "OPEN_EXISTING");
+    if (dwCreationDisposition == 5)
+        LOG("An action to take on a file or device that exists or does not exist is ", "TRUNCATE_EXISTING");
 
-    //++fnCounter[suspicious_functions[0]];
+    if (dwFlagsAndAttributes == 128)
+        LOG("The Flags and Attributes that user is trying for the file are ", "NORMAL");
+    if (dwFlagsAndAttributes == 16384)
+        LOG("The Flags and Attributes that user is trying for the file are ", "ENCRYPTED");
+    if (dwFlagsAndAttributes == 4096)
+        LOG("The Flags and Attributes that user is trying for the file are ", "OFFLINE");
+    if (dwFlagsAndAttributes == 2)
+        LOG("The Flags and Attributes that user is trying for the file are ", "HIDDEN");
+    if (dwFlagsAndAttributes == 256)
+        LOG("The Flags and Attributes that user is trying for the file are ", "TEMPORARY");
+
+
+    ++fnCounter[suspicious_functions[0]];
     //LOG("The number of times user is trying to Create A file is ", fnCounter[suspicious_functions[0]])
+
+    std::cout << "\n----------Done intercepting call to CreateFileAHook----------\n\n";
 
     WriteProcessMemory(GetCurrentProcess(), (LPVOID)hookedAddress, originalBytes, 6, NULL);
     CreateFileA(lpFileName, dwDesiredAccess, dwShareMode, lpSecurityAttributes, dwCreationDisposition, dwFlagsAndAttributes, hTemplateFile);
@@ -96,7 +110,6 @@ void SetInlineHook(LPCSTR lpProcName, const char* funcName) {
 
     // write patch to the hookedAddress --> the Hooked function
     WriteProcessMemory(GetCurrentProcess(), (LPVOID)hookedAddress, patch, 6, NULL);
-    IsHooked = true;
 
 }
 
@@ -124,6 +137,19 @@ int main() {
 
     // call after install hook
     hFile = CreateFileA("evil.cpp",                // name of the write
+        GENERIC_WRITE,          // open for writing
+        0,                      // do not share
+        NULL,                   // default security
+        CREATE_NEW,             // create new file only
+        FILE_ATTRIBUTE_NORMAL,  // normal file
+        NULL);                  // no attr. template
+
+    if (!(hFile == INVALID_HANDLE_VALUE))
+        printf("Could not open file\n");
+    else
+        printf("Successfully opened file\n");
+
+    hFile = CreateFileA("evil.txt",                // name of the write
         GENERIC_WRITE,          // open for writing
         0,                      // do not share
         NULL,                   // default security
