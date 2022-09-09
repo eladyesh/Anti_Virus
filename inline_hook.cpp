@@ -1,6 +1,9 @@
 ﻿#include <windows.h>
 #include <iostream>
 #include <map>
+#include <string>
+#include <cstring>
+#include <vector>
 #define LOG(message, parameter) { std::cout << message << parameter << std::endl;}
 
 /*
@@ -14,13 +17,21 @@ HANDLE CreateFileA(
   [in, optional] LPSECURITY_ATTRIBUTES lpSecurityAttributes,
   [in]           DWORD dwCreationDisposition,
   [in]           DWORD dwFlagsAndAttributes,
-  [in, optional] HANDLE hTemplateFile
+  [in, optional] HANDLE hTemplateFile);
 
-);*/
+  HANDLE OpenProcess(
+  [in] DWORD dwDesiredAccess,
+  [in] BOOL  bInheritHandle,
+  [in] DWORD dwProcessId
+  );
+
+*/
 
 // buffer for saving original bytes
 char originalBytes[6];
 std::map<const char*, void*> fnMap;
+std::map<std::string, int> fnCounter;
+std::vector<std::string> suspicious_functions = { "CreateFileAHook" };
 FARPROC hookedAddress;
 
 // we will jump to after the hook has been installed
@@ -40,9 +51,17 @@ HANDLE __stdcall CreateFileAHook(LPCSTR lpFileName, DWORD dwDesiredAccess, DWORD
         LOG("An action to take on a file or device that exists or does not exist is ", "OPEN_EXISTING");
     if (dwCreationDisposition == 5)
         LOG("An action to take on a file or device that exists or does not exist is ", "TRUNCATE_EXISTING");
+    
+    ++fnCounter[suspicious_functions[0]];
+    LOG("The number of times user is trying to Create A file is ", fnCounter[suspicious_functions[0]])
 
     WriteProcessMemory(GetCurrentProcess(), (LPVOID)hookedAddress, originalBytes, 6, NULL);
     return CreateFileA(lpFileName, dwDesiredAccess, dwShareMode, lpSecurityAttributes, dwCreationDisposition, dwFlagsAndAttributes, hTemplateFile);
+}
+HANDLE __stdcall OpenProcessHook(DWORD dwDesiredAccess, BOOL bInheritHandle, DWORD dwProcessId) 
+{
+    WriteProcessMemory(GetCurrentProcess(), (LPVOID)hookedAddress, originalBytes, 6, NULL);
+    return OpenProcessHook(dwDesiredAccess, bInheritHandle, dwProcessId);
 }
 
 // hooking logic
@@ -79,6 +98,7 @@ void SetInlineHook(LPCSTR lpProcName, const char* funcName) {
 int main() {
 
     fnMap["CreateFileAHook"] = &CreateFileAHook;
+    fnCounter[suspicious_functions[0]] = 0;
 
     // call original
     HANDLE hFile = CreateFileA("evil.cpp",                // name of the write
@@ -97,6 +117,7 @@ int main() {
     // install hook
     SetInlineHook("CreateFileA", "CreateFileAHook");
 
+
     // call after install hook
     hFile = CreateFileA("evil.cpp",                // name of the write
         GENERIC_WRITE,          // open for writing
@@ -110,4 +131,12 @@ int main() {
         printf("Could not open file\n");
     else
         printf("Successfully opened file\n");
+
+    hFile = CreateFileA("evil.cpp",                // name of the write
+        GENERIC_WRITE,          // open for writing
+        0,                      // do not share
+        NULL,                   // default security
+        CREATE_NEW,             // create new file only
+        FILE_ATTRIBUTE_NORMAL,  // normal file
+        NULL);                  // no attr. template
 }
