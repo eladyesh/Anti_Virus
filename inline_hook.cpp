@@ -17,27 +17,27 @@ HANDLE CreateFileA(
   [in]           DWORD dwFlagsAndAttributes,
   [in, optional] HANDLE hTemplateFile);
 
-  HANDLE OpenProcess(
-  [in] DWORD dwDesiredAccess,
-  [in] BOOL  bInheritHandle,
-  [in] DWORD dwProcessId
+  LPVOID VirtualAlloc(
+  [in, optional] LPVOID lpAddress,
+  [in]           SIZE_T dwSize,
+  [in]           DWORD  flAllocationType,
+  [in]           DWORD  flProtect
   );
 */
 
-// buffer for saving original bytes
 char originalBytes[6];
 std::map<const char*, void*> fnMap;
 std::map<std::string, int> fnCounter;
-std::vector<std::string> suspicious_functions = { "CreateFileAHook" };
+std::vector<std::string> suspicious_functions = { "CreateFileAHook", "VirtualAlloc"};
+//std::map<FARPROC, char[6]> hook_bytes;
 FARPROC hookedAddress;
-bool IsHooked = false;
 void SetInlineHook(LPCSTR lpProcName, const char* funcName);
 
 // we will jump to after the hook has been installed
 void __stdcall CreateFileAHook(LPCSTR lpFileName, DWORD dwDesiredAccess, DWORD dwShareMode, LPSECURITY_ATTRIBUTES lpSecurityAttributes, DWORD dwCreationDisposition, DWORD dwFlagsAndAttributes, HANDLE hTemplateFile) {
 
 
-    std::cout << "\n----------intercepted call to CreateFileAHook----------\n";
+    std::cout << "\n----------intercepted call to CreateFileA----------\n";
 
     LOG("The name of the file or device to be created or opened is ", lpFileName);
     LOG("The requested access to the file or device ", dwDesiredAccess);
@@ -69,26 +69,27 @@ void __stdcall CreateFileAHook(LPCSTR lpFileName, DWORD dwDesiredAccess, DWORD d
     ++fnCounter[suspicious_functions[0]];
     //LOG("The number of times user is trying to Create A file is ", fnCounter[suspicious_functions[0]])
 
-    std::cout << "\n----------Done intercepting call to CreateFileAHook----------\n\n";
+    std::cout << "\n----------Done intercepting call to CreateFileA----------\n\n";
 
     WriteProcessMemory(GetCurrentProcess(), (LPVOID)hookedAddress, originalBytes, 6, NULL);
     CreateFileA(lpFileName, dwDesiredAccess, dwShareMode, lpSecurityAttributes, dwCreationDisposition, dwFlagsAndAttributes, hTemplateFile);
     return SetInlineHook("CreateFileA", "CreateFileAHook");
 }
-HANDLE __stdcall OpenProcessHook(DWORD dwDesiredAccess, BOOL bInheritHandle, DWORD dwProcessId)
+void __stdcall VirtualAllocHook(LPVOID lpAddress, SIZE_T dwSize, DWORD  flAllocationType, DWORD flProtect)
 {
+    std::cout << "\n----------intercepted call to VirtualAlloc----------\n";
+    std::cout << lpAddress << std::endl;
+    std::cout << "\n----------Done intercepting call to VirtualAlloc----------\n\n";
+
     WriteProcessMemory(GetCurrentProcess(), (LPVOID)hookedAddress, originalBytes, 6, NULL);
-    return OpenProcessHook(dwDesiredAccess, bInheritHandle, dwProcessId);
+    VirtualAlloc(lpAddress, dwSize, flAllocationType, flProtect);
+    return SetInlineHook("VirtualAlloc", "VirtualAllocHook");
 }
 
 // hooking logic
 void SetInlineHook(LPCSTR lpProcName, const char* funcName) {
     HINSTANCE hLib;
     VOID* myFuncAddress;
-    DWORD* rOffset;
-    DWORD* hookAddress;
-    DWORD src;
-    DWORD dst;
     CHAR patch[6] = { 0 };
 
     // get memory address of function WinExec
@@ -116,7 +117,11 @@ void SetInlineHook(LPCSTR lpProcName, const char* funcName) {
 int main() {
 
     fnMap["CreateFileAHook"] = &CreateFileAHook;
-    fnCounter[suspicious_functions[0]] = 0;
+    fnMap["VirtualAllocHook"] = &VirtualAllocHook;
+    for (size_t i = 0; i < sizeof(suspicious_functions) / sizeof(suspicious_functions[0]); i++)
+    {
+        fnCounter[suspicious_functions[i]] = 0;
+    }
 
     // call original
     HANDLE hFile = CreateFileA("evil.cpp",                // name of the write
@@ -131,6 +136,8 @@ int main() {
         printf("Could not open file\n");
     else
         printf("Successfully opened file\n");
+
+    LPVOID address = VirtualAlloc(NULL, 11, MEM_COMMIT, PAGE_EXECUTE_READWRITE);
 
     // install hook
     SetInlineHook("CreateFileA", "CreateFileAHook");
@@ -148,6 +155,8 @@ int main() {
         printf("Could not open file\n");
     else
         printf("Successfully opened file\n");
+
+    address = VirtualAlloc(NULL, 11, MEM_COMMIT, PAGE_EXECUTE_READWRITE);
 
     hFile = CreateFileA("evil.txt",                // name of the write
         GENERIC_WRITE,          // open for writing
