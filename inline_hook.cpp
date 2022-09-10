@@ -25,14 +25,25 @@ HANDLE CreateFileA(
   [in]           DWORD  flAllocationType,
   [in]           DWORD  flProtect
   );
+
+
+  HANDLE CreateThread(
+  [in, optional]  LPSECURITY_ATTRIBUTES   lpThreadAttributes,
+  [in]            SIZE_T                  dwStackSize,
+  [in]            LPTHREAD_START_ROUTINE  lpStartAddress,
+  [in, optional]  __drv_aliasesMem LPVOID lpParameter,
+  [in]            DWORD                   dwCreationFlags,
+  [out, optional] LPDWORD                 lpThreadId
+  );
+
 */
 
 //char originalBytes[6];
 std::map<const char*, void*> fnMap;
 std::map<std::string, int> fnCounter;
-std::vector<const char*> suspicious_functions = {"CreateFileAHook", "VirtualAlloc"};
-std::vector<FARPROC> addresses(2);
-std::vector<char[6]> original(2);
+std::vector<const char*> suspicious_functions = {"CreateFileA", "VirtualAlloc", "CreateThread"};
+std::vector<FARPROC> addresses(3);
+std::vector<char[6]> original(3);
 FARPROC hookedAddress;
 std::map<const char*, int> function_index;
 void SetInlineHook(LPCSTR lpProcName, const char* funcName, int index);
@@ -41,7 +52,7 @@ void SetInlineHook(LPCSTR lpProcName, const char* funcName, int index);
 void __stdcall CreateFileAHook(LPCSTR lpFileName, DWORD dwDesiredAccess, DWORD dwShareMode, LPSECURITY_ATTRIBUTES lpSecurityAttributes, DWORD dwCreationDisposition, DWORD dwFlagsAndAttributes, HANDLE hTemplateFile) {
 
 
-    std::cout << "\n----------intercepted call to CreateFileA----------\n";
+    std::cout << "\n----------intercepted call to CreateFileA----------\n\n";
 
     LOG("The name of the file or device to be created or opened is ", lpFileName);
     LOG("The requested access to the file or device ", dwDesiredAccess);
@@ -69,28 +80,65 @@ void __stdcall CreateFileAHook(LPCSTR lpFileName, DWORD dwDesiredAccess, DWORD d
     if (dwFlagsAndAttributes == 256)
         LOG("The Flags and Attributes that user is trying for the file are ", "TEMPORARY");
 
-
-    ++fnCounter[suspicious_functions[0]];
-    //LOG("The number of times user is trying to Create A file is ", fnCounter[suspicious_functions[0]])
-
-    std::cout << "\n----------Done intercepting call to CreateFileA----------\n\n";
-
     int index = function_index["CreateFileA"];
+    ++fnCounter[suspicious_functions[index]];
+    LOG("The number of times user is trying to Create A file is ", fnCounter[suspicious_functions[index]]);
+    std::cout << "\n----------Done intercepting call to CreateFileA----------\n\n\n\n\n";
+
     WriteProcessMemory(GetCurrentProcess(), (LPVOID)addresses[index], original[index], 6, NULL);
     CreateFileA(lpFileName, dwDesiredAccess, dwShareMode, lpSecurityAttributes, dwCreationDisposition, dwFlagsAndAttributes, hTemplateFile);
     return SetInlineHook("CreateFileA", "CreateFileAHook", index);
 }
-void __stdcall VirtualAllocHook(LPVOID lpAddress, SIZE_T dwSize, DWORD  flAllocationType, DWORD flProtect)
+void __stdcall VirtualAllocHook(LPVOID lpAddress, SIZE_T dwSize, DWORD flAllocationType, DWORD flProtect)
 {
-    std::cout << "\n----------intercepted call to VirtualAlloc----------\n";
-    std::cout << lpAddress << std::endl;
-    std::cout << "\n----------Done intercepting call to VirtualAlloc----------\n\n";
+    std::cout << "\n----------intercepted call to VirtualAlloc----------\n\n";
 
+    LOG("The address the allocation is starting is at ", lpAddress);
+    LOG("The size of the allocation is  ", dwSize);
+    
+    if (flAllocationType == 0x00001000)
+        LOG("The type of memory allocation is ", "MEMORY COMMIT");
+    if (flAllocationType == 0x00002000)
+        LOG("The type of memory allocation is ", "MEMORY RESERVE");
+    if (flAllocationType == 12288)
+        LOG("The type of memory allocation is ", "MEMORY COMMIT AND MEMORY RESERVE");
+
+    if (flProtect == 64)
+        LOG("The memory protection for the region of pages to be allocated is ", "PAGE EXECUTING AND READWRITING");
+  
     int index = function_index["VirtualAlloc"];
+    ++fnCounter[suspicious_functions[index]];
+    LOG("The number of times user is trying to  file is ", fnCounter[suspicious_functions[index]]);
+    std::cout << "\n----------Done intercepting call to VirtualAlloc----------\n\n\n\n\n";
+
     WriteProcessMemory(GetCurrentProcess(), (LPVOID)addresses[index], original[index], 6, NULL);
     VirtualAlloc(lpAddress, dwSize, flAllocationType, flProtect);
     return SetInlineHook("VirtualAlloc", "VirtualAllocHook", index);
 }
+void __stdcall CreateThreadHook(LPSECURITY_ATTRIBUTES lpThreadAttributes, SIZE_T dwStackSize, LPTHREAD_START_ROUTINE lpStartAddress, __drv_aliasesMem LPVOID lpParameter, DWORD dwCreationFlags, LPDWORD lpThreadId) {
+    std::cout << "\n----------intercepted call to CreateThread----------\n\n";
+
+    LOG("The initial size of the stack, in bytes is ", dwStackSize);
+    LOG("A pointer to the application-defined function to be executed by the thread ", lpStartAddress);
+    LOG("A pointer to a variable to be passed to the thread is ", lpParameter);
+    
+    if (dwCreationFlags == 0)
+        LOG("The thread runs immediately after creation", "");
+    if (dwCreationFlags == 0x00000004)
+        LOG("The thread is created in a suspended state", "");
+
+    LOG("A pointer to a variable that receives the thread identifier", lpThreadId);
+
+    int index = function_index["CreateThread"];
+    ++fnCounter[suspicious_functions[index]];
+    LOG("The number of times user is trying to  file is ", fnCounter[suspicious_functions[index]]);
+    std::cout << "\n----------Done intercepting call to CreateThread----------\n\n\n\n\n";
+
+    WriteProcessMemory(GetCurrentProcess(), (LPVOID)addresses[index], original[index], 6, NULL);
+    CreateThread(NULL, NULL, NULL, NULL, NULL, NULL);
+    return SetInlineHook("CreateThread", "CreateThreadHook", index);
+}
+
 
 // hooking logic
 void SetInlineHook(LPCSTR lpProcName, const char* funcName, int index) {
@@ -102,6 +150,9 @@ void SetInlineHook(LPCSTR lpProcName, const char* funcName, int index) {
     // get memory address of Hooked function
     hLib = LoadLibraryA("kernel32.dll");
     addresses[index] = (GetProcAddress(hLib, lpProcName));
+
+    if (addresses[index] == NULL)
+        return;
 
     // save the first 6 bytes into originalBytes (buffer)
     ReadProcessMemory(GetCurrentProcess(), (LPCVOID)addresses[index], original[index], 6, NULL);
@@ -124,13 +175,37 @@ int main() {
 
     fnMap["CreateFileAHook"] = &CreateFileAHook;
     fnMap["VirtualAllocHook"] = &VirtualAllocHook;
+    fnMap["CreateThreadHook"] = &CreateThreadHook;
     for (size_t i = 0; i < size(suspicious_functions); i++)
     {
         fnCounter[suspicious_functions[i]] = 0;
         function_index[suspicious_functions[i]] = i;
     }
 
-    // call original
+    // before installing hook
+    //CreateThread(NULL, NULL, NULL, NULL, NULL, NULL);
+    //// call original
+    //HANDLE hFile = CreateFileA("evil.cpp",                // name of the write
+    //    GENERIC_WRITE,          // open for writing
+    //    0,                      // do not share
+    //    NULL,                   // default security
+    //    CREATE_NEW,             // create new file only
+    //    FILE_ATTRIBUTE_NORMAL,  // normal file
+    //    NULL);                  // no attr. template
+
+    //if (!(hFile == INVALID_HANDLE_VALUE))
+    //    printf("Could not open file\n");
+    //else
+    //    printf("Successfully opened file\n");
+
+    //LPVOID address = VirtualAlloc(NULL, 11, MEM_COMMIT | MEM_RESERVE, PAGE_EXECUTE_READWRITE);
+
+    // install hook
+    SetInlineHook("CreateFileA", "CreateFileAHook", function_index["CreateFileA"]);
+    SetInlineHook("VirtualAlloc", "VirtualAllocHook", function_index["VirtualAlloc"]);
+    SetInlineHook("CreateThread", "CreateThreadHook", function_index["CreateThread"]);
+
+    // call after install hook
     HANDLE hFile = CreateFileA("evil.cpp",                // name of the write
         GENERIC_WRITE,          // open for writing
         0,                      // do not share
@@ -146,26 +221,6 @@ int main() {
 
     LPVOID address = VirtualAlloc(NULL, 11, MEM_COMMIT, PAGE_EXECUTE_READWRITE);
 
-    // install hook
-    SetInlineHook("CreateFileA", "CreateFileAHook", function_index["CreateFileAHook"]);
-    SetInlineHook("VirtualAlloc", "VirtualAllocHook", function_index["VirtualAlloc"]);
-
-    // call after install hook
-    hFile = CreateFileA("evil.cpp",                // name of the write
-        GENERIC_WRITE,          // open for writing
-        0,                      // do not share
-        NULL,                   // default security
-        CREATE_NEW,             // create new file only
-        FILE_ATTRIBUTE_NORMAL,  // normal file
-        NULL);                  // no attr. template
-
-    if (!(hFile == INVALID_HANDLE_VALUE))
-        printf("Could not open file\n");
-    else
-        printf("Successfully opened file\n");
-
-    address = VirtualAlloc(NULL, 11, MEM_COMMIT, PAGE_EXECUTE_READWRITE);
-
     hFile = CreateFileA("evil.txt",                // name of the write
         GENERIC_WRITE,          // open for writing
         0,                      // do not share
@@ -179,5 +234,8 @@ int main() {
     else
         printf("Successfully opened file\n");
 
-    address = VirtualAlloc(NULL, 11, MEM_COMMIT, PAGE_EXECUTE_READWRITE);
+    address = VirtualAlloc(NULL, 11, MEM_COMMIT | MEM_RESERVE, PAGE_EXECUTE_READWRITE);
+
+    CreateThread(NULL, NULL, NULL, NULL, NULL, NULL);
+    CreateThread(NULL, NULL, NULL, NULL, NULL, NULL);
 }
