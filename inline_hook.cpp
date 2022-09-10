@@ -4,6 +4,8 @@
 #include <string>
 #include <cstring>
 #include <vector>
+#include <iterator>
+#include <algorithm>
 #define LOG(message, parameter) { std::cout << message << parameter << std::endl;}
 
 /*
@@ -25,13 +27,15 @@ HANDLE CreateFileA(
   );
 */
 
-char originalBytes[6];
+//char originalBytes[6];
 std::map<const char*, void*> fnMap;
 std::map<std::string, int> fnCounter;
-std::vector<std::string> suspicious_functions = { "CreateFileAHook", "VirtualAlloc"};
-//std::map<FARPROC, char[6]> hook_bytes;
+std::vector<const char*> suspicious_functions = {"CreateFileAHook", "VirtualAlloc"};
+std::vector<FARPROC> addresses(2);
+std::vector<char[6]> original(2);
 FARPROC hookedAddress;
-void SetInlineHook(LPCSTR lpProcName, const char* funcName);
+std::map<const char*, int> function_index;
+void SetInlineHook(LPCSTR lpProcName, const char* funcName, int index);
 
 // we will jump to after the hook has been installed
 void __stdcall CreateFileAHook(LPCSTR lpFileName, DWORD dwDesiredAccess, DWORD dwShareMode, LPSECURITY_ATTRIBUTES lpSecurityAttributes, DWORD dwCreationDisposition, DWORD dwFlagsAndAttributes, HANDLE hTemplateFile) {
@@ -71,9 +75,10 @@ void __stdcall CreateFileAHook(LPCSTR lpFileName, DWORD dwDesiredAccess, DWORD d
 
     std::cout << "\n----------Done intercepting call to CreateFileA----------\n\n";
 
-    WriteProcessMemory(GetCurrentProcess(), (LPVOID)hookedAddress, originalBytes, 6, NULL);
+    int index = function_index["CreateFileA"];
+    WriteProcessMemory(GetCurrentProcess(), (LPVOID)addresses[index], original[index], 6, NULL);
     CreateFileA(lpFileName, dwDesiredAccess, dwShareMode, lpSecurityAttributes, dwCreationDisposition, dwFlagsAndAttributes, hTemplateFile);
-    return SetInlineHook("CreateFileA", "CreateFileAHook");
+    return SetInlineHook("CreateFileA", "CreateFileAHook", index);
 }
 void __stdcall VirtualAllocHook(LPVOID lpAddress, SIZE_T dwSize, DWORD  flAllocationType, DWORD flProtect)
 {
@@ -81,23 +86,25 @@ void __stdcall VirtualAllocHook(LPVOID lpAddress, SIZE_T dwSize, DWORD  flAlloca
     std::cout << lpAddress << std::endl;
     std::cout << "\n----------Done intercepting call to VirtualAlloc----------\n\n";
 
-    WriteProcessMemory(GetCurrentProcess(), (LPVOID)hookedAddress, originalBytes, 6, NULL);
+    int index = function_index["VirtualAlloc"];
+    WriteProcessMemory(GetCurrentProcess(), (LPVOID)addresses[index], original[index], 6, NULL);
     VirtualAlloc(lpAddress, dwSize, flAllocationType, flProtect);
-    return SetInlineHook("VirtualAlloc", "VirtualAllocHook");
+    return SetInlineHook("VirtualAlloc", "VirtualAllocHook", index);
 }
 
 // hooking logic
-void SetInlineHook(LPCSTR lpProcName, const char* funcName) {
+void SetInlineHook(LPCSTR lpProcName, const char* funcName, int index) {
+
     HINSTANCE hLib;
     VOID* myFuncAddress;
     CHAR patch[6] = { 0 };
 
-    // get memory address of function WinExec
+    // get memory address of Hooked function
     hLib = LoadLibraryA("kernel32.dll");
-    hookedAddress = GetProcAddress(hLib, lpProcName);
+    addresses[index] = (GetProcAddress(hLib, lpProcName));
 
     // save the first 6 bytes into originalBytes (buffer)
-    ReadProcessMemory(GetCurrentProcess(), (LPCVOID)hookedAddress, originalBytes, 6, NULL);
+    ReadProcessMemory(GetCurrentProcess(), (LPCVOID)addresses[index], original[index], 6, NULL);
 
     // overwrite the first 6 bytes with a jump to myFunc
     myFuncAddress = fnMap[funcName];
@@ -110,17 +117,17 @@ void SetInlineHook(LPCSTR lpProcName, const char* funcName) {
     memcpy_s(patch + 5, 1, "\xC3", 1); // opcode for retn
 
     // write patch to the hookedAddress --> the Hooked function
-    WriteProcessMemory(GetCurrentProcess(), (LPVOID)hookedAddress, patch, 6, NULL);
-
+    WriteProcessMemory(GetCurrentProcess(), (LPVOID)addresses[index], patch, 6, NULL);
 }
 
 int main() {
 
     fnMap["CreateFileAHook"] = &CreateFileAHook;
     fnMap["VirtualAllocHook"] = &VirtualAllocHook;
-    for (size_t i = 0; i < sizeof(suspicious_functions) / sizeof(suspicious_functions[0]); i++)
+    for (size_t i = 0; i < size(suspicious_functions); i++)
     {
         fnCounter[suspicious_functions[i]] = 0;
+        function_index[suspicious_functions[i]] = i;
     }
 
     // call original
@@ -140,7 +147,8 @@ int main() {
     LPVOID address = VirtualAlloc(NULL, 11, MEM_COMMIT, PAGE_EXECUTE_READWRITE);
 
     // install hook
-    SetInlineHook("CreateFileA", "CreateFileAHook");
+    SetInlineHook("CreateFileA", "CreateFileAHook", function_index["CreateFileAHook"]);
+    SetInlineHook("VirtualAlloc", "VirtualAllocHook", function_index["VirtualAlloc"]);
 
     // call after install hook
     hFile = CreateFileA("evil.cpp",                // name of the write
@@ -170,4 +178,6 @@ int main() {
         printf("Could not open file\n");
     else
         printf("Successfully opened file\n");
+
+    address = VirtualAlloc(NULL, 11, MEM_COMMIT, PAGE_EXECUTE_READWRITE);
 }
