@@ -1,10 +1,11 @@
 #include <iostream>
-#include <Windows.h>
+#include <windows.h>
 #include "pch.h"
 
 
 int main()
 {
+
     const char name[] = { "D:\\Cyber\\YB_CYBER\\project\\FinalProject\\poc_start\\poc_start\\inline.dll" };
     unsigned int len{ sizeof(name) + 1 };
     DWORD result = GetFullPathNameA(name, 0, NULL, NULL);
@@ -21,7 +22,7 @@ int main()
     ZeroMemory(&pi, sizeof(pi));
 
     CreateProcessA(
-        "D:\\Cyber\\YB_CYBER\\project\\FinalProject\\poc_start\\poc_start\\a.exe",
+        "D:\\Cyber\\YB_CYBER\\project\\FinalProject\\poc_start\\poc_start\\virus.exe",
         NULL,
         NULL,
         NULL,

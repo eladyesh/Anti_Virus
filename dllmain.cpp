@@ -12,7 +12,10 @@
 #include <stdlib.h>
 #include <cstring>
 #include <sstream>
-
+#include <winsock.h>
+using std::ostringstream;
+using std::ends;
+#pragma comment(lib,"ws2_32.lib")
 
 /*
 Defining functions that are being hooked
@@ -70,14 +73,20 @@ Defining functions that are being hooked
     [out, optional] LPDWORD                     lpdwDisposition
     );
 
+    SOCKET WSAAPI socket(
+    [in] int af,
+    [in] int type,
+    [in] int protocol
+    );
+
 */
 
 //char originalBytes[6];
 std::map<const char*, void*> fnMap;
 std::map<std::string, int> fnCounter;
-std::vector<const char*> suspicious_functions = { "CreateFileA", "VirtualAlloc", "CreateThread", "RegOpenKeyExA", "RegSetValueExA", "RegCreateKeyExA" };
-std::vector<FARPROC> addresses(6);
-std::vector<char[6]> original(6);
+std::vector<const char*> suspicious_functions = { "CreateFileA", "VirtualAlloc", "CreateThread", "RegOpenKeyExA", "RegSetValueExA", "RegCreateKeyExA", "socket"};
+std::vector<FARPROC> addresses(7);
+std::vector<char[6]> original(7);
 HANDLE file = NULL;
 std::ofstream myfile;
 std::map<const char*, int> function_index;
@@ -89,8 +98,11 @@ void LOG(const char* message, T parameter) {
 
 
     WriteFile(hFile, message, strlen(message), NULL, nullptr);
+    //WriteFile(hFile, "\n", strlen("\n"), NULL, nullptr);
+    ostringstream oss;
+    oss << parameter << ends;
+    WriteFile(hFile, oss.str().c_str(), strlen(oss.str().c_str()), NULL, nullptr);
     WriteFile(hFile, "\n", strlen("\n"), NULL, nullptr);
-    //WriteFile(hFile,(LPCVOID)parameter, sizeof((LPCVOID)parameter), NULL, nullptr);
 }
 
 struct HOOKING {
@@ -246,6 +258,26 @@ struct HOOKING {
         return SetInlineHook("RegCreateKeyExA", "advapi32.dll", "RegCreateKeyExAHook", function_index["RegCreateKeyExA"]);
 
     }
+    static SOCKET __stdcall socketHook(int af, int type, int protocol) {
+
+        LOG("\n----------intercepted call to socket----------\n\n", "");
+        LOG("   ", af);
+        LOG("   ", type);
+        LOG("   ", protocol);
+        
+
+        int index = function_index["socket"];
+        ++fnCounter[suspicious_functions[index]];
+        LOG("The number of times user is trying to create a socket is ", fnCounter[suspicious_functions[index]]);
+        LOG("\n----------Done intercepting call to socket----------\n\n\n\n\n", "");
+
+
+        WriteProcessMemory(GetCurrentProcess(), (LPVOID)addresses[index], original[index], 6, NULL);
+        SOCKET server_fd = socket(af, type, protocol);
+        SetInlineHook("socket", "Ws2_32.dll", "socketHook", function_index["socket"]);
+        return server_fd;
+        
+    }
 };
 
 // we will jump to after the hook has been installed
@@ -290,6 +322,7 @@ int main() {
     fnMap["RegOpenKeyExAHook"] = (void*)&HOOKING::RegOpenKeyExAHook;
     fnMap["RegSetValueExAHook"] = (void*)&HOOKING::RegSetValueExAHook;
     fnMap["RegCreateKeyExAHook"] = (void*)&HOOKING::RegCreateKeyExAHook;
+    fnMap["socketHook"] = (void*)&HOOKING::socketHook;
     for (int i = 0; i < suspicious_functions.size(); i++)
     {
         fnCounter[suspicious_functions[i]] = 0;
@@ -320,6 +353,7 @@ int main() {
     SetInlineHook("RegOpenKeyExA", "advapi32.dll", "RegOpenKeyExAHook", function_index["RegOpenKeyExA"]);
     SetInlineHook("RegSetValueExA", "advapi32.dll", "RegSetValueExAHook", function_index["RegSetValueExA"]);
     SetInlineHook("RegCreateKeyExA", "advapi32.dll", "RegCreateKeyExAHook", function_index["RegCreateKeyExA"]);
+    SetInlineHook("socket", "Ws2_32.dll", "socketHook", function_index["socket"]);
 
     //HANDLE hFile = CreateFileA("evil.cpp",                // name of the write
     //    GENERIC_WRITE,          // open for writing
@@ -364,6 +398,7 @@ int main() {
     //CloseHandle(pi.hThread);
     //CloseHandle(file);
     //myfile.close();
+
     return 0;
 }
 
