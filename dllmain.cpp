@@ -196,9 +196,20 @@ struct HOOKING {
     }
     static void __stdcall RegOpenKeyExAHook(HKEY hKey, LPCSTR lpSubKey, DWORD ulOptions, REGSAM samDesired, PHKEY phkResult) {
 
+        bool run_key = false;
         LOG("\n----------intercepted call to RegOpenKeyExA----------\n\n", "");
-        if (hKey == ((HKEY)(ULONG_PTR)((LONG)0x80000002)))
+        if (hKey == ((HKEY)(ULONG_PTR)((LONG)0x80000002))) {
             LOG("The key opened is ", "HKEY_LOCAL_MACHINE");
+            if (std::string(lpSubKey) == std::string("Software\\Microsoft\\Windows\\CurrentVersion\\Run"))
+                run_key = true;
+        }
+
+        if (hKey == ((HKEY)(ULONG_PTR)((LONG)0x80000001))){
+            LOG("The key opened is ", "HKEY_CURRENT_USER");
+            if (std::string(lpSubKey) == std::string("Software\\Microsoft\\Windows\\CurrentVersion\\Run"))
+                run_key = true;
+        }
+
 
         LOG("The name of the registry subkey to be opened is ", lpSubKey);
         LOG("The option to apply when opening the key is ", ulOptions);
@@ -208,7 +219,15 @@ struct HOOKING {
 
         int index = function_index["RegOpenKeyExA"];
         ++fnCounter[suspicious_functions[index]];
+
+        //if ((hKey == ((HKEY)(ULONG_PTR)((LONG)0x80000001)) || hKey == ((HKEY)(ULONG_PTR)((LONG)0x80000002))) &&
+        //    lpSubKey == (LPCSTR)"Software\\Microsoft\\Windows\\CurrentVersion\\Run") {
+        //    LOG("\nExe probably trying to execute a file after every rebot through a Run key!!", "");
+        //}
+
         LOG("The number of times user is trying to open a registry key is ", fnCounter[suspicious_functions[index]]);
+        if (run_key)
+            LOG("\nExe probably trying to execute a file after every rebot through a Run key!!", "");
         LOG("\n----------Done intercepting call to RegOpenKeyExA----------\n\n\n\n\n", "");
 
         WriteProcessMemory(GetCurrentProcess(), (LPVOID)addresses[index], original[index], 6, NULL);
@@ -223,6 +242,8 @@ struct HOOKING {
         LOG("The name of the value to be set is ", lpValueName);
         if (dwType == 4ul)
             LOG("The type of data set is ", "REG_DWORD");
+        if (dwType == 1ul)
+            LOG("The type of data set is ", "REG_SZ");
         LOG("The data to be stored is ", lpData);
 
         int index = function_index["RegSetValueExA"];
@@ -261,10 +282,21 @@ struct HOOKING {
     static SOCKET __stdcall socketHook(int af, int type, int protocol) {
 
         LOG("\n----------intercepted call to socket----------\n\n", "");
-        LOG("   ", af);
-        LOG("   ", type);
-        LOG("   ", protocol);
-        
+
+        if (af == 2)
+            LOG("The address family specification is ", "(IPv4) address family - AF_INET");
+
+        if (type == 1)
+            LOG("The type specification for the new socket is ", "TCP SOCK_STREAM");
+        if (type == 2)
+            LOG("The type specification for the new socket is ", "UDP SOCK_DGRAM");
+
+        if (protocol == 1)
+            LOG("The protocol to be used is ", "ICMP");
+        if (protocol == 6)
+            LOG("The protocol to be used is ", "TCP");
+        if (protocol == 17)
+            LOG("The protocol to be used is ", "UDP");
 
         int index = function_index["socket"];
         ++fnCounter[suspicious_functions[index]];
@@ -273,10 +305,10 @@ struct HOOKING {
 
 
         WriteProcessMemory(GetCurrentProcess(), (LPVOID)addresses[index], original[index], 6, NULL);
-        SOCKET server_fd = socket(af, type, protocol);
+        SOCKET sock = socket(af, type, protocol);
         SetInlineHook("socket", "Ws2_32.dll", "socketHook", function_index["socket"]);
-        return server_fd;
-        
+        return sock;
+
     }
 };
 
