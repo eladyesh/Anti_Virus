@@ -79,16 +79,20 @@ Defining functions that are being hooked
     [in] int protocol
     );
 
+    int WSAAPI connect(
+    [in] SOCKET         s,
+    [in] const sockaddr *name,
+    [in] int            namelen
+    );
+
 */
 
 //char originalBytes[6];
 std::map<const char*, void*> fnMap;
 std::map<std::string, int> fnCounter;
-std::vector<const char*> suspicious_functions = { "CreateFileA", "VirtualAlloc", "CreateThread", "RegOpenKeyExA", "RegSetValueExA", "RegCreateKeyExA", "socket"};
-std::vector<FARPROC> addresses(7);
-std::vector<char[6]> original(7);
-HANDLE file = NULL;
-std::ofstream myfile;
+std::vector<const char*> suspicious_functions = { "CreateFileA", "VirtualAlloc", "CreateThread", "RegOpenKeyExA", "RegSetValueExA", "RegCreateKeyExA", "socket", "connect" };
+std::vector<FARPROC> addresses(8);
+std::vector<char[6]> original(8);
 std::map<const char*, int> function_index;
 void SetInlineHook(LPCSTR lpProcName, const char* library, const char* funcName, int index);
 HANDLE hFile;
@@ -204,7 +208,7 @@ struct HOOKING {
                 run_key = true;
         }
 
-        if (hKey == ((HKEY)(ULONG_PTR)((LONG)0x80000001))){
+        if (hKey == ((HKEY)(ULONG_PTR)((LONG)0x80000001))) {
             LOG("The key opened is ", "HKEY_CURRENT_USER");
             if (std::string(lpSubKey) == std::string("Software\\Microsoft\\Windows\\CurrentVersion\\Run"))
                 run_key = true;
@@ -310,6 +314,28 @@ struct HOOKING {
         return sock;
 
     }
+    static int __stdcall connectHook(SOCKET s, const sockaddr* name, int namelen) {
+
+        struct sockaddr_in* sin = (struct sockaddr_in*)name;
+        uint16_t port;
+
+        port = htons(sin->sin_port);
+        char* ip = inet_ntoa((*sin).sin_addr);
+        LOG("\n----------intercepted call to connect----------\n\n", "");
+        LOG("The address socket is trying to connect to is ", ip);
+        LOG("The port socket is using to connect is ", port);
+
+        int index = function_index["connect"];
+        ++fnCounter[suspicious_functions[index]];
+        LOG("The number of times user is trying to connect to another socket is ", fnCounter[suspicious_functions[index]]);
+        LOG("\n----------Done intercepting call to socket----------\n\n\n\n\n", "");
+
+
+        WriteProcessMemory(GetCurrentProcess(), (LPVOID)addresses[index], original[index], 6, NULL);
+        int r = connect(s, name, namelen);
+        SetInlineHook("connect", "Ws2_32.dll", "connectHook", function_index["connect"]);
+        return r;
+    }
 };
 
 // we will jump to after the hook has been installed
@@ -355,6 +381,7 @@ int main() {
     fnMap["RegSetValueExAHook"] = (void*)&HOOKING::RegSetValueExAHook;
     fnMap["RegCreateKeyExAHook"] = (void*)&HOOKING::RegCreateKeyExAHook;
     fnMap["socketHook"] = (void*)&HOOKING::socketHook;
+    fnMap["connectHook"] = (void*)&HOOKING::connectHook;
     for (int i = 0; i < suspicious_functions.size(); i++)
     {
         fnCounter[suspicious_functions[i]] = 0;
@@ -386,6 +413,7 @@ int main() {
     SetInlineHook("RegSetValueExA", "advapi32.dll", "RegSetValueExAHook", function_index["RegSetValueExA"]);
     SetInlineHook("RegCreateKeyExA", "advapi32.dll", "RegCreateKeyExAHook", function_index["RegCreateKeyExA"]);
     SetInlineHook("socket", "Ws2_32.dll", "socketHook", function_index["socket"]);
+    SetInlineHook("connect", "Ws2_32.dll", "connectHook", function_index["connect"]);
 
     //HANDLE hFile = CreateFileA("evil.cpp",                // name of the write
     //    GENERIC_WRITE,          // open for writing
