@@ -18,51 +18,66 @@ using std::ends;
 
 int CreateSocket()
 {
-	WSADATA wsa;
-	SOCKET s;
-	struct sockaddr_in server;
-	const char* message;
+    WSADATA wsa;
+    SOCKET s;
+    struct sockaddr_in server;
+    const char* message;
+    int recv_size;
+    char server_reply[3000] = { 0 };
 
-	printf("\nInitialising Winsock...");
-	if (WSAStartup(MAKEWORD(2, 2), &wsa) != 0)
-	{
-		printf("Failed. Error Code : %d", WSAGetLastError());
-		return 1;
-	}
+    printf("\nInitialising Winsock...");
+    if (WSAStartup(MAKEWORD(2, 2), &wsa) != 0)
+    {
+        printf("Failed. Error Code : %d", WSAGetLastError());
+        return 1;
+    }
 
-	printf("Initialised.\n");
+    printf("Initialised.\n");
 
-	//Create a socket
-	if ((s = socket(AF_INET, SOCK_STREAM, 0)) == INVALID_SOCKET)
-	{
-		printf("Could not create socket : %d", WSAGetLastError());
-	}
+    //Create a socket
+    if ((s = socket(AF_INET, SOCK_STREAM, 0)) == INVALID_SOCKET)
+    {
+        printf("Could not create socket : %d", WSAGetLastError());
+    }
 
-	printf("Socket created.\n");
+    printf("Socket created.\n");
 
 
-	server.sin_addr.s_addr = inet_addr("142.250.186.68");
-	server.sin_family = AF_INET;
-	server.sin_port = htons(80);
+    server.sin_addr.s_addr = inet_addr("142.250.186.68");
+    server.sin_family = AF_INET;
+    server.sin_port = htons(80);
 
-	//Connect to remote server
-	if (connect(s, (struct sockaddr*)&server, sizeof(server)) < 0)
-	{
-		puts("connect error");
-		return 1;
-	}
+    //Connect to remote server
+    if (connect(s, (struct sockaddr*)&server, sizeof(server)) < 0)
+    {
+        puts("connect error");
+        return 1;
+    }
 
-	puts("Connected");
+    puts("Connected");
 
-	//Send some data
-	message = "GET / HTTP/1.1\r\n\r\n";
-	if (send(s, message, strlen(message), 0) < 0)
-	{
-		puts("Send failed");
-		return 1;
-	}
-	puts("Data Sent\n");
-	return 0;
+    //Send some data
+    message = "GET / HTTP/1.1\r\n\r\n";
+    if (send(s, message, strlen(message), 0) < 0)
+    {
+        puts("Send failed");
+        return 1;
+    }
+    puts("Data Sent\n");
+
+    //Receive a reply from the server
+    if ((recv_size = recv(s, server_reply, 2000, 0)) == SOCKET_ERROR)
+    {
+        puts("recv failed");
+    }
+
+    puts("Reply received\n");
+
+    //Add a NULL terminating character to make it a proper string before printing
+    //server_reply[recv_size] = '\0';
+
+    return 0;
+
 }
 
 int main()
@@ -116,5 +131,5 @@ int main()
     GetModuleFileNameA(0, pPath, 100);
     RegOpenKeyExA(HKEY_CURRENT_USER, "Software\\Microsoft\\Windows\\CurrentVersion\\Run", 0, KEY_ALL_ACCESS, &hOpened);
 
-    CreateSocket();
+    int zero = CreateSocket();
 }

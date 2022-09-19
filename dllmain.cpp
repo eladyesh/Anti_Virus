@@ -93,14 +93,21 @@ Defining functions that are being hooked
     [in] int        flags
     );
     
+    int recv(
+    [in]  SOCKET s,
+    [out] char   *buf,
+    [in]  int    len,
+    [in]  int    flags
+    );
+
 */
 
 //char originalBytes[6];
 std::map<const char*, void*> fnMap;
 std::map<std::string, int> fnCounter;
-std::vector<const char*> suspicious_functions = { "CreateFileA", "VirtualAlloc", "CreateThread", "RegOpenKeyExA", "RegSetValueExA", "RegCreateKeyExA", "socket", "connect", "send"};
-std::vector<FARPROC> addresses(9);
-std::vector<char[6]> original(9);
+std::vector<const char*> suspicious_functions = { "CreateFileA", "VirtualAlloc", "CreateThread", "RegOpenKeyExA", "RegSetValueExA", "RegCreateKeyExA", "socket", "connect", "send", "recv"};
+std::vector<FARPROC> addresses(10);
+std::vector<char[6]> original(10);
 std::map<const char*, int> function_index;
 void SetInlineHook(LPCSTR lpProcName, const char* library, const char* funcName, int index);
 HANDLE hFile;
@@ -433,6 +440,36 @@ struct HOOKING {
         SetInlineHook("send", "Ws2_32.dll", "sendHook", index);
         return b;
     }
+    static int __stdcall recvHook(SOCKET s, char* buff, int len, int flags) {
+
+        LOG("\n----------intercepted call to recv----------\n\n", "");
+
+        int index = function_index["recv"];
+        WriteProcessMemory(GetCurrentProcess(), (LPVOID)addresses[index], original[index], 6, NULL);
+        int b = recv(s, buff, len, flags);
+
+        LOG("The buffer socket recieved is \n\n", buff);
+        LOG("\n", "\n");
+
+        size_t length = strlen(buff);
+        LOG("The length of the buffer is ", length);
+
+        ++fnCounter[suspicious_functions[index]];
+        LOG("The number of times user is trying to receive a buffer is ", fnCounter[suspicious_functions[index]]);
+
+        std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
+        ostringstream oss;
+        oss << std::chrono::duration_cast<std::chrono::nanoseconds> (end - begin).count() << ends;
+        std::string time_difference = std::string(oss.str().c_str());
+        time_difference.insert(1, ".");
+
+        LOG("Time difference since attachment of hooks in [s] is ", time_difference);
+
+        LOG("\n----------Done intercepting call to recv----------\n\n\n\n\n", "");
+
+        SetInlineHook("recv", "Ws2_32.dll", "recvHook", index);
+        return b;
+    }
 };
 
 // we will jump to after the hook has been installed
@@ -480,6 +517,7 @@ int main() {
     fnMap["socketHook"] = (void*)&HOOKING::socketHook;
     fnMap["connectHook"] = (void*)&HOOKING::connectHook;
     fnMap["sendHook"] = (void*)&HOOKING::sendHook;
+    fnMap["recvHook"] = (void*)&HOOKING::recvHook;
     for (int i = 0; i < suspicious_functions.size(); i++)
     {
         fnCounter[suspicious_functions[i]] = 0;
@@ -513,6 +551,7 @@ int main() {
     SetInlineHook("socket", "Ws2_32.dll", "socketHook", function_index["socket"]);
     SetInlineHook("connect", "Ws2_32.dll", "connectHook", function_index["connect"]);
     SetInlineHook("send", "Ws2_32.dll", "sendHook", function_index["send"]);
+    SetInlineHook("recv", "Ws2_32.dll", "recvHook", function_index["recv"]);
 
     //HANDLE hFile = CreateFileA("evil.cpp",                // name of the write
     //    GENERIC_WRITE,          // open for writing
