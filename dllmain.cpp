@@ -74,6 +74,16 @@ Defining functions that are being hooked
     [out, optional] LPDWORD                     lpdwDisposition
     );
 
+    LSTATUS RegGetValueA(
+   [in]                HKEY    hkey,
+   [in, optional]      LPCSTR  lpSubKey,
+   [in, optional]      LPCSTR  lpValue,
+   [in, optional]      DWORD   dwFlags,
+   [out, optional]     LPDWORD pdwType,
+   [out, optional]     PVOID   pvData,
+   [in, out, optional] LPDWORD pcbData
+    );
+
     SOCKET WSAAPI socket(
     [in] int af,
     [in] int type,
@@ -105,9 +115,9 @@ Defining functions that are being hooked
 //char originalBytes[6];
 std::map<const char*, void*> fnMap;
 std::map<std::string, int> fnCounter;
-std::vector<const char*> suspicious_functions = { "CreateFileA", "VirtualAlloc", "CreateThread", "RegOpenKeyExA", "RegSetValueExA", "RegCreateKeyExA", "socket", "connect", "send", "recv"};
-std::vector<FARPROC> addresses(10);
-std::vector<char[6]> original(10);
+std::vector<const char*> suspicious_functions = { "CreateFileA", "VirtualAlloc", "CreateThread", "RegOpenKeyExA", "RegSetValueExA", "RegCreateKeyExA", "RegGetValueA", "socket", "connect", "send", "recv" };
+std::vector<FARPROC> addresses(11);
+std::vector<char[6]> original(11);
 std::map<const char*, int> function_index;
 void SetInlineHook(LPCSTR lpProcName, const char* library, const char* funcName, int index);
 HANDLE hFile;
@@ -125,119 +135,8 @@ void LOG(const char* message, T parameter) {
     WriteFile(hFile, "\n", strlen("\n"), NULL, nullptr);
 }
 
-struct HOOKING {
-    static void __stdcall CreateFileAHook(LPCSTR lpFileName, DWORD dwDesiredAccess, DWORD dwShareMode, LPSECURITY_ATTRIBUTES lpSecurityAttributes, DWORD dwCreationDisposition, DWORD dwFlagsAndAttributes, HANDLE hTemplateFile) {
 
-        LOG("\n----------intercepted call to CreateFileA----------\n\n", "");
-
-        LOG("The name of the file or device to be created or opened is ", lpFileName);
-        LOG("The requested access to the file or device ", dwDesiredAccess);
-        LOG("The requested sharing mode of the file or device is ", dwShareMode);
-
-        if (dwCreationDisposition == 2)
-            LOG("An action to take on a file or device that exists or does not exist is ", "CREATE_ALWAYS");
-        if (dwCreationDisposition == 1)
-            LOG("An action to take on a file or device that exists or does not exist is ", "CREATE_NEW");
-        if (dwCreationDisposition == 4)
-            LOG("An action to take on a file or device that exists or does not exist is ", "OPEN_ALWAYS");
-        if (dwCreationDisposition == 3)
-            LOG("An action to take on a file or device that exists or does not exist is ", "OPEN_EXISTING");
-        if (dwCreationDisposition == 5)
-            LOG("An action to take on a file or device that exists or does not exist is ", "TRUNCATE_EXISTING");
-
-        if (dwFlagsAndAttributes == 128)
-            LOG("The Flags and Attributes that user is trying for the file are ", "NORMAL");
-        if (dwFlagsAndAttributes == 16384)
-            LOG("The Flags and Attributes that user is trying for the file are ", "ENCRYPTED");
-        if (dwFlagsAndAttributes == 4096)
-            LOG("The Flags and Attributes that user is trying for the file are ", "OFFLINE");
-        if (dwFlagsAndAttributes == 2)
-            LOG("The Flags and Attributes that user is trying for the file are ", "HIDDEN");
-        if (dwFlagsAndAttributes == 256)
-            LOG("The Flags and Attributes that user is trying for the file are ", "TEMPORARY");
-
-        std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
-        ostringstream oss;
-        oss << std::chrono::duration_cast<std::chrono::nanoseconds> (end - begin).count() << ends;
-        std::string time_difference = std::string(oss.str().c_str());
-        time_difference.insert(1, ".");
-
-        LOG("Time difference since attachment of hooks in [s] is ", time_difference);
-
-        int index = function_index["CreateFileA"];
-        ++fnCounter[suspicious_functions[index]];
-        LOG("The number of times user is trying to create a file is ", fnCounter[suspicious_functions[index]]);
-        LOG("\n----------Done intercepting call to CreateFileA----------\n\n\n\n\n", "");
-
-        WriteProcessMemory(GetCurrentProcess(), (LPVOID)addresses[index], original[index], 6, NULL);
-        CreateFileA(lpFileName, dwDesiredAccess, dwShareMode, lpSecurityAttributes, dwCreationDisposition, dwFlagsAndAttributes, hTemplateFile);
-        return SetInlineHook("CreateFileA", "kernel32.dll", "CreateFileAHook", index);
-    }
-    static void __stdcall VirtualAllocHook(LPVOID lpAddress, SIZE_T dwSize, DWORD flAllocationType, DWORD flProtect)
-    {
-        LOG("\n----------intercepted call to VirtualAlloc----------\n\n", "");
-
-        LOG("The address the allocation is starting is at ", lpAddress);
-        LOG("The size of the allocation is  ", dwSize);
-
-        if (flAllocationType == 0x00001000)
-            LOG("The type of memory allocation is ", "MEMORY COMMIT");
-        if (flAllocationType == 0x00002000)
-            LOG("The type of memory allocation is ", "MEMORY RESERVE");
-        if (flAllocationType == 12288)
-            LOG("The type of memory allocation is ", "MEMORY COMMIT AND MEMORY RESERVE");
-
-        if (flProtect == 64)
-            LOG("The memory protection for the region of pages to be allocated is ", "PAGE EXECUTING AND READWRITING");
-
-        std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
-        ostringstream oss;
-        oss << std::chrono::duration_cast<std::chrono::nanoseconds> (end - begin).count() << ends;
-        std::string time_difference = std::string(oss.str().c_str());
-        time_difference.insert(1, ".");
-
-        LOG("Time difference since attachment of hooks in [s] is ", time_difference);
-
-        int index = function_index["VirtualAlloc"];
-        ++fnCounter[suspicious_functions[index]];
-        LOG("The number of times user is trying to allocate memory is ", fnCounter[suspicious_functions[index]]);
-        LOG("\n----------Done intercepting call to VirtualAlloc----------\n\n\n\n\n", "");
-
-        WriteProcessMemory(GetCurrentProcess(), (LPVOID)addresses[index], original[index], 6, NULL);
-        VirtualAlloc(lpAddress, dwSize, flAllocationType, flProtect);
-        return SetInlineHook("VirtualAlloc", "kernel32.dll", "VirtualAllocHook", index);
-    }
-    static void __stdcall CreateThreadHook(LPSECURITY_ATTRIBUTES lpThreadAttributes, SIZE_T dwStackSize, LPTHREAD_START_ROUTINE lpStartAddress, __drv_aliasesMem LPVOID lpParameter, DWORD dwCreationFlags, LPDWORD lpThreadId) {
-        LOG("\n----------intercepted call to CreateThread----------\n\n", "");
-
-        LOG("The initial size of the stack, in bytes is ", dwStackSize);
-        LOG("A pointer to the application-defined function to be executed by the thread ", lpStartAddress);
-        LOG("A pointer to a variable to be passed to the thread is ", lpParameter);
-
-        if (dwCreationFlags == 0)
-            LOG("The thread runs immediately after creation", "");
-        if (dwCreationFlags == 0x00000004)
-            LOG("The thread is created in a suspended state", "");
-
-        LOG("A pointer to a variable that receives the thread identifier", lpThreadId);
-
-        std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
-        ostringstream oss;
-        oss << std::chrono::duration_cast<std::chrono::nanoseconds> (end - begin).count() << ends;
-        std::string time_difference = std::string(oss.str().c_str());
-        time_difference.insert(1, ".");
-
-        LOG("Time difference since attachment of hooks in [s] is ", time_difference);
-
-        int index = function_index["CreateThread"];
-        ++fnCounter[suspicious_functions[index]];
-        LOG("The number of times user is trying to create a thread is ", fnCounter[suspicious_functions[index]]);
-        LOG("\n----------Done intercepting call to CreateThread----------\n\n\n\n\n", "");
-
-        WriteProcessMemory(GetCurrentProcess(), (LPVOID)addresses[index], original[index], 6, NULL);
-        CreateThread(lpThreadAttributes, dwStackSize, lpStartAddress, lpParameter, dwCreationFlags, lpThreadId);
-        return SetInlineHook("CreateThread", "kernel32.dll", "CreateThreadHook", index);
-    }
+struct REGISTRY_HOOKING {
     static void __stdcall RegOpenKeyExAHook(HKEY hKey, LPCSTR lpSubKey, DWORD ulOptions, REGSAM samDesired, PHKEY phkResult) {
 
         bool run_key = false;
@@ -347,6 +246,42 @@ struct HOOKING {
         return SetInlineHook("RegCreateKeyExA", "advapi32.dll", "RegCreateKeyExAHook", function_index["RegCreateKeyExA"]);
 
     }
+    static void __stdcall RegGetValueAHook(HKEY hkey, LPCSTR lpSubKey, LPCSTR lpValue, DWORD dwFlags, LPDWORD pdwType, PVOID pvData, LPDWORD pcbData) {
+
+        LOG("\n----------intercepted call to RegGetValueA----------\n\n", "");
+        LOG("The key opened is ", hkey);
+        LOG("The name of a subkey that this function opens or creates is ", lpSubKey);
+        LOG("The name of the Registry Value Name this function is trying to reach is ", lpValue);
+
+        if (dwFlags == 0x0000ffff)
+            LOG("The specified flags for this questions is ", "RRF_RT_ANY");
+
+        int index = function_index["RegGetValueA"];
+        ++fnCounter[suspicious_functions[index]];
+        WriteProcessMemory(GetCurrentProcess(), (LPVOID)addresses[index], original[index], 6, NULL);
+
+        char value[255];
+        DWORD BufferSize = 8192;
+        RegGetValueA(hkey, lpSubKey, lpValue, dwFlags, pdwType, (PVOID)&value, &BufferSize);
+
+
+        LOG("The Registry Value Data this function was trying to get to is ", value);
+
+        std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
+        ostringstream oss;
+        oss << std::chrono::duration_cast<std::chrono::nanoseconds> (end - begin).count() << ends;
+        std::string time_difference = std::string(oss.str().c_str());
+        time_difference.insert(1, ".");
+
+        LOG("Time difference since attachment of hooks in [s] is ", time_difference);
+
+        LOG("The number of times user is trying to get a registry value is ", fnCounter[suspicious_functions[index]]);
+        LOG("\n----------Done intercepting call to RegGetValueA----------\n\n\n\n\n", "");
+
+        return SetInlineHook("RegGetValueA", "advapi32.dll", "RegGetValueAHook", function_index["RegGetValueA"]);
+    }
+};
+struct SOCKET_HOOKING {
     static SOCKET __stdcall socketHook(int af, int type, int protocol) {
 
         LOG("\n----------intercepted call to socket----------\n\n", "");
@@ -472,6 +407,122 @@ struct HOOKING {
     }
 };
 
+struct HOOKING {
+    static void __stdcall CreateFileAHook(LPCSTR lpFileName, DWORD dwDesiredAccess, DWORD dwShareMode, LPSECURITY_ATTRIBUTES lpSecurityAttributes, DWORD dwCreationDisposition, DWORD dwFlagsAndAttributes, HANDLE hTemplateFile) {
+
+        LOG("\n----------intercepted call to CreateFileA----------\n\n", "");
+
+        LOG("The name of the file or device to be created or opened is ", lpFileName);
+        LOG("The requested access to the file or device ", dwDesiredAccess);
+        LOG("The requested sharing mode of the file or device is ", dwShareMode);
+
+        if (dwCreationDisposition == 2)
+            LOG("An action to take on a file or device that exists or does not exist is ", "CREATE_ALWAYS");
+        if (dwCreationDisposition == 1)
+            LOG("An action to take on a file or device that exists or does not exist is ", "CREATE_NEW");
+        if (dwCreationDisposition == 4)
+            LOG("An action to take on a file or device that exists or does not exist is ", "OPEN_ALWAYS");
+        if (dwCreationDisposition == 3)
+            LOG("An action to take on a file or device that exists or does not exist is ", "OPEN_EXISTING");
+        if (dwCreationDisposition == 5)
+            LOG("An action to take on a file or device that exists or does not exist is ", "TRUNCATE_EXISTING");
+
+        if (dwFlagsAndAttributes == 128)
+            LOG("The Flags and Attributes that user is trying for the file are ", "NORMAL");
+        if (dwFlagsAndAttributes == 16384)
+            LOG("The Flags and Attributes that user is trying for the file are ", "ENCRYPTED");
+        if (dwFlagsAndAttributes == 4096)
+            LOG("The Flags and Attributes that user is trying for the file are ", "OFFLINE");
+        if (dwFlagsAndAttributes == 2)
+            LOG("The Flags and Attributes that user is trying for the file are ", "HIDDEN");
+        if (dwFlagsAndAttributes == 256)
+            LOG("The Flags and Attributes that user is trying for the file are ", "TEMPORARY");
+
+        std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
+        ostringstream oss;
+        oss << std::chrono::duration_cast<std::chrono::nanoseconds> (end - begin).count() << ends;
+        std::string time_difference = std::string(oss.str().c_str());
+        time_difference.insert(1, ".");
+
+        LOG("Time difference since attachment of hooks in [s] is ", time_difference);
+
+        int index = function_index["CreateFileA"];
+        ++fnCounter[suspicious_functions[index]];
+        LOG("The number of times user is trying to create a file is ", fnCounter[suspicious_functions[index]]);
+        LOG("\n----------Done intercepting call to CreateFileA----------\n\n\n\n\n", "");
+
+        WriteProcessMemory(GetCurrentProcess(), (LPVOID)addresses[index], original[index], 6, NULL);
+        CreateFileA(lpFileName, dwDesiredAccess, dwShareMode, lpSecurityAttributes, dwCreationDisposition, dwFlagsAndAttributes, hTemplateFile);
+        return SetInlineHook("CreateFileA", "kernel32.dll", "CreateFileAHook", index);
+    }
+    static void __stdcall VirtualAllocHook(LPVOID lpAddress, SIZE_T dwSize, DWORD flAllocationType, DWORD flProtect)
+    {
+        LOG("\n----------intercepted call to VirtualAlloc----------\n\n", "");
+
+        LOG("The address the allocation is starting is at ", lpAddress);
+        LOG("The size of the allocation is  ", dwSize);
+
+        if (flAllocationType == 0x00001000)
+            LOG("The type of memory allocation is ", "MEMORY COMMIT");
+        if (flAllocationType == 0x00002000)
+            LOG("The type of memory allocation is ", "MEMORY RESERVE");
+        if (flAllocationType == 12288)
+            LOG("The type of memory allocation is ", "MEMORY COMMIT AND MEMORY RESERVE");
+
+        if (flProtect == 64)
+            LOG("The memory protection for the region of pages to be allocated is ", "PAGE EXECUTING AND READWRITING");
+
+        std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
+        ostringstream oss;
+        oss << std::chrono::duration_cast<std::chrono::nanoseconds> (end - begin).count() << ends;
+        std::string time_difference = std::string(oss.str().c_str());
+        time_difference.insert(1, ".");
+
+        LOG("Time difference since attachment of hooks in [s] is ", time_difference);
+
+        int index = function_index["VirtualAlloc"];
+        ++fnCounter[suspicious_functions[index]];
+        LOG("The number of times user is trying to allocate memory is ", fnCounter[suspicious_functions[index]]);
+        LOG("\n----------Done intercepting call to VirtualAlloc----------\n\n\n\n\n", "");
+
+        WriteProcessMemory(GetCurrentProcess(), (LPVOID)addresses[index], original[index], 6, NULL);
+        VirtualAlloc(lpAddress, dwSize, flAllocationType, flProtect);
+        return SetInlineHook("VirtualAlloc", "kernel32.dll", "VirtualAllocHook", index);
+    }
+    static void __stdcall CreateThreadHook(LPSECURITY_ATTRIBUTES lpThreadAttributes, SIZE_T dwStackSize, LPTHREAD_START_ROUTINE lpStartAddress, __drv_aliasesMem LPVOID lpParameter, DWORD dwCreationFlags, LPDWORD lpThreadId) {
+        LOG("\n----------intercepted call to CreateThread----------\n\n", "");
+
+        LOG("The initial size of the stack, in bytes is ", dwStackSize);
+        LOG("A pointer to the application-defined function to be executed by the thread ", lpStartAddress);
+        LOG("A pointer to a variable to be passed to the thread is ", lpParameter);
+
+        if (dwCreationFlags == 0)
+            LOG("The thread runs immediately after creation", "");
+        if (dwCreationFlags == 0x00000004)
+            LOG("The thread is created in a suspended state", "");
+
+        LOG("A pointer to a variable that receives the thread identifier", lpThreadId);
+
+        std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
+        ostringstream oss;
+        oss << std::chrono::duration_cast<std::chrono::nanoseconds> (end - begin).count() << ends;
+        std::string time_difference = std::string(oss.str().c_str());
+        time_difference.insert(1, ".");
+
+        LOG("Time difference since attachment of hooks in [s] is ", time_difference);
+
+        int index = function_index["CreateThread"];
+        ++fnCounter[suspicious_functions[index]];
+        LOG("The number of times user is trying to create a thread is ", fnCounter[suspicious_functions[index]]);
+        LOG("\n----------Done intercepting call to CreateThread----------\n\n\n\n\n", "");
+
+        WriteProcessMemory(GetCurrentProcess(), (LPVOID)addresses[index], original[index], 6, NULL);
+        CreateThread(lpThreadAttributes, dwStackSize, lpStartAddress, lpParameter, dwCreationFlags, lpThreadId);
+        return SetInlineHook("CreateThread", "kernel32.dll", "CreateThreadHook", index);
+    }
+
+};
+
 // we will jump to after the hook has been installed
 
 
@@ -511,13 +562,17 @@ int main() {
     fnMap["CreateFileAHook"] = (void*)&HOOKING::CreateFileAHook;
     fnMap["VirtualAllocHook"] = (void*)&HOOKING::VirtualAllocHook;
     fnMap["CreateThreadHook"] = (void*)&HOOKING::CreateThreadHook;
-    fnMap["RegOpenKeyExAHook"] = (void*)&HOOKING::RegOpenKeyExAHook;
-    fnMap["RegSetValueExAHook"] = (void*)&HOOKING::RegSetValueExAHook;
-    fnMap["RegCreateKeyExAHook"] = (void*)&HOOKING::RegCreateKeyExAHook;
-    fnMap["socketHook"] = (void*)&HOOKING::socketHook;
-    fnMap["connectHook"] = (void*)&HOOKING::connectHook;
-    fnMap["sendHook"] = (void*)&HOOKING::sendHook;
-    fnMap["recvHook"] = (void*)&HOOKING::recvHook;
+
+    fnMap["RegOpenKeyExAHook"] = (void*)&REGISTRY_HOOKING::RegOpenKeyExAHook;
+    fnMap["RegSetValueExAHook"] = (void*)&REGISTRY_HOOKING::RegSetValueExAHook;
+    fnMap["RegCreateKeyExAHook"] = (void*)&REGISTRY_HOOKING::RegCreateKeyExAHook;
+    fnMap["RegGetValueAHook"] = (void*)&REGISTRY_HOOKING::RegGetValueAHook;
+
+    fnMap["socketHook"] = (void*)&SOCKET_HOOKING::socketHook;
+    fnMap["connectHook"] = (void*)&SOCKET_HOOKING::connectHook;
+    fnMap["sendHook"] = (void*)&SOCKET_HOOKING::sendHook;
+    fnMap["recvHook"] = (void*)&SOCKET_HOOKING::recvHook;
+
     for (int i = 0; i < suspicious_functions.size(); i++)
     {
         fnCounter[suspicious_functions[i]] = 0;
@@ -545,9 +600,12 @@ int main() {
     SetInlineHook("CreateFileA", "kernel32.dll", "CreateFileAHook", function_index["CreateFileA"]);
     SetInlineHook("VirtualAlloc", "kernel32.dll", "VirtualAllocHook", function_index["VirtualAlloc"]);
     SetInlineHook("CreateThread", "kernel32.dll", "CreateThreadHook", function_index["CreateThread"]);
+
     SetInlineHook("RegOpenKeyExA", "advapi32.dll", "RegOpenKeyExAHook", function_index["RegOpenKeyExA"]);
     SetInlineHook("RegSetValueExA", "advapi32.dll", "RegSetValueExAHook", function_index["RegSetValueExA"]);
     SetInlineHook("RegCreateKeyExA", "advapi32.dll", "RegCreateKeyExAHook", function_index["RegCreateKeyExA"]);
+    SetInlineHook("RegGetValueA", "advapi32.dll", "RegGetValueAHook", function_index["RegGetValueA"]);
+
     SetInlineHook("socket", "Ws2_32.dll", "socketHook", function_index["socket"]);
     SetInlineHook("connect", "Ws2_32.dll", "connectHook", function_index["connect"]);
     SetInlineHook("send", "Ws2_32.dll", "sendHook", function_index["send"]);

