@@ -29,6 +29,10 @@ Defining functions that are being hooked
   [in]           DWORD dwFlagsAndAttributes,
   [in, optional] HANDLE hTemplateFile);
 
+  BOOL DeleteFileA(
+  [in] LPCSTR lpFileName
+   );
+
   LPVOID VirtualAlloc(
   [in, optional] LPVOID lpAddress,
   [in]           SIZE_T dwSize,
@@ -115,9 +119,9 @@ Defining functions that are being hooked
 //char originalBytes[6];
 std::map<const char*, void*> fnMap;
 std::map<std::string, int> fnCounter;
-std::vector<const char*> suspicious_functions = { "CreateFileA", "VirtualAlloc", "CreateThread", "RegOpenKeyExA", "RegSetValueExA", "RegCreateKeyExA", "RegGetValueA", "socket", "connect", "send", "recv" };
-std::vector<FARPROC> addresses(11);
-std::vector<char[6]> original(11);
+std::vector<const char*> suspicious_functions = { "CreateFileA", "DeleteFileA", "VirtualAlloc", "CreateThread", "RegOpenKeyExA", "RegSetValueExA", "RegCreateKeyExA", "RegGetValueA", "socket", "connect", "send", "recv" };
+std::vector<FARPROC> addresses(12);
+std::vector<char[6]> original(12);
 std::map<const char*, int> function_index;
 void SetInlineHook(LPCSTR lpProcName, const char* library, const char* funcName, int index);
 HANDLE hFile;
@@ -163,6 +167,14 @@ struct REGISTRY_HOOKING {
         if (run_key)
             LOG("\nExe probably trying to execute a file after every rebot through a Run key!!", "");
 
+        int index = function_index["RegOpenKeyExA"];
+        ++fnCounter[suspicious_functions[index]];
+
+        //if ((hKey == ((HKEY)(ULONG_PTR)((LONG)0x80000001)) || hKey == ((HKEY)(ULONG_PTR)((LONG)0x80000002))) &&
+        //    lpSubKey == (LPCSTR)"Software\\Microsoft\\Windows\\CurrentVersion\\Run") {
+        //    LOG("\nExe probably trying to execute a file after every rebot through a Run key!!", "");
+        //
+
         std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
         ostringstream oss;
         oss << std::chrono::duration_cast<std::chrono::nanoseconds> (end - begin).count() << ends;
@@ -170,14 +182,6 @@ struct REGISTRY_HOOKING {
         time_difference.insert(1, ".");
 
         LOG("Time difference since attachment of hooks in [s] is ", time_difference);
-
-        int index = function_index["RegOpenKeyExA"];
-        ++fnCounter[suspicious_functions[index]];
-
-        //if ((hKey == ((HKEY)(ULONG_PTR)((LONG)0x80000001)) || hKey == ((HKEY)(ULONG_PTR)((LONG)0x80000002))) &&
-        //    lpSubKey == (LPCSTR)"Software\\Microsoft\\Windows\\CurrentVersion\\Run") {
-        //    LOG("\nExe probably trying to execute a file after every rebot through a Run key!!", "");
-        //}
 
         LOG("The number of times user is trying to open a registry key is ", fnCounter[suspicious_functions[index]]);
         LOG("\n----------Done intercepting call to RegOpenKeyExA----------\n\n\n\n\n", "");
@@ -198,6 +202,9 @@ struct REGISTRY_HOOKING {
             LOG("The type of data set is ", "REG_SZ");
         LOG("The data to be stored is ", lpData);
 
+        int index = function_index["RegSetValueExA"];
+        ++fnCounter[suspicious_functions[index]];
+
         std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
         ostringstream oss;
         oss << std::chrono::duration_cast<std::chrono::nanoseconds> (end - begin).count() << ends;
@@ -206,8 +213,6 @@ struct REGISTRY_HOOKING {
 
         LOG("Time difference since attachment of hooks in [s] is ", time_difference);
 
-        int index = function_index["RegSetValueExA"];
-        ++fnCounter[suspicious_functions[index]];
         LOG("The number of times user is trying to set a registry key is ", fnCounter[suspicious_functions[index]]);
         LOG("\n----------Done intercepting call to RegSetValueExA----------\n\n\n\n\n", "");
 
@@ -227,6 +232,9 @@ struct REGISTRY_HOOKING {
         if (samDesired == 0xF003F)
             LOG("A mask that specifies the desired access rights to the key to be opened is ", "KEY_ALL_ACCESS");
 
+        int index = function_index["RegCreateKeyExA"];
+        ++fnCounter[suspicious_functions[index]];
+
         std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
         ostringstream oss;
         oss << std::chrono::duration_cast<std::chrono::nanoseconds> (end - begin).count() << ends;
@@ -235,8 +243,6 @@ struct REGISTRY_HOOKING {
 
         LOG("Time difference since attachment of hooks in [s] is ", time_difference);
 
-        int index = function_index["RegCreateKeyExA"];
-        ++fnCounter[suspicious_functions[index]];
         LOG("The number of times user is trying to create a registry key is ", fnCounter[suspicious_functions[index]]);
         LOG("\n----------Done intercepting call to RegCreateKeyExA----------\n\n\n\n\n", "");
 
@@ -264,9 +270,6 @@ struct REGISTRY_HOOKING {
         DWORD BufferSize = 8192;
         RegGetValueA(hkey, lpSubKey, lpValue, dwFlags, pdwType, (PVOID)&value, &BufferSize);
 
-
-        LOG("The Registry Value Data this function was trying to get to is ", value);
-
         std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
         ostringstream oss;
         oss << std::chrono::duration_cast<std::chrono::nanoseconds> (end - begin).count() << ends;
@@ -275,12 +278,15 @@ struct REGISTRY_HOOKING {
 
         LOG("Time difference since attachment of hooks in [s] is ", time_difference);
 
+        LOG("The Registry Value Data this function was trying to get to is ", value);
+
         LOG("The number of times user is trying to get a registry value is ", fnCounter[suspicious_functions[index]]);
         LOG("\n----------Done intercepting call to RegGetValueA----------\n\n\n\n\n", "");
 
         return SetInlineHook("RegGetValueA", "advapi32.dll", "RegGetValueAHook", function_index["RegGetValueA"]);
     }
 };
+
 struct SOCKET_HOOKING {
     static SOCKET __stdcall socketHook(int af, int type, int protocol) {
 
@@ -301,6 +307,9 @@ struct SOCKET_HOOKING {
         if (protocol == 17)
             LOG("The protocol to be used is ", "UDP");
 
+        int index = function_index["socket"];
+        ++fnCounter[suspicious_functions[index]];
+
         std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
         ostringstream oss;
         oss << std::chrono::duration_cast<std::chrono::nanoseconds> (end - begin).count() << ends;
@@ -309,11 +318,8 @@ struct SOCKET_HOOKING {
 
         LOG("Time difference since attachment of hooks in [s] is ", time_difference);
 
-        int index = function_index["socket"];
-        ++fnCounter[suspicious_functions[index]];
         LOG("The number of times user is trying to create a socket is ", fnCounter[suspicious_functions[index]]);
         LOG("\n----------Done intercepting call to socket----------\n\n\n\n\n", "");
-
 
         WriteProcessMemory(GetCurrentProcess(), (LPVOID)addresses[index], original[index], 6, NULL);
         SOCKET sock = socket(af, type, protocol);
@@ -332,6 +338,9 @@ struct SOCKET_HOOKING {
         LOG("The address socket is trying to connect to is ", ip);
         LOG("The port socket is using to connect is ", port);
 
+        int index = function_index["connect"];
+        ++fnCounter[suspicious_functions[index]];
+
         std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
         ostringstream oss;
         oss << std::chrono::duration_cast<std::chrono::nanoseconds> (end - begin).count() << ends;
@@ -340,8 +349,6 @@ struct SOCKET_HOOKING {
 
         LOG("Time difference since attachment of hooks in [s] is ", time_difference);
 
-        int index = function_index["connect"];
-        ++fnCounter[suspicious_functions[index]];
         LOG("The number of times user is trying to connect to another socket is ", fnCounter[suspicious_functions[index]]);
         LOG("\n----------Done intercepting call to connect----------\n\n\n\n\n", "");
 
@@ -357,6 +364,9 @@ struct SOCKET_HOOKING {
         LOG("The buffer wanted to be send is ", std::string(buff));
         LOG("The length of the buffer is ", len);
 
+        int index = function_index["send"];
+        ++fnCounter[suspicious_functions[index]];
+
         std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
         ostringstream oss;
         oss << std::chrono::duration_cast<std::chrono::nanoseconds> (end - begin).count() << ends;
@@ -365,8 +375,6 @@ struct SOCKET_HOOKING {
 
         LOG("Time difference since attachment of hooks in [s] is ", time_difference);
 
-        int index = function_index["send"];
-        ++fnCounter[suspicious_functions[index]];
         LOG("The number of times user is trying to send message via socket is ", fnCounter[suspicious_functions[index]]);
         LOG("\n----------Done intercepting call to send----------\n\n\n\n\n", "");
 
@@ -389,9 +397,6 @@ struct SOCKET_HOOKING {
         size_t length = strlen(buff);
         LOG("The length of the buffer is ", length);
 
-        ++fnCounter[suspicious_functions[index]];
-        LOG("The number of times user is trying to receive a buffer is ", fnCounter[suspicious_functions[index]]);
-
         std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
         ostringstream oss;
         oss << std::chrono::duration_cast<std::chrono::nanoseconds> (end - begin).count() << ends;
@@ -399,6 +404,9 @@ struct SOCKET_HOOKING {
         time_difference.insert(1, ".");
 
         LOG("Time difference since attachment of hooks in [s] is ", time_difference);
+
+        ++fnCounter[suspicious_functions[index]];
+        LOG("The number of times user is trying to receive a buffer is ", fnCounter[suspicious_functions[index]]);
 
         LOG("\n----------Done intercepting call to recv----------\n\n\n\n\n", "");
 
@@ -438,6 +446,9 @@ struct HOOKING {
         if (dwFlagsAndAttributes == 256)
             LOG("The Flags and Attributes that user is trying for the file are ", "TEMPORARY");
 
+        int index = function_index["CreateFileA"];
+        ++fnCounter[suspicious_functions[index]];
+
         std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
         ostringstream oss;
         oss << std::chrono::duration_cast<std::chrono::nanoseconds> (end - begin).count() << ends;
@@ -446,14 +457,36 @@ struct HOOKING {
 
         LOG("Time difference since attachment of hooks in [s] is ", time_difference);
 
-        int index = function_index["CreateFileA"];
-        ++fnCounter[suspicious_functions[index]];
         LOG("The number of times user is trying to create a file is ", fnCounter[suspicious_functions[index]]);
         LOG("\n----------Done intercepting call to CreateFileA----------\n\n\n\n\n", "");
 
         WriteProcessMemory(GetCurrentProcess(), (LPVOID)addresses[index], original[index], 6, NULL);
         CreateFileA(lpFileName, dwDesiredAccess, dwShareMode, lpSecurityAttributes, dwCreationDisposition, dwFlagsAndAttributes, hTemplateFile);
         return SetInlineHook("CreateFileA", "kernel32.dll", "CreateFileAHook", index);
+    }
+    static int __stdcall DeleteFileAHook(LPCSTR lpFileName) {
+
+        LOG("\n----------intercepted call to DeleteFileA----------\n\n", "");
+        LOG("The path to the file that is to be deleted is ", lpFileName);
+
+        int index = function_index["DeleteFileA"];
+        ++fnCounter[suspicious_functions[index]];
+
+        std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
+        ostringstream oss;
+        oss << std::chrono::duration_cast<std::chrono::nanoseconds> (end - begin).count() << ends;
+        std::string time_difference = std::string(oss.str().c_str());
+        time_difference.insert(1, ".");
+
+        LOG("Time difference since attachment of hooks in [s] is ", time_difference);
+
+        LOG("The number of times user is trying to delete a file is ", fnCounter[suspicious_functions[index]]);
+        LOG("\n----------Done intercepting call to DeleteFileA----------\n\n\n\n\n", "");
+
+        WriteProcessMemory(GetCurrentProcess(), (LPVOID)addresses[index], original[index], 6, NULL);
+        int success = DeleteFileA(lpFileName);
+        SetInlineHook("DeleteFileA", "kernel32.dll", "DeleteFileAHook", index);
+        return success;
     }
     static void __stdcall VirtualAllocHook(LPVOID lpAddress, SIZE_T dwSize, DWORD flAllocationType, DWORD flProtect)
     {
@@ -472,6 +505,9 @@ struct HOOKING {
         if (flProtect == 64)
             LOG("The memory protection for the region of pages to be allocated is ", "PAGE EXECUTING AND READWRITING");
 
+        int index = function_index["VirtualAlloc"];
+        ++fnCounter[suspicious_functions[index]];
+
         std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
         ostringstream oss;
         oss << std::chrono::duration_cast<std::chrono::nanoseconds> (end - begin).count() << ends;
@@ -480,8 +516,6 @@ struct HOOKING {
 
         LOG("Time difference since attachment of hooks in [s] is ", time_difference);
 
-        int index = function_index["VirtualAlloc"];
-        ++fnCounter[suspicious_functions[index]];
         LOG("The number of times user is trying to allocate memory is ", fnCounter[suspicious_functions[index]]);
         LOG("\n----------Done intercepting call to VirtualAlloc----------\n\n\n\n\n", "");
 
@@ -503,6 +537,9 @@ struct HOOKING {
 
         LOG("A pointer to a variable that receives the thread identifier", lpThreadId);
 
+        int index = function_index["CreateThread"];
+        ++fnCounter[suspicious_functions[index]];
+
         std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
         ostringstream oss;
         oss << std::chrono::duration_cast<std::chrono::nanoseconds> (end - begin).count() << ends;
@@ -511,8 +548,6 @@ struct HOOKING {
 
         LOG("Time difference since attachment of hooks in [s] is ", time_difference);
 
-        int index = function_index["CreateThread"];
-        ++fnCounter[suspicious_functions[index]];
         LOG("The number of times user is trying to create a thread is ", fnCounter[suspicious_functions[index]]);
         LOG("\n----------Done intercepting call to CreateThread----------\n\n\n\n\n", "");
 
@@ -560,6 +595,7 @@ void SetInlineHook(LPCSTR lpProcName, LPCSTR library, const char* funcName, int 
 int main() {
 
     fnMap["CreateFileAHook"] = (void*)&HOOKING::CreateFileAHook;
+    fnMap["DeleteFileAHook"] = (void*)&HOOKING::DeleteFileAHook;
     fnMap["VirtualAllocHook"] = (void*)&HOOKING::VirtualAllocHook;
     fnMap["CreateThreadHook"] = (void*)&HOOKING::CreateThreadHook;
 
@@ -598,6 +634,7 @@ int main() {
     //}
 
     SetInlineHook("CreateFileA", "kernel32.dll", "CreateFileAHook", function_index["CreateFileA"]);
+    SetInlineHook("DeleteFileA", "kernel32.dll", "DeleteFileAHook", function_index["DeleteFileA"]);
     SetInlineHook("VirtualAlloc", "kernel32.dll", "VirtualAllocHook", function_index["VirtualAlloc"]);
     SetInlineHook("CreateThread", "kernel32.dll", "CreateThreadHook", function_index["CreateThread"]);
 

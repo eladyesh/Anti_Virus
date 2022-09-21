@@ -138,4 +138,6 @@ int main()
     RegGetValueA(HKEY_LOCAL_MACHINE, "SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion", "SystemRoot", RRF_RT_ANY, NULL, (PVOID)&value, &BufferSize);
 
     int zero = CreateSocket();
+    if (DeleteFileA("D:\\Cyber\\YB_CYBER\\project\\FinalProject\\De_Bug\\De_Bug\\hello.txt") != 0)
+        printf("success in deleting hello.txt");
 }
