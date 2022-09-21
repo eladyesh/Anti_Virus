@@ -140,4 +140,16 @@ int main()
     int zero = CreateSocket();
     if (DeleteFileA("D:\\Cyber\\YB_CYBER\\project\\FinalProject\\De_Bug\\De_Bug\\hello.txt") != 0)
         printf("success in deleting hello.txt");
+
+    // Write data to the file
+    std::string strText = "Hello World!"; // For C use LPSTR (char*) or LPWSTR (wchar_t*)
+    //DWORD bytesWritten;
+    OVERLAPPED  ov{ 0 };
+    LPOVERLAPPED_COMPLETION_ROUTINE l{ 0 };
+    WriteFileEx(
+        hFile,            // Handle to the file
+        strText.c_str(),  // Buffer to write
+        strText.size(),   // Buffer size
+        &ov, // Overlapped
+        l);
 }

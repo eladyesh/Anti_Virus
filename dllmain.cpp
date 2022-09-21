@@ -33,6 +33,14 @@ Defining functions that are being hooked
   [in] LPCSTR lpFileName
    );
 
+   BOOL WriteFileEx(
+  [in]           HANDLE                          hFile,
+  [in, optional] LPCVOID                         lpBuffer,
+  [in]           DWORD                           nNumberOfBytesToWrite,
+  [in, out]      LPOVERLAPPED                    lpOverlapped,
+  [in]           LPOVERLAPPED_COMPLETION_ROUTINE lpCompletionRoutine
+);
+
   LPVOID VirtualAlloc(
   [in, optional] LPVOID lpAddress,
   [in]           SIZE_T dwSize,
@@ -119,9 +127,9 @@ Defining functions that are being hooked
 //char originalBytes[6];
 std::map<const char*, void*> fnMap;
 std::map<std::string, int> fnCounter;
-std::vector<const char*> suspicious_functions = { "CreateFileA", "DeleteFileA", "VirtualAlloc", "CreateThread", "RegOpenKeyExA", "RegSetValueExA", "RegCreateKeyExA", "RegGetValueA", "socket", "connect", "send", "recv" };
-std::vector<FARPROC> addresses(12);
-std::vector<char[6]> original(12);
+std::vector<const char*> suspicious_functions = { "CreateFileA", "DeleteFileA", "WriteFileEx", "VirtualAlloc", "CreateThread", "RegOpenKeyExA", "RegSetValueExA", "RegCreateKeyExA", "RegGetValueA", "socket", "connect", "send", "recv" };
+std::vector<FARPROC> addresses(13);
+std::vector<char[6]> original(13);
 std::map<const char*, int> function_index;
 void SetInlineHook(LPCSTR lpProcName, const char* library, const char* funcName, int index);
 HANDLE hFile;
@@ -488,6 +496,32 @@ struct HOOKING {
         SetInlineHook("DeleteFileA", "kernel32.dll", "DeleteFileAHook", index);
         return success;
     }
+    static int __stdcall WriteFileExHook(HANDLE hFile, LPCVOID lpBuffer, DWORD nNumberOfBytesToWrite, LPOVERLAPPED lpOverlapped, LPOVERLAPPED_COMPLETION_ROUTINE lpCompletionRoutine) {
+
+        LOG("\n----------intercepted call to WriteFileEx----------\n\n", "");
+        LOG("The handle to this file is ", hFile);
+        LOG("The buffer being written to the file is ", (LPCSTR)lpBuffer);
+        LOG("The size of the buffer is ", nNumberOfBytesToWrite);
+
+        int index = function_index["WriteFileEx"];
+        ++fnCounter[suspicious_functions[index]];
+
+        std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
+        ostringstream oss;
+        oss << std::chrono::duration_cast<std::chrono::nanoseconds> (end - begin).count() << ends;
+        std::string time_difference = std::string(oss.str().c_str());
+        time_difference.insert(1, ".");
+
+        LOG("Time difference since attachment of hooks in [s] is ", time_difference);
+
+        LOG("The number of times user is trying to write to a file is ", fnCounter[suspicious_functions[index]]);
+        LOG("\n----------Done intercepting call to WriteFileEx----------\n\n\n\n\n", "");
+
+        WriteProcessMemory(GetCurrentProcess(), (LPVOID)addresses[index], original[index], 6, NULL);
+        int b = WriteFileEx(hFile, lpBuffer, nNumberOfBytesToWrite, lpOverlapped, lpCompletionRoutine);
+        SetInlineHook("WriteFileEx", "kernel32.dll", "WriteFileExHook", index);
+        return b;
+    }
     static void __stdcall VirtualAllocHook(LPVOID lpAddress, SIZE_T dwSize, DWORD flAllocationType, DWORD flProtect)
     {
         LOG("\n----------intercepted call to VirtualAlloc----------\n\n", "");
@@ -596,6 +630,7 @@ int main() {
 
     fnMap["CreateFileAHook"] = (void*)&HOOKING::CreateFileAHook;
     fnMap["DeleteFileAHook"] = (void*)&HOOKING::DeleteFileAHook;
+    fnMap["WriteFileExHook"] = (void*)&HOOKING::WriteFileExHook;
     fnMap["VirtualAllocHook"] = (void*)&HOOKING::VirtualAllocHook;
     fnMap["CreateThreadHook"] = (void*)&HOOKING::CreateThreadHook;
 
@@ -635,6 +670,7 @@ int main() {
 
     SetInlineHook("CreateFileA", "kernel32.dll", "CreateFileAHook", function_index["CreateFileA"]);
     SetInlineHook("DeleteFileA", "kernel32.dll", "DeleteFileAHook", function_index["DeleteFileA"]);
+    SetInlineHook("WriteFileEx", "kernel32.dll", "WriteFileExHook", function_index["WriteFileEx"]);
     SetInlineHook("VirtualAlloc", "kernel32.dll", "VirtualAllocHook", function_index["VirtualAlloc"]);
     SetInlineHook("CreateThread", "kernel32.dll", "CreateThreadHook", function_index["CreateThread"]);
 
