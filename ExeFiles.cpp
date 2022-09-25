@@ -84,8 +84,7 @@ int main()
 {
 
     Sleep(2000);
-
-    HANDLE hFile = CreateFileA("evil.cpp",                // name of the write
+    HANDLE hFile = CreateFileA("C:\\Windows\\System32\\evil.cpp",                // name of the write
         GENERIC_WRITE,          // open for writing
         0,                      // do not share
         NULL,                   // default security
@@ -93,8 +92,11 @@ int main()
         FILE_ATTRIBUTE_NORMAL,  // normal file
         NULL);                  // no attr. template
 
-    if (!(hFile == INVALID_HANDLE_VALUE))
+    if (!(hFile == INVALID_HANDLE_VALUE)) {
+        DWORD err = GetLastError();
+        std::cout << "err " << err << std::endl;
         printf("Could not open file\n");
+    }
     else
         printf("Successfully opened file\n");
 
@@ -152,4 +154,6 @@ int main()
         strText.size(),   // Buffer size
         &ov, // Overlapped
         l);
+
+    return 0;
 }

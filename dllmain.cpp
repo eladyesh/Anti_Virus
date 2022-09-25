@@ -131,8 +131,53 @@ std::vector<const char*> suspicious_functions = { "CreateFileA", "DeleteFileA", 
 std::vector<FARPROC> addresses(13);
 std::vector<char[6]> original(13);
 std::map<const char*, int> function_index;
+
+std::vector<std::string> files(1);
+std::vector<std::string> ports(1);
+std::vector<std::string> keys(1);
+
 void SetInlineHook(LPCSTR lpProcName, const char* library, const char* funcName, int index);
 HANDLE hFile;
+int CountString(std::string s, char a) {
+    int count = 0;
+    for (size_t i = 0; i < s.length(); i++)
+    {
+        if (s[i] == a) count++;
+    }
+    return count;
+}
+
+bool CompareStrings(std::string s1, std::string s2) {
+
+    for (size_t i = 0; i < s1.length(); i++)
+    {
+        if ((char)s1[i] != (char)s2[i]) return false;
+    }
+    return true;
+}
+bool contains(std::vector<std::string> vec, std::string elem, bool Compare)
+{
+    bool result = false;
+    if (Compare) {
+        for (std::string x : vec) {
+            if (CompareStrings(elem, x)) return true;
+        }
+    }
+    else {
+        ostringstream oss;
+        oss << elem << ends;
+        for (std::string x : vec)
+        {
+            if (elem.find(x) != std::string::npos && CountString(std::string(oss.str()), '\\') > 0)
+            {
+                result = true;
+                break;
+            }
+        }
+    }
+    return result;
+}
+
 std::chrono::steady_clock::time_point begin;
 
 template<typename T>
@@ -155,14 +200,10 @@ struct REGISTRY_HOOKING {
         LOG("\n----------intercepted call to RegOpenKeyExA----------\n\n", "");
         if (hKey == ((HKEY)(ULONG_PTR)((LONG)0x80000002))) {
             LOG("The key opened is ", "HKEY_LOCAL_MACHINE");
-            if (std::string(lpSubKey) == std::string("Software\\Microsoft\\Windows\\CurrentVersion\\Run"))
-                run_key = true;
         }
 
         if (hKey == ((HKEY)(ULONG_PTR)((LONG)0x80000001))) {
             LOG("The key opened is ", "HKEY_CURRENT_USER");
-            if (std::string(lpSubKey) == std::string("Software\\Microsoft\\Windows\\CurrentVersion\\Run"))
-                run_key = true;
         }
 
 
@@ -171,9 +212,9 @@ struct REGISTRY_HOOKING {
 
         if (samDesired == 0xF003F)
             LOG("A mask that specifies the desired access rights to the key to be opened is ", "KEY_ALL_ACCESS");
-
-        if (run_key)
-            LOG("\nExe probably trying to execute a file after every rebot through a Run key!!", "");
+            
+        if (contains(keys, std::string(lpSubKey), true))
+            LOG("EXE is trying to access regisry run key!", "");
 
         int index = function_index["RegOpenKeyExA"];
         ++fnCounter[suspicious_functions[index]];
@@ -341,18 +382,26 @@ struct SOCKET_HOOKING {
         uint16_t port;
 
         port = htons(sin->sin_port);
+
+        ostringstream oss;
+        oss << port << ends;
+
         char* ip = inet_ntoa((*sin).sin_addr);
         LOG("\n----------intercepted call to connect----------\n\n", "");
+
+        if (contains(ports, std::string(oss.str()), true))
+            LOG("EXE is trying to connect through a suspicious port!", "");
+
         LOG("The address socket is trying to connect to is ", ip);
         LOG("The port socket is using to connect is ", port);
 
         int index = function_index["connect"];
         ++fnCounter[suspicious_functions[index]];
 
+        ostringstream oss2;
         std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
-        ostringstream oss;
-        oss << std::chrono::duration_cast<std::chrono::nanoseconds> (end - begin).count() << ends;
-        std::string time_difference = std::string(oss.str().c_str());
+        oss2 << std::chrono::duration_cast<std::chrono::nanoseconds> (end - begin).count() << ends;
+        std::string time_difference = std::string(oss2.str().c_str());
         time_difference.insert(1, ".");
 
         LOG("Time difference since attachment of hooks in [s] is ", time_difference);
@@ -427,6 +476,9 @@ struct HOOKING {
     static void __stdcall CreateFileAHook(LPCSTR lpFileName, DWORD dwDesiredAccess, DWORD dwShareMode, LPSECURITY_ATTRIBUTES lpSecurityAttributes, DWORD dwCreationDisposition, DWORD dwFlagsAndAttributes, HANDLE hTemplateFile) {
 
         LOG("\n----------intercepted call to CreateFileA----------\n\n", "");
+
+        if (contains(files, std::string(lpFileName), false))
+            LOG("EXE file is tring to reach system32 folder!", "");
 
         LOG("The name of the file or device to be created or opened is ", lpFileName);
         LOG("The requested access to the file or device ", dwDesiredAccess);
@@ -627,6 +679,40 @@ void SetInlineHook(LPCSTR lpProcName, LPCSTR library, const char* funcName, int 
 }
 
 int main() {
+
+    DWORD nRead;
+    HANDLE htxtFile = CreateFile(L"parameters.txt", FILE_SHARE_READ, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+    std::vector<std::string> parameters(1);
+    char buff[450] = { 0 };
+    std::string s = "";
+    if (ReadFile(htxtFile, buff, 450, &nRead, 0) == FALSE) {
+        DWORD err = GetLastError();
+        std::cout << "ReadFile err: " << err << std::endl;
+    }
+    for (char a : buff) {
+        if (a != '\n' && a != '\r')
+            s += a;
+        else {
+            parameters.push_back(s);
+            s = "";
+        }
+    }
+    for (size_t i = 0; i < parameters.size(); i++) {
+        if (parameters[i].empty()) {
+            parameters.erase(parameters.begin() + i);
+        }
+    }
+    for (size_t i = 0; i < parameters.size(); i++) {
+        if (isdigit(parameters[i][0])) {
+            ports.push_back(parameters[i]);
+        }
+        else if (isalpha(parameters[i][0]) && parameters[i].length() > 30) {
+            keys.push_back(parameters[i]);
+        }
+        else if (isalpha(parameters[i][0]) && parameters[i].length() < 30) {
+            files.push_back(parameters[i]);
+        }
+    }
 
     fnMap["CreateFileAHook"] = (void*)&HOOKING::CreateFileAHook;
     fnMap["DeleteFileAHook"] = (void*)&HOOKING::DeleteFileAHook;
