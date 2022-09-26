@@ -1,5 +1,7 @@
 #include "pch.h"
+#include "cpu.h"
 #include <Windows.h>
+#include <thread>
 #include <iostream>
 #include <map>
 #include <string>
@@ -146,7 +148,6 @@ int CountString(std::string s, char a) {
     }
     return count;
 }
-
 bool CompareStrings(std::string s1, std::string s2) {
 
     for (size_t i = 0; i < s1.length(); i++)
@@ -231,6 +232,8 @@ struct REGISTRY_HOOKING {
         time_difference.insert(1, ".");
 
         LOG("Time difference since attachment of hooks in [s] is ", time_difference);
+        double cpuUsage = getCurrentValue();
+        LOG("The current cpu usage percantage [%] is ", cpuUsage);
 
         LOG("The number of times user is trying to open a registry key is ", fnCounter[suspicious_functions[index]]);
         LOG("\n----------Done intercepting call to RegOpenKeyExA----------\n\n\n\n\n", "");
@@ -261,6 +264,8 @@ struct REGISTRY_HOOKING {
         time_difference.insert(1, ".");
 
         LOG("Time difference since attachment of hooks in [s] is ", time_difference);
+        double cpuUsage = getCurrentValue();
+        LOG("The current cpu usage percantage [%] is ", cpuUsage);
 
         LOG("The number of times user is trying to set a registry key is ", fnCounter[suspicious_functions[index]]);
         LOG("\n----------Done intercepting call to RegSetValueExA----------\n\n\n\n\n", "");
@@ -291,6 +296,8 @@ struct REGISTRY_HOOKING {
         time_difference.insert(1, ".");
 
         LOG("Time difference since attachment of hooks in [s] is ", time_difference);
+        double cpuUsage = getCurrentValue();
+        LOG("The current cpu usage percantage [%] is ", cpuUsage);
 
         LOG("The number of times user is trying to create a registry key is ", fnCounter[suspicious_functions[index]]);
         LOG("\n----------Done intercepting call to RegCreateKeyExA----------\n\n\n\n\n", "");
@@ -326,6 +333,8 @@ struct REGISTRY_HOOKING {
         time_difference.insert(1, ".");
 
         LOG("Time difference since attachment of hooks in [s] is ", time_difference);
+        double cpuUsage = getCurrentValue();
+        LOG("The current cpu usage percantage [%] is ", cpuUsage);
 
         LOG("The Registry Value Data this function was trying to get to is ", value);
 
@@ -366,6 +375,8 @@ struct SOCKET_HOOKING {
         time_difference.insert(1, ".");
 
         LOG("Time difference since attachment of hooks in [s] is ", time_difference);
+        double cpuUsage = getCurrentValue();
+        LOG("The current cpu usage percantage [%] is ", cpuUsage);
 
         LOG("The number of times user is trying to create a socket is ", fnCounter[suspicious_functions[index]]);
         LOG("\n----------Done intercepting call to socket----------\n\n\n\n\n", "");
@@ -405,6 +416,8 @@ struct SOCKET_HOOKING {
         time_difference.insert(1, ".");
 
         LOG("Time difference since attachment of hooks in [s] is ", time_difference);
+        double cpuUsage = getCurrentValue();
+        LOG("The current cpu usage percantage [%] is ", cpuUsage);
 
         LOG("The number of times user is trying to connect to another socket is ", fnCounter[suspicious_functions[index]]);
         LOG("\n----------Done intercepting call to connect----------\n\n\n\n\n", "");
@@ -431,6 +444,8 @@ struct SOCKET_HOOKING {
         time_difference.insert(1, ".");
 
         LOG("Time difference since attachment of hooks in [s] is ", time_difference);
+        double cpuUsage = getCurrentValue();
+        LOG("The current cpu usage percantage [%] is ", cpuUsage);
 
         LOG("The number of times user is trying to send message via socket is ", fnCounter[suspicious_functions[index]]);
         LOG("\n----------Done intercepting call to send----------\n\n\n\n\n", "");
@@ -461,6 +476,8 @@ struct SOCKET_HOOKING {
         time_difference.insert(1, ".");
 
         LOG("Time difference since attachment of hooks in [s] is ", time_difference);
+        double cpuUsage = getCurrentValue();
+        LOG("The current cpu usage percantage [%] is ", cpuUsage);
 
         ++fnCounter[suspicious_functions[index]];
         LOG("The number of times user is trying to receive a buffer is ", fnCounter[suspicious_functions[index]]);
@@ -516,6 +533,8 @@ struct HOOKING {
         time_difference.insert(1, ".");
 
         LOG("Time difference since attachment of hooks in [s] is ", time_difference);
+        double cpuUsage = getCurrentValue();
+        LOG("The current cpu usage percantage [%] is ", cpuUsage);
 
         LOG("The number of times user is trying to create a file is ", fnCounter[suspicious_functions[index]]);
         LOG("\n----------Done intercepting call to CreateFileA----------\n\n\n\n\n", "");
@@ -541,6 +560,8 @@ struct HOOKING {
         LOG("Time difference since attachment of hooks in [s] is ", time_difference);
 
         LOG("The number of times user is trying to delete a file is ", fnCounter[suspicious_functions[index]]);
+        double cpuUsage = getCurrentValue();
+        LOG("The current cpu usage percantage [%] is ", cpuUsage);
         LOG("\n----------Done intercepting call to DeleteFileA----------\n\n\n\n\n", "");
 
         WriteProcessMemory(GetCurrentProcess(), (LPVOID)addresses[index], original[index], 6, NULL);
@@ -565,6 +586,8 @@ struct HOOKING {
         time_difference.insert(1, ".");
 
         LOG("Time difference since attachment of hooks in [s] is ", time_difference);
+        double cpuUsage = getCurrentValue();
+        LOG("The current cpu usage percantage [%] is ", cpuUsage);
 
         LOG("The number of times user is trying to write to a file is ", fnCounter[suspicious_functions[index]]);
         LOG("\n----------Done intercepting call to WriteFileEx----------\n\n\n\n\n", "");
@@ -601,6 +624,8 @@ struct HOOKING {
         time_difference.insert(1, ".");
 
         LOG("Time difference since attachment of hooks in [s] is ", time_difference);
+        double cpuUsage = getCurrentValue();
+        LOG("The current cpu usage percantage [%] is ", cpuUsage);
 
         LOG("The number of times user is trying to allocate memory is ", fnCounter[suspicious_functions[index]]);
         LOG("\n----------Done intercepting call to VirtualAlloc----------\n\n\n\n\n", "");
@@ -633,6 +658,8 @@ struct HOOKING {
         time_difference.insert(1, ".");
 
         LOG("Time difference since attachment of hooks in [s] is ", time_difference);
+        double cpuUsage = getCurrentValue();
+        LOG("The current cpu usage percantage [%] is ", cpuUsage);
 
         LOG("The number of times user is trying to create a thread is ", fnCounter[suspicious_functions[index]]);
         LOG("\n----------Done intercepting call to CreateThread----------\n\n\n\n\n", "");
@@ -641,7 +668,6 @@ struct HOOKING {
         CreateThread(lpThreadAttributes, dwStackSize, lpStartAddress, lpParameter, dwCreationFlags, lpThreadId);
         return SetInlineHook("CreateThread", "kernel32.dll", "CreateThreadHook", index);
     }
-
 };
 
 // we will jump to after the hook has been installed
@@ -769,6 +795,9 @@ int main() {
     SetInlineHook("connect", "Ws2_32.dll", "connectHook", function_index["connect"]);
     SetInlineHook("send", "Ws2_32.dll", "sendHook", function_index["send"]);
     SetInlineHook("recv", "Ws2_32.dll", "recvHook", function_index["recv"]);
+
+    // cpu usage init function
+    init();
 
     //HANDLE hFile = CreateFileA("evil.cpp",                // name of the write
     //    GENERIC_WRITE,          // open for writing
