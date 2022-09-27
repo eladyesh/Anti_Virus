@@ -84,7 +84,7 @@ int main()
 {
 
     Sleep(2000);
-    HANDLE hFile = CreateFileA("C:\\Windows\\System32\\evil.cpp",                // name of the write
+    HANDLE hFile = CreateFileA("C:\\Program Files\\evil.cpp",                // name of the write
         GENERIC_WRITE,          // open for writing
         0,                      // do not share
         NULL,                   // default security

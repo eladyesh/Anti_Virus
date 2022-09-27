@@ -165,11 +165,9 @@ bool contains(std::vector<std::string> vec, std::string elem, bool Compare)
         }
     }
     else {
-        ostringstream oss;
-        oss << elem << ends;
-        for (std::string x : vec)
+        for (size_t i = 1; i < vec.size(); i++)
         {
-            if (elem.find(x) != std::string::npos && CountString(std::string(oss.str()), '\\') > 0)
+            if (elem.find(vec[i]) != std::string::npos)
             {
                 result = true;
                 break;
@@ -706,6 +704,8 @@ void SetInlineHook(LPCSTR lpProcName, LPCSTR library, const char* funcName, int 
 
 int main() {
 
+    init();
+
     DWORD nRead;
     HANDLE htxtFile = CreateFile(L"parameters.txt", FILE_SHARE_READ, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
     std::vector<std::string> parameters(1);
@@ -796,8 +796,6 @@ int main() {
     SetInlineHook("send", "Ws2_32.dll", "sendHook", function_index["send"]);
     SetInlineHook("recv", "Ws2_32.dll", "recvHook", function_index["recv"]);
 
-    // cpu usage init function
-    init();
 
     //HANDLE hFile = CreateFileA("evil.cpp",                // name of the write
     //    GENERIC_WRITE,          // open for writing
