@@ -213,7 +213,7 @@ struct REGISTRY_HOOKING {
             LOG("A mask that specifies the desired access rights to the key to be opened is ", "KEY_ALL_ACCESS");
             
         if (contains(keys, std::string(lpSubKey), true))
-            LOG("EXE is trying to access regisry run key!", "");
+            LOG("EXE is trying to access a suspicious registry key!", "");
 
         int index = function_index["RegOpenKeyExA"];
         ++fnCounter[suspicious_functions[index]];
@@ -493,7 +493,7 @@ struct HOOKING {
         LOG("\n----------intercepted call to CreateFileA----------\n\n", "");
 
         if (contains(files, std::string(lpFileName), false))
-            LOG("EXE file is tring to reach system32 folder!", "");
+            LOG("EXE file is tring to reach a suscpicous folder!", "");
 
         LOG("The name of the file or device to be created or opened is ", lpFileName);
         LOG("The requested access to the file or device ", dwDesiredAccess);
@@ -704,14 +704,12 @@ void SetInlineHook(LPCSTR lpProcName, LPCSTR library, const char* funcName, int 
 
 int main() {
 
-    init();
-
     DWORD nRead;
     HANDLE htxtFile = CreateFile(L"parameters.txt", FILE_SHARE_READ, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
     std::vector<std::string> parameters(1);
-    char buff[450] = { 0 };
+    char buff[500] = { 0 };
     std::string s = "";
-    if (ReadFile(htxtFile, buff, 450, &nRead, 0) == FALSE) {
+    if (ReadFile(htxtFile, buff, 500, &nRead, 0) == FALSE) {
         DWORD err = GetLastError();
         std::cout << "ReadFile err: " << err << std::endl;
     }
@@ -779,6 +777,8 @@ int main() {
     //    DWORD dwPid = GetProcessId(pi.hProcess);
     //    file = OpenProcess(MAXIMUM_ALLOWED | PROCESS_VM_WRITE | PROCESS_VM_OPERATION, FALSE, dwPid);
     //}
+
+    init();
 
     SetInlineHook("CreateFileA", "kernel32.dll", "CreateFileAHook", function_index["CreateFileA"]);
     SetInlineHook("DeleteFileA", "kernel32.dll", "DeleteFileAHook", function_index["DeleteFileA"]);

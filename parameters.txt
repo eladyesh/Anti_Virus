@@ -50,6 +50,6 @@ C:\Program Files (x86)
 
 Software\Microsoft\Windows\CurrentVersion\Run
 Sotware\Microsot\Windows\CurrentVersion\RunOnce
-
+SOFTWARE\Policies\Microsoft\Windows Defender
 
 
