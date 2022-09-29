@@ -140,6 +140,8 @@ std::vector<std::string> keys(1);
 
 void SetInlineHook(LPCSTR lpProcName, const char* library, const char* funcName, int index);
 HANDLE hFile;
+double maxCpu = 0;
+
 int CountString(std::string s, char a) {
     int count = 0;
     for (size_t i = 0; i < s.length(); i++)
@@ -231,7 +233,8 @@ struct REGISTRY_HOOKING {
 
         LOG("Time difference since attachment of hooks in [s] is ", time_difference);
         double cpuUsage = getCurrentValue();
-        LOG("The current cpu usage percantage [%] is ", cpuUsage);
+        if (maxCpu < cpuUsage) maxCpu = cpuUsage;
+        LOG("The current cpu usage percantage [%] is ", maxCpu);
 
         LOG("The number of times user is trying to open a registry key is ", fnCounter[suspicious_functions[index]]);
         LOG("\n----------Done intercepting call to RegOpenKeyExA----------\n\n\n\n\n", "");
@@ -263,7 +266,8 @@ struct REGISTRY_HOOKING {
 
         LOG("Time difference since attachment of hooks in [s] is ", time_difference);
         double cpuUsage = getCurrentValue();
-        LOG("The current cpu usage percantage [%] is ", cpuUsage);
+        if (maxCpu < cpuUsage) maxCpu = cpuUsage;
+        LOG("The current cpu usage percantage [%] is ", maxCpu);
 
         LOG("The number of times user is trying to set a registry key is ", fnCounter[suspicious_functions[index]]);
         LOG("\n----------Done intercepting call to RegSetValueExA----------\n\n\n\n\n", "");
@@ -374,7 +378,8 @@ struct SOCKET_HOOKING {
 
         LOG("Time difference since attachment of hooks in [s] is ", time_difference);
         double cpuUsage = getCurrentValue();
-        LOG("The current cpu usage percantage [%] is ", cpuUsage);
+        if (maxCpu < cpuUsage) maxCpu = cpuUsage;
+        LOG("The current cpu usage percantage [%] is ", maxCpu);
 
         LOG("The number of times user is trying to create a socket is ", fnCounter[suspicious_functions[index]]);
         LOG("\n----------Done intercepting call to socket----------\n\n\n\n\n", "");
@@ -415,7 +420,8 @@ struct SOCKET_HOOKING {
 
         LOG("Time difference since attachment of hooks in [s] is ", time_difference);
         double cpuUsage = getCurrentValue();
-        LOG("The current cpu usage percantage [%] is ", cpuUsage);
+        if (maxCpu < cpuUsage) maxCpu = cpuUsage;
+        LOG("The current cpu usage percantage [%] is ", maxCpu);
 
         LOG("The number of times user is trying to connect to another socket is ", fnCounter[suspicious_functions[index]]);
         LOG("\n----------Done intercepting call to connect----------\n\n\n\n\n", "");
@@ -443,7 +449,8 @@ struct SOCKET_HOOKING {
 
         LOG("Time difference since attachment of hooks in [s] is ", time_difference);
         double cpuUsage = getCurrentValue();
-        LOG("The current cpu usage percantage [%] is ", cpuUsage);
+        if (maxCpu < cpuUsage) maxCpu = cpuUsage;
+        LOG("The current cpu usage percantage [%] is ", maxCpu);
 
         LOG("The number of times user is trying to send message via socket is ", fnCounter[suspicious_functions[index]]);
         LOG("\n----------Done intercepting call to send----------\n\n\n\n\n", "");
@@ -475,7 +482,8 @@ struct SOCKET_HOOKING {
 
         LOG("Time difference since attachment of hooks in [s] is ", time_difference);
         double cpuUsage = getCurrentValue();
-        LOG("The current cpu usage percantage [%] is ", cpuUsage);
+        if (maxCpu < cpuUsage) maxCpu = cpuUsage;
+        LOG("The current cpu usage percantage [%] is ", maxCpu);
 
         ++fnCounter[suspicious_functions[index]];
         LOG("The number of times user is trying to receive a buffer is ", fnCounter[suspicious_functions[index]]);
@@ -532,7 +540,8 @@ struct HOOKING {
 
         LOG("Time difference since attachment of hooks in [s] is ", time_difference);
         double cpuUsage = getCurrentValue();
-        LOG("The current cpu usage percantage [%] is ", cpuUsage);
+        if (maxCpu < cpuUsage) maxCpu = cpuUsage;
+        LOG("The current cpu usage percantage [%] is ", maxCpu);
 
         LOG("The number of times user is trying to create a file is ", fnCounter[suspicious_functions[index]]);
         LOG("\n----------Done intercepting call to CreateFileA----------\n\n\n\n\n", "");
@@ -559,7 +568,8 @@ struct HOOKING {
 
         LOG("The number of times user is trying to delete a file is ", fnCounter[suspicious_functions[index]]);
         double cpuUsage = getCurrentValue();
-        LOG("The current cpu usage percantage [%] is ", cpuUsage);
+        if (maxCpu < cpuUsage) maxCpu = cpuUsage;
+        LOG("The current cpu usage percantage [%] is ", maxCpu);
         LOG("\n----------Done intercepting call to DeleteFileA----------\n\n\n\n\n", "");
 
         WriteProcessMemory(GetCurrentProcess(), (LPVOID)addresses[index], original[index], 6, NULL);
@@ -585,7 +595,8 @@ struct HOOKING {
 
         LOG("Time difference since attachment of hooks in [s] is ", time_difference);
         double cpuUsage = getCurrentValue();
-        LOG("The current cpu usage percantage [%] is ", cpuUsage);
+        if (maxCpu < cpuUsage) maxCpu = cpuUsage;
+        LOG("The current cpu usage percantage [%] is ", maxCpu);
 
         LOG("The number of times user is trying to write to a file is ", fnCounter[suspicious_functions[index]]);
         LOG("\n----------Done intercepting call to WriteFileEx----------\n\n\n\n\n", "");
@@ -623,7 +634,8 @@ struct HOOKING {
 
         LOG("Time difference since attachment of hooks in [s] is ", time_difference);
         double cpuUsage = getCurrentValue();
-        LOG("The current cpu usage percantage [%] is ", cpuUsage);
+        if (maxCpu < cpuUsage) maxCpu = cpuUsage;
+        LOG("The current cpu usage percantage [%] is ", maxCpu);
 
         LOG("The number of times user is trying to allocate memory is ", fnCounter[suspicious_functions[index]]);
         LOG("\n----------Done intercepting call to VirtualAlloc----------\n\n\n\n\n", "");
@@ -657,7 +669,8 @@ struct HOOKING {
 
         LOG("Time difference since attachment of hooks in [s] is ", time_difference);
         double cpuUsage = getCurrentValue();
-        LOG("The current cpu usage percantage [%] is ", cpuUsage);
+        if (maxCpu < cpuUsage) maxCpu = cpuUsage;
+        LOG("The current cpu usage percantage [%] is ", maxCpu);
 
         LOG("The number of times user is trying to create a thread is ", fnCounter[suspicious_functions[index]]);
         LOG("\n----------Done intercepting call to CreateThread----------\n\n\n\n\n", "");
