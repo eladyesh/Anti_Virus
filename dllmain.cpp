@@ -16,6 +16,7 @@
 #include <sstream>
 #include <winsock.h>
 #include <chrono>
+#include <tlhelp32.h>
 using std::ostringstream;
 using std::ends;
 #pragma comment(lib,"ws2_32.lib")
@@ -129,9 +130,9 @@ Defining functions that are being hooked
 //char originalBytes[6];
 std::map<const char*, void*> fnMap;
 std::map<std::string, int> fnCounter;
-std::vector<const char*> suspicious_functions = { "CreateFileA", "DeleteFileA", "WriteFileEx", "VirtualAlloc", "CreateThread", "RegOpenKeyExA", "RegSetValueExA", "RegCreateKeyExA", "RegGetValueA", "socket", "connect", "send", "recv" };
-std::vector<FARPROC> addresses(13);
-std::vector<char[6]> original(13);
+std::vector<const char*> suspicious_functions = { "CreateFileA", "DeleteFileA", "WriteFileEx", "VirtualAlloc", "CreateThread", "OpenProcess", "VirtualAllocEx", "CreateRemoteThread", "RegOpenKeyExA", "RegSetValueExA", "RegCreateKeyExA", "RegGetValueA", "socket", "connect", "send", "recv" };
+std::vector<FARPROC> addresses(16);
+std::vector<char[6]> original(16);
 std::map<const char*, int> function_index;
 
 std::vector<std::string> files(1);
@@ -142,6 +143,65 @@ void SetInlineHook(LPCSTR lpProcName, const char* library, const char* funcName,
 HANDLE hFile;
 double maxCpu = 0;
 
+
+DWORD FindProcessId(const std::wstring& processName)
+{
+    PROCESSENTRY32 processInfo;
+    processInfo.dwSize = sizeof(processInfo);
+
+    HANDLE processesSnapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, NULL);
+    if (processesSnapshot == INVALID_HANDLE_VALUE) {
+        return 0;
+    }
+
+    Process32First(processesSnapshot, &processInfo);
+    if (!processName.compare(processInfo.szExeFile))
+    {
+        CloseHandle(processesSnapshot);
+        return processInfo.th32ProcessID;
+    }
+
+    while (Process32Next(processesSnapshot, &processInfo))
+    {
+        if (!processName.compare(processInfo.szExeFile))
+        {
+            CloseHandle(processesSnapshot);
+            return processInfo.th32ProcessID;
+        }
+    }
+
+    CloseHandle(processesSnapshot);
+    return 0;
+}
+const std::wstring FindProcessName(DWORD id)
+{
+    PROCESSENTRY32 processInfo;
+    processInfo.dwSize = sizeof(processInfo);
+
+    HANDLE processesSnapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, NULL);
+    if (processesSnapshot == INVALID_HANDLE_VALUE) {
+        return 0;
+    }
+
+    Process32First(processesSnapshot, &processInfo);
+    if (processInfo.th32ProcessID == id)
+    {
+        CloseHandle(processesSnapshot);
+        return processInfo.szExeFile;
+    }
+
+    while (Process32Next(processesSnapshot, &processInfo))
+    {
+        if (processInfo.th32ProcessID == id)
+        {
+            CloseHandle(processesSnapshot);
+            return processInfo.szExeFile;
+        }
+    }
+
+    CloseHandle(processesSnapshot);
+    return 0;
+}
 int CountString(std::string s, char a) {
     int count = 0;
     for (size_t i = 0; i < s.length(); i++)
@@ -495,7 +555,7 @@ struct SOCKET_HOOKING {
     }
 };
 
-struct HOOKING {
+struct FILE_HOOKING {
     static void __stdcall CreateFileAHook(LPCSTR lpFileName, DWORD dwDesiredAccess, DWORD dwShareMode, LPSECURITY_ATTRIBUTES lpSecurityAttributes, DWORD dwCreationDisposition, DWORD dwFlagsAndAttributes, HANDLE hTemplateFile) {
 
         LOG("\n----------intercepted call to CreateFileA----------\n\n", "");
@@ -606,6 +666,9 @@ struct HOOKING {
         SetInlineHook("WriteFileEx", "kernel32.dll", "WriteFileExHook", index);
         return b;
     }
+};
+
+struct INJECT_HOOKING {
     static void __stdcall VirtualAllocHook(LPVOID lpAddress, SIZE_T dwSize, DWORD flAllocationType, DWORD flProtect)
     {
         LOG("\n----------intercepted call to VirtualAlloc----------\n\n", "");
@@ -679,6 +742,108 @@ struct HOOKING {
         CreateThread(lpThreadAttributes, dwStackSize, lpStartAddress, lpParameter, dwCreationFlags, lpThreadId);
         return SetInlineHook("CreateThread", "kernel32.dll", "CreateThreadHook", index);
     }
+    static HANDLE __stdcall OpenProcessHook(DWORD dwDesiredAccess, BOOL bInheritHandle, DWORD dwProcessId) {
+        LOG("\n----------intercepted call to OpenProcess----------\n\n", "");
+
+        if (dwDesiredAccess == ((0x000F0000L) | (0x00100000L) | (0xFFFF)))
+            LOG("The permissions to this process is ", "PROCESS_ALL_ACCESS");
+
+        LOG("processes created by this process will inherit the handle - ", bInheritHandle);
+        LOG("The process id is ", dwProcessId);
+
+        const std::wstring name = FindProcessName(dwProcessId);
+        std::string str(name.begin(), name.end());
+        LOG("Function is trying to open process ", str);
+
+        int index = function_index["OpenProcess"];
+        ++fnCounter[suspicious_functions[index]];
+          
+        std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
+        ostringstream oss;
+        oss << std::chrono::duration_cast<std::chrono::nanoseconds> (end - begin).count() << ends;
+        std::string time_difference = std::string(oss.str().c_str());
+        time_difference.insert(1, ".");
+
+        LOG("Time difference since attachment of hooks in [s] is ", time_difference);
+
+        double cpuUsage = getCurrentValue();
+        if (maxCpu < cpuUsage) maxCpu = cpuUsage;
+        LOG("The current cpu usage percantage [%] is ", maxCpu);
+        LOG("The number of times user is trying to open a process is ", fnCounter[suspicious_functions[index]]);
+        LOG("\n----------Done intercepting call to OpenProcess----------\n\n\n\n\n", "");
+
+        WriteProcessMemory(GetCurrentProcess(), (LPVOID)addresses[index], original[index], 6, NULL);
+        HANDLE h = OpenProcess(dwDesiredAccess, bInheritHandle, dwProcessId);
+        SetInlineHook("OpenProcess", "kernel32.dll", "OpenProcessHook", index);
+        return h;
+    }
+    static LPVOID __stdcall VirtualAllocExHook(HANDLE hProcess, LPVOID lpAddress, SIZE_T dwSize, DWORD flAllocationType, DWORD flProtect) {
+        LOG("\n----------intercepted call to VirtualAllocEx----------\n\n", "");
+
+        LOG("The handle to the process is ", hProcess);
+        LOG("The pointer that specifies a desired starting address for the region of pages that function wants to allocate is ", lpAddress);
+        LOG("Size of allocation is ", dwSize);
+
+        if (flAllocationType == 0x00001000 | 0x00002000)
+            LOG("The type of allocation is memory committing and reserving", "");
+
+        if (flProtect == 0x40)
+            LOG("The memory protection for the region of pages to be allocated is ", "PAGE_EXECUTE_READWRITE");
+
+        int index = function_index["VirtualAllocEx"];
+        ++fnCounter[suspicious_functions[index]];
+
+        std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
+        ostringstream oss;
+        oss << std::chrono::duration_cast<std::chrono::nanoseconds> (end - begin).count() << ends;
+        std::string time_difference = std::string(oss.str().c_str());
+        time_difference.insert(1, ".");
+
+        LOG("Time difference since attachment of hooks in [s] is ", time_difference);
+
+        double cpuUsage = getCurrentValue();
+        if (maxCpu < cpuUsage) maxCpu = cpuUsage;
+        LOG("The current cpu usage percantage [%] is ", maxCpu);
+        LOG("The number of times user is trying to open a process is ", fnCounter[suspicious_functions[index]]);
+        LOG("\n----------Done intercepting call to VirtualAllocEx----------\n\n\n\n\n", "");
+
+        WriteProcessMemory(GetCurrentProcess(), (LPVOID)addresses[index], original[index], 6, NULL);
+        LPVOID rb = VirtualAllocEx(hProcess, lpAddress, dwSize, flAllocationType, flProtect);
+        SetInlineHook("VirtualAllocEx", "kernel32.dll", " VirtualAllocExHook", index);
+        return rb;
+    }
+    static HANDLE __stdcall CreateRemoteThreadHook(HANDLE hProcess, LPSECURITY_ATTRIBUTES lpThreadAttributes, SIZE_T dwStackSize, LPTHREAD_START_ROUTINE lpStartAddress, LPVOID lpParameter, DWORD dwCreationFlags, LPDWORD lpThreadId) {
+        LOG("\n----------intercepted call to CreateRemoteThread----------\n\n", "");
+
+        LOG("A handle to the process in which the thread is to be created is ", hProcess);
+        LOG("The initial size of the stack, in bytes is ", dwStackSize);
+        LOG("A pointer to a variable to be passed to the thread function is ", lpParameter);
+
+        if (lpThreadId == 0)
+            LOG("Thread runs immediately after creation", "");
+
+        int index = function_index["CreateRemoteThread"];
+        ++fnCounter[suspicious_functions[index]];
+
+        std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
+        ostringstream oss;
+        oss << std::chrono::duration_cast<std::chrono::nanoseconds> (end - begin).count() << ends;
+        std::string time_difference = std::string(oss.str().c_str());
+        time_difference.insert(1, ".");
+
+        LOG("Time difference since attachment of hooks in [s] is ", time_difference);
+
+        double cpuUsage = getCurrentValue();
+        if (maxCpu < cpuUsage) maxCpu = cpuUsage;
+        LOG("The current cpu usage percantage [%] is ", maxCpu);
+        LOG("The number of times user is trying to open a process is ", fnCounter[suspicious_functions[index]]);
+        LOG("\n----------Done intercepting call to CreateRemoteThread----------\n\n\n\n\n", "");
+
+        WriteProcessMemory(GetCurrentProcess(), (LPVOID)addresses[index], original[index], 6, NULL);
+        HANDLE h = CreateRemoteThread(hProcess, lpThreadAttributes, dwStackSize, lpStartAddress, lpParameter, dwCreationFlags, lpThreadId);
+        SetInlineHook("CreateRemoteThread", "kernel32.dll", "CreateRemoteThreadHook", index);
+        return h;
+    }
 };
 
 // we will jump to after the hook has been installed
@@ -751,11 +916,15 @@ int main() {
         }
     }
 
-    fnMap["CreateFileAHook"] = (void*)&HOOKING::CreateFileAHook;
-    fnMap["DeleteFileAHook"] = (void*)&HOOKING::DeleteFileAHook;
-    fnMap["WriteFileExHook"] = (void*)&HOOKING::WriteFileExHook;
-    fnMap["VirtualAllocHook"] = (void*)&HOOKING::VirtualAllocHook;
-    fnMap["CreateThreadHook"] = (void*)&HOOKING::CreateThreadHook;
+    fnMap["CreateFileAHook"] = (void*)&FILE_HOOKING::CreateFileAHook;
+    fnMap["DeleteFileAHook"] = (void*)&FILE_HOOKING::DeleteFileAHook;
+    fnMap["WriteFileExHook"] = (void*)&FILE_HOOKING::WriteFileExHook;
+
+    fnMap["VirtualAllocHook"] = (void*)&INJECT_HOOKING::VirtualAllocHook;
+    fnMap["CreateThreadHook"] = (void*)&INJECT_HOOKING::CreateThreadHook;
+    fnMap["OpenProcessHook"] = (void*)&INJECT_HOOKING::OpenProcessHook;
+    fnMap["VirtualAllocExHook"] = (void*)&INJECT_HOOKING::VirtualAllocExHook;
+    fnMap["CreateRemoteThreadHook"] = (void*)&INJECT_HOOKING::CreateRemoteThreadHook;
 
     fnMap["RegOpenKeyExAHook"] = (void*)&REGISTRY_HOOKING::RegOpenKeyExAHook;
     fnMap["RegSetValueExAHook"] = (void*)&REGISTRY_HOOKING::RegSetValueExAHook;
@@ -796,8 +965,12 @@ int main() {
     SetInlineHook("CreateFileA", "kernel32.dll", "CreateFileAHook", function_index["CreateFileA"]);
     SetInlineHook("DeleteFileA", "kernel32.dll", "DeleteFileAHook", function_index["DeleteFileA"]);
     SetInlineHook("WriteFileEx", "kernel32.dll", "WriteFileExHook", function_index["WriteFileEx"]);
+
     SetInlineHook("VirtualAlloc", "kernel32.dll", "VirtualAllocHook", function_index["VirtualAlloc"]);
     SetInlineHook("CreateThread", "kernel32.dll", "CreateThreadHook", function_index["CreateThread"]);
+    SetInlineHook("OpenProcess", "kernel32.dll", "OpenProcessHook", function_index["OpenProcess"]);
+    SetInlineHook("VirtualAllocEx", "kernel32.dll", "VirtualAllocExHook", function_index["VirtualAllocEx"]);
+    SetInlineHook("CreateRemoteThread", "kernel32.dll", "CreateRemoteThreadHook", function_index["CreateRemoteThread"]);
 
     SetInlineHook("RegOpenKeyExA", "advapi32.dll", "RegOpenKeyExAHook", function_index["RegOpenKeyExA"]);
     SetInlineHook("RegSetValueExA", "advapi32.dll", "RegSetValueExAHook", function_index["RegSetValueExA"]);

