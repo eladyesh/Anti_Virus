@@ -804,7 +804,7 @@ struct INJECT_HOOKING {
         double cpuUsage = getCurrentValue();
         if (maxCpu < cpuUsage) maxCpu = cpuUsage;
         LOG("The current cpu usage percantage [%] is ", maxCpu);
-        LOG("The number of times user is trying to open a process is ", fnCounter[suspicious_functions[index]]);
+        LOG("The number of times user is trying to allocate memory is ", fnCounter[suspicious_functions[index]]);
         LOG("\n----------Done intercepting call to VirtualAllocEx----------\n\n\n\n\n", "");
 
         WriteProcessMemory(GetCurrentProcess(), (LPVOID)addresses[index], original[index], 6, NULL);
@@ -836,7 +836,7 @@ struct INJECT_HOOKING {
         double cpuUsage = getCurrentValue();
         if (maxCpu < cpuUsage) maxCpu = cpuUsage;
         LOG("The current cpu usage percantage [%] is ", maxCpu);
-        LOG("The number of times user is trying to open a process is ", fnCounter[suspicious_functions[index]]);
+        LOG("The number of times user is trying to create a remote thread is ", fnCounter[suspicious_functions[index]]);
         LOG("\n----------Done intercepting call to CreateRemoteThread----------\n\n\n\n\n", "");
 
         WriteProcessMemory(GetCurrentProcess(), (LPVOID)addresses[index], original[index], 6, NULL);
