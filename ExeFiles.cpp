@@ -92,7 +92,7 @@ DWORD FindProcessId(const std::wstring& processName)
     Process32First(processesSnapshot, &processInfo);
     if (!processName.compare(processInfo.szExeFile))
     {
-        CloseHandle(processesSnapshot);
+        //CloseHandle(processesSnapshot);
         return processInfo.th32ProcessID;
     }
 
@@ -100,12 +100,12 @@ DWORD FindProcessId(const std::wstring& processName)
     {
         if (!processName.compare(processInfo.szExeFile))
         {
-            CloseHandle(processesSnapshot);
+            //CloseHandle(processesSnapshot);
             return processInfo.th32ProcessID;
         }
     }
 
-    CloseHandle(processesSnapshot);
+    //CloseHandle(processesSnapshot);
     return 0;
 }
 int CreateSocket()

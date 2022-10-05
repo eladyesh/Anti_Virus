@@ -161,9 +161,9 @@ std::map<std::string, int> fnCounter;
 std::vector<const char*> suspicious_functions = { "CreateFileA", "DeleteFileA", "WriteFileEx", "VirtualAlloc", "CreateThread", "OpenProcess", "VirtualAllocEx", "CreateRemoteThread", "CloseHandle", "RegOpenKeyExA", "RegSetValueExA", "RegCreateKeyExA", "RegGetValueA", "socket", "connect", "send", "recv"};
 std::vector<FARPROC> addresses(17);
 std::vector<char[6]> original(17);
-std::vector<HANDLE> openHandles(0);
+std::map<HANDLE, int> handle_counter;
 std::map<const char*, int> function_index;
-const char* remote_ip;
+const char* remote_ip; std::string injected_process = "";
 int connect_count = 0, run_once = 1; bool portScanner = false;
 
 std::vector<std::string> files(1);
@@ -288,11 +288,9 @@ bool contains(std::vector<std::string> vec, std::string elem, bool Compare)
     return result;
 }
 bool ContainsHandle(HANDLE h) {
-    if (find(openHandles.begin(), openHandles.end(), h) != openHandles.end())
-    {
-        return true;
-    }
-    return false;
+    if (handle_counter.find(h) == handle_counter.end())
+        return false;
+    return true;
 }
 
 struct REGISTRY_HOOKING {
@@ -482,7 +480,7 @@ struct SOCKET_HOOKING {
             }
             if (connect_count >= 3) {
                 portScanner = true;
-                LOG("\n----------IDINTIFIED PORT SCANNING----------\n", "");
+                LOG("\n----------IDENTIFIED PORT SCANNING----------\n", "");
                 connect_count = 0;
             }
         }
@@ -710,6 +708,7 @@ struct INJECT_HOOKING {
 
         const std::wstring name = FindProcessName(dwProcessId);
         std::string str(name.begin(), name.end());
+        injected_process = str;
         LOG("Function is trying to open process ", str);
 
         int index = function_index["OpenProcess"];
@@ -723,7 +722,7 @@ struct INJECT_HOOKING {
 
         WriteProcessMemory(GetCurrentProcess(), (LPVOID)addresses[index], original[index], 6, NULL);
         HANDLE h = OpenProcess(dwDesiredAccess, bInheritHandle, dwProcessId);
-        openHandles.push_back(h);
+        handle_counter[h] = 0;
         SetInlineHook("OpenProcess", "kernel32.dll", "OpenProcessHook", index);
         return h;
     }
@@ -742,6 +741,8 @@ struct INJECT_HOOKING {
 
         int index = function_index["VirtualAllocEx"];
         ++fnCounter[suspicious_functions[index]];
+
+        if (ContainsHandle(hProcess)) handle_counter[hProcess] = 1;
 
         double cpuUsage = getCurrentValue();
         if (maxCpu < cpuUsage) maxCpu = cpuUsage;
@@ -766,6 +767,14 @@ struct INJECT_HOOKING {
 
         int index = function_index["CreateRemoteThread"];
         ++fnCounter[suspicious_functions[index]];
+
+        if (handle_counter[hProcess] == 1) {
+            std::string log = "";
+            log += "\n----------IDENTIFIED INJECTION into process ";
+            log += injected_process;
+            log += "----------\n";
+            LOG(log.c_str(),"");
+        }
 
         double cpuUsage = getCurrentValue();
         if (maxCpu < cpuUsage) maxCpu = cpuUsage;
@@ -793,18 +802,21 @@ struct INJECT_HOOKING {
         LOG("The number of times user is trying to close a handle is ", fnCounter[suspicious_functions[index]]);
         LOG("\n----------Done intercepting call to CloseHandle----------\n\n\n\n\n", "");
 
-        ostringstream oss1;
-        oss1 << hObject << ends;
+        //ostringstream oss1;
+        //oss1 << hObject << ends;
+        std::map<HANDLE, int>::iterator it;
 
         if (ContainsHandle(hObject)) {
-            for (size_t i = 0; i < openHandles.size(); i++)
-            {
-                ostringstream oss2;
-                oss2 << openHandles[i] << ends;
+            //for (size_t i = 0; i < openHandles.size(); i++)
+            //{
+            //    ostringstream oss2;
+            //    oss2 << openHandles[i] << ends;
 
-                if (std::string(oss2.str()) == std::string(oss1.str()))
-                    openHandles.erase(openHandles.begin() + i);
-            }
+            //    if (std::string(oss2.str()) == std::string(oss1.str()))
+            //        openHandles.erase(openHandles.begin() + i);
+            //}
+            it = handle_counter.find(hObject);
+            handle_counter.erase(it);
         }
 
         WriteProcessMemory(GetCurrentProcess(), (LPVOID)addresses[index], original[index], 6, NULL);
@@ -817,54 +829,55 @@ struct INJECT_HOOKING {
 // we will jump to after the hook has been installed
 DWORD port_scanner(int port, char* ip) {
 
-    WSADATA wsa;
+        WSADATA wsa;
 
-    printf("\nInitialising Winsock...");
-    if (WSAStartup(MAKEWORD(2, 2), &wsa) != 0)
-    {
-        printf("Failed. Error Code : %d", WSAGetLastError());
-        return 1;
+        printf("\nInitialising Winsock...");
+        if (WSAStartup(MAKEWORD(2, 2), &wsa) != 0)
+        {
+            printf("Failed. Error Code : %d", WSAGetLastError());
+            return 1;
+        }
+
+        printf("Initialised.\n");
+
+        SOCKET s;
+        struct sockaddr_in sock;
+
+        //Create a socket
+        if ((s = socket(AF_INET, SOCK_STREAM, 0)) == INVALID_SOCKET)
+        {
+            printf("Could not create socket : %d", WSAGetLastError());
+        }
+
+        printf("Socket created.\n");
+
+
+        sock.sin_addr.s_addr = inet_addr(ip);
+        sock.sin_family = AF_INET;
+        sock.sin_port = htons(port);
+
+        //Connect to remote server
+        int iResult = connect(s, (struct sockaddr*)&sock, sizeof(sock));
+        if (iResult == SOCKET_ERROR)
+        {
+            std::cout << "No success :( in connecting to port " << port << std::endl;
+        }
+        else {
+            std::cout << "Succcess :) Connected to port " << port << std::endl;
+        }
+        return 0;
     }
-
-    printf("Initialised.\n");
-
-    SOCKET s;
-    struct sockaddr_in sock;
-
-    //Create a socket
-    if ((s = socket(AF_INET, SOCK_STREAM, 0)) == INVALID_SOCKET)
-    {
-        printf("Could not create socket : %d", WSAGetLastError());
-    }
-
-    printf("Socket created.\n");
-
-
-    sock.sin_addr.s_addr = inet_addr(ip);
-    sock.sin_family = AF_INET;
-    sock.sin_port = htons(port);
-
-    //Connect to remote server
-    int iResult = connect(s, (struct sockaddr*)&sock, sizeof(sock));
-    if (iResult == SOCKET_ERROR)
-    {
-        std::cout << "No success :( in connecting to port " << port << std::endl;
-    }
-    else {
-        std::cout << "Succcess :) Connected to port " << port << std::endl;
-    }
-    return 0;
-}
 void run() {
 
-    //mut.lock();
-    while (!port_queue.empty()) {
-        int port = port_queue.front();
-        port_scanner(port, (char*)"142.250.186.68");
-        port_queue.pop();
+        //mut.lock();
+        while (!port_queue.empty()) {
+            int port = port_queue.front();
+            port_scanner(port, (char*)"142.250.186.68");
+            port_queue.pop();
+        }
+        //mut.unlock();
     }
-    //mut.unlock();
-}
+
 
 // hooking logic
 void SetInlineHook(LPCSTR lpProcName, LPCSTR library, const char* funcName, int index) {
