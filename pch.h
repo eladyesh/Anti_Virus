@@ -1,6 +1,7 @@
 #pragma once
 
 #include <windows.h>
+#include "cpu.h"
 #include <iostream>
 #include <map>
 #include <string>
@@ -9,8 +10,16 @@
 #include <iterator>
 #include <algorithm>
 #include <fstream>
+#include <cstdlib>
 #include <stdio.h>
 #include <stdlib.h>
 #include <cstring>
 #include <sstream>
 #include <winsock.h>
+#include <chrono>
+#include <ctype.h>
+#include <tlhelp32.h>
+#include <mutex>
+#include <thread>
+#include <queue>
+#include <format>
