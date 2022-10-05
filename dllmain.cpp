@@ -125,14 +125,18 @@ Defining functions that are being hooked
     [in]  int    flags
     );
 
+    BOOL CloseHandle(
+        [in] HANDLE hObject
+        );
 */
 
 //char originalBytes[6];
 std::map<const char*, void*> fnMap;
 std::map<std::string, int> fnCounter;
-std::vector<const char*> suspicious_functions = { "CreateFileA", "DeleteFileA", "WriteFileEx", "VirtualAlloc", "CreateThread", "OpenProcess", "VirtualAllocEx", "CreateRemoteThread", "RegOpenKeyExA", "RegSetValueExA", "RegCreateKeyExA", "RegGetValueA", "socket", "connect", "send", "recv" };
-std::vector<FARPROC> addresses(16);
-std::vector<char[6]> original(16);
+std::vector<const char*> suspicious_functions = { "CreateFileA", "DeleteFileA", "WriteFileEx", "VirtualAlloc", "CreateThread", "OpenProcess", "VirtualAllocEx", "CreateRemoteThread", "CloseHandle", "RegOpenKeyExA", "RegSetValueExA", "RegCreateKeyExA", "RegGetValueA", "socket", "connect", "send", "recv" };
+std::vector<FARPROC> addresses(17);
+std::vector<char[6]> original(17);
+std::vector<HANDLE> openHandles(0);
 std::map<const char*, int> function_index;
 
 std::vector<std::string> files(1);
@@ -142,6 +146,9 @@ std::vector<std::string> keys(1);
 void SetInlineHook(LPCSTR lpProcName, const char* library, const char* funcName, int index);
 HANDLE hFile;
 double maxCpu = 0;
+
+const char* remote_ip;
+int connect_count = 0, run_once = 1; bool portScanner = false;
 
 
 DWORD FindProcessId(const std::wstring& processName)
@@ -237,6 +244,13 @@ bool contains(std::vector<std::string> vec, std::string elem, bool Compare)
         }
     }
     return result;
+}
+bool ContainsHandle(HANDLE h) {
+    if (find(openHandles.begin(), openHandles.end(), h) != openHandles.end())
+    {
+        return true;
+    }
+    return false;
 }
 
 std::chrono::steady_clock::time_point begin;
@@ -461,6 +475,7 @@ struct SOCKET_HOOKING {
         oss << port << ends;
 
         char* ip = inet_ntoa((*sin).sin_addr);
+        if (run_once == 1) remote_ip = ip; run_once = 0;
         LOG("\n----------intercepted call to connect----------\n\n", "");
 
         if (contains(ports, std::string(oss.str()), true))
@@ -470,6 +485,16 @@ struct SOCKET_HOOKING {
         LOG("The port socket is using to connect is ", port);
 
         int index = function_index["connect"];
+        if (run_once == 0) {
+            if (fnCounter[suspicious_functions[index]] + 1 == fnCounter[suspicious_functions[function_index["socket"]]] && remote_ip == ip) {
+                connect_count++;
+            }
+            if (connect_count >= 3) {
+                portScanner = true;
+                LOG("\n----------IDINTIFIED PORT SCANNING----------\n", "");
+                connect_count = 0;
+            }
+        }
         ++fnCounter[suspicious_functions[index]];
 
         ostringstream oss2;
@@ -774,6 +799,7 @@ struct INJECT_HOOKING {
 
         WriteProcessMemory(GetCurrentProcess(), (LPVOID)addresses[index], original[index], 6, NULL);
         HANDLE h = OpenProcess(dwDesiredAccess, bInheritHandle, dwProcessId);
+        openHandles.push_back(h);
         SetInlineHook("OpenProcess", "kernel32.dll", "OpenProcessHook", index);
         return h;
     }
@@ -843,6 +869,47 @@ struct INJECT_HOOKING {
         HANDLE h = CreateRemoteThread(hProcess, lpThreadAttributes, dwStackSize, lpStartAddress, lpParameter, dwCreationFlags, lpThreadId);
         SetInlineHook("CreateRemoteThread", "kernel32.dll", "CreateRemoteThreadHook", index);
         return h;
+    }
+    static int __stdcall CloseHandleHook(HANDLE hObject) {
+
+        LOG("\n----------intercepted call to CloseHandle----------\n\n", "");
+        LOG("The handle to be closed is ", hObject);
+
+        int index = function_index["CloseHandle"];
+        ++fnCounter[suspicious_functions[index]];
+
+        std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
+        ostringstream oss;
+        oss << std::chrono::duration_cast<std::chrono::nanoseconds> (end - begin).count() << ends;
+        std::string time_difference = std::string(oss.str().c_str());
+        time_difference.insert(1, ".");
+
+        LOG("Time difference since attachment of hooks in [s] is ", time_difference);
+
+        double cpuUsage = getCurrentValue();
+        if (maxCpu < cpuUsage) maxCpu = cpuUsage;
+        LOG("The current cpu usage percantage [%] is ", maxCpu);
+        LOG("The number of times user is trying to close a handle is ", fnCounter[suspicious_functions[index]]);
+        LOG("\n----------Done intercepting call to CloseHandle----------\n\n\n\n\n", "");
+
+        ostringstream oss1;
+        oss1 << hObject << ends;
+
+        if (ContainsHandle(hObject)) {
+            for (size_t i = 0; i < openHandles.size(); i++)
+            {
+                ostringstream oss2;
+                oss2 << openHandles[i] << ends;
+
+                if (std::string(oss2.str()) == std::string(oss1.str()))
+                    openHandles.erase(openHandles.begin() + i);
+            }
+        }
+
+        WriteProcessMemory(GetCurrentProcess(), (LPVOID)addresses[index], original[index], 6, NULL);
+        int n = CloseHandle(hObject);
+        SetInlineHook("CloseHandle", "kernel32.dll", "CloseHandleHook", index);
+        return n;
     }
 };
 
@@ -925,6 +992,7 @@ int main() {
     fnMap["OpenProcessHook"] = (void*)&INJECT_HOOKING::OpenProcessHook;
     fnMap["VirtualAllocExHook"] = (void*)&INJECT_HOOKING::VirtualAllocExHook;
     fnMap["CreateRemoteThreadHook"] = (void*)&INJECT_HOOKING::CreateRemoteThreadHook;
+    fnMap["CloseHandleHook"] = (void*)&INJECT_HOOKING::CloseHandleHook;
 
     fnMap["RegOpenKeyExAHook"] = (void*)&REGISTRY_HOOKING::RegOpenKeyExAHook;
     fnMap["RegSetValueExAHook"] = (void*)&REGISTRY_HOOKING::RegSetValueExAHook;
@@ -971,6 +1039,7 @@ int main() {
     SetInlineHook("OpenProcess", "kernel32.dll", "OpenProcessHook", function_index["OpenProcess"]);
     SetInlineHook("VirtualAllocEx", "kernel32.dll", "VirtualAllocExHook", function_index["VirtualAllocEx"]);
     SetInlineHook("CreateRemoteThread", "kernel32.dll", "CreateRemoteThreadHook", function_index["CreateRemoteThread"]);
+    SetInlineHook("CloseHandle", "kernel32.dll", "CloseHandleHook", function_index["CloseHandle"]);
 
     SetInlineHook("RegOpenKeyExA", "advapi32.dll", "RegOpenKeyExAHook", function_index["RegOpenKeyExA"]);
     SetInlineHook("RegSetValueExA", "advapi32.dll", "RegSetValueExAHook", function_index["RegSetValueExA"]);
