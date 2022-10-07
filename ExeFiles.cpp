@@ -20,7 +20,7 @@ using std::ostringstream;
 using std::ends;
 #pragma comment(lib, "ws2_32.lib")
 
-char evilDLL[] = "D:\\Cyber\\YB_CYBER\\project\\FinalProject\\ExeFiles\\ExeFiles\\evil.dll";
+char evilDLL[] = "E:\\Cyber\\YB_CYBER\\project\\FinalProject\\ExeFiles\\ExeFiles\\evil.dll";
 unsigned int evilLen = sizeof(evilDLL) + 1;
 
 
@@ -238,7 +238,7 @@ int main()
     run();
     int zero = CreateSocket();
 
-    if (DeleteFileA("D:\\Cyber\\YB_CYBER\\project\\FinalProject\\De_Bug\\De_Bug\\hello.txt") != 0)
+    if (DeleteFileA("E:\\Cyber\\YB_CYBER\\project\\FinalProject\\De_Bug\\De_Bug\\hello.txt") != 0)
         printf("success in deleting hello.txt");
 
     // Write data to the file

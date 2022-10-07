@@ -30,8 +30,8 @@ with open(FILE_NAME_TO_SAVE, "wb") as f:
     f.write(file)
 
 os.system('..')
-os.system('Z:\E\Cyber\YB_CYBER\project\FinalProject\poc_start\poc_start')
-os.startfile('Z:\E\Cyber\YB_CYBER\project\FinalProject\poc_start\poc_start\poc_start.exe')
+os.system('Z:\D\Cyber\YB_CYBER\project\FinalProject\poc_start\poc_start')
+os.startfile('Z:\D\Cyber\YB_CYBER\project\FinalProject\poc_start\poc_start\poc_start.exe')
 
 while not os.path.exists("LOG.txt"):
     pass
