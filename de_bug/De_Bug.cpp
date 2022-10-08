@@ -172,7 +172,9 @@ std::vector<std::string> keys(1);
 
 void SetInlineHook(LPCSTR lpProcName, const char* library, const char* funcName, int index);
 HANDLE hFile;
+
 double maxCpu = 0;
+double cpuPermitted = 0.0;
 
 char evilDLL[] = "D:\\Cyber\\YB_CYBER\\project\\FinalProject\\ExeFiles\\ExeFiles\\evil.dll";
 unsigned int evilLen = sizeof(evilDLL) + 1;
@@ -325,6 +327,7 @@ struct REGISTRY_HOOKING {
            
         double cpuUsage = getCurrentValue();
         if (maxCpu < cpuUsage) maxCpu = cpuUsage;
+        while (maxCpu > 100.0) maxCpu -= 100.0;
         LOG("The current cpu usage percantage [%] is ", maxCpu);
 
         LOG("The number of times user is trying to open a registry key is ", fnCounter[suspicious_functions[index]]);
@@ -351,6 +354,7 @@ struct REGISTRY_HOOKING {
 
         double cpuUsage = getCurrentValue();
         if (maxCpu < cpuUsage) maxCpu = cpuUsage;
+        while (maxCpu > 100.0) maxCpu -= 100.0;
         LOG("The current cpu usage percantage [%] is ", maxCpu);
         LOG("The number of times user is trying to set a registry key is ", fnCounter[suspicious_functions[index]]);
         LOG("\n----------Done intercepting call to RegSetValueExA----------\n\n\n\n\n", "");
@@ -376,6 +380,7 @@ struct REGISTRY_HOOKING {
 
         double cpuUsage = getCurrentValue();
         if (maxCpu < cpuUsage) maxCpu = cpuUsage;
+        while (maxCpu > 100.0) maxCpu -= 100.0;
         LOG("The current cpu usage percantage [%] is ", maxCpu);
         LOG("The number of times user is trying to create a registry key is ", fnCounter[suspicious_functions[index]]);
         LOG("\n----------Done intercepting call to RegCreateKeyExA----------\n\n\n\n\n", "");
@@ -409,6 +414,7 @@ struct REGISTRY_HOOKING {
 
         double cpuUsage = getCurrentValue();
         if (maxCpu < cpuUsage) maxCpu = cpuUsage;
+        while (maxCpu > 100.0) maxCpu -= 100.0;
         LOG("The current cpu usage percantage [%] is ", maxCpu);
         LOG("The number of times user is trying to get a registry value is ", fnCounter[suspicious_functions[index]]);
         LOG("\n----------Done intercepting call to RegGetValueA----------\n\n\n\n\n", "");
@@ -442,6 +448,7 @@ struct SOCKET_HOOKING {
 
         double cpuUsage = getCurrentValue();
         if (maxCpu < cpuUsage) maxCpu = cpuUsage;
+        while (maxCpu > 100.0) maxCpu -= 100.0;
         LOG("The current cpu usage percantage [%] is ", maxCpu);
         LOG("The number of times user is trying to create a socket is ", fnCounter[suspicious_functions[index]]);
         LOG("\n----------Done intercepting call to socket----------\n\n\n\n\n", "");
@@ -488,6 +495,7 @@ struct SOCKET_HOOKING {
 
         double cpuUsage = getCurrentValue();
         if (maxCpu < cpuUsage) maxCpu = cpuUsage;
+        while (maxCpu > 100.0) maxCpu -= 100.0;
         LOG("The current cpu usage percantage [%] is ", maxCpu);
 
         LOG("The number of times user is trying to connect to another socket is ", fnCounter[suspicious_functions[index]]);
@@ -510,6 +518,7 @@ struct SOCKET_HOOKING {
 
         double cpuUsage = getCurrentValue();
         if (maxCpu < cpuUsage) maxCpu = cpuUsage;
+        while (maxCpu > 100.0) maxCpu -= 100.0;
         LOG("The current cpu usage percantage [%] is ", maxCpu);
 
         LOG("The number of times user is trying to send message via socket is ", fnCounter[suspicious_functions[index]]);
@@ -538,6 +547,7 @@ struct SOCKET_HOOKING {
 
         double cpuUsage = getCurrentValue();
         if (maxCpu < cpuUsage) maxCpu = cpuUsage;
+        while (maxCpu > 100.0) maxCpu -= 100.0;
         LOG("The current cpu usage percantage [%] is ", maxCpu);
 
         LOG("The number of times user is trying to receive a buffer is ", fnCounter[suspicious_functions[index]]);
@@ -588,6 +598,7 @@ struct FILE_HOOKING {
 
         double cpuUsage = getCurrentValue();
         if (maxCpu < cpuUsage) maxCpu = cpuUsage;
+        while (maxCpu > 100.0) maxCpu -= 100.0;
         LOG("The current cpu usage percantage [%] is ", maxCpu);
 
         LOG("The number of times user is trying to create a file is ", fnCounter[suspicious_functions[index]]);
@@ -609,6 +620,7 @@ struct FILE_HOOKING {
 
         double cpuUsage = getCurrentValue();
         if (maxCpu < cpuUsage) maxCpu = cpuUsage;
+        while (maxCpu > 100.0) maxCpu -= 100.0;
         LOG("The current cpu usage percantage [%] is ", maxCpu);
         LOG("The number of times user is trying to write to a file is ", fnCounter[suspicious_functions[index]]);
         LOG("\n----------Done intercepting call to WriteFileEx----------\n\n\n\n\n", "");
@@ -628,6 +640,7 @@ struct FILE_HOOKING {
 
         double cpuUsage = getCurrentValue();
         if (maxCpu < cpuUsage) maxCpu = cpuUsage;
+        while (maxCpu > 100.0) maxCpu -= 100.0;
         LOG("The current cpu usage percantage [%] is ", maxCpu);
         LOG("The number of times user is trying to delete a file is ", fnCounter[suspicious_functions[index]]);
         LOG("\n----------Done intercepting call to DeleteFileA----------\n\n\n\n\n", "");
@@ -662,6 +675,7 @@ struct INJECT_HOOKING {
 
         double cpuUsage = getCurrentValue();
         if (maxCpu < cpuUsage) maxCpu = cpuUsage;
+        while (maxCpu > 100.0) maxCpu -= 100.0;
         LOG("The current cpu usage percantage [%] is ", maxCpu);
         LOG("The number of times user is trying to allocate memory is ", fnCounter[suspicious_functions[index]]);
         LOG("\n----------Done intercepting call to VirtualAlloc----------\n\n\n\n\n", "");
@@ -689,6 +703,7 @@ struct INJECT_HOOKING {
 
         double cpuUsage = getCurrentValue();
         if (maxCpu < cpuUsage) maxCpu = cpuUsage;
+        while (maxCpu > 100.0) maxCpu -= 100.0;
         LOG("The current cpu usage percantage [%] is ", maxCpu);
         LOG("The number of times user is trying to create a thread is ", fnCounter[suspicious_functions[index]]);
         LOG("\n----------Done intercepting call to CreateThread----------\n\n\n\n\n", "");
@@ -716,6 +731,7 @@ struct INJECT_HOOKING {
 
         double cpuUsage = getCurrentValue();
         if (maxCpu < cpuUsage) maxCpu = cpuUsage;
+        while (maxCpu > 100.0) maxCpu -= 100.0;
         LOG("The current cpu usage percantage [%] is ", maxCpu);
         LOG("The number of times user is trying to open a process is ", fnCounter[suspicious_functions[index]]);
         LOG("\n----------Done intercepting call to OpenProcess----------\n\n\n\n\n", "");
@@ -746,6 +762,7 @@ struct INJECT_HOOKING {
 
         double cpuUsage = getCurrentValue();
         if (maxCpu < cpuUsage) maxCpu = cpuUsage;
+        while (maxCpu > 100.0) maxCpu -= 100.0;
         LOG("The current cpu usage percantage [%] is ", maxCpu);
         LOG("The number of times user is trying to open a process is ", fnCounter[suspicious_functions[index]]);
         LOG("\n----------Done intercepting call to VirtualAllocEx----------\n\n\n\n\n", "");
@@ -778,6 +795,7 @@ struct INJECT_HOOKING {
 
         double cpuUsage = getCurrentValue();
         if (maxCpu < cpuUsage) maxCpu = cpuUsage;
+        while (maxCpu > 100.0) maxCpu -= 100.0;
         LOG("The current cpu usage percantage [%] is ", maxCpu);
         LOG("The number of times user is trying to open a process is ", fnCounter[suspicious_functions[index]]);
         LOG("\n----------Done intercepting call to CreateRemoteThread----------\n\n\n\n\n", "");
@@ -798,6 +816,7 @@ struct INJECT_HOOKING {
 
         double cpuUsage = getCurrentValue();
         if (maxCpu < cpuUsage) maxCpu = cpuUsage;
+        while (maxCpu > 100.0) maxCpu -= 100.0;
         LOG("The current cpu usage percantage [%] is ", maxCpu);
         LOG("The number of times user is trying to close a handle is ", fnCounter[suspicious_functions[index]]);
         LOG("\n----------Done intercepting call to CloseHandle----------\n\n\n\n\n", "");
@@ -973,19 +992,20 @@ int CreateSocket()
     return 0;
 
 }
+void ParseParameters() {
 
-int main() 
-{
     init();
     DWORD nRead;
-    HANDLE htxtFile = CreateFile(L"parameters.txt", FILE_SHARE_READ, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL,NULL);
+    HANDLE htxtFile = CreateFile(L"parameters.txt", FILE_SHARE_READ, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
     std::vector<std::string> parameters(1);
-    char buff[600] = {0};
+    char buff[600] = { 0 };
+
     std::string s = "";
     if (ReadFile(htxtFile, buff, 600, &nRead, 0) == FALSE) {
         DWORD err = GetLastError();
         std::cout << "ReadFile err: " << err << std::endl;
     }
+
     for (char a : buff) {
         if (a != '\n' && a != '\r')
             s += a;
@@ -994,23 +1014,34 @@ int main()
             s = "";
         }
     }
+
     for (size_t i = 0; i < parameters.size(); i++) {
         if (parameters[i].empty()) {
             parameters.erase(parameters.begin() + i);
         }
     }
+
     for (size_t i = 0; i < parameters.size(); i++) {
         if (isdigit(parameters[i][0])) {
             ports.push_back(parameters[i]);
-        }  
+        }
         else if (isalpha(parameters[i][0]) && parameters[i].length() > 30) {
             keys.push_back(parameters[i]);
         }
         else if (isalpha(parameters[i][0]) && parameters[i].length() < 30) {
+
+            if (parameters[i][0] == 'C' && parameters[i][1] == 'P' && parameters[i][2] == 'U') {
+                std::string cpU(parameters[i].substr(parameters[i].size() - 2));
+                cpuPermitted = (double)std::stoi(cpU);
+            }
             files.push_back(parameters[i]);
         }
     }
+}
 
+int main() 
+{
+    ParseParameters();
     fnMap["CreateFileAHook"] = (void*)&FILE_HOOKING::CreateFileAHook;
     fnMap["DeleteFileAHook"] = (void*)&FILE_HOOKING::DeleteFileAHook;
     fnMap["WriteFileExHook"] = (void*)&FILE_HOOKING::WriteFileExHook;

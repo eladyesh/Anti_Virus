@@ -145,6 +145,8 @@ std::vector<std::string> keys(1);
 
 void SetInlineHook(LPCSTR lpProcName, const char* library, const char* funcName, int index);
 HANDLE hFile;
+
+double cpuPermitted = 0.0;
 double maxCpu = 0;
 
 const char* remote_ip; std::string injected_process = "";
@@ -971,18 +973,20 @@ void SetInlineHook(LPCSTR lpProcName, LPCSTR library, const char* funcName, int 
     // write patch to the hookedAddress --> the Hooked function
     WriteProcessMemory(GetCurrentProcess(), (LPVOID)addresses[index], patch, 6, NULL);
 }
+void ParseParameters() {
 
-int main() {
-
+    init();
     DWORD nRead;
     HANDLE htxtFile = CreateFile(L"parameters.txt", FILE_SHARE_READ, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
     std::vector<std::string> parameters(1);
-    char buff[500] = { 0 };
+    char buff[600] = { 0 };
+
     std::string s = "";
-    if (ReadFile(htxtFile, buff, 500, &nRead, 0) == FALSE) {
+    if (ReadFile(htxtFile, buff, 600, &nRead, 0) == FALSE) {
         DWORD err = GetLastError();
         std::cout << "ReadFile err: " << err << std::endl;
     }
+
     for (char a : buff) {
         if (a != '\n' && a != '\r')
             s += a;
@@ -991,11 +995,13 @@ int main() {
             s = "";
         }
     }
+
     for (size_t i = 0; i < parameters.size(); i++) {
         if (parameters[i].empty()) {
             parameters.erase(parameters.begin() + i);
         }
     }
+
     for (size_t i = 0; i < parameters.size(); i++) {
         if (isdigit(parameters[i][0])) {
             ports.push_back(parameters[i]);
@@ -1004,9 +1010,19 @@ int main() {
             keys.push_back(parameters[i]);
         }
         else if (isalpha(parameters[i][0]) && parameters[i].length() < 30) {
+
+            if (parameters[i][0] == 'C' && parameters[i][1] == 'P' && parameters[i][2] == 'U') {
+                std::string cpU(parameters[i].substr(parameters[i].size() - 2));
+                cpuPermitted = (double)std::stoi(cpU);
+            }
             files.push_back(parameters[i]);
         }
     }
+}
+
+int main() {
+
+    ParseParameters();
 
     fnMap["CreateFileAHook"] = (void*)&FILE_HOOKING::CreateFileAHook;
     fnMap["DeleteFileAHook"] = (void*)&FILE_HOOKING::DeleteFileAHook;
