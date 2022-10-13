@@ -130,7 +130,7 @@ Defining functions that are being hooked
         );
 */
 
-//char originalBytes[6];
+// Intializing maps and lists of suspicious function
 std::map<const char*, void*> fnMap;
 std::map<std::string, int> fnCounter;
 std::vector<const char*> suspicious_functions = { "CreateFileA", "DeleteFileA", "WriteFileEx", "VirtualAlloc", "CreateThread", "OpenProcess", "VirtualAllocEx", "CreateRemoteThread", "CloseHandle", "RegOpenKeyExA", "RegSetValueExA", "RegCreateKeyExA", "RegGetValueA", "socket", "connect", "send", "recv" };
@@ -139,6 +139,7 @@ std::vector<char[6]> original(17);
 std::map<HANDLE, int> handle_counter;
 std::map<const char*, int> function_index;
 
+// vectors for the parameters from the parameters file
 std::vector<std::string> files(1);
 std::vector<std::string> ports(1);
 std::vector<std::string> keys(1);
@@ -146,114 +147,125 @@ std::vector<std::string> keys(1);
 void SetInlineHook(LPCSTR lpProcName, const char* library, const char* funcName, int index);
 HANDLE hFile;
 
+// cpu
 double cpuPermitted = 0.0;
 double maxCpu = 0;
 
+// port scanning variables
 const char* remote_ip; std::string injected_process = "";
 int connect_count = 0, run_once = 1; bool portScanner = false;
 
 
-DWORD FindProcessId(const std::wstring& processName)
-{
-    PROCESSENTRY32 processInfo;
-    processInfo.dwSize = sizeof(processInfo);
-
-    HANDLE processesSnapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, NULL);
-    if (processesSnapshot == INVALID_HANDLE_VALUE) {
-        return 0;
-    }
-
-    Process32First(processesSnapshot, &processInfo);
-    if (!processName.compare(processInfo.szExeFile))
+namespace FindProcess {
+    DWORD FindProcessId(const std::wstring& processName)
     {
-        //CloseHandle(processesSnapshot);
-        return processInfo.th32ProcessID;
-    }
+        PROCESSENTRY32 processInfo;
+        processInfo.dwSize = sizeof(processInfo);
 
-    while (Process32Next(processesSnapshot, &processInfo))
-    {
+        HANDLE processesSnapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, NULL);
+        if (processesSnapshot == INVALID_HANDLE_VALUE) {
+            return 0;
+        }
+
+        Process32First(processesSnapshot, &processInfo);
         if (!processName.compare(processInfo.szExeFile))
         {
             //CloseHandle(processesSnapshot);
             return processInfo.th32ProcessID;
         }
-    }
 
-    //CloseHandle(processesSnapshot);
-    return 0;
-}
-const std::wstring FindProcessName(DWORD id)
-{
-    PROCESSENTRY32 processInfo;
-    processInfo.dwSize = sizeof(processInfo);
+        while (Process32Next(processesSnapshot, &processInfo))
+        {
+            if (!processName.compare(processInfo.szExeFile))
+            {
+                //CloseHandle(processesSnapshot);
+                return processInfo.th32ProcessID;
+            }
+        }
 
-    HANDLE processesSnapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, NULL);
-    if (processesSnapshot == INVALID_HANDLE_VALUE) {
+        //CloseHandle(processesSnapshot);
         return 0;
     }
-
-    Process32First(processesSnapshot, &processInfo);
-    if (processInfo.th32ProcessID == id)
+    const std::wstring FindProcessName(DWORD id)
     {
-        //CloseHandle(processesSnapshot);
-        return processInfo.szExeFile;
-    }
+        PROCESSENTRY32 processInfo;
+        processInfo.dwSize = sizeof(processInfo);
 
-    while (Process32Next(processesSnapshot, &processInfo))
-    {
+        HANDLE processesSnapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, NULL);
+        if (processesSnapshot == INVALID_HANDLE_VALUE) {
+            return 0;
+        }
+
+        Process32First(processesSnapshot, &processInfo);
         if (processInfo.th32ProcessID == id)
         {
             //CloseHandle(processesSnapshot);
             return processInfo.szExeFile;
         }
-    }
 
-    //CloseHandle(processesSnapshot);
-    return 0;
-}
-int CountString(std::string s, char a) {
-    int count = 0;
-    for (size_t i = 0; i < s.length(); i++)
-    {
-        if (s[i] == a) count++;
-    }
-    return count;
-}
-bool CompareStrings(std::string s1, std::string s2) {
-
-    for (size_t i = 0; i < s1.length(); i++)
-    {
-        if ((char)s1[i] != (char)s2[i]) return false;
-    }
-    return true;
-}
-bool contains(std::vector<std::string> vec, std::string elem, bool Compare)
-{
-    bool result = false;
-    if (Compare) {
-        for (std::string x : vec) {
-            if (CompareStrings(elem, x)) return true;
-        }
-    }
-    else {
-        for (size_t i = 1; i < vec.size(); i++)
+        while (Process32Next(processesSnapshot, &processInfo))
         {
-            if (elem.find(vec[i]) != std::string::npos)
+            if (processInfo.th32ProcessID == id)
             {
-                result = true;
-                break;
+                //CloseHandle(processesSnapshot);
+                return processInfo.szExeFile;
             }
         }
+
+        //CloseHandle(processesSnapshot);
+        return 0;
     }
-    return result;
-}
-bool ContainsHandle(HANDLE h) {
-    if (handle_counter.find(h) == handle_counter.end())
-        return false;
-    return true;
 }
 
+namespace StringAnalyzer {
+    int CountString(std::string s, char a) {
+        int count = 0;
+        for (size_t i = 0; i < s.length(); i++)
+        {
+            if (s[i] == a) count++;
+        }
+        return count;
+    }
+    bool CompareStrings(std::string s1, std::string s2) {
 
+        for (size_t i = 0; i < s1.length(); i++)
+        {
+            if ((char)s1[i] != (char)s2[i]) return false;
+        }
+        return true;
+    }
+}
+
+namespace CheckContain {
+    bool contains(std::vector<std::string> vec, std::string elem, bool Compare)
+    {
+        bool result = false;
+        if (Compare) {
+            for (std::string x : vec) {
+                if (StringAnalyzer::CompareStrings(elem, x)) return true;
+            }
+        }
+        else {
+            for (size_t i = 1; i < vec.size(); i++)
+            {
+                if (elem.find(vec[i]) != std::string::npos)
+                {
+                    result = true;
+                    break;
+                }
+            }
+        }
+        return result;
+    }
+    bool ContainsHandle(HANDLE h) {
+        if (handle_counter.find(h) == handle_counter.end())
+            return false;
+        return true;
+    }
+
+}
+
+// clock
 std::chrono::steady_clock::time_point begin;
 
 template<typename T>
@@ -289,7 +301,7 @@ struct REGISTRY_HOOKING {
         if (samDesired == 0xF003F)
             LOG("A mask that specifies the desired access rights to the key to be opened is ", "KEY_ALL_ACCESS");
             
-        if (contains(keys, std::string(lpSubKey), true))
+        if (CheckContain::contains(keys, std::string(lpSubKey), true))
             LOG("EXE is trying to access a suspicious registry key!", "");
 
         int index = function_index["RegOpenKeyExA"];
@@ -492,7 +504,7 @@ struct SOCKET_HOOKING {
         if (run_once == 1) remote_ip = ip; run_once = 0;
         LOG("\n----------intercepted call to connect----------\n\n", "");
 
-        if (contains(ports, std::string(oss.str()), true))
+        if (CheckContain::contains(ports, std::string(oss.str()), true))
             LOG("EXE is trying to connect through a suspicious port!", "");
 
         LOG("The address socket is trying to connect to is ", ip);
@@ -605,7 +617,7 @@ struct FILE_HOOKING {
 
         LOG("\n----------intercepted call to CreateFileA----------\n\n", "");
 
-        if (contains(files, std::string(lpFileName), false))
+        if (CheckContain::contains(files, std::string(lpFileName), false))
             LOG("EXE file is tring to reach a suscpicous folder!", "");
 
         LOG("The name of the file or device to be created or opened is ", lpFileName);
@@ -806,7 +818,7 @@ struct INJECT_HOOKING {
         LOG("processes created by this process will inherit the handle - ", bInheritHandle);
         LOG("The process id is ", dwProcessId);
 
-        const std::wstring name = FindProcessName(dwProcessId);
+        const std::wstring name = FindProcess::FindProcessName(dwProcessId);
         std::string str(name.begin(), name.end());
         injected_process = str;
         LOG("Function is trying to open process ", str);
@@ -850,7 +862,7 @@ struct INJECT_HOOKING {
         if (flProtect == 0x40)
             LOG("The memory protection for the region of pages to be allocated is ", "PAGE_EXECUTE_READWRITE");
 
-        if (ContainsHandle(hProcess)) handle_counter[hProcess] = 1;
+        if (CheckContain::ContainsHandle(hProcess)) handle_counter[hProcess] = 1;
 
         int index = function_index["VirtualAllocEx"];
         ++fnCounter[suspicious_functions[index]];
@@ -947,7 +959,7 @@ struct INJECT_HOOKING {
 
         std::map<HANDLE, int>::iterator it;
 
-        if (ContainsHandle(hObject)) {
+        if (CheckContain::ContainsHandle(hObject)) {
             //for (size_t i = 0; i < openHandles.size(); i++)
             //{
             //    ostringstream oss2;
@@ -966,9 +978,6 @@ struct INJECT_HOOKING {
         return n;
     }
 };
-
-// we will jump to after the hook has been installed
-
 
 // hooking logic
 void SetInlineHook(LPCSTR lpProcName, LPCSTR library, const char* funcName, int index) {
@@ -1000,6 +1009,8 @@ void SetInlineHook(LPCSTR lpProcName, LPCSTR library, const char* funcName, int 
     // write patch to the hookedAddress --> the Hooked function
     WriteProcessMemory(GetCurrentProcess(), (LPVOID)addresses[index], patch, 6, NULL);
 }
+
+// parse
 void ParseParameters() {
 
     init();
@@ -1190,3 +1201,8 @@ BOOL APIENTRY DllMain(HANDLE hModule,
     return TRUE;
 }
 
+
+// extern function
+extern "C" void startMain() {
+    main();
+}
