@@ -52,4 +52,4 @@ Software\Microsoft\Windows\CurrentVersion\Run
 Sotware\Microsot\Windows\CurrentVersion\RunOnce
 SOFTWARE\Policies\Microsoft\Windows Defender
 
-CPU: 65
+CPU: 60
