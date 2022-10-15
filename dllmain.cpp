@@ -128,14 +128,22 @@ Defining functions that are being hooked
     BOOL CloseHandle(
         [in] HANDLE hObject
         );
+
+    BOOL WriteFile(
+        [in]                HANDLE       hFile,
+        [in]                LPCVOID      lpBuffer,
+        [in]                DWORD        nNumberOfBytesToWrite,
+        [out, optional]     LPDWORD      lpNumberOfBytesWritten,
+        [in, out, optional] LPOVERLAPPED lpOverlapped
+    );
 */
 
 // Intializing maps and lists of suspicious function
 std::map<const char*, void*> fnMap;
 std::map<std::string, int> fnCounter;
-std::vector<const char*> suspicious_functions = { "CreateFileA", "DeleteFileA", "WriteFileEx", "VirtualAlloc", "CreateThread", "OpenProcess", "VirtualAllocEx", "CreateRemoteThread", "CloseHandle", "RegOpenKeyExA", "RegSetValueExA", "RegCreateKeyExA", "RegGetValueA", "socket", "connect", "send", "recv" };
-std::vector<FARPROC> addresses(17);
-std::vector<char[6]> original(17);
+std::vector<const char*> suspicious_functions = { "CreateFileA", "DeleteFileA", "WriteFileEx", "WriteFile", "VirtualAlloc", "CreateThread", "OpenProcess", "VirtualAllocEx", "CreateRemoteThread", "CloseHandle", "RegOpenKeyExA", "RegSetValueExA", "RegCreateKeyExA", "RegGetValueA", "socket", "connect", "send", "recv" };
+std::vector<FARPROC> addresses(18);
+std::vector<char[6]> original(18);
 std::map<HANDLE, int> handle_counter;
 std::map<const char*, int> function_index;
 
@@ -145,7 +153,9 @@ std::vector<std::string> ports(1);
 std::vector<std::string> keys(1);
 
 void SetInlineHook(LPCSTR lpProcName, const char* library, const char* funcName, int index);
+void FreeHook(int index);
 HANDLE hFile;
+int writeFileIndex = 0;
 
 // cpu
 double cpuPermitted = 0.0;
@@ -271,13 +281,15 @@ std::chrono::steady_clock::time_point begin;
 template<typename T>
 void LOG(const char* message, T parameter) {
 
-
+    FreeHook(writeFileIndex);
     WriteFile(hFile, message, strlen(message), NULL, nullptr);
     //WriteFile(hFile, "\n", strlen("\n"), NULL, nullptr);
     ostringstream oss;
     oss << parameter << ends;
     WriteFile(hFile, oss.str().c_str(), strlen(oss.str().c_str()), NULL, nullptr);
     WriteFile(hFile, "\n", strlen("\n"), NULL, nullptr);
+    SetInlineHook("WriteFile", "kernel32.dll", "WriteFileHook", writeFileIndex);
+
 }
 
 
@@ -729,6 +741,39 @@ struct FILE_HOOKING {
         SetInlineHook("WriteFileEx", "kernel32.dll", "WriteFileExHook", index);
         return b;
     }
+    static BOOL __stdcall WriteFileHook(HANDLE hFile, LPCVOID lpBuffer, DWORD nNumberOfBytesToWrite, LPDWORD lpNumberOfBytesWritten, LPOVERLAPPED lpOverlapped) {
+
+        LOG("\n----------intercepted call to WriteFile----------\n\n", "");
+        LOG("The handle to this file is ", hFile);
+        LOG("The buffer being written to the file is ", (LPCSTR)lpBuffer);
+        LOG("The size of the buffer is ", nNumberOfBytesToWrite);
+
+        int index = function_index["WriteFile"];
+        ++fnCounter[suspicious_functions[index]];
+
+        std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
+        ostringstream oss;
+        oss << std::chrono::duration_cast<std::chrono::nanoseconds> (end - begin).count() << ends;
+        std::string time_difference = std::string(oss.str().c_str());
+        time_difference.insert(1, ".");
+
+        LOG("Time difference since attachment of hooks in [s] is ", time_difference);
+
+        double cpuUsage = getCurrentValue();
+        if (maxCpu < cpuUsage) maxCpu = cpuUsage;
+        while (maxCpu > 100.0) maxCpu -= 100.0;
+        if (maxCpu > cpuPermitted) LOG("Has passed permitted cpu", "");
+
+        LOG("The current cpu usage percantage [%] is ", maxCpu);
+        LOG("The number of times user is trying to write to a file is ", fnCounter[suspicious_functions[index]]);
+
+        LOG("\n----------Done intercepting call to WriteFile----------\n\n\n\n\n", "");
+
+        WriteProcessMemory(GetCurrentProcess(), (LPVOID)addresses[index], original[index], 6, NULL);
+        BOOL success = WriteFile(hFile, lpBuffer, nNumberOfBytesToWrite, lpNumberOfBytesWritten, lpOverlapped);
+        SetInlineHook("WriteFile", "kernel32.dll", "WriteFileHook", index);
+        return success;
+    }
 };
 
 struct INJECT_HOOKING {
@@ -1009,6 +1054,9 @@ void SetInlineHook(LPCSTR lpProcName, LPCSTR library, const char* funcName, int 
     // write patch to the hookedAddress --> the Hooked function
     WriteProcessMemory(GetCurrentProcess(), (LPVOID)addresses[index], patch, 6, NULL);
 }
+void FreeHook(int index) {
+    WriteProcessMemory(GetCurrentProcess(), (LPVOID)addresses[index], original[index], 6, NULL);
+}
 
 // parse
 void ParseParameters() {
@@ -1065,6 +1113,7 @@ int main() {
     fnMap["CreateFileAHook"] = (void*)&FILE_HOOKING::CreateFileAHook;
     fnMap["DeleteFileAHook"] = (void*)&FILE_HOOKING::DeleteFileAHook;
     fnMap["WriteFileExHook"] = (void*)&FILE_HOOKING::WriteFileExHook;
+    fnMap["WriteFileHook"] = (void*)&FILE_HOOKING::WriteFileHook;
 
     fnMap["VirtualAllocHook"] = (void*)&INJECT_HOOKING::VirtualAllocHook;
     fnMap["CreateThreadHook"] = (void*)&INJECT_HOOKING::CreateThreadHook;
@@ -1089,6 +1138,8 @@ int main() {
         function_index[suspicious_functions[i]] = i;
     }
 
+    writeFileIndex = function_index["WriteFile"];
+
     hFile = CreateFile(L"LOG.txt", GENERIC_WRITE, FILE_SHARE_READ, NULL, CREATE_NEW, FILE_ATTRIBUTE_NORMAL, NULL);
     //// Open a handle to the file                 
     //if (hFile == INVALID_HANDLE_VALUE)
@@ -1112,6 +1163,7 @@ int main() {
     SetInlineHook("CreateFileA", "kernel32.dll", "CreateFileAHook", function_index["CreateFileA"]);
     SetInlineHook("DeleteFileA", "kernel32.dll", "DeleteFileAHook", function_index["DeleteFileA"]);
     SetInlineHook("WriteFileEx", "kernel32.dll", "WriteFileExHook", function_index["WriteFileEx"]);
+    SetInlineHook("WriteFile", "kernel32.dll", "WriteFileHook", function_index["WriteFile"]);
 
     SetInlineHook("VirtualAlloc", "kernel32.dll", "VirtualAllocHook", function_index["VirtualAlloc"]);
     SetInlineHook("CreateThread", "kernel32.dll", "CreateThreadHook", function_index["CreateThread"]);

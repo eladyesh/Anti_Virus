@@ -2,6 +2,7 @@ import struct
 from socket import socket, AF_INET, SOCK_STREAM
 import os
 
+#os.system(r'python D:\\Cyber\\YB_CYBER\\project\\FinalProject\\poc_start\\poc_start\\unrelated\\vt_hash.py')
 FILE_NAME_TO_SAVE = "virus.exe"
 FILE_NAME_TO_SEND = "LOG.txt"
 
@@ -30,8 +31,8 @@ with open(FILE_NAME_TO_SAVE, "wb") as f:
     f.write(file)
 
 os.system('..')
-os.system('Z:\D\Cyber\YB_CYBER\project\FinalProject\poc_start\poc_start')
-os.startfile('Z:\D\Cyber\YB_CYBER\project\FinalProject\poc_start\poc_start\poc_start.exe')
+os.system('Z:\E\Cyber\YB_CYBER\project\FinalProject\poc_start\poc_start')
+os.startfile('Z:\E\Cyber\YB_CYBER\project\FinalProject\poc_start\poc_start\poc_start.exe')
 
 while not os.path.exists("LOG.txt"):
     pass

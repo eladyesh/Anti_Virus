@@ -252,6 +252,8 @@ int main()
         strText.size(),   // Buffer size
         &ov, // Overlapped
         l);
+
+    WriteFile(hFile, strText.c_str(), strText.size(), NULL, NULL);
     
     // dll injection
     DWORD pid = 0; // process ID
