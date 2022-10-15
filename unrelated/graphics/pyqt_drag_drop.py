@@ -5,8 +5,11 @@ from PyQt5.QtCore import Qt, QUrl
 import PyQt5.QtGui
 import shutil
 import os
+from send_to_vm.sender import Sender
+from unrelated.hash_scan.vt_hash import VTScan
 
-PATH_TO_MOVE = r"D:\\Cyber\\YB_CYBER\\project\\FinalProject\\poc_start\\poc_start"
+PATH_TO_MOVE = r"D:\\Cyber\\YB_CYBER\\project\\FinalProject\\poc_start\\poc_start"  # TODO change path
+
 
 class ListBoxWidget(QListWidget):
     def __init__(self, parent=None):
@@ -16,8 +19,8 @@ class ListBoxWidget(QListWidget):
         self.setAcceptDrops(True)
         self.setGeometry(0, 0, 500, 300)
         self.move(300, 150)
-        #self.move(QApplication.desktop().screen().rect().center()- self.rect().center())
-        #self.resize(300, 300)
+        # self.move(QApplication.desktop().screen().rect().center()- self.rect().center())
+        # self.resize(300, 300)
 
     def dragEnterEvent(self, event):
         if event.mimeData().hasUrls():
@@ -54,7 +57,6 @@ class AppDemo(QMainWindow):
     def __init__(self):
         super().__init__()
 
-
         self.resize(1200, 600)
         self.listbox_view = ListBoxWidget(self)
 
@@ -72,8 +74,11 @@ class AppDemo(QMainWindow):
     def getSelectedItem(self):
         item = QListWidgetItem(self.listbox_view.currentItem())
         path = item.text()
-        shutil.move(str(path), PATH_TO_MOVE + "\\virus_to_check.exe")
-        print("moved to check dir")
+        shutil.move(str(path), PATH_TO_MOVE + "\\virus.exe")
+
+        s = Sender()
+        s.run()
+
 
 app = QApplication(sys.argv)
 
