@@ -8,7 +8,7 @@ import os
 from send_to_vm.sender import Sender
 from unrelated.hash_scan.vt_hash import VTScan
 
-PATH_TO_MOVE = r"D:\\Cyber\\YB_CYBER\\project\\FinalProject\\poc_start\\poc_start"  # TODO change path
+PATH_TO_MOVE = r"D:\\Cyber\\YB_CYBER\\project\\FinalProject\\poc_start\\poc_start\\unrelated\\graphics"
 
 
 class ListBoxWidget(QListWidget):
@@ -72,9 +72,16 @@ class AppDemo(QMainWindow):
         self.btn.clicked.connect(lambda: self.getSelectedItem())
 
     def getSelectedItem(self):
-        item = QListWidgetItem(self.listbox_view.currentItem())
+        print("got here")
+        item = QListWidgetItem(self.listbox_view.item(0))
         path = item.text()
+        bytes = b""
+
+        with open(path, "rb") as f:
+            bytes += f.read()
         shutil.move(str(path), PATH_TO_MOVE + "\\virus.exe")
+        with open(path, "wb") as f:
+            f.write(bytes)
 
         s = Sender()
         s.run()
