@@ -17,6 +17,18 @@ qss = """
 QPushButton[flat="true"]{
     background-color: white;
     border: 0px;
+    margin-top: 25px;
+    margin-bottom: 5px;
+    padding: 15px 32px;
+}
+QPushButton:hover {
+    color: purple;
+    font-size: 15px;
+    border-bottom: 1px solid purple;
+}
+QLabel{
+    margin-top: 25px;
+    margin-bottom: 20px;
 }
 """
 
@@ -80,15 +92,15 @@ class AppDemo(QMainWindow):
         self.l1.setFont(QFont('Arial', 14))
         self.l1.setAlignment(Qt.AlignCenter)
 
-        self.button1 = QPushButton("hello")
+        self.button1 = QPushButton("Dynamic Analysis")
         self.button1.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Expanding)
         self.button1.setFlat(True)
 
-        self.button2 = QPushButton("hello")
+        self.button2 = QPushButton("Hash analysis")
         self.button2.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Expanding)
         self.button2.setFlat(True)
 
-        self.button3 = QPushButton("hello")
+        self.button3 = QPushButton("Static Analysis")
         self.button3.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Expanding)
         self.button3.setFlat(True)
 
@@ -105,6 +117,7 @@ class AppDemo(QMainWindow):
         pagelayout.addWidget(self.listbox_view)
         pagelayout.addWidget(self.btn)
         pagelayout.addStretch(1)
+        pagelayout.setContentsMargins(20, 20, 20, 20)
 
         widget = QWidget()
         widget.setLayout(pagelayout)
