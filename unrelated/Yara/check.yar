@@ -124,7 +124,7 @@ rule socket_operations
         $socket_send = "send" 
         $socket_receive = "recv"
     condition:
-        any of ($*)
+        any of ($*) and #socket_connect >= 2 // # is for number of occurrences
 }
 
 rule file_operations
@@ -149,5 +149,5 @@ rule injection_operations
         $create_remote_thread = "CreateRemoteThread" 
         $close_handle = "CloseHandle"
     condition:
-        any of ($*)
+        any of ($*) and @virtual_alloc < @write_process_memory // @ is for index
 }
