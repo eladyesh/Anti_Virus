@@ -1,4 +1,5 @@
 import "cuckoo"
+import "pe"
 
 rule evil_doer
 {
@@ -6,6 +7,50 @@ rule evil_doer
        cuckoo.network.host(/142\.250\.186\.68/)
        or cuckoo.registry.key_access(/\\Software\\Microsoft\\Windows\\CurrentVersion\\Run/)
        or cuckoo.filesystem.file_access(/autoexec\.bat/)
+}
+
+rule kernel32_import
+{
+    meta:
+        dll="KERNEL32"
+    // strings:
+    //      $i0 = "KERNEL32.DLL"
+    condition:
+        pe.imports("KERNEL32.DLL") 
+        
+}
+
+rule advapi32_import
+{
+    meta:
+        dll="ADVAPI32"
+    // strings:
+    //      $i0 = "ADVAPI32.DLL"
+    condition:
+        pe.imports("ADVAPI32.DLL") 
+        
+}
+
+rule Ws2_32_import
+{
+    meta:
+        dll="Ws2_32"
+    // strings:
+    //      $i0 = "WS2_32.DLL"
+    condition:
+        pe.imports("WS2_32.DLL") 
+        
+}
+
+rule USER32_import
+{
+    meta:
+        dll="USER32"
+    // strings:
+    //      $i0 = "USER32.DLL"
+    condition:
+        pe.imports("USER32.DLL") 
+        
 }
 
 rule process_enumeration
