@@ -149,5 +149,7 @@ if __name__ == "__main__":
     # args = vars(parser.parse_args())
 
     # running scan on suspicious file
+    md5_hash = md5("nop.exe")
+    check_hash(md5_hash)
     vtscan = VTScan()
-    vtscan.info("243861e0c5b6f07248a033105e626189")
+    vtscan.info(md5_hash)

@@ -1,7 +1,10 @@
 from pprint import pprint
 import yara
-import numpy as np
+import sys
+import subprocess
 
+#subprocess.call(['ya_ra.py'], shell=True)
+#
 rules = yara.compile("check.yar")
 matches = rules.match("virus.exe")
 

@@ -8,7 +8,7 @@ from poc_start.send_to_vm.sender import Sender
 from poc_start.unrelated.hash_scan.vt_hash import VTScan
 
 
-PATH_TO_MOVE = r"D:\\Cyber\\YB_CYBER\\project\\FinalProject\\poc_start\\poc_start\\unrelated\\graphics"
+PATH_TO_MOVE = r"E:\\Cyber\\YB_CYBER\\project\\FinalProject\\poc_start\\poc_start\\unrelated\\graphics"
 
 qss = """
 #Window{ 
