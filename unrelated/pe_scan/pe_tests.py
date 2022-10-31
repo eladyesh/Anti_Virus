@@ -283,6 +283,8 @@ class ScanPE:
         """
         pe = pereader.PE(self.path, is_entropy=False)
         for sect in pe.section_header:
+
+            # Write and Execute flags
             if self.suspicious_flags[0] in sect.flags and self.suspicious_flags[2] in sect.flags:
                 print(sect.Name)
 
@@ -297,13 +299,18 @@ class ScanPE:
 
     def linker_test(self):
 
-        """Checks that the Rich and PE header linker versions do not conflict.
-        Certain Rich Header ProdIDs correspond to linker versions
-        Although they are undocumented, we have used prior research as well as our
-        own to determine many of them
-        There are likely more linker version ProdIDs that we have not identified
-        If the linker versions conflict, this function returns INVALID
+        """
+
+        Checks that the Rich and PE header linker versions do not conflict. Certain Rich Header ProdIDs correspond to
+        linker versions Although they are undocumented, we have used prior research as well as our own to determine
+        many of them There are likely more linker version ProdIDs that we have not identified If the linker versions
+        conflict, this function returns INVALID
         This indicates that the Rich header or PE header has been modified
+        If the Rich Header is present, a linker mismatch between the Rich Header linker and Optional Header linker
+        version indicates manipulation of the headers. Since the Rich Header is a means to attribute samples to
+        threat actors, malware authors might get the idea to swap the DOS Stub and Rich Header with those of other
+        threat actor's samples
+
         """
 
         pe = pefile.PE(self.path)
@@ -321,7 +328,7 @@ class ScanPE:
         prodids = []
         for i in range(len(rich_fields)):
             if i % 2 == 0:
-                prodids.append(rich_fields[i] >> 16)
+                prodids.append(rich_fields[i] >> 16) # / 2 ** 16
 
         # Parse major and minor linker versions from PE header
         pe_major = pe.OPTIONAL_HEADER.MajorLinkerVersion
@@ -351,6 +358,7 @@ class ScanPE:
             if pe_major == rich_major and pe_minor == rich_minor:
                 return result.VALID
 
+        # We didn't find a linker
         if not found_linker:
             return result.UNABLE_TO_PARSE
 
@@ -358,7 +366,11 @@ class ScanPE:
 
 
 pe_scan = ScanPE("virus.exe")
-pe_scan.scan_sections() # scan for write and execute flags
-print(pe_scan.linker_test()) # scan for rich header and optional header
 
-# scan for dll imports offset is in the cpp file
+# Scan for write and execute flags
+pe_scan.scan_sections()
+
+# Scan for rich header and optional header
+print(pe_scan.linker_test())
+
+# scan for dll imports offset and address is in the cpp file
