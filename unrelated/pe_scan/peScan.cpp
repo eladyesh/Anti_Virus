@@ -41,7 +41,11 @@ int main()
     printf("FILE HEADER: Machine %x\n", file_header->Machine);
 
     PIMAGE_OPTIONAL_HEADER optional_header = (PIMAGE_OPTIONAL_HEADER)((DWORD)basepointer + dos_header->e_lfanew + sizeof(nt_header->Signature) + sizeof(nt_header->FileHeader));
+    printf("\n----------------------\n");
     printf("OPTIONAL HEADER: Image Base %x\n", optional_header->ImageBase);
+    printf("0%d Major Linker Version\n", nt_header->OptionalHeader.MajorLinkerVersion);
+    printf("0%d Minor Linker Version\n", nt_header->OptionalHeader.MinorLinkerVersion);
+    printf("----------------------\n\n");
 
     PIMAGE_SECTION_HEADER section_header = (PIMAGE_SECTION_HEADER)((DWORD)basepointer + dos_header->e_lfanew + sizeof(nt_header->Signature) + sizeof(nt_header->FileHeader) + sizeof(nt_header->OptionalHeader));
     DWORD numberofsections = file_header->NumberOfSections;
@@ -83,6 +87,7 @@ int main()
 
         // imported dll modules
         printf("\t%s\n", import_table_offset + (importImageDescriptor->Name - import_section->VirtualAddress));
+        //printf("\t%x\n", import_table_offset + (importImageDescriptor->Name - import_section->VirtualAddress));
         // printf("\t%d\n", import_table_offset + (importImageDescriptor->Name - import_section->VirtualAddress)); --> address
         thunk = importImageDescriptor->OriginalFirstThunk == 0 ? importImageDescriptor->FirstThunk : importImageDescriptor->OriginalFirstThunk;
         thunkData = (PIMAGE_THUNK_DATA)(import_table_offset + (thunk - import_section->VirtualAddress));
