@@ -11,6 +11,9 @@
 
 int main()
 {
+
+    // C:\Users\user\Downloads\git-project-HOKM-server-crash-handing\pydbg_tests --> nop.exe
+
     PIMAGE_THUNK_DATA thunkData = {};
     DWORD thunk = NULL;
     DWORD rawOffset = NULL;
@@ -80,6 +83,7 @@ int main()
 
         // imported dll modules
         printf("\t%s\n", import_table_offset + (importImageDescriptor->Name - import_section->VirtualAddress));
+        // printf("\t%d\n", import_table_offset + (importImageDescriptor->Name - import_section->VirtualAddress)); --> address
         thunk = importImageDescriptor->OriginalFirstThunk == 0 ? importImageDescriptor->FirstThunk : importImageDescriptor->OriginalFirstThunk;
         thunkData = (PIMAGE_THUNK_DATA)(import_table_offset + (thunk - import_section->VirtualAddress));
 
