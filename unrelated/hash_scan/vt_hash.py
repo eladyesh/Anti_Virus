@@ -6,6 +6,8 @@ import requests
 import argparse
 import hashlib
 
+f = open("hash_check.txt", "w+")
+
 
 # for terminal colors
 class Colors:
@@ -90,6 +92,89 @@ class VTScan:
             # the client can accept a response which has been compressed using the DEFLATE algorithm
         }
 
+    def upload(self, malware_path):
+        """
+        function uploads suspicious file into malware_path
+        :param malware_path: the path of the suspicious file
+        :return: None
+        """
+        f.write("\nupload file: " + malware_path + "..." + "\n")
+        self.malware_path = malware_path
+        upload_url = VT_API_URL + "files"
+
+        # a dictionary of files to send to the specified url
+        files = {"file": (os.path.basename(malware_path),
+                          open(os.path.abspath(malware_path), "rb"))}  # the requested format for posting
+        f.write("upload to " + upload_url + "\n" * 2)
+        res = requests.post(upload_url, headers=self.headers, files=files)
+
+        # if requested post successful and the server responded with the data
+        if res.status_code == 200:
+
+            # make json format
+            result = res.json()
+
+            # writing to json file
+            # make_json("upload", result)
+
+            self.file_id = result.get("data").get("id")
+            f.write("ID: " + self.file_id + "\n")
+            f.write("successfully upload PE file: OK" + "\n")
+
+        # not ok
+        else:
+            f.write("failed to upload PE file :(" + "\n")
+            f.write("status code: " + str(res.status_code) + "\n")
+            sys.exit(1)
+
+    def analyse(self):
+        """
+        function analyses the files uploaded from Virus Total
+        :return: None
+        """
+
+        f.write("\n\nGetting info about your file...." + "\n\n")
+        analysis_url = VT_API_URL + "analyses/" + self.file_id
+        res = requests.get(analysis_url, headers=self.headers)
+        if res.status_code == 200:
+            result = res.json()
+            # make_json("analyse", result)
+            status = result.get("data").get("attributes").get("status")
+
+            # if analysis was completed
+            if str(status) == "completed":
+                stats = result.get("data").get("attributes").get("stats")
+                results = result.get("data").get("attributes").get("results")
+                f.write("malicious: " + str(stats.get("malicious")) + "\n")
+                f.write("undetected : " + str(stats.get("undetected")) + "\n\n")
+                f.write("")
+                for r in results:
+                    if results[r].get("category") == "malicious":
+                        f.write("==================================================" + "\n")
+                        f.write(results[r].get("engine_name") + "\n")
+                        f.write("version : " + results[r].get("engine_version") + "\n")
+                        f.write("category : " + results[r].get("category") + "\n")
+                        f.write("result : " + results[r].get("result") + "\n")
+                        f.write("method : " + results[r].get("method") + "\n")
+                        f.write("update : " + results[r].get("engine_update") + "\n")
+                        f.write("==================================================" + "\n" * 3)
+                f.write("successfully analyse: OK" + "\n")
+                sys.exit(1)
+
+            # or queued....
+            elif status == "queued":
+                f.write("status QUEUED...")
+                with open(os.path.abspath(self.malware_path), "rb") as fi:
+                    b = fi.read()
+
+                    # creating a sha256 hash of the file
+                    hashsum = hashlib.sha256(b).hexdigest()
+                    self.info(hashsum)
+        else:
+            f.write("failed to get results of analysis :(" + "\n")
+            f.write("status code: " + str(res.status_code) + "\n")
+            sys.exit(1)
+
     def info(self, file_hash):
         """
         function analyses file by it's has
@@ -98,7 +183,6 @@ class VTScan:
         """
 
         check_hash(file_hash)
-        f = open("hash_check.txt", "w+")
 
         f.write("Getting file info by ID: " + file_hash + "\n\n")
         info_url = VT_API_URL + "files/" + file_hash
@@ -107,6 +191,7 @@ class VTScan:
         if res.status_code == 200:
 
             result = res.json()
+
             # make_json("info", result)
             if result.get("data").get("attributes").get("last_analysis_results"):
 
@@ -114,14 +199,14 @@ class VTScan:
                 results = result.get("data").get("attributes").get("last_analysis_results")
                 f.write("malicious: " + str(stats.get("malicious")) + "\n")
                 f.write("undetected : " + str(stats.get("undetected")) + "\n\n")
-                print()
+                f.write("")
                 for r in results:
                     if results[r].get("category") == "malicious":
                         f.write("==================================================" + "\n")
                         f.write(results[r].get("engine_name") + "\n")
                         f.write("version : " + results[r].get("engine_version") + "\n")
                         f.write("category : " + results[r].get("category") + "\n")
-                        f.write("result : " +results[r].get("result") + "\n")
+                        f.write("result : " + results[r].get("result") + "\n")
                         f.write("method : " + results[r].get("method") + "\n")
                         f.write("update : " + results[r].get("engine_update") + "\n")
                         f.write("==================================================" + "\n" * 3)
@@ -140,7 +225,6 @@ class VTScan:
 
 
 if __name__ == "__main__":
-
     # creating an argument parser
     # parser = argparse.ArgumentParser()
 
@@ -149,7 +233,6 @@ if __name__ == "__main__":
     # args = vars(parser.parse_args())
 
     # running scan on suspicious file
-    md5_hash = md5("nop.exe")
-    check_hash(md5_hash)
     vtscan = VTScan()
-    vtscan.info(md5_hash)
+    vtscan.upload("virus.exe")
+    vtscan.analyse()
