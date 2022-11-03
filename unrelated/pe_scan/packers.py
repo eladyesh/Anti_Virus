@@ -2,7 +2,7 @@ import pefile
 import peid
 import subprocess
 
-
+#Omer Cohen was here
 def run_command(cmd):
     """
     runs cmd command in the command prompt and returns the output

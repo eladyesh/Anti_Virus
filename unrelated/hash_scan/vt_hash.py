@@ -6,8 +6,6 @@ import requests
 import argparse
 import hashlib
 
-f = open("hash_check.txt", "w+")
-
 
 # for terminal colors
 class Colors:
@@ -91,6 +89,9 @@ class VTScan:
             "Accept-Encoding": "gzip, deflate"
             # the client can accept a response which has been compressed using the DEFLATE algorithm
         }
+        self.f = open("hash_check.txt", "w")
+        
+        
 
     def upload(self, malware_path):
         """
@@ -98,14 +99,14 @@ class VTScan:
         :param malware_path: the path of the suspicious file
         :return: None
         """
-        f.write("\nupload file: " + malware_path + "..." + "\n")
+        self.f.write("\nupload file: " + malware_path + "..." + "\n")
         self.malware_path = malware_path
         upload_url = VT_API_URL + "files"
 
         # a dictionary of files to send to the specified url
         files = {"file": (os.path.basename(malware_path),
                           open(os.path.abspath(malware_path), "rb"))}  # the requested format for posting
-        f.write("upload to " + upload_url + "\n" * 2)
+        self.f.write("upload to " + upload_url + "\n" * 2)
         res = requests.post(upload_url, headers=self.headers, files=files)
 
         # if requested post successful and the server responded with the data
@@ -118,13 +119,13 @@ class VTScan:
             # make_json("upload", result)
 
             self.file_id = result.get("data").get("id")
-            f.write("ID: " + self.file_id + "\n")
-            f.write("successfully upload PE file: OK" + "\n")
+            self.f.write("ID: " + self.file_id + "\n")
+            self.f.write("successfully upload PE file: OK" + "\n")
 
         # not ok
         else:
-            f.write("failed to upload PE file :(" + "\n")
-            f.write("status code: " + str(res.status_code) + "\n")
+            self.f.write("failed to upload PE file :(" + "\n")
+            self.f.write("status code: " + str(res.status_code) + "\n")
             sys.exit(1)
 
     def analyse(self):
@@ -133,7 +134,7 @@ class VTScan:
         :return: None
         """
 
-        f.write("\n\nGetting info about your file...." + "\n\n")
+        self.f.write("\n\nGetting info about your file...." + "\n\n")
         analysis_url = VT_API_URL + "analyses/" + self.file_id
         res = requests.get(analysis_url, headers=self.headers)
         if res.status_code == 200:
@@ -145,25 +146,25 @@ class VTScan:
             if str(status) == "completed":
                 stats = result.get("data").get("attributes").get("stats")
                 results = result.get("data").get("attributes").get("results")
-                f.write("malicious: " + str(stats.get("malicious")) + "\n")
-                f.write("undetected : " + str(stats.get("undetected")) + "\n\n")
-                f.write("")
+                self.f.write("malicious: " + str(stats.get("malicious")) + "\n")
+                self.f.write("undetected : " + str(stats.get("undetected")) + "\n\n")
+                self.f.write("")
                 for r in results:
                     if results[r].get("category") == "malicious":
-                        f.write("==================================================" + "\n")
-                        f.write(results[r].get("engine_name") + "\n")
-                        f.write("version : " + results[r].get("engine_version") + "\n")
-                        f.write("category : " + results[r].get("category") + "\n")
-                        f.write("result : " + results[r].get("result") + "\n")
-                        f.write("method : " + results[r].get("method") + "\n")
-                        f.write("update : " + results[r].get("engine_update") + "\n")
-                        f.write("==================================================" + "\n" * 3)
-                f.write("successfully analyse: OK" + "\n")
+                        self.f.write("==================================================" + "\n")
+                        self.f.write(results[r].get("engine_name") + "\n")
+                        self.f.write("version : " + results[r].get("engine_version") + "\n")
+                        self.f.write("category : " + results[r].get("category") + "\n")
+                        self.f.write("result : " + results[r].get("result") + "\n")
+                        self.f.write("method : " + results[r].get("method") + "\n")
+                        self.f.write("update : " + results[r].get("engine_update") + "\n")
+                        self.f.write("==================================================" + "\n" * 3)
+                self.f.write("successfully analyse: OK" + "\n")
                 sys.exit(1)
 
             # or queued....
             elif status == "queued":
-                f.write("status QUEUED...")
+                self.f.write("status QUEUED...")
                 with open(os.path.abspath(self.malware_path), "rb") as fi:
                     b = fi.read()
 
@@ -171,8 +172,8 @@ class VTScan:
                     hashsum = hashlib.sha256(b).hexdigest()
                     self.info(hashsum)
         else:
-            f.write("failed to get results of analysis :(" + "\n")
-            f.write("status code: " + str(res.status_code) + "\n")
+            self.f.write("failed to get results of analysis :(" + "\n")
+            self.f.write("status code: " + str(res.status_code) + "\n")
             sys.exit(1)
 
     def info(self, file_hash):
@@ -184,7 +185,7 @@ class VTScan:
 
         check_hash(file_hash)
 
-        f.write("Getting file info by ID: " + file_hash + "\n\n")
+        self.f.write("Getting file info by ID: " + file_hash + "\n\n")
         info_url = VT_API_URL + "files/" + file_hash
         res = requests.get(info_url, headers=self.headers)
 
@@ -197,30 +198,30 @@ class VTScan:
 
                 stats = result.get("data").get("attributes").get("last_analysis_stats")
                 results = result.get("data").get("attributes").get("last_analysis_results")
-                f.write("malicious: " + str(stats.get("malicious")) + "\n")
-                f.write("undetected : " + str(stats.get("undetected")) + "\n\n")
-                f.write("")
+                self.f.write("malicious: " + str(stats.get("malicious")) + "\n")
+                self.f.write("undetected : " + str(stats.get("undetected")) + "\n\n")
+                self.f.write("")
                 for r in results:
                     if results[r].get("category") == "malicious":
-                        f.write("==================================================" + "\n")
-                        f.write(results[r].get("engine_name") + "\n")
-                        f.write("version : " + results[r].get("engine_version") + "\n")
-                        f.write("category : " + results[r].get("category") + "\n")
-                        f.write("result : " + results[r].get("result") + "\n")
-                        f.write("method : " + results[r].get("method") + "\n")
-                        f.write("update : " + results[r].get("engine_update") + "\n")
-                        f.write("==================================================" + "\n" * 3)
+                        self.f.write("==================================================" + "\n")
+                        self.f.write(results[r].get("engine_name") + "\n")
+                        self.f.write("version : " + results[r].get("engine_version") + "\n")
+                        self.f.write("category : " + results[r].get("category") + "\n")
+                        self.f.write("result : " + results[r].get("result") + "\n")
+                        self.f.write("method : " + results[r].get("method") + "\n")
+                        self.f.write("update : " + results[r].get("engine_update") + "\n")
+                        self.f.write("==================================================" + "\n" * 3)
 
-                f.write("successfully analyse: OK" + "\n")
+                self.f.write("successfully analyse: OK" + "\n")
                 print("Scan Done successfully")
                 sys.exit(1)
 
             else:
-                f.write("failed to analyse :(..." + "\n")
+                self.f.write("failed to analyse :(..." + "\n")
 
         else:
-            f.write("failed to get information :(" + "\n")
-            f.write("status code: " + str(res.status_code) + "\n")
+            self.f.write("failed to get information :(" + "\n")
+            self.f.write("status code: " + str(res.status_code) + "\n")
             sys.exit(1)
 
 
