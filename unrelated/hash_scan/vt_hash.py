@@ -41,7 +41,7 @@ def make_json(name, data):
 
 
 # Virus Total API key
-VT_API_KEY = r"9065bb9783e2196439ab5b9a99519c92674dedf381517bad08d7c3fbb8802987"  # your virus total api key
+VT_API_KEY = r"9065bb9783e2196439ab5b9a99519c92674dedf381517bad08d7c3fbb8802987"
 
 # VirusTotal API v3 URL
 VT_API_URL = r"https://www.virustotal.com/api/v3/"
@@ -178,7 +178,7 @@ class VTScan:
 
     def info(self, file_hash):
         """
-        function analyses file by it's has
+        function analyses file by it's hash
         :param file_hash: the files hash
         :return: None
         """
@@ -234,6 +234,7 @@ if __name__ == "__main__":
     # args = vars(parser.parse_args())
 
     # running scan on suspicious file
+    md5_hash = md5("nop.exe")
     vtscan = VTScan()
-    vtscan.upload("virus.exe")
+    vtscan.info(md5_hash)
     vtscan.analyse()
