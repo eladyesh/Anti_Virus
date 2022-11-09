@@ -3,18 +3,17 @@ import yara
 import sys
 import subprocess
 
-#subprocess.call(['ya_ra.py'], shell=True)
-#
-rules = yara.compile("check.yar")
-matches = rules.match("virus.exe")
+rules = yara.compile("packers.yar")
+matches = rules.match("regular_exe.exe")
 
-#l = sorted([j for sub in [i.strings for i in matches] for j in sub], key= lambda tup: tup[0])
+# #l = sorted([j for sub in [i.strings for i in matches] for j in sub], key= lambda tup: tup[0])
 for i in matches:
-    if i.meta != {}:
-        print(i.meta)
-    if i.strings:
-        for j in i.strings:
-            print(j)
-        print()
-        print()
-        print()
+    print(i)
+    # if i.meta != {}:
+    #     print(i.meta)
+    # if i.strings:
+    #     for j in i.strings:
+    #         print(j)
+    #     print()
+    #     print()
+    #     print()
