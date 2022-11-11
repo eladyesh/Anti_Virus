@@ -15,7 +15,6 @@ def aes_encrypt(data, key):
 
 
 def shannon_entropy(data):
-
     # 256 different possible values
     possible = dict(((chr(x), 0) for x in range(0, 256)))
 
@@ -44,7 +43,6 @@ def entropy_for_file(file):
 
 
 def encrypt_file(file):
-
     # key for encrypt/decrypt
     my_secret_key = get_random_bytes(16)
     with open("virus.exe", 'rb') as f:
@@ -59,7 +57,7 @@ def encrypt_file(file):
 
 def sections_entropy(path):
     pe = pefile.PE(path)
-    for section in pe.sections[:3]:
+    for section in pe.sections:
         print(section.Name.decode())
         print("\tvirtual address: " + hex(section.VirtualAddress))
         print("\tvirtual size: " + hex(section.Misc_VirtualSize))
@@ -68,7 +66,14 @@ def sections_entropy(path):
 
 
 if __name__ == "__main__":
-    print(f"Entropy for virus.exe: {entropy_for_file('exe//virus.exe')}")
-    print(f"Entropy for virus_encrypted.exe: {entropy_for_file('exe//virus_encrypted.exe')}")
-    print(f"Entropy for hack.exe: {entropy_for_file('hack_viruses//hack.exe')}")
-    print(f"Entropy for hack_encrypted.exe: {entropy_for_file('hack_viruses//hack_encrypted.exe')}")
+    #   print(f"Entropy for virus.exe: {entropy_for_file('exe//virus.exe')}")
+    #   print(f"Entropy for virus_encrypted.exe: {entropy_for_file('exe//virus_encrypted.exe')}")
+    #   print(f"Entropy for hack.exe: {entropy_for_file('hack_viruses//hack.exe')}")
+    #   print(f"Entropy for hack_encrypted.exe: {entropy_for_file('hack_viruses//hack_encrypted.exe')}")
+
+    sections_entropy("exe//virus.exe")
+    print()
+    print()
+    print()
+    print()
+    sections_entropy("exe//real_nop.exe")

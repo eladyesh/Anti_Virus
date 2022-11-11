@@ -17,7 +17,7 @@ def run_command(cmd):
                             encoding="utf-8").communicate()
 
 
-a = run_command("peid nop.exe")[0]
+a = run_command("peid exe\\virus.exe")[0]
 packers = []
 for i in a.split("\n")[:-1]:
     packers.append(i)

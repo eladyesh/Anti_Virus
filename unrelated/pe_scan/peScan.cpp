@@ -63,6 +63,15 @@ int main()
     PIMAGE_SECTION_HEADER import_section = {};
     for (int i = 1; i <= numberofsections; i++, section_header++) {
         printf("Section Header: Section Name %s\n", section_header->Name);
+        printf("\t\t0x%x\t\tVirtual Size\n", section_header->Misc.VirtualSize);
+        printf("\t\t0x%x\t\tVirtual Address\n", section_header->VirtualAddress);
+        printf("\t\t0x%x\t\tSize Of Raw Data\n", section_header->SizeOfRawData);
+        printf("\t\t0x%x\t\tPointer To Raw Data\n", section_header->PointerToRawData);
+        printf("\t\t0x%x\t\tPointer To Relocations\n", section_header->PointerToRelocations);
+        printf("\t\t0x%x\t\tPointer To Line Numbers\n", section_header->PointerToLinenumbers);
+        printf("\t\t0x%x\t\tNumber Of Relocations\n", section_header->NumberOfRelocations);
+        printf("\t\t0x%x\t\tNumber Of Line Numbers\n", section_header->NumberOfLinenumbers);
+        printf("\t\t0x%x\tCharacteristics\n", section_header->Characteristics);
 
         if (RVAimport_directory >= section_header->VirtualAddress && RVAimport_directory < section_header->VirtualAddress + section_header->Misc.VirtualSize) {
 
