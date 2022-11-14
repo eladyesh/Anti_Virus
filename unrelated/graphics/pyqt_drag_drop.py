@@ -7,6 +7,7 @@ import shutil
 from poc_start.send_to_vm.sender import Sender
 from poc_start.unrelated.hash_scan.vt_hash import VTScan
 
+
 PATH_TO_MOVE = r"E:\\Cyber\\YB_CYBER\\project\\FinalProject\\poc_start\\poc_start\\unrelated\\graphics"
 
 qss = """
@@ -28,8 +29,6 @@ QPushButton:hover {
 QLabel{
     margin-top: 25px;
     margin-bottom: 20px;
-    display:inline-block; 
-    position: fixed;
 }
 """
 
@@ -81,8 +80,8 @@ class AppDemo(QMainWindow):
     def __init__(self):
         super().__init__()
 
-        self.pagelayout = QVBoxLayout()
-        self.btn_layout = QHBoxLayout()
+        pagelayout = QVBoxLayout()
+        btn_layout = QHBoxLayout()
         self.resize(1200, 600)
 
         self.listbox_view = ListBoxWidget(self)
@@ -105,27 +104,26 @@ class AppDemo(QMainWindow):
         self.hash_button.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Expanding)
         self.hash_button.setFlat(True)
 
-        # btn_layout.addItem(Qt.SpacerItem(0, 0,QSizePolicy.Expanding, Qt.QSizePolicy.Minimum))
-        self.btn_layout.addStretch(1)
-        self.btn_layout.addWidget(self.dynamic_button, Qt.AlignCenter)
-        self.btn_layout.addWidget(self.static_button, Qt.AlignCenter)
-        self.btn_layout.addWidget(self.hash_button, Qt.AlignCenter)
-        self.btn_layout.setAlignment(Qt.AlignCenter)
+        #btn_layout.addItem(Qt.SpacerItem(0, 0,QSizePolicy.Expanding, Qt.QSizePolicy.Minimum))
+        btn_layout.addStretch(1)
+        btn_layout.addWidget(self.dynamic_button, Qt.AlignCenter)
+        btn_layout.addWidget(self.static_button, Qt.AlignCenter)
+        btn_layout.addWidget(self.hash_button, Qt.AlignCenter)
+        btn_layout.setAlignment(Qt.AlignCenter)
 
-        self.pagelayout.setAlignment(Qt.AlignCenter)
-        self.pagelayout.addWidget(self.l1)
-        self.pagelayout.addLayout(self.btn_layout)
-        self.pagelayout.addWidget(self.listbox_view)
-        self.pagelayout.addWidget(self.btn)
-        self.pagelayout.addStretch(1)
-        self.pagelayout.setContentsMargins(20, 20, 20, 20)
+        pagelayout.setAlignment(Qt.AlignCenter)
+        pagelayout.addWidget(self.l1)
+        pagelayout.addLayout(btn_layout)
+        pagelayout.addWidget(self.listbox_view)
+        pagelayout.addWidget(self.btn)
+        pagelayout.addStretch(1)
+        pagelayout.setContentsMargins(20, 20, 20, 20)
 
         widget = QWidget()
-        widget.setLayout(self.pagelayout)
+        widget.setLayout(pagelayout)
         self.setCentralWidget(widget)
 
         self.btn.clicked.connect(lambda: self.getSelectedItem())
-        self.static_button.clicked.connect(lambda: [self.clear_layout(), self.listbox_view.deleteLater()])
 
     def getSelectedItem(self):
         print("got here")
@@ -141,14 +139,6 @@ class AppDemo(QMainWindow):
 
         s = Sender()
         s.run()
-
-    def clear_layout(self):
-        for cnt in reversed(range(self.pagelayout.count())):
-            if cnt == 0:
-                continue
-            widget = self.pagelayout.takeAt(cnt).widget()
-            if widget is not None:
-                widget.deleteLater()
 
 
 app = QApplication(sys.argv)
