@@ -136,13 +136,14 @@ Defining functions that are being hooked
         [out, optional]     LPDWORD      lpNumberOfBytesWritten,
         [in, out, optional] LPOVERLAPPED lpOverlapped
     );
+    // std::vector<LPVOID> winapi_functions = { CreateFileA, DeleteFileA, WriteFileEx, WriteFile, VirtualAlloc, CreateThread, OpenProcess, VirtualAllocEx, CreateRemoteThread, CloseHandle, RegOpenKeyExA, RegSetValueExA, RegCreateKeyExA, RegGetValueA, socket, connect, send, recv };
 */
 
 // Intializing maps and lists of suspicious function
 std::map<const char*, void*> fnMap;
 std::map<std::string, int> fnCounter;
 std::vector<const char*> suspicious_functions = { "CreateFileA", "DeleteFileA", "WriteFileEx", "WriteFile", "VirtualAlloc", "CreateThread", "OpenProcess", "VirtualAllocEx", "CreateRemoteThread", "CloseHandle", "RegOpenKeyExA", "RegSetValueExA", "RegCreateKeyExA", "RegGetValueA", "socket", "connect", "send", "recv" };
-std::vector<FARPROC> addresses(18);
+std::vector<LPVOID> addresses(18);
 std::vector<char[6]> original(18);
 std::map<HANDLE, int> handle_counter;
 std::map<const char*, int> function_index;
@@ -285,6 +286,7 @@ void LOG(const char* message, T parameter) {
     WriteFile(hFile, message, strlen(message), NULL, nullptr);
     //WriteFile(hFile, "\n", strlen("\n"), NULL, nullptr);
     ostringstream oss;
+    ostringstream oss2;
     oss << parameter << ends;
     WriteFile(hFile, oss.str().c_str(), strlen(oss.str().c_str()), NULL, nullptr);
     WriteFile(hFile, "\n", strlen("\n"), NULL, nullptr);
