@@ -1,3 +1,5 @@
+/* In order for c# to work, you have to turn off the VirtualAlloc, CreateThread, And OpenProcess Hooks */
+
 #include "pch.h"
 #include "cpu.h"
 #include <Windows.h>
@@ -143,7 +145,7 @@ Defining functions that are being hooked
 std::map<const char*, void*> fnMap;
 std::map<std::string, int> fnCounter;
 std::vector<const char*> suspicious_functions = { "CreateFileA", "DeleteFileA", "WriteFileEx", "WriteFile", "VirtualAlloc", "CreateThread", "OpenProcess", "VirtualAllocEx", "CreateRemoteThread", "CloseHandle", "RegOpenKeyExA", "RegSetValueExA", "RegCreateKeyExA", "RegGetValueA", "socket", "connect", "send", "recv" };
-std::vector<LPVOID> addresses(18);
+std::vector<FARPROC> addresses(18);
 std::vector<char[6]> original(18);
 std::map<HANDLE, int> handle_counter;
 std::map<const char*, int> function_index;
@@ -857,6 +859,12 @@ struct INJECT_HOOKING {
         return SetInlineHook("CreateThread", "kernel32.dll", "CreateThreadHook", index);
     }
     static HANDLE __stdcall OpenProcessHook(DWORD dwDesiredAccess, BOOL bInheritHandle, DWORD dwProcessId) {
+
+
+        const std::wstring name1 = FindProcess::FindProcessName(dwProcessId);
+        std::string str1(name1.begin(), name1.end());
+        if (str1 == std::string("VIRUS.EXE") || str1 == std::string("virus.exe")) return NULL;
+        
         LOG("\n----------intercepted call to OpenProcess----------\n\n", "");
 
         if (dwDesiredAccess == ((0x000F0000L) | (0x00100000L) | (0xFFFF)))
@@ -1167,12 +1175,12 @@ int main() {
     SetInlineHook("WriteFileEx", "kernel32.dll", "WriteFileExHook", function_index["WriteFileEx"]);
     SetInlineHook("WriteFile", "kernel32.dll", "WriteFileHook", function_index["WriteFile"]);
 
-    SetInlineHook("VirtualAlloc", "kernel32.dll", "VirtualAllocHook", function_index["VirtualAlloc"]);
-    SetInlineHook("CreateThread", "kernel32.dll", "CreateThreadHook", function_index["CreateThread"]);
+    // SetInlineHook("VirtualAlloc", "kernel32.dll", "VirtualAllocHook", function_index["VirtualAlloc"]);
+    // SetInlineHook("CreateThread", "kernel32.dll", "CreateThreadHook", function_index["CreateThread"]);
     SetInlineHook("OpenProcess", "kernel32.dll", "OpenProcessHook", function_index["OpenProcess"]);
     SetInlineHook("VirtualAllocEx", "kernel32.dll", "VirtualAllocExHook", function_index["VirtualAllocEx"]);
     SetInlineHook("CreateRemoteThread", "kernel32.dll", "CreateRemoteThreadHook", function_index["CreateRemoteThread"]);
-    SetInlineHook("CloseHandle", "kernel32.dll", "CloseHandleHook", function_index["CloseHandle"]);
+    // SetInlineHook("CloseHandle", "kernel32.dll", "CloseHandleHook", function_index["CloseHandle"]);
 
     SetInlineHook("RegOpenKeyExA", "advapi32.dll", "RegOpenKeyExAHook", function_index["RegOpenKeyExA"]);
     SetInlineHook("RegSetValueExA", "advapi32.dll", "RegSetValueExAHook", function_index["RegSetValueExA"]);
