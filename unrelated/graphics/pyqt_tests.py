@@ -19,10 +19,16 @@ QPushButton[flat="true"]{
     margin-top: 25px;
     margin-bottom: 5px;
     padding: 15px 32px;
+    font-size:20px;
+    display:inline-block;
+    min-width: 50px;
+    min-height: 50px;
+    max-width: 500px;
+    max-height: 50px;
 }
 QPushButton:hover {
     color: purple;
-    font-size: 15px;
+    font-size: 20px;
     border-bottom: 1px solid purple;
 }
 QLabel{
@@ -143,13 +149,14 @@ class AppDemo(QMainWindow):
 
     def clear_layout(self):
         for cnt in reversed(range(self.pagelayout.count())):
-            if cnt == 0:
+            if cnt == 0 or cnt == 1:
                 continue
             widget = self.pagelayout.takeAt(cnt).widget()
             if widget is not None:
                 widget.deleteLater()
 
-        self.pagelayout.addLayout(self.btn_layout)
+        # self.pagelayout.addLayout(self.btn_layout)
+        self.static_button.setEnabled(False)
 
         self.tableWidget = QTableWidget()
 
@@ -167,7 +174,21 @@ class AppDemo(QMainWindow):
         self.tableWidget.setItem(2, 1, QTableWidgetItem("Bhopal"))
         self.tableWidget.setItem(3, 0, QTableWidgetItem("Arnavi"))
         self.tableWidget.setItem(3, 1, QTableWidgetItem("Mandsaur"))
+
+        width = self.tableWidget.verticalHeader().width()
+        width += self.tableWidget.horizontalHeader().length()
+        if self.tableWidget.verticalScrollBar().isVisible():
+            width += self.tableWidget.verticalScrollBar().width()
+        width += self.tableWidget.frameWidth() * 2
+        self.tableWidget.setFixedWidth(width)
+
+        self.tableWidget.resizeColumnsToContents()
+        self.tableWidget.setWordWrap(True)
+        self.tableWidget.setSizeAdjustPolicy(QAbstractScrollArea.AdjustToContents)
+        self.tableWidget.resizeColumnToContents(0)
+        self.tableWidget.resizeColumnToContents(1)
         self.pagelayout.addWidget(self.tableWidget)
+
 
 app = QApplication(sys.argv)
 app.setStyleSheet(qss)

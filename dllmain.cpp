@@ -1,4 +1,4 @@
-/* In order for c# to work, you have to turn off the VirtualAlloc, CreateThread, And OpenProcess Hooks */
+/* In order for c# to work, you have to turn off the VirtualAlloc, CreateThread, And CloseHandle Hooks */
 
 #include "pch.h"
 #include "cpu.h"
