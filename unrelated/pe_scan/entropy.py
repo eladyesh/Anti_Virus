@@ -55,14 +55,24 @@ def encrypt_file(file):
     print("Done!")
 
 
+def len_sections(path):
+    return len(pefile.PE(path).sections)
+
+
 def sections_entropy(path):
+    sections = [[]]
     pe = pefile.PE(path)
     for section in pe.sections:
-        print(section.Name.decode())
-        print("\tvirtual address: " + hex(section.VirtualAddress))
-        print("\tvirtual size: " + hex(section.Misc_VirtualSize))
-        print("\traw size: " + hex(section.SizeOfRawData))
-        print("\tentropy: " + str(shannon_entropy(section.get_data())))
+        # print(section.Name.decode())
+        sections.append([section.Name.decode(), hex(section.VirtualAddress), hex(section.Misc_VirtualSize),
+                                           hex(section.SizeOfRawData),
+                                           str(shannon_entropy(section.get_data()))])
+        # print("\tvirtual address: " + hex(section.VirtualAddress))
+        # print("\tvirtual size: " + hex(section.Misc_VirtualSize))
+        # print("\traw size: " + hex(section.SizeOfRawData))
+        # print("\tentropy: " + str(shannon_entropy(section.get_data())))
+
+    return sections
 
 
 if __name__ == "__main__":
@@ -72,7 +82,6 @@ if __name__ == "__main__":
     #   print(f"Entropy for hack_encrypted.exe: {entropy_for_file('hack_viruses//hack_encrypted.exe')}")
 
     sections_entropy("exe//virus.exe")
-    print()
     print()
     print()
     print()

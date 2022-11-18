@@ -6,6 +6,7 @@ import PyQt5.QtGui
 import shutil
 from poc_start.send_to_vm.sender import Sender
 from poc_start.unrelated.hash_scan.vt_hash import VTScan
+from poc_start.unrelated.pe_scan.entropy import *
 
 PATH_TO_MOVE = r"E:\\Cyber\\YB_CYBER\\project\\FinalProject\\poc_start\\poc_start\\unrelated\\graphics"
 
@@ -161,19 +162,24 @@ class AppDemo(QMainWindow):
         self.tableWidget = QTableWidget()
 
         # Row count
-        self.tableWidget.setRowCount(4)
+        rows = len_sections("virus.exe")
+        self.tableWidget.setRowCount(rows + 1)
 
         # Column count
-        self.tableWidget.setColumnCount(2)
+        self.tableWidget.setColumnCount(5)
+
+        sections = sections_entropy("virus.exe")[1:]
+        print(sections)
 
         self.tableWidget.setItem(0, 0, QTableWidgetItem("Name"))
-        self.tableWidget.setItem(0, 1, QTableWidgetItem("City"))
-        self.tableWidget.setItem(1, 0, QTableWidgetItem("Aloysius"))
-        self.tableWidget.setItem(1, 1, QTableWidgetItem("Indore"))
-        self.tableWidget.setItem(2, 0, QTableWidgetItem("Alan"))
-        self.tableWidget.setItem(2, 1, QTableWidgetItem("Bhopal"))
-        self.tableWidget.setItem(3, 0, QTableWidgetItem("Arnavi"))
-        self.tableWidget.setItem(3, 1, QTableWidgetItem("Mandsaur"))
+        self.tableWidget.setItem(0, 1, QTableWidgetItem("Virtual Address"))
+        self.tableWidget.setItem(0, 2, QTableWidgetItem("Virtual Size"))
+        self.tableWidget.setItem(0, 3, QTableWidgetItem("Raw Size"))
+        self.tableWidget.setItem(0, 4, QTableWidgetItem("Entropy"))
+
+        for row in range(0, len(sections)):
+            for column in range(len(sections[0])):
+                self.tableWidget.setItem(row + 1, column, QTableWidgetItem(sections[row][column]))
 
         width = self.tableWidget.verticalHeader().width()
         width += self.tableWidget.horizontalHeader().length()
