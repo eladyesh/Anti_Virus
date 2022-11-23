@@ -385,9 +385,24 @@ class ScanPE:
 
     def run_pe_scan_exe(self):
 
-        output = run_command("exe\\peScan.exe " + self.path)[0]
-        for line in output.split("\n"):
-            print(line)
+        dlls = dict({})
+        headers = run_command("exe\\peScan.exe " + self.path)[0]
+        headers = headers.split("\n\n")[-1].split("\n")[1:]
+        headers = [line.replace("\t\t", "") for line in headers]
+        headers = " ".join(headers).split("\t")[1:]
+        headers = [line.replace(",", "") for line in headers]
+        for dll in headers:
+
+            dll = dll.split(" ")
+            name_and_address = [dll[0], dll[1], dll[2]]
+            dll_imports = [imp for imp in dll[3:-1]]
+            print(name_and_address, dll_imports)
+            dlls[name_and_address] = dll_imports
+
+
+
+            # dll_imports.append([dll[0], dll[1], ])
+        # print(" ".join(headers).split("\t"))
 
 
 pe_scan = ScanPE("exe\\virus.exe")
