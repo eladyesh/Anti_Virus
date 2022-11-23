@@ -18,5 +18,5 @@ def run_command(cmd):
 
 path_to_pe_scan = "exe\\peScan.exe"
 path_to_virus = "exe\\virus.exe"
-a = run_command(path_to_pe_scan + " " + path_to_virus)[0]
+a = run_command("exe\\peScan.exe" + " " + "exe\\virus.exe")[0]
 print(a)

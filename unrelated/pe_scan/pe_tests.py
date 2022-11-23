@@ -5,6 +5,8 @@ import copy
 from enum import Enum
 import struct
 import sys
+import subprocess
+
 
 # def listsections(fname):
 #     pe = pefile.PE(fname)
@@ -14,6 +16,19 @@ import sys
 #         print("%17s" % sect.Name.decode('utf-8'), end='')
 #         print(("\t\t%5.2f" % sect.get_entropy()))
 #         print(sect)
+
+def run_command(cmd):
+    """
+    runs cmd command in the command prompt and returns the output
+    arg: cmd
+    ret: the output of the command
+    """
+    return subprocess.Popen(cmd, stdout=subprocess.PIPE,
+                            shell=True,
+                            stderr=subprocess.PIPE,
+                            stdin=subprocess.PIPE,
+                            encoding="utf-8").communicate()
+
 
 KNOWN_PRODUCT_IDS = {
     0: "Unknown",
@@ -281,12 +296,16 @@ class ScanPE:
         whereas it is rather typical for packed files.
         The presence of both means the code itself can be changed dynamically
         """
+
         pe = pereader.PE(self.path, is_entropy=False)
         for sect in pe.section_header:
 
             # Write and Execute flags
-            if self.suspicious_flags[0] in sect.flags and self.suspicious_flags[2] in sect.flags:
-                print(sect.Name)
+            if self.suspicious_flags[0] in sect.flags and self.suspicious_flags[1] in sect.flags and \
+                    self.suspicious_flags[2] in sect.flags:
+                return sect.Name
+
+        return False
 
     # def scan_imoprts(self):
     #
@@ -328,7 +347,7 @@ class ScanPE:
         prodids = []
         for i in range(len(rich_fields)):
             if i % 2 == 0:
-                prodids.append(rich_fields[i] >> 16) # / 2 ** 16
+                prodids.append(rich_fields[i] >> 16)  # / 2 ** 16
 
         # Parse major and minor linker versions from PE header
         pe_major = pe.OPTIONAL_HEADER.MajorLinkerVersion
@@ -364,13 +383,18 @@ class ScanPE:
 
         return result.INVALID
 
+    def run_pe_scan_exe(self):
 
-pe_scan = ScanPE("virus.exe")
+        output = run_command("exe\\peScan.exe " + self.path)[0]
+        for line in output.split("\n"):
+            print(line)
+
+
+pe_scan = ScanPE("exe\\virus.exe")
+pe_scan.run_pe_scan_exe()
 
 # Scan for write and execute flags
-pe_scan.scan_sections()
+print(pe_scan.scan_sections())
 
 # Scan for rich header and optional header
 print(pe_scan.linker_test())
-
-# scan for dll imports offset and address is in the cpp file
