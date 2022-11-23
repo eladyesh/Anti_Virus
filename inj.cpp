@@ -6,7 +6,7 @@
 int main()
 {
 
-    const char name[] = { "D:\\Cyber\\YB_CYBER\\project\\FinalProject\\poc_start\\poc_start\\inline.dll" };
+    const char name[] = { "inline.dll" };
     unsigned int len{ sizeof(name) + 1 };
     DWORD result = GetFullPathNameA(name, 0, NULL, NULL);
     char* buf = new char[result];
@@ -22,7 +22,7 @@ int main()
     ZeroMemory(&pi, sizeof(pi));
 
     CreateProcessA(
-        "D:\\Cyber\\YB_CYBER\\project\\FinalProject\\poc_start\\poc_start\\virus.exe",
+        "virus.exe",
         NULL,
         NULL,
         NULL,
