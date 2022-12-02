@@ -5,6 +5,22 @@ import json
 import requests
 import argparse
 import hashlib
+import base64
+import subprocess
+import pydivert
+import re
+
+
+def run_command(cmd):
+    """
+    runs cmd command in the command prompt and returns the output
+    arg: cmd
+    ret: the output of the command
+    """
+    with subprocess.Popen(cmd, stdout=subprocess.PIPE,
+                          stderr=subprocess.PIPE,
+                          stdin=subprocess.PIPE) as proc:
+        return proc.stdout.read()
 
 
 # for terminal colors
@@ -90,8 +106,6 @@ class VTScan:
             # the client can accept a response which has been compressed using the DEFLATE algorithm
         }
         self.f = open("hash_check.txt", "w")
-        
-        
 
     def upload(self, malware_path):
         """
@@ -176,6 +190,32 @@ class VTScan:
             self.f.write("status code: " + str(res.status_code) + "\n")
             sys.exit(1)
 
+    def scan_for_suspicious_cache(self):
+
+        ip_pattern = re.compile(r'(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})')
+        ip_match = []
+        block_ip = ["185.51.231.193", "205.251.196.240", "13.107.238.1"]
+        dns_cache = run_command(["ipconfig", "/displaydns"]).decode()
+        for line in dns_cache.split("\r\n"):
+            if ip_pattern.search(line) is not None:
+                ip_match.append(ip_pattern.search(line)[0])
+
+        url_to_vt = "https://www.virustotal.com/api/v3/urls/"
+
+        # for ip in ip_match:
+        #     url_to_check = base64.urlsafe_b64encode(ip.encode()).decode().strip("=")
+        #     res = requests.get(url_to_vt + url_to_check, headers=self.headers)
+        #     if res.status_code == 200:
+        #         result = res.json()
+        #         # print(result["data"]["attributes"]["last_analysis_results"]) --> engines
+        #         if result["data"]["attributes"]["last_analysis_stats"]["malicious"] > 5:
+        #             block_ip.append(ip)
+
+        with pydivert.WinDivert() as w:
+            for packet in w:
+                if packet.dst_addr not in block_ip:
+                    w.send(packet)
+
     def info(self, file_hash):
         """
         function analyses file by it's hash
@@ -234,7 +274,8 @@ if __name__ == "__main__":
     # args = vars(parser.parse_args())
 
     # running scan on suspicious file
-    md5_hash = md5("nop.exe")
+    # md5_hash = md5("nop.exe")
     vtscan = VTScan()
-    vtscan.info(md5_hash)
-    vtscan.analyse()
+    # vtscan.info(md5_hash)
+    # vtscan.analyse()
+    vtscan.scan_for_suspicious_cache()
