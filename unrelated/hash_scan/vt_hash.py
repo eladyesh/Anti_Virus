@@ -190,7 +190,8 @@ class VTScan:
             self.f.write("status code: " + str(res.status_code) + "\n")
             sys.exit(1)
 
-    def scan_for_suspicious_cache(self):
+    @staticmethod
+    def scan_for_suspicious_cache():
 
         ip_pattern = re.compile(r'(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})')
         ip_match = []
@@ -215,6 +216,40 @@ class VTScan:
             for packet in w:
                 if packet.dst_addr not in block_ip:
                     w.send(packet)
+
+    @staticmethod
+    def scan_directory(path):
+        
+        headers = {
+            "x_apikey": VT_API_KEY,  # api key
+            "User-Agent": "vtscan v.1.0",
+            "Accept-Encoding": "gzip, deflate"
+            # the client can accept a response which has been compressed using the DEFLATE algorithm
+        }
+        
+        for filename in os.scandir(path):
+            if filename.is_file():
+
+                upload_url = VT_API_URL + "files"
+
+                # a dictionary of files to send to the specified url
+                files = {"file": (os.path.basename(filename.path),
+                                  open(os.path.abspath(filename.path), "rb"))}  # the requested format for posting
+                res = requests.post(upload_url, headers=headers, files=files)
+
+                if res.status_code == 200:
+
+                    result = res.json()
+                    file_id = result.get("data").get("id")
+                    print("Successfully uploaded")
+
+                    analysis_url = VT_API_URL + "analyses/" + file_id
+                    analyse_res = requests.get(analysis_url, headers=headers)
+
+                    if analyse_res.status_code == 200:
+
+                        analyse_result = analyse_res.json()
+                        print(analyse_result["data"]["attributes"]["stats"])
 
     def info(self, file_hash):
         """
@@ -278,4 +313,5 @@ if __name__ == "__main__":
     vtscan = VTScan()
     # vtscan.info(md5_hash)
     # vtscan.analyse()
-    vtscan.scan_for_suspicious_cache()
+    # VTScan.scan_for_suspicious_cache()
+    VTScan.scan_directory("D:\Cyber\Sockets")

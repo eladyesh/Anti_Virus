@@ -391,13 +391,19 @@ class ScanPE:
         headers = [line.replace("\t\t", "") for line in headers]
         headers = " ".join(headers).split("\t")[1:]
         headers = [line.replace(",", "") for line in headers]
+
         for dll in headers:
 
             dll = dll.split(" ")
-            name_and_address = [dll[0], dll[1], dll[2]]
+            name_and_address = tuple([dll[0], dll[1], dll[2]])
             dll_imports = [imp for imp in dll[3:-1]]
             print(name_and_address, dll_imports)
+
+            # key = [name, decimal address, hex address]
             dlls[name_and_address] = dll_imports
+
+
+        return dlls
 
 
 
@@ -405,11 +411,13 @@ class ScanPE:
         # print(" ".join(headers).split("\t"))
 
 
-pe_scan = ScanPE("exe\\virus.exe")
-pe_scan.run_pe_scan_exe()
+if __name__ == '__main__':
 
-# Scan for write and execute flags
-print(pe_scan.scan_sections())
+    pe_scan = ScanPE("exe\\virus.exe")
+    pe_scan.run_pe_scan_exe()
 
-# Scan for rich header and optional header
-print(pe_scan.linker_test())
+    # Scan for write and execute flags
+    print(pe_scan.scan_sections())
+
+    # Scan for rich header and optional header
+    print(pe_scan.linker_test())

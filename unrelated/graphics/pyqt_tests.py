@@ -4,9 +4,13 @@ from PyQt5.QtGui import *
 from PyQt5.QtCore import Qt, QUrl
 import PyQt5.QtGui
 import shutil
-from poc_start.send_to_vm.sender import Sender
-from poc_start.unrelated.hash_scan.vt_hash import VTScan
-from poc_start.unrelated.pe_scan.entropy import *
+from send_to_vm.sender import Sender
+from unrelated.hash_scan.vt_hash import VTScan
+from unrelated.pe_scan.entropy import *
+from unrelated.pe_scan.pe_tests import *
+from unrelated.Yara.ya_ra import *
+from unrelated.fuzzy_hashing.ssdeep_check import *
+
 
 PATH_TO_MOVE = r"E:\\Cyber\\YB_CYBER\\project\\FinalProject\\poc_start\\poc_start\\unrelated\\graphics"
 
@@ -149,6 +153,10 @@ class AppDemo(QMainWindow):
         s.run()
 
     def clear_layout(self):
+
+        dir = str(QFileDialog.getExistingDirectory(self, "Select Directory"))
+        VTScan.scan_directory(dir)
+
         for cnt in reversed(range(self.pagelayout.count())):
             if cnt == 0 or cnt == 1:
                 continue

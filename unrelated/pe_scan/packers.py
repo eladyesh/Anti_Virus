@@ -18,6 +18,8 @@ def run_command(cmd):
 
 
 a = run_command("peid exe\\virus.exe")[0]
+b = run_command(["cd /", r"cd /d c:", "ipconfig /dnsdisplay"])
+print(b)
 packers = []
 for i in a.split("\n")[:-1]:
     packers.append(i)
