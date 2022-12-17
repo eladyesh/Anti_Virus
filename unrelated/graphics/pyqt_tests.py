@@ -1,16 +1,18 @@
 import sys, os
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
-from PyQt5.QtCore import Qt, QUrl
+from PyQt5.QtCore import Qt, QUrl, pyqtSlot, QRunnable, QThreadPool
 import PyQt5.QtGui
+from PyQt5.QtCore import QObject, QThread, pyqtSignal
 import shutil
-from send_to_vm.sender import Sender
-from unrelated.hash_scan.vt_hash import VTScan
-from unrelated.pe_scan.entropy import *
-from unrelated.pe_scan.pe_tests import *
-from unrelated.Yara.ya_ra import *
-from unrelated.fuzzy_hashing.ssdeep_check import *
-
+from poc_start.send_to_vm.sender import Sender
+from poc_start.unrelated.hash_scan.vt_hash import VTScan
+from poc_start.unrelated.pe_scan.entropy import *
+from poc_start.unrelated.pe_scan.pe_tests import *
+from poc_start.unrelated.Yara.ya_ra import *
+from poc_start.unrelated.fuzzy_hashing.ssdeep_check import *
+from threading import Thread
+from multiprocessing import Process
 
 PATH_TO_MOVE = r"E:\\Cyber\\YB_CYBER\\project\\FinalProject\\poc_start\\poc_start\\unrelated\\graphics"
 
@@ -43,6 +45,18 @@ QLabel{
     position: fixed;
 }
 """
+
+
+class Worker(QRunnable):
+    def __init__(self, fn, *args, **kwargs):
+        super(Worker, self).__init__()
+        self.fn = fn
+        self.args = args
+        self.kwargs = kwargs
+
+    @pyqtSlot()
+    def run(self):
+        self.fn(*self.args, **self.kwargs)
 
 
 class ListBoxWidget(QListWidget):
@@ -136,7 +150,8 @@ class AppDemo(QMainWindow):
         self.setCentralWidget(widget)
 
         self.btn.clicked.connect(lambda: self.getSelectedItem())
-        self.static_button.clicked.connect(lambda: [self.clear_layout(), self.listbox_view.deleteLater()])
+        self.static_button.clicked.connect(lambda: [self.clear_layout_static(), self.listbox_view.deleteLater()])
+        self.hash_button.clicked.connect(lambda: [self.clear_layout_hash(), self.listbox_view.deleteLater()])
 
     def getSelectedItem(self):
         print("got here")
@@ -152,10 +167,7 @@ class AppDemo(QMainWindow):
         s = Sender()
         s.run()
 
-    def clear_layout(self):
-
-        dir = str(QFileDialog.getExistingDirectory(self, "Select Directory"))
-        VTScan.scan_directory(dir)
+    def clear_layout_static(self):
 
         for cnt in reversed(range(self.pagelayout.count())):
             if cnt == 0 or cnt == 1:
@@ -202,6 +214,24 @@ class AppDemo(QMainWindow):
         self.tableWidget.resizeColumnToContents(0)
         self.tableWidget.resizeColumnToContents(1)
         self.pagelayout.addWidget(self.tableWidget)
+
+    def execute_this_fn(self):
+        VTScan.scan_directory(self.dir)
+
+    def clear_layout_hash(self):
+
+        for cnt in reversed(range(self.pagelayout.count())):
+            if cnt == 0 or cnt == 1:
+                print(self.pagelayout.takeAt(cnt).widget())
+                continue
+            widget = self.pagelayout.takeAt(cnt).widget()
+            if widget is not None:
+                widget.deleteLater()
+
+        self.dir = str(QFileDialog.getExistingDirectory(self, "Select Directory"))
+        self.threadpool = QThreadPool()
+        worker = Worker(self.execute_this_fn)
+        self.threadpool.start(worker)
 
 
 app = QApplication(sys.argv)
