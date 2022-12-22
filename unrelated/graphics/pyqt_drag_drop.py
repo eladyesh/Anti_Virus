@@ -6,7 +6,7 @@ import PyQt5.QtGui
 import shutil
 from poc_start.send_to_vm.sender import Sender
 from poc_start.unrelated.hash_scan.vt_hash import VTScan
-
+import subprocess
 
 PATH_TO_MOVE = r"D:\\Cyber\\YB_CYBER\\project\\FinalProject\\poc_start\\poc_start\\unrelated\\graphics"
 
@@ -32,9 +32,28 @@ QLabel{
 }
 """
 
+
+def run_command(cmd):
+    """
+    runs cmd command in the command prompt and returns the output
+    arg: cmd
+    ret: the output of the command
+    """
+    return subprocess.Popen(cmd, stdout=subprocess.PIPE,
+                            shell=True,
+                            stderr=subprocess.PIPE,
+                            stdin=subprocess.PIPE,
+                            encoding="utf-8")
+
+
 def activate_sender():
-    s = Sender()
-    s.run()
+    os.chdir(r"C:\Program Files (x86)\VMware\VMware Workstation")
+    print("got here2")
+    os.system(r'vmrun -T ws start "C:\\Users\\user\\OneDrive\\Windows 10 and later x64.vmx"')
+
+    # s = Sender()
+    # s.run()
+
 
 class Worker(QRunnable):
     def __init__(self, fn, *args, **kwargs):
@@ -89,6 +108,7 @@ class ListBoxWidget(QListWidget):
         else:
             event.ignore()
 
+
 class AppDemo(QMainWindow):
 
     def __init__(self):
@@ -118,7 +138,7 @@ class AppDemo(QMainWindow):
         self.hash_button.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Expanding)
         self.hash_button.setFlat(True)
 
-        #btn_layout.addItem(Qt.SpacerItem(0, 0,QSizePolicy.Expanding, Qt.QSizePolicy.Minimum))
+        # btn_layout.addItem(Qt.SpacerItem(0, 0,QSizePolicy.Expanding, Qt.QSizePolicy.Minimum))
         btn_layout.addStretch(1)
         btn_layout.addWidget(self.dynamic_button, Qt.AlignCenter)
         btn_layout.addWidget(self.static_button, Qt.AlignCenter)
