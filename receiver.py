@@ -39,6 +39,9 @@ os.startfile('Z:\\D\\Cyber\\YB_CYBER\\project\\FinalProject\\poc_start\\poc_star
 while not os.path.exists("LOG.txt"):
     pass
 
+while not os.path.getsize("LOG.txt") / 1024 >= 12:
+    pass
+
 with open(FILE_NAME_TO_SEND, "rb") as f:
     file_to_send_data = f.read()
 

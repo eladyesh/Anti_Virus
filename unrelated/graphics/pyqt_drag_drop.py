@@ -1,14 +1,14 @@
 import sys, os
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
-from PyQt5.QtCore import Qt, QUrl
+from PyQt5.QtCore import Qt, QUrl, QThreadPool, QRunnable, pyqtSlot
 import PyQt5.QtGui
 import shutil
 from poc_start.send_to_vm.sender import Sender
 from poc_start.unrelated.hash_scan.vt_hash import VTScan
 
 
-PATH_TO_MOVE = r"E:\\Cyber\\YB_CYBER\\project\\FinalProject\\poc_start\\poc_start\\unrelated\\graphics"
+PATH_TO_MOVE = r"D:\\Cyber\\YB_CYBER\\project\\FinalProject\\poc_start\\poc_start\\unrelated\\graphics"
 
 qss = """
 #Window{ 
@@ -31,6 +31,21 @@ QLabel{
     margin-bottom: 20px;
 }
 """
+
+def activate_sender():
+    s = Sender()
+    s.run()
+
+class Worker(QRunnable):
+    def __init__(self, fn, *args, **kwargs):
+        super(Worker, self).__init__()
+        self.fn = fn
+        self.args = args
+        self.kwargs = kwargs
+
+    @pyqtSlot()
+    def run(self):
+        self.fn(*self.args, **self.kwargs)
 
 
 class ListBoxWidget(QListWidget):
@@ -73,7 +88,6 @@ class ListBoxWidget(QListWidget):
 
         else:
             event.ignore()
-
 
 class AppDemo(QMainWindow):
 
@@ -137,8 +151,9 @@ class AppDemo(QMainWindow):
         with open(path, "wb") as f:
             f.write(bytes)
 
-        s = Sender()
-        s.run()
+        self.threadpool = QThreadPool()
+        worker = Worker(activate_sender)
+        self.threadpool.start(worker)
 
 
 app = QApplication(sys.argv)
