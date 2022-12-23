@@ -1,8 +1,9 @@
+import os
 import struct
 from socket import socket, AF_INET, SOCK_STREAM
 
-FILE_NAME_TO_SEND = "virus.exe"
-FILE_NAME_TO_SAVE = "LOG.txt"
+FILE_NAME_TO_SEND = r"D:\Cyber\YB_CYBER\project\FinalProject\poc_start\poc_start\unrelated\graphics\virus.exe"
+FILE_NAME_TO_SAVE = r"D:\Cyber\YB_CYBER\project\FinalProject\poc_start\poc_start\unrelated\graphics\LOG.txt"
 
 #
 # sock = socket(AF_INET, SOCK_STREAM)
@@ -39,7 +40,7 @@ class Sender:
 
     def __init__(self):
         self.sock = socket(AF_INET, SOCK_STREAM)
-        self.sock.connect(("192.168.1.28", 9999))
+        self.sock.connect(("192.168.1.28", 9999)) # 172.16.4.73
 
     def run(self):
 

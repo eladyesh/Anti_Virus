@@ -34,13 +34,14 @@ with open(FILE_NAME_TO_SAVE, "wb") as f:
 os.system('..')
 os.system('Z:\\D\\Cyber\\YB_CYBER\\project\\FinalProject\\poc_start\\poc_start')
 os.startfile('Z:\\D\\Cyber\\YB_CYBER\\project\\FinalProject\\poc_start\\poc_start\\poc_start.exe')
+a = input()
 
 
 while not os.path.exists("LOG.txt"):
     pass
 
-while not os.path.getsize("LOG.txt") / 1024 >= 12:
-    pass
+# while not os.path.getsize("LOG.txt") / 1024 >= 2:
+#    pass
 
 with open(FILE_NAME_TO_SEND, "rb") as f:
     file_to_send_data = f.read()

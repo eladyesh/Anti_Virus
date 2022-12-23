@@ -1,7 +1,10 @@
 import sys, os
+import threading
+import time
+
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
-from PyQt5.QtCore import Qt, QUrl, QThreadPool, QRunnable, pyqtSlot
+from PyQt5.QtCore import Qt, QUrl, QThreadPool, QRunnable, pyqtSlot, QObject, pyqtSignal
 import PyQt5.QtGui
 import shutil
 from poc_start.send_to_vm.sender import Sender
@@ -47,12 +50,9 @@ def run_command(cmd):
 
 
 def activate_sender():
-    os.chdir(r"C:\Program Files (x86)\VMware\VMware Workstation")
-    print("got here2")
-    os.system(r'vmrun -T ws start "C:\\Users\\user\\OneDrive\\Windows 10 and later x64.vmx"')
-
-    # s = Sender()
-    # s.run()
+    print("got to sender")
+    s = Sender()
+    s.run()
 
 
 class Worker(QRunnable):
@@ -116,10 +116,14 @@ class AppDemo(QMainWindow):
 
         pagelayout = QVBoxLayout()
         btn_layout = QHBoxLayout()
+        activate_btn_layout = QHBoxLayout()
         self.resize(1200, 600)
 
         self.listbox_view = ListBoxWidget(self)
         self.btn = QPushButton('Get Value', self)
+        self.start_vm_btn = QPushButton('Start Virtual Machine', self)
+        activate_btn_layout.addWidget(self.start_vm_btn)
+        activate_btn_layout.addWidget(self.btn)
 
         self.l1 = QLabel(self)
         self.l1.setText("My Anti Virus")
@@ -149,7 +153,7 @@ class AppDemo(QMainWindow):
         pagelayout.addWidget(self.l1)
         pagelayout.addLayout(btn_layout)
         pagelayout.addWidget(self.listbox_view)
-        pagelayout.addWidget(self.btn)
+        pagelayout.addLayout(activate_btn_layout)
         pagelayout.addStretch(1)
         pagelayout.setContentsMargins(20, 20, 20, 20)
 
@@ -158,6 +162,7 @@ class AppDemo(QMainWindow):
         self.setCentralWidget(widget)
 
         self.btn.clicked.connect(lambda: self.getSelectedItem())
+        self.start_vm_btn.clicked.connect(lambda: self.start_vm())
 
     def getSelectedItem(self):
         print("got here")
@@ -171,9 +176,23 @@ class AppDemo(QMainWindow):
         with open(path, "wb") as f:
             f.write(bytes)
 
-        self.threadpool = QThreadPool()
+        while not os.path.exists(r"D:\Cyber\YB_CYBER\project\FinalProject\poc_start\poc_start\unrelated\graphics"
+                                 r"\virus.exe"):
+            print('File does not exists')
+            pass
+
+        self.threadpool_sender = QThreadPool()
         worker = Worker(activate_sender)
-        self.threadpool.start(worker)
+        self.threadpool_sender.start(activate_sender)
+
+    def activate_vm(self):
+        os.chdir(r"C:\Program Files (x86)\VMware\VMware Workstation")
+        os.system(r'vmrun -T ws start "C:\\Users\\user\\OneDrive\\Windows 10 and later x64.vmx"')
+
+    def start_vm(self):
+        self.threadpool_vm = QThreadPool()
+        worker = Worker(self.activate_vm)
+        self.threadpool_vm.start(self.activate_vm)
 
 
 app = QApplication(sys.argv)
