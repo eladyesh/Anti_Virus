@@ -145,13 +145,32 @@ class AppDemo(QMainWindow):
         self.pagelayout.addStretch(1)
         self.pagelayout.setContentsMargins(20, 20, 20, 20)
 
+        self.dynamic_visited = False
+        self.static_visited = False
+        self.hash_visited = False
+
         widget = QWidget()
         widget.setLayout(self.pagelayout)
         self.setCentralWidget(widget)
 
         self.btn.clicked.connect(lambda: self.getSelectedItem())
-        self.static_button.clicked.connect(lambda: [self.clear_layout_static(), self.listbox_view.deleteLater()])
-        self.hash_button.clicked.connect(lambda: [self.clear_layout_hash(), self.listbox_view.deleteLater()])
+        self.static_button.clicked.connect(lambda: [self.clear_layout_static()])
+        self.hash_button.clicked.connect(lambda: [self.clear_layout_hash()])
+
+    def clearLayout(self):
+
+        if not self.dynamic_visited and not self.static_visited and not self.hash_visited:
+            for cnt in reversed(range(self.pagelayout.count())):
+                if cnt == 0 or cnt == 1:
+                    continue
+                widget = self.pagelayout.takeAt(cnt).widget()
+                if widget is not None:
+                    widget.deleteLater()
+
+        if self.static_visited:
+            self.index_table = self.pagelayout.indexOf(self.tableWidget)
+            self.pagelayout.removeWidget(self.pagelayout.takeAt(self.index_table).widget())
+            self.tableWidget.deleteLater()
 
     def getSelectedItem(self):
         print("got here")
@@ -169,12 +188,7 @@ class AppDemo(QMainWindow):
 
     def clear_layout_static(self):
 
-        for cnt in reversed(range(self.pagelayout.count())):
-            if cnt == 0 or cnt == 1:
-                continue
-            widget = self.pagelayout.takeAt(cnt).widget()
-            if widget is not None:
-                widget.deleteLater()
+        self.clearLayout()
 
         # self.pagelayout.addLayout(self.btn_layout)
         self.static_button.setEnabled(False)
@@ -215,18 +229,14 @@ class AppDemo(QMainWindow):
         self.tableWidget.resizeColumnToContents(1)
         self.pagelayout.addWidget(self.tableWidget)
 
+        self.static_visited = True
+
     def execute_this_fn(self):
         VTScan.scan_directory(self.dir)
 
     def clear_layout_hash(self):
 
-        for cnt in reversed(range(self.pagelayout.count())):
-            if cnt == 0 or cnt == 1:
-                print(self.pagelayout.takeAt(cnt).widget())
-                continue
-            widget = self.pagelayout.takeAt(cnt).widget()
-            if widget is not None:
-                widget.deleteLater()
+        self.clearLayout()
 
         self.dir = str(QFileDialog.getExistingDirectory(self, "Select Directory"))
         self.threadpool = QThreadPool()
