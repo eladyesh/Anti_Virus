@@ -11,7 +11,7 @@ from poc_start.send_to_vm.sender import Sender
 from poc_start.unrelated.hash_scan.vt_hash import VTScan
 import subprocess
 
-PATH_TO_MOVE = r"D:\\Cyber\\YB_CYBER\\project\\FinalProject\\poc_start\\poc_start\\unrelated\\graphics"
+PATH_TO_MOVE = r"E:\\Cyber\\YB_CYBER\\project\\FinalProject\\poc_start\\poc_start\\unrelated\\graphics"
 
 qss = """
 #Window{ 
@@ -176,7 +176,7 @@ class AppDemo(QMainWindow):
         with open(path, "wb") as f:
             f.write(bytes)
 
-        while not os.path.exists(r"D:\Cyber\YB_CYBER\project\FinalProject\poc_start\poc_start\unrelated\graphics"
+        while not os.path.exists(r"E:\Cyber\YB_CYBER\project\FinalProject\poc_start\poc_start\unrelated\graphics"
                                  r"\virus.exe"):
             print('File does not exists')
             pass
@@ -187,7 +187,11 @@ class AppDemo(QMainWindow):
 
     def activate_vm(self):
         os.chdir(r"C:\Program Files (x86)\VMware\VMware Workstation")
-        os.system(r'vmrun -T ws start "C:\\Users\\user\\OneDrive\\Windows 10 and later x64.vmx"')
+        os.system(r'vmrun -T ws start "C:\Users\u101040.DESHALIT\Documents\Virtual Machines\Windows 10 and later '
+                  r'x64\Windows 10 and later x64.vmx"')
+
+        # r"C:\Program Files (x86)\VMware\VMware Workstation"
+        # r'vmrun -T ws start "C:\\Users\\user\\OneDrive\\Windows 10 and later x64.vmx"'
 
     def start_vm(self):
         self.threadpool_vm = QThreadPool()

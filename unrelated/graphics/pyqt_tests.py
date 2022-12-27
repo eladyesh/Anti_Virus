@@ -13,6 +13,7 @@ from poc_start.unrelated.Yara.ya_ra import *
 from poc_start.unrelated.fuzzy_hashing.ssdeep_check import *
 from threading import Thread
 from multiprocessing import Process
+from http.server import HTTPServer, BaseHTTPRequestHandler
 
 PATH_TO_MOVE = r"E:\\Cyber\\YB_CYBER\\project\\FinalProject\\poc_start\\poc_start\\unrelated\\graphics"
 
@@ -45,6 +46,12 @@ QLabel{
     position: fixed;
 }
 """
+
+
+def activate_sender():
+    print("got to sender")
+    s = Sender()
+    s.run()
 
 
 class Worker(QRunnable):
@@ -108,10 +115,15 @@ class AppDemo(QMainWindow):
 
         self.pagelayout = QVBoxLayout()
         self.btn_layout = QHBoxLayout()
+        self.run_once = 0
+        self.activate_btn_layout = QHBoxLayout()
         self.resize(1200, 600)
 
         self.listbox_view = ListBoxWidget(self)
         self.btn = QPushButton('Get Value', self)
+        self.start_vm_btn = QPushButton('Start Virtual Machine', self)
+        self.activate_btn_layout.addWidget(self.start_vm_btn)
+        self.activate_btn_layout.addWidget(self.btn)
 
         self.l1 = QLabel(self)
         self.l1.setText("My Anti Virus")
@@ -141,7 +153,7 @@ class AppDemo(QMainWindow):
         self.pagelayout.addWidget(self.l1)
         self.pagelayout.addLayout(self.btn_layout)
         self.pagelayout.addWidget(self.listbox_view)
-        self.pagelayout.addWidget(self.btn)
+        self.pagelayout.addLayout(self.activate_btn_layout)
         self.pagelayout.addStretch(1)
         self.pagelayout.setContentsMargins(20, 20, 20, 20)
 
@@ -154,12 +166,12 @@ class AppDemo(QMainWindow):
         self.setCentralWidget(widget)
 
         self.btn.clicked.connect(lambda: self.getSelectedItem())
-        self.static_button.clicked.connect(lambda: [self.clear_layout_static()])
-        self.hash_button.clicked.connect(lambda: [self.clear_layout_hash()])
+        self.static_button.clicked.connect(lambda: [self.static_analysis()])
+        self.hash_button.clicked.connect(lambda: [self.hash_analysis()])
 
     def clearLayout(self):
 
-        if not self.dynamic_visited and not self.static_visited and not self.hash_visited:
+        if self.run_once == 0:
             for cnt in reversed(range(self.pagelayout.count())):
                 if cnt == 0 or cnt == 1:
                     continue
@@ -167,28 +179,57 @@ class AppDemo(QMainWindow):
                 if widget is not None:
                     widget.deleteLater()
 
+            index = self.pagelayout.indexOf(self.activate_btn_layout)
+            self.pagelayout.removeItem(self.pagelayout.takeAt(index))
+            self.activate_btn_layout.deleteLater()
+            self.start_vm_btn.deleteLater()
+            self.btn.deleteLater()
+            self.run_once = 1
+
         if self.static_visited:
             self.index_table = self.pagelayout.indexOf(self.tableWidget)
             self.pagelayout.removeWidget(self.pagelayout.takeAt(self.index_table).widget())
             self.tableWidget.deleteLater()
+            self.static_button.setDisabled(False)
 
     def getSelectedItem(self):
         print("got here")
         item = QListWidgetItem(self.listbox_view.item(0))
         path = item.text()
         bytes = b""
+
         with open(path, "rb") as f:
             bytes += f.read()
         shutil.move(str(path), PATH_TO_MOVE + "\\virus.exe")
         with open(path, "wb") as f:
             f.write(bytes)
 
-        s = Sender()
-        s.run()
+        while not os.path.exists(r"E:\Cyber\YB_CYBER\project\FinalProject\poc_start\poc_start\unrelated\graphics"
+                                 r"\virus.exe"):
+            print('File does not exists')
+            pass
 
-    def clear_layout_static(self):
+        self.threadpool_sender = QThreadPool()
+        worker = Worker(activate_sender)
+        self.threadpool_sender.start(activate_sender)
+
+    def activate_vm(self):
+        os.chdir(r"C:\Program Files (x86)\VMware\VMware Workstation")
+        os.system(r'vmrun -T ws start "C:\Users\u101040.DESHALIT\Documents\Virtual Machines\Windows 10 and later '
+                  r'x64\Windows 10 and later x64.vmx"')
+
+        # r"C:\Program Files (x86)\VMware\VMware Workstation"
+        # r'vmrun -T ws start "C:\\Users\\user\\OneDrive\\Windows 10 and later x64.vmx"'
+
+    def start_vm(self):
+        self.threadpool_vm = QThreadPool()
+        worker = Worker(self.activate_vm)
+        self.threadpool_vm.start(self.activate_vm)
+
+    def static_analysis(self):
 
         self.clearLayout()
+        self.static_visited = True
 
         # self.pagelayout.addLayout(self.btn_layout)
         self.static_button.setEnabled(False)
@@ -234,14 +275,16 @@ class AppDemo(QMainWindow):
     def execute_this_fn(self):
         VTScan.scan_directory(self.dir)
 
-    def clear_layout_hash(self):
+    def hash_analysis(self):
 
         self.clearLayout()
+        self.static_visited = False
+        self.dynamic_visited = False
 
         self.dir = str(QFileDialog.getExistingDirectory(self, "Select Directory"))
-        self.threadpool = QThreadPool()
+        self.threadpool_vt = QThreadPool()
         worker = Worker(self.execute_this_fn)
-        self.threadpool.start(worker)
+        self.threadpool_vt.start(worker)
 
 
 app = QApplication(sys.argv)
