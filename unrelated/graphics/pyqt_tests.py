@@ -9,7 +9,7 @@ from poc_start.send_to_vm.sender import Sender
 from poc_start.unrelated.hash_scan.vt_hash import VTScan
 from poc_start.unrelated.pe_scan.entropy import *
 from poc_start.unrelated.pe_scan.pe_tests import *
-from poc_start.unrelated.Yara.ya_ra import *
+from poc_start.unrelated.Yara.ya_ra import YaraChecks
 from poc_start.unrelated.fuzzy_hashing.ssdeep_check import *
 from threading import Thread
 from multiprocessing import Process
