@@ -21,6 +21,14 @@ qss = """
 #Window{ 
     background-color: white 
 }
+QMainWindow {
+    background: linear-gradient(to right, #fff, #f5f5f5);
+    border-radius: 10px;
+    box-shadow: 10px 10px 5px #333;
+    font-family: "Courier New", monospace;
+    font-size: 16px;
+    color: #333;
+}
 QPushButton[flat="true"]{
     background-color: white;
     border: 0px;
@@ -143,7 +151,7 @@ class AppDemo(QMainWindow):
         self.hash_button.setFlat(True)
 
         # btn_layout.addItem(Qt.SpacerItem(0, 0,QSizePolicy.Expanding, Qt.QSizePolicy.Minimum))
-        self.btn_layout.addStretch(1)
+        # self.btn_layout.addStretch(1)
         self.btn_layout.addWidget(self.dynamic_button, Qt.AlignCenter)
         self.btn_layout.addWidget(self.static_button, Qt.AlignCenter)
         self.btn_layout.addWidget(self.hash_button, Qt.AlignCenter)
@@ -256,19 +264,130 @@ class AppDemo(QMainWindow):
             for column in range(len(sections[0])):
                 self.tableWidget.setItem(row + 1, column, QTableWidgetItem(sections[row][column]))
 
-        width = self.tableWidget.verticalHeader().width()
-        width += self.tableWidget.horizontalHeader().length()
-        if self.tableWidget.verticalScrollBar().isVisible():
-            width += self.tableWidget.verticalScrollBar().width()
-        width += self.tableWidget.frameWidth() * 2
-        self.tableWidget.setFixedWidth(width)
-
         self.tableWidget.resizeColumnsToContents()
-        self.tableWidget.setWordWrap(True)
-        self.tableWidget.setSizeAdjustPolicy(QAbstractScrollArea.AdjustToContents)
-        self.tableWidget.resizeColumnToContents(0)
-        self.tableWidget.resizeColumnToContents(1)
-        self.pagelayout.addWidget(self.tableWidget)
+        self.tableWidget.resizeRowsToContents()
+
+        # Set the size of the table to the maximum possible value
+        self.tableWidget.resize(self.tableWidget.horizontalHeader().maximumSectionSize(), self.tableWidget.verticalHeader().maximumSectionSize())
+
+        # Set the width of all columns to 100 pixels
+        for i in range(self.tableWidget.columnCount()):
+            self.tableWidget.setColumnWidth(i, 120)
+
+        # Set the height of all rows to 50 pixels
+        for i in range(self.tableWidget.rowCount()):
+            self.tableWidget.setRowHeight(i, 47)
+
+        self.tableWidget.setStyleSheet("""
+            QTableWidget {
+                background-color: #F8F8FF;
+            }
+            QTableWidget QTableCornerButton::section {
+                background-color: #F8F8FF;
+            }
+            QTableWidget QTableView {
+                color: #000080;
+                font-size: 14pt;
+                font-family: "Arial";
+            }
+            QTableWidget QHeaderView {
+                background-color: #F0F8FF;
+                color: #000080;
+                font-size: 12pt;
+                font-family: "Arial";
+            }
+            QTableWidget QTableView::item:selected {
+                background-color: #87CEFA;
+            }
+        """)
+
+        self.table_and_strings_layout = QHBoxLayout()
+        self.table_and_strings_layout.addWidget(self.tableWidget, 0)
+
+        # Create a list widget and add some items to it
+        listWidget = QListWidget()
+        for i in range(1, 101):
+            listWidget.addItem(str(i))
+
+        # Create a scroll bar and set its properties
+        scrollBar = QScrollBar()
+        scrollBar.setOrientation(Qt.Vertical)
+        scrollBar.setMinimum(0)
+        scrollBar.setMaximum(100)
+        scrollBar.setSingleStep(1)
+        scrollBar.setPageStep(10)
+        scrollBar.setValue(50)
+
+        # Customize the appearance of the scroll bar
+        scrollBar.setStyleSheet("""
+            QScrollBar:vertical {
+                border: none;
+                background: #eee;
+                width: 15px;
+                margin: 0px 0px 0px 0px;
+            }
+
+            QScrollBar::handle:vertical {
+                background: #ccc;
+                min-height: 20px;
+                border-radius: 5px;
+            }
+
+            QScrollBar::add-line:vertical {
+                background: none;
+                height: 0px;
+                subcontrol-position: bottom;
+                subcontrol-origin: margin;
+            }
+
+            QScrollBar::sub-line:vertical {
+                background: none;
+                height: 0px;
+                subcontrol-position: top;
+                subcontrol-origin: margin;
+            }
+
+            QScrollBar::up-arrow:vertical, QScrollBar::down-arrow:vertical {
+                border: none;
+                width: 0px;
+                height: 0px;
+                background: none;
+            }
+
+            QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {
+                background: none;
+            }
+        """)
+
+        listWidget.setStyleSheet("""
+            QListWidget {
+                background-color: #f5f5f5;
+                border: 1px solid #ccc;
+                border-radius: 5px;
+                outline: none;
+            }
+
+            QListWidget::item {
+                color: #444;
+                border: none;
+                padding: 10px;
+                font-size: 14px;
+                font-weight: 500;
+            }
+
+            QListWidget::item:hover {
+                background-color: #eee;
+            }
+
+            QListWidget::item:selected {
+                background-color: #333;
+                color: #fff;
+            }
+        """)
+
+        listWidget.setVerticalScrollBar(scrollBar)
+        self.table_and_strings_layout.addWidget(listWidget)
+        self.pagelayout.addLayout(self.table_and_strings_layout)
 
         self.static_visited = True
 
