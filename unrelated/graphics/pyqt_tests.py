@@ -195,10 +195,12 @@ class AppDemo(QMainWindow):
             self.run_once = 1
 
         if self.static_visited:
-            self.index_table = self.pagelayout.indexOf(self.tableWidget)
-            self.pagelayout.removeWidget(self.pagelayout.takeAt(self.index_table).widget())
+            self.index_table = self.pagelayout.indexOf(self.table_and_strings_layout)
+            self.pagelayout.removeItem(self.pagelayout.takeAt(self.index_table))
             self.tableWidget.deleteLater()
+            self.list_strings_widget.deleteLater()
             self.static_button.setDisabled(False)
+            self.table_and_strings_layout.deleteLater()
 
     def getSelectedItem(self):
         print("got here")
@@ -301,13 +303,14 @@ class AppDemo(QMainWindow):
             }
         """)
 
-        self.table_and_strings_layout = QHBoxLayout()
+        self.table_and_strings_layout = QVBoxLayout()
         self.table_and_strings_layout.addWidget(self.tableWidget, 0)
 
         # Create a list widget and add some items to it
-        listWidget = QListWidget()
+        self.list_strings_widget = QListWidget()
+
         for i in range(1, 101):
-            listWidget.addItem(str(i))
+            self.list_strings_widget.addItem(str(i))
 
         # Create a scroll bar and set its properties
         scrollBar = QScrollBar()
@@ -359,7 +362,7 @@ class AppDemo(QMainWindow):
             }
         """)
 
-        listWidget.setStyleSheet("""
+        self.list_strings_widget.setStyleSheet("""
             QListWidget {
                 background-color: #f5f5f5;
                 border: 1px solid #ccc;
@@ -385,8 +388,8 @@ class AppDemo(QMainWindow):
             }
         """)
 
-        listWidget.setVerticalScrollBar(scrollBar)
-        self.table_and_strings_layout.addWidget(listWidget)
+        self.list_strings_widget.setVerticalScrollBar(scrollBar)
+        self.table_and_strings_layout.addWidget(self.list_strings_widget)
         self.pagelayout.addLayout(self.table_and_strings_layout)
 
         self.static_visited = True
