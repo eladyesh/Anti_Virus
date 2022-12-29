@@ -174,6 +174,7 @@ class AppDemo(QMainWindow):
         self.setCentralWidget(widget)
 
         self.btn.clicked.connect(lambda: self.getSelectedItem())
+        self.start_vm_btn.clicked.connect(lambda: self.activate_vm())
         self.static_button.clicked.connect(lambda: [self.static_analysis()])
         self.hash_button.clicked.connect(lambda: [self.hash_analysis()])
 
@@ -270,15 +271,19 @@ class AppDemo(QMainWindow):
         self.tableWidget.resizeRowsToContents()
 
         # Set the size of the table to the maximum possible value
-        self.tableWidget.resize(self.tableWidget.horizontalHeader().maximumSectionSize(), self.tableWidget.verticalHeader().maximumSectionSize())
+        self.tableWidget.resize(self.tableWidget.horizontalHeader().maximumSectionSize(),
+                                self.tableWidget.verticalHeader().maximumSectionSize())
+
+        window_width = QMainWindow().size().width()
+        window_height = QMainWindow().size().height()
 
         # Set the width of all columns to 100 pixels
         for i in range(self.tableWidget.columnCount()):
-            self.tableWidget.setColumnWidth(i, 120)
+            self.tableWidget.setColumnWidth(i, int(window_width // 2.9))
 
         # Set the height of all rows to 50 pixels
         for i in range(self.tableWidget.rowCount()):
-            self.tableWidget.setRowHeight(i, 47)
+            self.tableWidget.setRowHeight(i, window_height // 8)
 
         self.tableWidget.setStyleSheet("""
             QTableWidget {
@@ -309,8 +314,18 @@ class AppDemo(QMainWindow):
         # Create a list widget and add some items to it
         self.list_strings_widget = QListWidget()
 
-        for i in range(1, 101):
-            self.list_strings_widget.addItem(str(i))
+        # YARA
+        yara_strings = YaraChecks.check_for_strings("virus.exe")
+        yara_packers = YaraChecks.check_for_packer("virus.exe")
+
+        print(yara_strings)
+        print(yara_packers)
+
+        for dll in yara_strings[0]:
+            self.list_strings_widget.addItem(str(dll))
+
+        for string in yara_strings[1]:
+            self.list_strings_widget.addItem(str(string.decode()))
 
         # Create a scroll bar and set its properties
         scrollBar = QScrollBar()

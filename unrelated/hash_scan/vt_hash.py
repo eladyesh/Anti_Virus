@@ -1,5 +1,6 @@
 import os
 import sys
+import threading
 import time
 import json
 import requests
@@ -9,6 +10,21 @@ import base64
 import subprocess
 import pydivert
 import re
+from http.server import HTTPServer, BaseHTTPRequestHandler
+
+
+class RequestHandler(BaseHTTPRequestHandler):
+    def do_GET(self):
+        self.send_response(200)
+        self.send_header('Content-type', 'text/html')
+        self.end_headers()
+        self.wfile.write(b'<html><head><title>Hello World</title></head>')
+        self.wfile.write(b'<body><h1>Hello World</h1></body></html>')
+
+
+def start_server():
+    httpd = HTTPServer(('localhost', 8080), RequestHandler)
+    httpd.serve_forever()
 
 
 def run_command(cmd):
@@ -195,11 +211,13 @@ class VTScan:
 
         ip_pattern = re.compile(r'(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})')
         ip_match = []
-        block_ip = ["185.51.231.193", "205.251.196.240", "13.107.238.1"]
+        block_ip = ["185.51.231.193", "205.251.196.240", "13.107.238.1", "13.107.6.254"]
         dns_cache = run_command(["ipconfig", "/displaydns"]).decode()
         for line in dns_cache.split("\r\n"):
             if ip_pattern.search(line) is not None:
                 ip_match.append(ip_pattern.search(line)[0])
+
+        ip_match.remove("127.0.0.1")
 
         url_to_vt = "https://www.virustotal.com/api/v3/urls/"
 
@@ -212,21 +230,29 @@ class VTScan:
         #         if result["data"]["attributes"]["last_analysis_stats"]["malicious"] > 5:
         #             block_ip.append(ip)
 
+        print("here")
+        server_thread = threading.Thread(target=start_server)
+        server_thread.start()
+
         with pydivert.WinDivert() as w:
             for packet in w:
                 if packet.dst_addr not in block_ip:
                     w.send(packet)
+                else:
+                    packet.dst_ip = "localhost"
+                    packet.dst_port = 8080
+                    w.send(packet)
 
     @staticmethod
     def scan_directory(path):
-        
+
         headers = {
             "x_apikey": VT_API_KEY,  # api key
             "User-Agent": "vtscan v.1.0",
             "Accept-Encoding": "gzip, deflate"
             # the client can accept a response which has been compressed using the DEFLATE algorithm
         }
-        
+
         for filename in os.scandir(path):
             if filename.is_file():
 
@@ -247,9 +273,10 @@ class VTScan:
                     analyse_res = requests.get(analysis_url, headers=headers)
 
                     if analyse_res.status_code == 200:
-
                         analyse_result = analyse_res.json()
                         print(analyse_result["data"]["attributes"]["stats"])
+                else:
+                    print("Could not upload successfully")
 
     def info(self, file_hash):
         """
@@ -309,9 +336,9 @@ if __name__ == "__main__":
     # args = vars(parser.parse_args())
 
     # running scan on suspicious file
-    # md5_hash = md5("nop.exe")
+    md5_hash = md5("virus.exe")
     vtscan = VTScan()
-    # vtscan.info(md5_hash)
+    vtscan.info(md5_hash)
     # vtscan.analyse()
     # VTScan.scan_for_suspicious_cache()
-    VTScan.scan_directory("D:\Cyber\Sockets")
+    # VTScan.scan_directory("D:\Cyber\Sockets")

@@ -1,11 +1,12 @@
-from PyQt5.QtWidgets import QListWidget, QListWidgetItem
+from multiprocessing import Queue, Process
+from threading import Thread
+import ppdeep
+import concurrent.futures
+import itertools
 
-# Create a QListWidget
-listWidget = QListWidget()
+h1 = ppdeep.hash_from_file(r"D:\Cyber\YB_CYBER\project\FinalProject\poc_start\poc_start\unrelated\hash_scan\virus.exe")
+h2 = ppdeep.hash_from_file(r"D:\Cyber\YB_CYBER\project\FinalProject\poc_start\poc_start\de_bug\known_virus.exe")
 
-# Create a QListWidgetItem for the header
-headerItem = QListWidgetItem()
-headerItem.setText("Header")
-
-# Set the header item for the QListWidget
-listWidget.setHeaderItem(headerItem)
+print(h1)
+print(h2)
+print(ppdeep.compare(h1, h2))

