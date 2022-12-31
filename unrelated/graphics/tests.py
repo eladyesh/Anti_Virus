@@ -1,12 +1,27 @@
-from multiprocessing import Queue, Process
-from threading import Thread
-import ppdeep
-import concurrent.futures
-import itertools
+import sys
+from PyQt5.QtWidgets import QApplication, QFrame, QVBoxLayout, QLabel, QScrollArea
 
-h1 = ppdeep.hash_from_file(r"D:\Cyber\YB_CYBER\project\FinalProject\poc_start\poc_start\unrelated\hash_scan\virus.exe")
-h2 = ppdeep.hash_from_file(r"D:\Cyber\YB_CYBER\project\FinalProject\poc_start\poc_start\de_bug\known_virus.exe")
+# Create the application
+app = QApplication(sys.argv)
 
-print(h1)
-print(h2)
-print(ppdeep.compare(h1, h2))
+# Create a vertical layout
+layout = QVBoxLayout()
+
+# Add some labels to the layout
+for i in range(20):
+    label = QLabel(f"Label {i}")
+    layout.addWidget(label)
+
+# Create a frame to hold the layout
+frame = QFrame()
+frame.setLayout(layout)
+
+# Create a scroll area and set the frame as its widget
+scroll_area = QScrollArea()
+scroll_area.setWidget(frame)
+
+# Show the scroll area
+scroll_area.show()
+
+# Run the application
+sys.exit(app.exec_())

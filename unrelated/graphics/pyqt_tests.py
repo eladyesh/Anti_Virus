@@ -1,6 +1,7 @@
 import sys, os
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
+from PyQt5 import QtCore
 from PyQt5.QtCore import Qt, QUrl, pyqtSlot, QRunnable, QThreadPool
 import PyQt5.QtGui
 from PyQt5.QtCore import QObject, QThread, pyqtSignal
@@ -54,6 +55,27 @@ QLabel{
     position: fixed;
 }
 """
+
+
+def make_label(text):
+    label = QLabel(text)
+
+    # Set the font to a decorative font
+    font = QFont('Zapfino', 24)
+    label.setFont(font)
+
+    # Set the text color to purple
+    palette = QPalette()
+    palette.setColor(QPalette.Foreground, QColor(128, 0, 128))
+    label.setPalette(palette)
+
+    # Add a shadow effect to the text
+    shadow = QGraphicsDropShadowEffect()
+    shadow.setBlurRadius(5)
+    shadow.setOffset(3, 3)
+    label.setGraphicsEffect(shadow)
+
+    return label
 
 
 def activate_sender():
@@ -121,21 +143,30 @@ class AppDemo(QMainWindow):
     def __init__(self):
         super().__init__()
 
-        self.pagelayout = QVBoxLayout()
+        self.page_layout = QVBoxLayout()
+
         self.btn_layout = QHBoxLayout()
         self.run_once = 0
         self.activate_btn_layout = QHBoxLayout()
         self.resize(1200, 600)
 
         self.listbox_view = ListBoxWidget(self)
-        self.btn = QPushButton('Get Value', self)
+        self.btn = QPushButton('Start Dynamic Scan', self)
+        self.btn.setStyleSheet("QPushButton {background-color: #E6E6FA; color: #000080; border: 2px solid #9400D3; "
+                               "border-radius: 10px; font: bold 14px; min-width: 80px; padding: 6px;} "
+                               "QPushButton:hover {background-color: #D8BFD8; color: #4B0082;} QPushButton:pressed {"
+                               "background-color: #DDA0DD; color: #8B008B;}")
+
         self.start_vm_btn = QPushButton('Start Virtual Machine', self)
+        self.start_vm_btn.setStyleSheet("QPushButton {background-color: #E6E6FA; color: #000080; border: 2px solid #9400D3; "
+                               "border-radius: 10px; font: bold 14px; min-width: 80px; padding: 6px;} "
+                               "QPushButton:hover {background-color: #D8BFD8; color: #4B0082;} QPushButton:pressed {"
+                               "background-color: #DDA0DD; color: #8B008B;}")
+
         self.activate_btn_layout.addWidget(self.start_vm_btn)
         self.activate_btn_layout.addWidget(self.btn)
 
-        self.l1 = QLabel(self)
-        self.l1.setText("My Anti Virus")
-        self.l1.setFont(QFont('Arial', 14))
+        self.l1 = make_label("YeshScanner")
         self.l1.setAlignment(Qt.AlignCenter)
 
         self.dynamic_button = QPushButton("Dynamic Analysis")
@@ -157,21 +188,32 @@ class AppDemo(QMainWindow):
         self.btn_layout.addWidget(self.hash_button, Qt.AlignCenter)
         self.btn_layout.setAlignment(Qt.AlignCenter)
 
-        self.pagelayout.setAlignment(Qt.AlignCenter)
-        self.pagelayout.addWidget(self.l1)
-        self.pagelayout.addLayout(self.btn_layout)
-        self.pagelayout.addWidget(self.listbox_view)
-        self.pagelayout.addLayout(self.activate_btn_layout)
-        self.pagelayout.addStretch(1)
-        self.pagelayout.setContentsMargins(20, 20, 20, 20)
+        self.page_layout.setAlignment(Qt.AlignCenter)
+        self.page_layout.addWidget(self.l1)
+        self.page_layout.addLayout(self.btn_layout)
+        self.page_layout.addWidget(self.listbox_view)
+        self.page_layout.addLayout(self.activate_btn_layout)
+        self.page_layout.addStretch(1)
+        self.page_layout.setContentsMargins(20, 20, 20, 20)
 
         self.dynamic_visited = False
         self.static_visited = False
         self.hash_visited = False
 
         widget = QWidget()
-        widget.setLayout(self.pagelayout)
+        widget.setLayout(self.page_layout)
         self.setCentralWidget(widget)
+
+        # frame = QFrame()
+        # frame.setLayout(self.page_layout)
+
+        # Create a scroll area and set the frame as its widget
+        # scroll_area = QScrollArea()
+        # scroll_area.setWidget(frame)
+        # scroll_area.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
+
+        # Set the scroll area as the central widget of the main window
+        # self.setCentralWidget(scroll_area)
 
         self.btn.clicked.connect(lambda: self.getSelectedItem())
         self.start_vm_btn.clicked.connect(lambda: self.activate_vm())
@@ -181,25 +223,27 @@ class AppDemo(QMainWindow):
     def clearLayout(self):
 
         if self.run_once == 0:
-            for cnt in reversed(range(self.pagelayout.count())):
+            for cnt in reversed(range(self.page_layout.count())):
                 if cnt == 0 or cnt == 1:
                     continue
-                widget = self.pagelayout.takeAt(cnt).widget()
+                widget = self.page_layout.takeAt(cnt).widget()
                 if widget is not None:
                     widget.deleteLater()
 
-            index = self.pagelayout.indexOf(self.activate_btn_layout)
-            self.pagelayout.removeItem(self.pagelayout.takeAt(index))
+            index = self.page_layout.indexOf(self.activate_btn_layout)
+            self.page_layout.removeItem(self.page_layout.takeAt(index))
             self.activate_btn_layout.deleteLater()
             self.start_vm_btn.deleteLater()
             self.btn.deleteLater()
             self.run_once = 1
 
         if self.static_visited:
-            self.index_table = self.pagelayout.indexOf(self.table_and_strings_layout)
-            self.pagelayout.removeItem(self.pagelayout.takeAt(self.index_table))
-            self.tableWidget.deleteLater()
+            self.index_table = self.page_layout.indexOf(self.table_and_strings_layout)
+            self.page_layout.removeItem(self.page_layout.takeAt(self.index_table))
+            self.virus_table.deleteLater()
             self.list_strings_widget.deleteLater()
+            self.strings_label.deleteLater()
+            self.virus_table_label.deleteLater()
             self.static_button.setDisabled(False)
             self.table_and_strings_layout.deleteLater()
 
@@ -242,50 +286,50 @@ class AppDemo(QMainWindow):
         self.clearLayout()
         self.static_visited = True
 
-        # self.pagelayout.addLayout(self.btn_layout)
+        # self.page_layout.addLayout(self.btn_layout)
         self.static_button.setEnabled(False)
 
-        self.tableWidget = QTableWidget()
+        self.virus_table = QTableWidget()
 
         # Row count
         rows = len_sections("virus.exe")
-        self.tableWidget.setRowCount(rows + 1)
+        self.virus_table.setRowCount(rows + 1)
 
         # Column count
-        self.tableWidget.setColumnCount(5)
+        self.virus_table.setColumnCount(5)
 
         sections = sections_entropy("virus.exe")[1:]
         print(sections)
 
-        self.tableWidget.setItem(0, 0, QTableWidgetItem("Name"))
-        self.tableWidget.setItem(0, 1, QTableWidgetItem("Virtual Address"))
-        self.tableWidget.setItem(0, 2, QTableWidgetItem("Virtual Size"))
-        self.tableWidget.setItem(0, 3, QTableWidgetItem("Raw Size"))
-        self.tableWidget.setItem(0, 4, QTableWidgetItem("Entropy"))
+        self.virus_table.setItem(0, 0, QTableWidgetItem("Name"))
+        self.virus_table.setItem(0, 1, QTableWidgetItem("Virtual Address"))
+        self.virus_table.setItem(0, 2, QTableWidgetItem("Virtual Size"))
+        self.virus_table.setItem(0, 3, QTableWidgetItem("Raw Size"))
+        self.virus_table.setItem(0, 4, QTableWidgetItem("Entropy"))
 
         for row in range(0, len(sections)):
             for column in range(len(sections[0])):
-                self.tableWidget.setItem(row + 1, column, QTableWidgetItem(sections[row][column]))
+                self.virus_table.setItem(row + 1, column, QTableWidgetItem(sections[row][column]))
 
-        self.tableWidget.resizeColumnsToContents()
-        self.tableWidget.resizeRowsToContents()
+        self.virus_table.resizeColumnsToContents()
+        self.virus_table.resizeRowsToContents()
 
         # Set the size of the table to the maximum possible value
-        self.tableWidget.resize(self.tableWidget.horizontalHeader().maximumSectionSize(),
-                                self.tableWidget.verticalHeader().maximumSectionSize())
+        self.virus_table.resize(self.virus_table.horizontalHeader().maximumSectionSize(),
+                                self.virus_table.verticalHeader().maximumSectionSize())
 
         window_width = QMainWindow().size().width()
         window_height = QMainWindow().size().height()
 
         # Set the width of all columns to 100 pixels
-        for i in range(self.tableWidget.columnCount()):
-            self.tableWidget.setColumnWidth(i, int(window_width // 2.9))
+        for i in range(self.virus_table.columnCount()):
+            self.virus_table.setColumnWidth(i, int(window_width // 2.9))
 
         # Set the height of all rows to 50 pixels
-        for i in range(self.tableWidget.rowCount()):
-            self.tableWidget.setRowHeight(i, window_height // 8)
+        for i in range(self.virus_table.rowCount()):
+            self.virus_table.setRowHeight(i, window_height // 8)
 
-        self.tableWidget.setStyleSheet("""
+        self.virus_table.setStyleSheet("""
             QTableWidget {
                 background-color: #F8F8FF;
             }
@@ -309,7 +353,10 @@ class AppDemo(QMainWindow):
         """)
 
         self.table_and_strings_layout = QVBoxLayout()
-        self.table_and_strings_layout.addWidget(self.tableWidget, 0)
+
+        self.virus_table_label = make_label("The Portable Executable Table")
+        self.table_and_strings_layout.addWidget(self.virus_table_label)
+        self.table_and_strings_layout.addWidget(self.virus_table, 0)
 
         # Create a list widget and add some items to it
         self.list_strings_widget = QListWidget()
@@ -317,9 +364,6 @@ class AppDemo(QMainWindow):
         # YARA
         yara_strings = YaraChecks.check_for_strings("virus.exe")
         yara_packers = YaraChecks.check_for_packer("virus.exe")
-
-        print(yara_strings)
-        print(yara_packers)
 
         for dll in yara_strings[0]:
             self.list_strings_widget.addItem(str(dll))
@@ -403,9 +447,11 @@ class AppDemo(QMainWindow):
             }
         """)
 
+        self.strings_label = make_label("Suspicious Strings")
         self.list_strings_widget.setVerticalScrollBar(scrollBar)
+        self.table_and_strings_layout.addWidget(self.strings_label)
         self.table_and_strings_layout.addWidget(self.list_strings_widget)
-        self.pagelayout.addLayout(self.table_and_strings_layout)
+        self.page_layout.addLayout(self.table_and_strings_layout)
 
         self.static_visited = True
 
