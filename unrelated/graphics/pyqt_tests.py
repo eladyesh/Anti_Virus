@@ -144,7 +144,6 @@ class AppDemo(QMainWindow):
         super().__init__()
 
         self.page_layout = QVBoxLayout()
-
         self.btn_layout = QHBoxLayout()
         self.run_once = 0
         self.activate_btn_layout = QHBoxLayout()
@@ -158,10 +157,11 @@ class AppDemo(QMainWindow):
                                "background-color: #DDA0DD; color: #8B008B;}")
 
         self.start_vm_btn = QPushButton('Start Virtual Machine', self)
-        self.start_vm_btn.setStyleSheet("QPushButton {background-color: #E6E6FA; color: #000080; border: 2px solid #9400D3; "
-                               "border-radius: 10px; font: bold 14px; min-width: 80px; padding: 6px;} "
-                               "QPushButton:hover {background-color: #D8BFD8; color: #4B0082;} QPushButton:pressed {"
-                               "background-color: #DDA0DD; color: #8B008B;}")
+        self.start_vm_btn.setStyleSheet(
+            "QPushButton {background-color: #E6E6FA; color: #000080; border: 2px solid #9400D3; "
+            "border-radius: 10px; font: bold 14px; min-width: 80px; padding: 6px;} "
+            "QPushButton:hover {background-color: #D8BFD8; color: #4B0082;} QPushButton:pressed {"
+            "background-color: #DDA0DD; color: #8B008B;}")
 
         self.activate_btn_layout.addWidget(self.start_vm_btn)
         self.activate_btn_layout.addWidget(self.btn)
@@ -200,19 +200,28 @@ class AppDemo(QMainWindow):
         self.static_visited = False
         self.hash_visited = False
 
-        widget = QWidget()
-        widget.setLayout(self.page_layout)
-        self.setCentralWidget(widget)
+        self.scroll = QScrollArea()  # Scroll Area which contains the widgets, set as the centralWidget
+        self.widget = QWidget()  # Widget that contains the collection of Vertical Box
+
+        self.widget.setLayout(self.page_layout)
+
+        # Scroll Area Properties
+        self.scroll.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOn)
+        self.scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+        self.scroll.setWidgetResizable(True)
+        self.scroll.setWidget(self.widget)
+
+        self.setCentralWidget(self.scroll)
 
         # frame = QFrame()
         # frame.setLayout(self.page_layout)
-
-        # Create a scroll area and set the frame as its widget
+        #
+        # # Create a scroll area and set the frame as its widget
         # scroll_area = QScrollArea()
         # scroll_area.setWidget(frame)
         # scroll_area.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
-
-        # Set the scroll area as the central widget of the main window
+        #
+        # # Set the scroll area as the central widget of the main window
         # self.setCentralWidget(scroll_area)
 
         self.btn.clicked.connect(lambda: self.getSelectedItem())
@@ -245,6 +254,8 @@ class AppDemo(QMainWindow):
             self.strings_label.deleteLater()
             self.virus_table_label.deleteLater()
             self.static_button.setDisabled(False)
+            self.packers_widget.deleteLater()
+            self.packers_label.deleteLater()
             self.table_and_strings_layout.deleteLater()
 
     def getSelectedItem(self):
@@ -290,6 +301,8 @@ class AppDemo(QMainWindow):
         self.static_button.setEnabled(False)
 
         self.virus_table = QTableWidget()
+        self.virus_table.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        self.virus_table.setMinimumSize(700, 550)
 
         # Row count
         rows = len_sections("virus.exe")
@@ -360,10 +373,12 @@ class AppDemo(QMainWindow):
 
         # Create a list widget and add some items to it
         self.list_strings_widget = QListWidget()
+        self.list_strings_widget.setMinimumSize(550, 550)
 
         # YARA
         yara_strings = YaraChecks.check_for_strings("virus.exe")
         yara_packers = YaraChecks.check_for_packer("virus.exe")
+        print(yara_packers)
 
         for dll in yara_strings[0]:
             self.list_strings_widget.addItem(str(dll))
@@ -381,7 +396,8 @@ class AppDemo(QMainWindow):
         scrollBar.setValue(50)
 
         # Customize the appearance of the scroll bar
-        scrollBar.setStyleSheet("""
+
+        scrollBar_stylesheet = """
             QScrollBar:vertical {
                 border: none;
                 background: #eee;
@@ -419,9 +435,11 @@ class AppDemo(QMainWindow):
             QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {
                 background: none;
             }
-        """)
+        """
 
-        self.list_strings_widget.setStyleSheet("""
+        scrollBar.setStyleSheet(scrollBar_stylesheet)
+
+        list_widget_style_sheet = """
             QListWidget {
                 background-color: #f5f5f5;
                 border: 1px solid #ccc;
@@ -445,12 +463,34 @@ class AppDemo(QMainWindow):
                 background-color: #333;
                 color: #fff;
             }
-        """)
+        """
 
+        self.list_strings_widget.setStyleSheet(list_widget_style_sheet)
         self.strings_label = make_label("Suspicious Strings")
         self.list_strings_widget.setVerticalScrollBar(scrollBar)
         self.table_and_strings_layout.addWidget(self.strings_label)
         self.table_and_strings_layout.addWidget(self.list_strings_widget)
+
+        self.packers_label = make_label("Packers And Protectors")
+        self.packers_widget = QListWidget()
+
+        scrollBarPackers = QScrollBar()
+        scrollBarPackers.setOrientation(Qt.Vertical)
+        scrollBarPackers.setMinimum(0)
+        scrollBarPackers.setMaximum(100)
+        scrollBarPackers.setSingleStep(1)
+        scrollBarPackers.setPageStep(10)
+        scrollBarPackers.setValue(50)
+        scrollBarPackers.setStyleSheet(scrollBar_stylesheet)
+
+        for packer, tag in yara_packers.items():
+            self.packers_widget.addItem(str(packer) + ": " + str(tag[0]))
+
+        self.packers_widget.setMinimumSize(550, 200)
+        self.packers_widget.setStyleSheet(list_widget_style_sheet)
+        self.packers_widget.setVerticalScrollBar(scrollBarPackers)
+        self.table_and_strings_layout.addWidget(self.packers_label)
+        self.table_and_strings_layout.addWidget(self.packers_widget)
         self.page_layout.addLayout(self.table_and_strings_layout)
 
         self.static_visited = True

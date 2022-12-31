@@ -1,27 +1,45 @@
+from PyQt6.QtWidgets import (QWidget, QSlider, QLineEdit, QLabel, QPushButton, QScrollArea,QApplication,
+                             QHBoxLayout, QVBoxLayout, QMainWindow)
+from PyQt6.QtCore import Qt, QSize
+from PyQt6 import QtWidgets, uic
 import sys
-from PyQt5.QtWidgets import QApplication, QFrame, QVBoxLayout, QLabel, QScrollArea
 
-# Create the application
-app = QApplication(sys.argv)
 
-# Create a vertical layout
-layout = QVBoxLayout()
+class MainWindow(QMainWindow):
 
-# Add some labels to the layout
-for i in range(20):
-    label = QLabel(f"Label {i}")
-    layout.addWidget(label)
+    def __init__(self):
+        super().__init__()
+        self.initUI()
 
-# Create a frame to hold the layout
-frame = QFrame()
-frame.setLayout(layout)
+    def initUI(self):
+        self.scroll = QScrollArea()             # Scroll Area which contains the widgets, set as the centralWidget
+        self.widget = QWidget()                 # Widget that contains the collection of Vertical Box
+        self.vbox = QVBoxLayout()               # The Vertical Box that contains the Horizontal Boxes of  labels and buttons
 
-# Create a scroll area and set the frame as its widget
-scroll_area = QScrollArea()
-scroll_area.setWidget(frame)
+        for i in range(1,50):
+            object = QLabel("TextLabel")
+            self.vbox.addWidget(object)
 
-# Show the scroll area
-scroll_area.show()
+        self.widget.setLayout(self.vbox)
 
-# Run the application
-sys.exit(app.exec_())
+        #Scroll Area Properties
+        self.scroll.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOn)
+        self.scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+        self.scroll.setWidgetResizable(True)
+        self.scroll.setWidget(self.widget)
+
+        self.setCentralWidget(self.scroll)
+
+        self.setGeometry(600, 100, 1000, 900)
+        self.setWindowTitle('Scroll Area Demonstration')
+        self.show()
+
+        return
+
+def main():
+    app = QtWidgets.QApplication(sys.argv)
+    main = MainWindow()
+    sys.exit(app.exec())
+
+if __name__ == '__main__':
+    main()

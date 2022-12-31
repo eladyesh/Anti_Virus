@@ -1,17 +1,7 @@
-Getting file info by ID: 5fffd3e69093dc32727214ba5c8f2af5
+Getting file info by ID: 944650d7e55bb85e09398e1a994a2be9
 
-malicious: 41
-undetected : 31
-
-==================================================
-Bkav
-version : 1.3.0.9899
-category : malicious
-result : W32.AIDetect.malware2
-method : blacklist
-update : 20221108
-==================================================
-
+malicious: 24
+undetected : 47
 
 ==================================================
 Lionic
@@ -19,17 +9,17 @@ version : 7.5
 category : malicious
 result : Riskware.Win32.Generic.1!c
 method : blacklist
-update : 20221108
+update : 20221229
 ==================================================
 
 
 ==================================================
-MicroWorld-eScan
-version : 14.0.409.0
+Elastic
+version : 4.0.68
 category : malicious
-result : Trojan.GenericKD.63272677
+result : malicious (moderate confidence)
 method : blacklist
-update : 20221108
+update : 20221227
 ==================================================
 
 
@@ -37,19 +27,9 @@ update : 20221108
 FireEye
 version : 35.24.1.0
 category : malicious
-result : Generic.mg.5fffd3e69093dc32
+result : Generic.mg.944650d7e55bb85e
 method : blacklist
-update : 20221108
-==================================================
-
-
-==================================================
-CAT-QuickHeal
-version : 22.00
-category : malicious
-result : Trojan.Agent
-method : blacklist
-update : 20221108
+update : 20221229
 ==================================================
 
 
@@ -57,19 +37,9 @@ update : 20221108
 McAfee
 version : 6.0.6.653
 category : malicious
-result : Artemis!5FFFD3E69093
+result : RDN/Generic.hra
 method : blacklist
-update : 20221023
-==================================================
-
-
-==================================================
-Cylance
-version : 2.3.1.101
-category : malicious
-result : Unsafe
-method : blacklist
-update : 20221108
+update : 20221229
 ==================================================
 
 
@@ -77,39 +47,39 @@ update : 20221108
 Sangfor
 version : 2.23.0.0
 category : malicious
-result : Suspicious.Win32.Save.a
+result : Suspicious.Win32.Save.ins
 method : blacklist
-update : 20221104
+update : 20221219
 ==================================================
 
 
 ==================================================
-Cyren
-version : 6.5.1.2
+Cybereason
+version : 1.2.449
 category : malicious
-result : W32/Tedy.H.gen!Eldorado
+result : malicious.6339ef
 method : blacklist
-update : 20221108
+update : 20210330
 ==================================================
 
 
 ==================================================
-Symantec
-version : 1.19.0.0
+BitDefenderTheta
+version : 7.2.37796.0
 category : malicious
-result : ML.Attribute.HighConfidence
+result : Gen:NN.ZexaF.36158.imZ@amRpQcb
 method : blacklist
-update : 20221108
+update : 20221219
 ==================================================
 
 
 ==================================================
-Elastic
-version : 4.0.55
+APEX
+version : 6.370
 category : malicious
-result : malicious (high confidence)
+result : Malicious
 method : blacklist
-update : 20221102
+update : 20221228
 ==================================================
 
 
@@ -117,39 +87,19 @@ update : 20221102
 TrendMicro-HouseCall
 version : 10.0.0.1040
 category : malicious
-result : TROJ_GEN.R002H0CK222
+result : TROJ_GEN.R002H0CKB22
 method : blacklist
-update : 20221108
+update : 20221229
 ==================================================
 
 
 ==================================================
-Paloalto
-version : 0.9.0.1003
+NANO-Antivirus
+version : 1.0.146.25648
 category : malicious
-result : generic.ml
+result : Riskware.Win32.Agent.eghdoz
 method : blacklist
-update : 20221108
-==================================================
-
-
-==================================================
-BitDefender
-version : 7.2
-category : malicious
-result : Trojan.GenericKD.63272677
-method : blacklist
-update : 20221108
-==================================================
-
-
-==================================================
-Cynet
-version : 4.0.0.27
-category : malicious
-result : Malicious (score: 100)
-method : blacklist
-update : 20221108
+update : 20221229
 ==================================================
 
 
@@ -159,37 +109,7 @@ version : 22.11.7701.0
 category : malicious
 result : Win32:Malware-gen
 method : blacklist
-update : 20221108
-==================================================
-
-
-==================================================
-Ad-Aware
-version : 3.0.21.193
-category : malicious
-result : Trojan.GenericKD.63272677
-method : blacklist
-update : 20221108
-==================================================
-
-
-==================================================
-Emsisoft
-version : 2022.6.0.32461
-category : malicious
-result : Trojan.GenericKD.63272677 (B)
-method : blacklist
-update : 20221108
-==================================================
-
-
-==================================================
-VIPRE
-version : 6.0.0.35
-category : malicious
-result : Trojan.GenericKD.63272677
-method : blacklist
-update : 20221105
+update : 20221229
 ==================================================
 
 
@@ -197,9 +117,9 @@ update : 20221105
 McAfee-GW-Edition
 version : v2019.1.2+3728
 category : malicious
-result : BehavesLike.Win32.BadFile.ct
+result : RDN/Generic.hra
 method : blacklist
-update : 20221108
+update : 20221229
 ==================================================
 
 
@@ -214,32 +134,22 @@ update : 20221003
 
 
 ==================================================
-Sophos
-version : 1.4.1.0
-category : malicious
-result : Mal/Generic-R
-method : blacklist
-update : 20221108
-==================================================
-
-
-==================================================
-APEX
-version : 6.353
-category : malicious
-result : Malicious
-method : blacklist
-update : 20221107
-==================================================
-
-
-==================================================
 GData
-version : A:25.34452B:27.29466
+version : A:25.34881B:27.30079
 category : malicious
-result : Trojan.GenericKD.63272677
+result : Win32.Trojan.Agent.P5VQC8
 method : blacklist
-update : 20221108
+update : 20221229
+==================================================
+
+
+==================================================
+Jiangmin
+version : 16.0.100
+category : malicious
+result : Adware.Agent.vvt
+method : blacklist
+update : 20221228
 ==================================================
 
 
@@ -247,9 +157,9 @@ update : 20221108
 Avira
 version : 8.3.3.16
 category : malicious
-result : HEUR/AGEN.1226917
+result : HEUR/AGEN.1208665
 method : blacklist
-update : 20221108
+update : 20221229
 ==================================================
 
 
@@ -257,119 +167,59 @@ update : 20221108
 Antiy-AVL
 version : 3.0
 category : malicious
-result : Trojan/Generic.ASMalwS.6C82
+result : GrayWare[AdWare]/Win32.Agent
 method : blacklist
-update : 20221108
+update : 20221229
 ==================================================
 
 
 ==================================================
-Gridinsoft
-version : 1.0.100.174
+Cynet
+version : 4.0.0.27
 category : malicious
-result : Ransom.Win32.Wacatac.oa!s2
+result : Malicious (score: 100)
 method : blacklist
-update : 20221108
+update : 20221229
 ==================================================
 
 
 ==================================================
-Arcabit
-version : 2022.0.0.18
+AhnLab-V3
+version : 3.23.0.10340
 category : malicious
-result : Trojan.Generic.D3C576E5
+result : Malware/Win.Generic.C5314639
 method : blacklist
-update : 20221108
-==================================================
-
-
-==================================================
-Microsoft
-version : 1.1.19800.4
-category : malicious
-result : Trojan:Win32/Tiggre!rfn
-method : blacklist
-update : 20221108
-==================================================
-
-
-==================================================
-Google
-version : 1667926899
-category : malicious
-result : Detected
-method : blacklist
-update : 20221108
+update : 20221229
 ==================================================
 
 
 ==================================================
 Acronis
-version : 1.2.0.112
+version : 1.2.0.113
 category : malicious
 result : suspicious
 method : blacklist
-update : 20221105
+update : 20221114
 ==================================================
 
 
 ==================================================
-ALYac
-version : 1.1.3.1
+VBA32
+version : 5.0.0
 category : malicious
-result : Trojan.GenericKD.63272677
+result : Trojan.MSIL.Zapchast
 method : blacklist
-update : 20221108
-==================================================
-
-
-==================================================
-MAX
-version : 2019.9.16.1
-category : malicious
-result : malware (ai score=80)
-method : blacklist
-update : 20221108
+update : 20221229
 ==================================================
 
 
 ==================================================
 Malwarebytes
-version : 4.3.3.37
+version : 4.4.4.52
 category : malicious
 result : Malware.AI.4196690213
 method : blacklist
-update : 20221108
-==================================================
-
-
-==================================================
-Rising
-version : 25.0.0.27
-category : malicious
-result : Trojan.Generic@AI.100 (RDML:RmnTNCv0jtvsFgof+9OZPQ)
-method : blacklist
-update : 20221108
-==================================================
-
-
-==================================================
-Ikarus
-version : 6.0.31.0
-category : malicious
-result : Trojan.Agent
-method : blacklist
-update : 20221108
-==================================================
-
-
-==================================================
-MaxSecure
-version : 1.0.0.1
-category : malicious
-result : Trojan.Malware.300983.susgen
-method : blacklist
-update : 20221108
+update : 20221229
 ==================================================
 
 
@@ -379,7 +229,7 @@ version : 6.4.258.0
 category : malicious
 result : W32/PossibleThreat
 method : blacklist
-update : 20221108
+update : 20221229
 ==================================================
 
 
@@ -389,27 +239,7 @@ version : 22.11.7701.0
 category : malicious
 result : Win32:Malware-gen
 method : blacklist
-update : 20221108
-==================================================
-
-
-==================================================
-Panda
-version : 4.6.4.2
-category : malicious
-result : Trj/Chgt.AD
-method : blacklist
-update : 20221108
-==================================================
-
-
-==================================================
-CrowdStrike
-version : 1.0
-category : malicious
-result : win/malicious_confidence_90% (W)
-method : blacklist
-update : 20220812
+update : 20221229
 ==================================================
 
 

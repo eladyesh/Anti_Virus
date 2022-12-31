@@ -18,12 +18,24 @@ class RequestHandler(BaseHTTPRequestHandler):
         self.send_response(200)
         self.send_header('Content-type', 'text/html')
         self.end_headers()
-        self.wfile.write(b'<html><head><title>Hello World</title></head>')
-        self.wfile.write(b'<body><h1>Hello World</h1></body></html>')
+        self.wfile.write(b"<html>")
+        self.wfile.write(b"<head><title>My Page</title></head>")
+        self.wfile.write(b"<body>")
+        self.wfile.write(b"<div style='text-align: center'>")
+        self.wfile.write(b"<h1 style='margin-top: 70px;font-size:80px'>Hello User</h1>")
+        for i in range(2):
+            self.wfile.write(b"</br>")
+        self.wfile.write(b"<p style='font-size: 60px;'>You have entered a website that was found suspicious by my "
+                         b"AntiVirus</p>")
+        self.wfile.write(b"</br>")
+        self.wfile.write(b"<p style='font-size: 60px;'>You will now not be able to address this website</p>")
+        self.wfile.write(b"</div>")
+        self.wfile.write(b"</body>")
+        self.wfile.write(b"</html>")
 
 
 def start_server():
-    httpd = HTTPServer(('localhost', 8080), RequestHandler)
+    httpd = HTTPServer(("192.168.1.12", 8080), RequestHandler)
     httpd.serve_forever()
 
 
@@ -212,14 +224,14 @@ class VTScan:
         ip_pattern = re.compile(r'(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})')
         ip_match = []
         block_ip = ["185.51.231.193", "205.251.196.240", "13.107.238.1", "13.107.6.254"]
-        dns_cache = run_command(["ipconfig", "/displaydns"]).decode()
-        for line in dns_cache.split("\r\n"):
-            if ip_pattern.search(line) is not None:
-                ip_match.append(ip_pattern.search(line)[0])
+        #dns_cache = run_command(["ipconfig", "/displaydns"]).decode()
+        #for line in dns_cache.split("\r\n"):
+        #    if ip_pattern.search(line) is not None:
+        #        ip_match.append(ip_pattern.search(line)[0])
 
-        ip_match.remove("127.0.0.1")
+        #ip_match.remove("127.0.0.1")
 
-        url_to_vt = "https://www.virustotal.com/api/v3/urls/"
+        #url_to_vt = "https://www.virustotal.com/api/v3/urls/"
 
         # for ip in ip_match:
         #     url_to_check = base64.urlsafe_b64encode(ip.encode()).decode().strip("=")
@@ -236,12 +248,23 @@ class VTScan:
 
         with pydivert.WinDivert() as w:
             for packet in w:
-                if packet.dst_addr not in block_ip:
-                    w.send(packet)
-                else:
-                    packet.dst_ip = "localhost"
+                if packet.dst_addr in block_ip:
+                    ip = packet.dst_addr
+                    # print("packet dst in block ip ", packet.src_port, packet.dst_port, packet.src_addr, packet.dst_addr,packet.direction)
+                    # print(f"got here out {packet.is_outbound}")
+                    packet.dst_addr = "192.168.1.12"
                     packet.dst_port = 8080
-                    w.send(packet)
+                    packet.direction = 0
+                    # print("packet modified ", packet.src_port, packet.dst_port, packet.src_addr, packet.dst_addr, packet.direction)
+                if packet.src_addr == "192.168.1.12" and packet.src_port == 8080:
+                    # print("packet src http ", packet.src_port, packet.dst_port, packet.src_addr, packet.dst_addr,
+                    #       packet.direction)
+                    packet.src_addr = ip
+                    packet.src_port = 80
+                    packet.direction = 1
+                    # print("packet modified ", packet.src_port, packet.dst_port, packet.src_addr, packet.dst_addr,
+                    #       packet.direction)
+                w.send(packet)
 
     @staticmethod
     def scan_directory(path):
@@ -336,9 +359,9 @@ if __name__ == "__main__":
     # args = vars(parser.parse_args())
 
     # running scan on suspicious file
-    md5_hash = md5("virus.exe")
-    vtscan = VTScan()
-    vtscan.info(md5_hash)
+    # md5_hash = md5("nop.exe")
+    # vtscan = VTScan()
+    # vtscan.info(md5_hash)
     # vtscan.analyse()
-    # VTScan.scan_for_suspicious_cache()
+    VTScan.scan_for_suspicious_cache()
     # VTScan.scan_directory("D:\Cyber\Sockets")
