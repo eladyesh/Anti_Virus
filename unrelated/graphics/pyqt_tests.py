@@ -20,15 +20,15 @@ PATH_TO_MOVE = r"E:\\Cyber\\YB_CYBER\\project\\FinalProject\\poc_start\\poc_star
 
 qss = """
 #Window{ 
-    background-color: white 
+    background-color: white;
 }
 QMainWindow {
     background: linear-gradient(to right, #fff, #f5f5f5);
-    border-radius: 10px;
+    border-radius: 100px;
     box-shadow: 10px 10px 5px #333;
     font-family: "Courier New", monospace;
     font-size: 16px;
-    color: #333;
+    color: white;
 }
 QPushButton[flat="true"]{
     background-color: white;
@@ -202,6 +202,75 @@ class AppDemo(QMainWindow):
 
         self.scroll = QScrollArea()  # Scroll Area which contains the widgets, set as the centralWidget
         self.widget = QWidget()  # Widget that contains the collection of Vertical Box
+        self.scroll.setStyleSheet("""
+        QScrollArea {
+          boarder-radius: 20px;
+        }
+        
+        *, *::before, *::after{
+        boarder-radius:20px;
+        }
+        
+        QScrollArea QScrollBar {
+          /* Styles for all scrollbars */
+          border-radius: 100px;
+          background-color: #e6b3ff;
+        }
+        
+        QScrollArea QScrollBar::handle {
+          /* Styles for the handle (draggable part) of the scrollbar */
+          background-color: #d99eff;
+          border-radius: 20px;
+        }
+        
+        QScrollArea QScrollBar::add-line,
+        QScrollArea QScrollBar::sub-line {
+          /* Styles for the buttons on the scrollbar */
+          width: 0;
+          height: 0;
+          border-color: transparent;
+          background-color: transparent;
+        }
+        
+        QScrollArea QScrollBar:vertical {
+          /* Styles for vertical scrollbars */
+          border-top-right-radius: 20px;
+          border-bottom-right-radius: 20px;
+        }
+        
+        QScrollArea QScrollBar:horizontal {
+          /* Styles for horizontal scrollbars */
+          border-top-left-radius: 20px;
+          border-top-right-radius: 20px;
+        }
+        
+        QScrollArea QScrollBar:left-arrow,
+        QScrollArea QScrollBar:right-arrow,
+        QScrollArea QScrollBar:up-arrow,
+        QScrollArea QScrollBar:down-arrow {
+          /* Styles for the buttons on the scrollbar */
+          border-radius: 20px;
+          background-color: #e6b3ff;
+        }
+        
+        QScrollArea QScrollBar:vertical:increment,
+        QScrollArea QScrollBar:vertical:decrement,
+        QScrollArea QScrollBar:horizontal:increment,
+        QScrollArea QScrollBar:horizontal:decrement {
+          /* Styles for the buttons on the scrollbar */
+          border-radius: 20px;
+          background-color: #e6b3ff;
+        }
+        
+        QScrollArea QScrollBar:vertical:increment:pressed,
+        QScrollArea QScrollBar:vertical:decrement:pressed,
+        QScrollArea QScrollBar:horizontal:increment:pressed,
+        QScrollArea QScrollBar:horizontal:decrement:pressed {
+          /* Styles for the buttons on the scrollbar when pressed */
+          border-radius: 20px;
+          background-color: #b366ff;
+        }
+        """)
 
         self.widget.setLayout(self.page_layout)
 
@@ -212,17 +281,6 @@ class AppDemo(QMainWindow):
         self.scroll.setWidget(self.widget)
 
         self.setCentralWidget(self.scroll)
-
-        # frame = QFrame()
-        # frame.setLayout(self.page_layout)
-        #
-        # # Create a scroll area and set the frame as its widget
-        # scroll_area = QScrollArea()
-        # scroll_area.setWidget(frame)
-        # scroll_area.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
-        #
-        # # Set the scroll area as the central widget of the main window
-        # self.setCentralWidget(scroll_area)
 
         self.btn.clicked.connect(lambda: self.getSelectedItem())
         self.start_vm_btn.clicked.connect(lambda: self.activate_vm())
@@ -257,6 +315,12 @@ class AppDemo(QMainWindow):
             self.packers_widget.deleteLater()
             self.packers_label.deleteLater()
             self.table_and_strings_layout.deleteLater()
+
+        if self.hash_visited:
+            self.index = self.page_layout.indexOf(self.hash_layout)
+            self.page_layout.removeItem(self.page_layout.takeAt(self.index))
+            self.virus_total_label.deleteLater()
+            self.hash_layout.deleteLater()
 
     def getSelectedItem(self):
         print("got here")
@@ -296,6 +360,8 @@ class AppDemo(QMainWindow):
 
         self.clearLayout()
         self.static_visited = True
+        self.hash_visited = False
+        self.dynamic_visited = False
 
         # self.page_layout.addLayout(self.btn_layout)
         self.static_button.setEnabled(False)
@@ -504,10 +570,17 @@ class AppDemo(QMainWindow):
         self.static_visited = False
         self.dynamic_visited = False
 
-        self.dir = str(QFileDialog.getExistingDirectory(self, "Select Directory"))
-        self.threadpool_vt = QThreadPool()
-        worker = Worker(self.execute_this_fn)
-        self.threadpool_vt.start(worker)
+        self.hash_layout = QVBoxLayout()
+        self.virus_total_label = make_label("Virus Total Engine Results")
+        self.hash_layout.addWidget(self.virus_total_label)
+        self.page_layout.addLayout(self.hash_layout)
+
+        # self.dir = str(QFileDialog.getExistingDirectory(self, "Select Directory"))
+        # self.threadpool_vt = QThreadPool()
+        # worker = Worker(self.execute_this_fn)
+        # self.threadpool_vt.start(worker)
+
+        self.hash_visited = True
 
 
 app = QApplication(sys.argv)
