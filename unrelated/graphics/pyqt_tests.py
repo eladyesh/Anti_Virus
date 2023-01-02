@@ -2,12 +2,12 @@ import sys, os
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 from PyQt5 import QtCore
-from PyQt5.QtCore import Qt, QUrl, pyqtSlot, QRunnable, QThreadPool
+from PyQt5.QtCore import Qt, QUrl, pyqtSlot, QRunnable, QThreadPool, QVariant, QAbstractTableModel
 import PyQt5.QtGui
 from PyQt5.QtCore import QObject, QThread, pyqtSignal
 import shutil
 from poc_start.send_to_vm.sender import Sender
-from poc_start.unrelated.hash_scan.vt_hash import VTScan, md5
+from poc_start.unrelated.hash_scan.vt_hash import VTScan, md5, check_hash, sha_256
 from poc_start.unrelated.pe_scan.entropy import *
 from poc_start.unrelated.pe_scan.pe_tests import *
 from poc_start.unrelated.Yara.ya_ra import YaraChecks
@@ -57,11 +57,11 @@ QLabel{
 """
 
 
-def make_label(text):
+def make_label(text, font_size):
     label = QLabel(text)
 
     # Set the font to a decorative font
-    font = QFont('Zapfino', 24)
+    font = QFont('Zapfino', font_size)
     label.setFont(font)
 
     # Set the text color to purple
@@ -94,6 +94,26 @@ class Worker(QRunnable):
     @pyqtSlot()
     def run(self):
         self.fn(*self.args, **self.kwargs)
+
+
+# Create a model for the table
+class TableModel(QAbstractTableModel):
+    def __init__(self, data):
+        super().__init__()
+        self._data = data
+
+    def rowCount(self, parent=None):
+        return len(self._data)
+
+    def columnCount(self, parent=None):
+        return 2
+
+    def data(self, index, role=Qt.DisplayRole):
+        if role == Qt.DisplayRole:
+            row = index.row()
+            col = index.column()
+            return self._data[row][col]
+        return QVariant()
 
 
 class ListBoxWidget(QListWidget):
@@ -143,6 +163,8 @@ class AppDemo(QMainWindow):
     def __init__(self):
         super().__init__()
 
+        self.movie_label = None
+
         self.page_layout = QVBoxLayout()
         self.btn_layout = QHBoxLayout()
         self.run_once = 0
@@ -166,7 +188,7 @@ class AppDemo(QMainWindow):
         self.activate_btn_layout.addWidget(self.start_vm_btn)
         self.activate_btn_layout.addWidget(self.btn)
 
-        self.l1 = make_label("YeshScanner")
+        self.l1 = make_label("YeshScanner", 24)
         self.l1.setAlignment(Qt.AlignCenter)
 
         self.dynamic_button = QPushButton("Dynamic Analysis")
@@ -321,6 +343,12 @@ class AppDemo(QMainWindow):
             self.page_layout.removeItem(self.page_layout.takeAt(self.index))
             self.virus_total_label.deleteLater()
             self.engine_tree.deleteLater()
+            self.basic_info_label.deleteLater()
+            self.basic_info.deleteLater()
+            self.scan_dir_label.deleteLater()
+            self.scan_dir_button.deleteLater()
+            if self.movie_label is not None:
+                self.movie_label.deleteLater()
             self.hash_layout.deleteLater()
 
     def getSelectedItem(self):
@@ -387,9 +415,19 @@ class AppDemo(QMainWindow):
         self.virus_table.setItem(0, 3, QTableWidgetItem("Raw Size"))
         self.virus_table.setItem(0, 4, QTableWidgetItem("Entropy"))
 
+        for i in range(5):
+            item = self.virus_table.item(0, i)
+            flags = item.flags()
+            flags &= ~Qt.ItemIsEditable
+            item.setFlags(flags)
+
         for row in range(0, len(sections)):
             for column in range(len(sections[0])):
                 self.virus_table.setItem(row + 1, column, QTableWidgetItem(sections[row][column]))
+                item = self.virus_table.item(row + 1, column)
+                flags = item.flags()
+                flags &= ~Qt.ItemIsEditable
+                item.setFlags(flags)
 
         self.virus_table.resizeColumnsToContents()
         self.virus_table.resizeRowsToContents()
@@ -434,7 +472,7 @@ class AppDemo(QMainWindow):
 
         self.table_and_strings_layout = QVBoxLayout()
 
-        self.virus_table_label = make_label("The Portable Executable Table")
+        self.virus_table_label = make_label("The Portable Executable Table", 24)
         self.table_and_strings_layout.addWidget(self.virus_table_label)
         self.table_and_strings_layout.addWidget(self.virus_table, 0)
 
@@ -533,12 +571,12 @@ class AppDemo(QMainWindow):
         """
 
         self.list_strings_widget.setStyleSheet(list_widget_style_sheet)
-        self.strings_label = make_label("Suspicious Strings")
+        self.strings_label = make_label("Suspicious Strings", 24)
         self.list_strings_widget.setVerticalScrollBar(scrollBar)
         self.table_and_strings_layout.addWidget(self.strings_label)
         self.table_and_strings_layout.addWidget(self.list_strings_widget)
 
-        self.packers_label = make_label("Packers And Protectors")
+        self.packers_label = make_label("Packers And Protectors", 24)
         self.packers_widget = QListWidget()
 
         scrollBarPackers = QScrollBar()
@@ -565,6 +603,19 @@ class AppDemo(QMainWindow):
     def execute_this_fn(self):
         VTScan.scan_directory(self.dir)
 
+    def show_movie(self):
+
+        # Create the QLabel
+        self.movie_label = QLabel()
+
+        # Set the GIF image as the QLabel's movie
+        movie = QMovie('file_scan.gif')
+        self.movie_label.setMovie(movie)
+
+        # Start the movie
+        movie.start()
+        self.hash_layout.addWidget(self.movie_label)
+
     def hash_analysis(self):
 
         self.clearLayout()
@@ -572,16 +623,89 @@ class AppDemo(QMainWindow):
         self.dynamic_visited = False
 
         self.hash_layout = QVBoxLayout()
-        self.virus_total_label = make_label("Virus Total Engine Results")
-        self.hash_layout.addWidget(self.virus_total_label)
 
         self.engine_tree = QTreeWidget()
         self.engine_tree.setHeaderLabels(['Name', 'Version', 'Category', 'Result', 'Method', 'Update'])
 
         md5_hash = md5("virus.exe")
+        sha_256_hash = sha_256("virus.exe")
+        entropy_of_file = entropy_for_file("virus.exe")
         vtscan = VTScan()
 
         engines, malicious, undetected = vtscan.info(md5_hash)
+
+        self.basic_info_label = make_label("Basic Information", 24)
+        self.hash_layout.addWidget(self.basic_info_label)
+
+        # Create the QTableView
+        self.basic_info = QTableView()
+
+        # Set the model on the QTableView
+        data = [
+            ['MD5 hash', md5_hash],
+            ['SHA-256 hash', sha_256_hash],
+            ['Entropy of file', entropy_of_file],
+            ['Number of engines detected as Malicious', malicious],
+            ['Number of engines not detected as Malicious', undetected],
+            ['File type', 'Win32 Exe']
+        ]
+        model = TableModel(data)
+        self.basic_info.setModel(model)
+
+        # Set the style sheet and disable editing
+        style_sheet = """
+        QTableView {
+            font-family: "Arial Black";
+            font-size: 10pt;
+            color: #333;
+            background-color: #f5f5f5;
+            border: 2px solid #ccc;
+            border-radius: 5px;
+        }
+        QTableView::item {
+            padding: 10px;
+            background-color: #b3d9ff;
+        }
+        QTableView::item:selected {
+            background-color: #99ccff;
+            color: #fff;
+        }
+        QTableView::item:selected:!active {
+            background-color: #3399ff;
+            color: #fff;
+        }
+        QTableView::item:selected:active {
+        background-color: #3399ff;
+            color: #fff;
+        }
+        QHeaderView {
+            font-size: 18pt;
+            font-weight: bold;
+            color: #333;
+            background-color: #f5f5f5;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        QHeaderView::section {
+            padding: 10px;
+        }
+        QHeaderView::section:selected {
+            background-color: #3399ff;
+            color: #fff;
+        }
+        """
+
+        self.basic_info.setStyleSheet(style_sheet)
+        self.basic_info.setEditTriggers(QTableView.NoEditTriggers)
+
+        # Allow the cells to be resized using the mouse
+        self.basic_info.horizontalHeader().setSectionsMovable(True)
+        self.basic_info.horizontalHeader().setSectionResizeMode(QHeaderView.Interactive)
+        self.basic_info.setMinimumSize(550, 360)
+        self.hash_layout.addWidget(self.basic_info)
+
+        self.virus_total_label = make_label("Virus Total Engine Results", 24)
+        self.hash_layout.addWidget(self.virus_total_label)
 
         # Add a top-level item for each engine
         for engine in engines:
@@ -692,8 +816,41 @@ class AppDemo(QMainWindow):
             }
         ''')
 
+        self.engine_tree.setMinimumSize(550, 550)
         self.hash_layout.addWidget(self.engine_tree)
         self.page_layout.addLayout(self.hash_layout)
+
+        self.scan_dir_label = make_label("Directory Analysis", 24)
+        self.hash_layout.addWidget(self.scan_dir_label)
+
+        # Set the style sheet
+        scan_dir_style_sheet = """
+        QPushButton {
+            font-size: 18pt;
+            font-weight: bold;
+            color: #fff;
+            background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
+                                        stop: 0 #9933ff, stop: 1 #6600cc);
+            border: 2px solid #6600cc;
+            border-radius: 10px;
+            padding: 10px;
+            min-width: 100px;
+            min-height: 50px;
+        }
+        QPushButton:hover {
+            background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
+                                        stop: 0 #b366ff, stop: 1 #8000ff);
+        }
+        QPushButton:pressed {
+            background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
+                                        stop: 0 #cc99ff, stop: 1 #9933ff);
+        }
+        """
+        self.scan_dir_button = QPushButton('Scan Dir for viruses')
+        self.scan_dir_button.setStyleSheet(scan_dir_style_sheet)
+        self.scan_dir_button.setMaximumSize(300, 50)
+        self.scan_dir_button.clicked.connect(self.show_movie)
+        self.hash_layout.addWidget(self.scan_dir_button)
 
         # self.dir = str(QFileDialog.getExistingDirectory(self, "Select Directory"))
         # self.threadpool_vt = QThreadPool()
