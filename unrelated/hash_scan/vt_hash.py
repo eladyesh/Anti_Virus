@@ -35,7 +35,7 @@ class RequestHandler(BaseHTTPRequestHandler):
 
 
 def start_server():
-    httpd = HTTPServer(("192.168.1.12", 8080), RequestHandler)
+    httpd = HTTPServer(("172.16.2.85", 8080), RequestHandler)
     httpd.serve_forever()
 
 
@@ -252,11 +252,11 @@ class VTScan:
                     ip = packet.dst_addr
                     # print("packet dst in block ip ", packet.src_port, packet.dst_port, packet.src_addr, packet.dst_addr,packet.direction)
                     # print(f"got here out {packet.is_outbound}")
-                    packet.dst_addr = "192.168.1.12"
+                    packet.dst_addr = "172.16.2.85"
                     packet.dst_port = 8080
                     packet.direction = 0
                     # print("packet modified ", packet.src_port, packet.dst_port, packet.src_addr, packet.dst_addr, packet.direction)
-                if packet.src_addr == "192.168.1.12" and packet.src_port == 8080:
+                if packet.src_addr == "172.16.2.85" and packet.src_port == 8080:
                     # print("packet src http ", packet.src_port, packet.dst_port, packet.src_addr, packet.dst_addr,
                     #       packet.direction)
                     packet.src_addr = ip
@@ -316,6 +316,9 @@ class VTScan:
 
         if res.status_code == 200:
 
+            malicious = 0
+            undetected = 0
+
             result = res.json()
 
             # make_json("info", result)
@@ -325,21 +328,34 @@ class VTScan:
                 results = result.get("data").get("attributes").get("last_analysis_results")
                 self.f.write("malicious: " + str(stats.get("malicious")) + "\n")
                 self.f.write("undetected : " + str(stats.get("undetected")) + "\n\n")
+                malicious, undetected = int(str(stats.get("malicious"))), int(str(stats.get("undetected")))
+                engines = []
+
                 self.f.write("")
                 for r in results:
                     if results[r].get("category") == "malicious":
+
+                        engine_dict = {'name': '', 'version': '', 'category': '', 'result': '', 'method': '', 'update': ''}
+
                         self.f.write("==================================================" + "\n")
                         self.f.write(results[r].get("engine_name") + "\n")
+                        engine_dict['name'] = str(results[r].get("engine_name"))
                         self.f.write("version : " + results[r].get("engine_version") + "\n")
+                        engine_dict['version'] = str(results[r].get("engine_version"))
                         self.f.write("category : " + results[r].get("category") + "\n")
+                        engine_dict['category'] = str(results[r].get("category"))
                         self.f.write("result : " + results[r].get("result") + "\n")
+                        engine_dict['result'] = str(results[r].get("result"))
                         self.f.write("method : " + results[r].get("method") + "\n")
+                        engine_dict['method'] = str(results[r].get("method"))
                         self.f.write("update : " + results[r].get("engine_update") + "\n")
+                        engine_dict['update'] = str(results[r].get("engine_version"))
                         self.f.write("==================================================" + "\n" * 3)
+                        engines.append(engine_dict)
 
                 self.f.write("successfully analyse: OK" + "\n")
                 print("Scan Done successfully")
-                sys.exit(1)
+                return engines, malicious, undetected
 
             else:
                 self.f.write("failed to analyse :(..." + "\n")
@@ -359,9 +375,9 @@ if __name__ == "__main__":
     # args = vars(parser.parse_args())
 
     # running scan on suspicious file
-    # md5_hash = md5("nop.exe")
-    # vtscan = VTScan()
-    # vtscan.info(md5_hash)
+    md5_hash = md5("nop.exe")
+    vtscan = VTScan()
+    vtscan.info(md5_hash)
     # vtscan.analyse()
-    VTScan.scan_for_suspicious_cache()
+    # VTScan.scan_for_suspicious_cache()
     # VTScan.scan_directory("D:\Cyber\Sockets")

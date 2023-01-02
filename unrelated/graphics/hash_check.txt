@@ -1,0 +1,166 @@
+Getting file info by ID: f2141ebae786525caf50cb9d9c5029c2
+
+malicious: 16
+undetected : 56
+
+==================================================
+Elastic
+version : 4.0.68
+category : malicious
+result : malicious (high confidence)
+method : blacklist
+update : 20221227
+==================================================
+
+
+==================================================
+FireEye
+version : 35.24.1.0
+category : malicious
+result : Generic.mg.f2141ebae786525c
+method : blacklist
+update : 20230101
+==================================================
+
+
+==================================================
+McAfee
+version : 6.0.6.653
+category : malicious
+result : Artemis!F2141EBAE786
+method : blacklist
+update : 20230101
+==================================================
+
+
+==================================================
+Cyren
+version : 6.5.1.2
+category : malicious
+result : W32/Fugrafa.Z.gen!Eldorado
+method : blacklist
+update : 20230101
+==================================================
+
+
+==================================================
+Symantec
+version : 1.19.0.0
+category : malicious
+result : ML.Attribute.HighConfidence
+method : blacklist
+update : 20230101
+==================================================
+
+
+==================================================
+APEX
+version : 6.372
+category : malicious
+result : Malicious
+method : blacklist
+update : 20230101
+==================================================
+
+
+==================================================
+Cynet
+version : 4.0.0.27
+category : malicious
+result : Malicious (score: 100)
+method : blacklist
+update : 20230101
+==================================================
+
+
+==================================================
+McAfee-GW-Edition
+version : v2019.1.2+3728
+category : malicious
+result : BehavesLike.Win32.Generic.pt
+method : blacklist
+update : 20230101
+==================================================
+
+
+==================================================
+SentinelOne
+version : 22.3.2.9
+category : malicious
+result : Static AI - Suspicious PE
+method : blacklist
+update : 20221003
+==================================================
+
+
+==================================================
+Avira
+version : 8.3.3.16
+category : malicious
+result : HEUR/AGEN.1226932
+method : blacklist
+update : 20230101
+==================================================
+
+
+==================================================
+Google
+version : 1672570829
+category : malicious
+result : Detected
+method : blacklist
+update : 20230101
+==================================================
+
+
+==================================================
+Acronis
+version : 1.2.0.113
+category : malicious
+result : suspicious
+method : blacklist
+update : 20221114
+==================================================
+
+
+==================================================
+VBA32
+version : 5.0.0
+category : malicious
+result : BScope.Trojan.Proxy
+method : blacklist
+update : 20221230
+==================================================
+
+
+==================================================
+Rising
+version : 25.0.0.27
+category : malicious
+result : Trojan.Generic@AI.90 (RDML:ugZL+ITJ6tQ4EUkBqUBlXg)
+method : blacklist
+update : 20230101
+==================================================
+
+
+==================================================
+MaxSecure
+version : 1.0.0.1
+category : malicious
+result : Trojan.Malware.300983.susgen
+method : blacklist
+update : 20221231
+==================================================
+
+
+==================================================
+CrowdStrike
+version : 1.0
+category : malicious
+result : win/malicious_confidence_70% (W)
+method : blacklist
+update : 20220812
+==================================================
+
+
+successfully analyse: OK

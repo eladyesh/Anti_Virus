@@ -7,7 +7,7 @@ import PyQt5.QtGui
 from PyQt5.QtCore import QObject, QThread, pyqtSignal
 import shutil
 from poc_start.send_to_vm.sender import Sender
-from poc_start.unrelated.hash_scan.vt_hash import VTScan
+from poc_start.unrelated.hash_scan.vt_hash import VTScan, md5
 from poc_start.unrelated.pe_scan.entropy import *
 from poc_start.unrelated.pe_scan.pe_tests import *
 from poc_start.unrelated.Yara.ya_ra import YaraChecks
@@ -320,6 +320,7 @@ class AppDemo(QMainWindow):
             self.index = self.page_layout.indexOf(self.hash_layout)
             self.page_layout.removeItem(self.page_layout.takeAt(self.index))
             self.virus_total_label.deleteLater()
+            self.engine_tree.deleteLater()
             self.hash_layout.deleteLater()
 
     def getSelectedItem(self):
@@ -573,6 +574,125 @@ class AppDemo(QMainWindow):
         self.hash_layout = QVBoxLayout()
         self.virus_total_label = make_label("Virus Total Engine Results")
         self.hash_layout.addWidget(self.virus_total_label)
+
+        self.engine_tree = QTreeWidget()
+        self.engine_tree.setHeaderLabels(['Name', 'Version', 'Category', 'Result', 'Method', 'Update'])
+
+        md5_hash = md5("virus.exe")
+        vtscan = VTScan()
+
+        engines, malicious, undetected = vtscan.info(md5_hash)
+
+        # Add a top-level item for each engine
+        for engine in engines:
+            # Create a QTreeWidgetItem for the engine
+            item = QTreeWidgetItem([engine['name'], engine['version'], str(engine['category']), str(engine['result']),
+                                    str(engine['method']), str(engine['update'])])
+
+            # # Set additional data for the item using setData
+            # item.setData(0, 0, engine['name'])
+            # item.setData(1, 0, engine['type'])
+            # item.setData(2, 0, engine['thrust'])
+            # item.setData(3, 0, engine['weight'])
+
+            # Add the item to the tree
+            self.engine_tree.addTopLevelItem(item)
+
+        # Set the style sheet for the tree widget
+        self.engine_tree.setStyleSheet('''
+            QTreeWidget {
+                font-family: sans-serif;
+                font-size: 14px;
+                color: white;
+                background-color: #333;
+                border: 2px solid #444;
+                gridline-color: #666;
+            }
+            QTreeWidget::item {
+                padding: 5px;
+                margin: 0px;
+            }
+            QTreeWidget::item:hover {
+                background-color: #555;
+            }
+            QTreeWidget::item:selected {
+                background-color: #777;
+            }
+            QTreeWidget::item:selected:active {
+                background-color: #999;
+            }
+            QTreeWidget::item:selected:!active {
+                background-color: #bbb;
+            }
+            QTreeWidget::indicator {
+                width: 16px;
+                height: 16px;
+            }
+            QTreeWidget::indicator:unchecked {
+                border: 1px solid white;
+            }
+            QTreeWidget::indicator:unchecked:hover {
+                border: 1px solid #aaa;
+            }
+            QTreeWidget::indicator:unchecked:pressed {
+                border: 1px solid #555;
+            }
+            QTreeWidget::indicator:checked {
+                background-color: white;
+            }
+            QTreeWidget::indicator:checked:hover {
+                background-color: #aaa;
+            }
+            QTreeWidget::indicator:checked:pressed {
+                background-color: #555;
+            }
+            QTreeWidget::indicator:indeterminate {
+                background-color: white;
+                border: 1px dotted white;
+            }
+            QTreeWidget::indicator:indeterminate:hover {
+                background-color: #aaa;
+                border: 1px dotted #aaa;
+            }
+            QTreeWidget::indicator:indeterminate:pressed {
+                background-color: #555;
+                border: 1px dotted #555;
+            }
+            QTreeWidget::branch {
+                background: transparent;
+            }
+            QTreeWidget::branch:closed:has-children {
+                image: none;
+                border: 0px;
+            }
+            QTreeWidget::branch:open:has-children {
+                image: none;
+                border: 0px;
+            }
+            QTreeWidget::branch:has-children:!has-siblings:closed,
+            QTreeWidget::branch:closed:has-children:has-siblings {
+                image: none;
+                border: 0px;
+            }
+            QTreeWidget::branch:open:has-children:has-siblings  {
+                image: none;
+                border: 0px;
+            }
+            QTreeWidget::header {
+                font-size: 24px;
+                font-weight: bold;
+                background-color: #444;
+                border: 2px solid #555;
+                min-height: 20px;
+            }
+            QTreeWidget::item {
+                min-height: 30px;
+                min-width: 400px;
+                width: 200px;
+            }
+        ''')
+
+        self.hash_layout.addWidget(self.engine_tree)
         self.page_layout.addLayout(self.hash_layout)
 
         # self.dir = str(QFileDialog.getExistingDirectory(self, "Select Directory"))

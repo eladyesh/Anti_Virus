@@ -1,6 +1,6 @@
 Getting file info by ID: 944650d7e55bb85e09398e1a994a2be9
 
-malicious: 24
+malicious: 25
 undetected : 47
 
 ==================================================
@@ -9,7 +9,7 @@ version : 7.5
 category : malicious
 result : Riskware.Win32.Generic.1!c
 method : blacklist
-update : 20221229
+update : 20221231
 ==================================================
 
 
@@ -29,17 +29,7 @@ version : 35.24.1.0
 category : malicious
 result : Generic.mg.944650d7e55bb85e
 method : blacklist
-update : 20221229
-==================================================
-
-
-==================================================
-McAfee
-version : 6.0.6.653
-category : malicious
-result : RDN/Generic.hra
-method : blacklist
-update : 20221229
+update : 20230101
 ==================================================
 
 
@@ -64,32 +54,22 @@ update : 20210330
 
 
 ==================================================
-BitDefenderTheta
-version : 7.2.37796.0
+Cynet
+version : 4.0.0.27
 category : malicious
-result : Gen:NN.ZexaF.36158.imZ@amRpQcb
+result : Malicious (score: 100)
 method : blacklist
-update : 20221219
+update : 20221231
 ==================================================
 
 
 ==================================================
 APEX
-version : 6.370
+version : 6.371
 category : malicious
 result : Malicious
 method : blacklist
-update : 20221228
-==================================================
-
-
-==================================================
-TrendMicro-HouseCall
-version : 10.0.0.1040
-category : malicious
-result : TROJ_GEN.R002H0CKB22
-method : blacklist
-update : 20221229
+update : 20221231
 ==================================================
 
 
@@ -99,17 +79,7 @@ version : 1.0.146.25648
 category : malicious
 result : Riskware.Win32.Agent.eghdoz
 method : blacklist
-update : 20221229
-==================================================
-
-
-==================================================
-Avast
-version : 22.11.7701.0
-category : malicious
-result : Win32:Malware-gen
-method : blacklist
-update : 20221229
+update : 20221231
 ==================================================
 
 
@@ -119,27 +89,7 @@ version : v2019.1.2+3728
 category : malicious
 result : RDN/Generic.hra
 method : blacklist
-update : 20221229
-==================================================
-
-
-==================================================
-SentinelOne
-version : 22.3.2.9
-category : malicious
-result : Static AI - Suspicious PE
-method : blacklist
-update : 20221003
-==================================================
-
-
-==================================================
-GData
-version : A:25.34881B:27.30079
-category : malicious
-result : Win32.Trojan.Agent.P5VQC8
-method : blacklist
-update : 20221229
+update : 20221231
 ==================================================
 
 
@@ -149,7 +99,7 @@ version : 16.0.100
 category : malicious
 result : Adware.Agent.vvt
 method : blacklist
-update : 20221228
+update : 20221231
 ==================================================
 
 
@@ -159,7 +109,7 @@ version : 8.3.3.16
 category : malicious
 result : HEUR/AGEN.1208665
 method : blacklist
-update : 20221229
+update : 20221231
 ==================================================
 
 
@@ -169,17 +119,17 @@ version : 3.0
 category : malicious
 result : GrayWare[AdWare]/Win32.Agent
 method : blacklist
-update : 20221229
+update : 20221231
 ==================================================
 
 
 ==================================================
-Cynet
-version : 4.0.0.27
+GData
+version : A:25.34901B:27.30106
 category : malicious
-result : Malicious (score: 100)
+result : Win32.Trojan.Agent.P5VQC8
 method : blacklist
-update : 20221229
+update : 20230101
 ==================================================
 
 
@@ -189,7 +139,7 @@ version : 3.23.0.10340
 category : malicious
 result : Malware/Win.Generic.C5314639
 method : blacklist
-update : 20221229
+update : 20221231
 ==================================================
 
 
@@ -204,12 +154,22 @@ update : 20221114
 
 
 ==================================================
+McAfee
+version : 6.0.6.653
+category : malicious
+result : Artemis!944650D7E55B
+method : blacklist
+update : 20230101
+==================================================
+
+
+==================================================
 VBA32
 version : 5.0.0
 category : malicious
 result : Trojan.MSIL.Zapchast
 method : blacklist
-update : 20221229
+update : 20221230
 ==================================================
 
 
@@ -219,7 +179,27 @@ version : 4.4.4.52
 category : malicious
 result : Malware.AI.4196690213
 method : blacklist
-update : 20221229
+update : 20221231
+==================================================
+
+
+==================================================
+TrendMicro-HouseCall
+version : 10.0.0.1040
+category : malicious
+result : TROJ_GEN.R002H0CKB22
+method : blacklist
+update : 20221231
+==================================================
+
+
+==================================================
+SentinelOne
+version : 22.3.2.9
+category : malicious
+result : Static AI - Suspicious PE
+method : blacklist
+update : 20221003
 ==================================================
 
 
@@ -229,7 +209,17 @@ version : 6.4.258.0
 category : malicious
 result : W32/PossibleThreat
 method : blacklist
-update : 20221229
+update : 20230101
+==================================================
+
+
+==================================================
+BitDefenderTheta
+version : 7.2.37796.0
+category : malicious
+result : Gen:NN.ZexaF.36158.imZ@amRpQcb
+method : blacklist
+update : 20221219
 ==================================================
 
 
@@ -239,7 +229,27 @@ version : 22.11.7701.0
 category : malicious
 result : Win32:Malware-gen
 method : blacklist
-update : 20221229
+update : 20221231
+==================================================
+
+
+==================================================
+Avast
+version : 22.11.7701.0
+category : malicious
+result : Win32:Malware-gen
+method : blacklist
+update : 20221231
+==================================================
+
+
+==================================================
+CrowdStrike
+version : 1.0
+category : malicious
+result : win/malicious_confidence_60% (W)
+method : blacklist
+update : 20220812
 ==================================================
 
 
