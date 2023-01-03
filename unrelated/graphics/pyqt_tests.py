@@ -505,7 +505,7 @@ class AppDemo(QMainWindow):
 
         # Customize the appearance of the scroll bar
 
-        scrollBar_stylesheet = """
+        self.scrollBar_stylesheet = """
             QScrollBar:vertical {
                 border: none;
                 background: #eee;
@@ -545,9 +545,9 @@ class AppDemo(QMainWindow):
             }
         """
 
-        scrollBar.setStyleSheet(scrollBar_stylesheet)
+        scrollBar.setStyleSheet(self.scrollBar_stylesheet)
 
-        list_widget_style_sheet = """
+        self.list_widget_style_sheet = """
             QListWidget {
                 background-color: #f5f5f5;
                 border: 1px solid #ccc;
@@ -573,7 +573,7 @@ class AppDemo(QMainWindow):
             }
         """
 
-        self.list_strings_widget.setStyleSheet(list_widget_style_sheet)
+        self.list_strings_widget.setStyleSheet(self.list_widget_style_sheet)
         self.strings_label = make_label("Suspicious Strings", 24)
         self.list_strings_widget.setVerticalScrollBar(scrollBar)
         self.table_and_strings_layout.addWidget(self.strings_label)
@@ -589,13 +589,13 @@ class AppDemo(QMainWindow):
         scrollBarPackers.setSingleStep(1)
         scrollBarPackers.setPageStep(10)
         scrollBarPackers.setValue(50)
-        scrollBarPackers.setStyleSheet(scrollBar_stylesheet)
+        scrollBarPackers.setStyleSheet(self.scrollBar_stylesheet)
 
         for packer, tag in yara_packers.items():
             self.packers_widget.addItem(str(packer) + ": " + str(tag[0]))
 
         self.packers_widget.setMinimumSize(550, 200)
-        self.packers_widget.setStyleSheet(list_widget_style_sheet)
+        self.packers_widget.setStyleSheet(self.list_widget_style_sheet)
         self.packers_widget.setVerticalScrollBar(scrollBarPackers)
         self.table_and_strings_layout.addWidget(self.packers_label)
         self.table_and_strings_layout.addWidget(self.packers_widget)
@@ -606,20 +606,97 @@ class AppDemo(QMainWindow):
     def activate_vt_scan_dir(self):
 
         for path in VTScan.scan_directory(self.dir):
-            print("path to malicious file ", path)
+            self.suspicious_paths.addItem(str(path))
 
     def scan_dir(self):
 
         self.dir = str(QFileDialog.getExistingDirectory(self, "Select Directory"))
         self.threadpool_vt = QThreadPool()
+        self.show_movie()
+
+        self.suspicious_paths = QListWidget()
+        list_widget_style_sheet = """
+             QListWidget {
+                 background-color: #f5f5f5;
+                 border: 1px solid #ccc;
+                 border-radius: 5px;
+                 outline: none;
+             }
+
+             QListWidget::item {
+                 color: #444;
+                 border: none;
+                 padding: 10px;
+                 font-size: 14px;
+                 font-weight: 500;
+             }
+
+             QListWidget::item:hover {
+                 background-color: #eee;
+             }
+
+             QListWidget::item:selected {
+                 background-color: #333;
+                 color: #fff;
+             }
+         """
+        self.suspicious_paths.setStyleSheet(list_widget_style_sheet)
+
+        scrollBarPaths = QScrollBar()
+        scrollBarPaths.setOrientation(Qt.Vertical)
+        scrollBarPaths.setMinimum(0)
+        scrollBarPaths.setMaximum(100)
+        scrollBarPaths.setSingleStep(1)
+        scrollBarPaths.setPageStep(10)
+        scrollBarPaths.setValue(50)
+
+        scrollBarPaths_stylesheet = """
+             QScrollBar:vertical {
+                 border: none;
+                 background: #eee;
+                 width: 15px;
+                 margin: 0px 0px 0px 0px;
+
+             QScrollBar::handle:vertical {
+                 background: #ccc;
+                 min-height: 20px;
+                 border-radius: 5px;
+
+             QScrollBar::add-line:vertical {
+                 background: none;
+                 height: 0px;
+                 subcontrol-position: bottom;
+                 subcontrol-origin: margin;
+
+             QScrollBar::sub-line:vertical {
+                 background: none;
+                 height: 0px;
+                 subcontrol-position: top;
+                 subcontrol-origin: margin;
+
+             QScrollBar::up-arrow:vertical, QScrollBar::down-arrow:vertical {
+                 border: none;
+                 width: 0px;
+                 height: 0px;
+                 background: none;
+
+             QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {
+                 background: none;
+             }
+         """
+
+        scrollBarPaths.setStyleSheet(scrollBarPaths_stylesheet)
+        self.suspicious_paths.setVerticalScrollBar(scrollBarPaths)
+        self.suspicious_paths.setMaximumSize(500, 350)
+        self.movie_list.addWidget(self.suspicious_paths)
+        self.hash_layout.addLayout(self.movie_list)
+
         worker = Worker(self.activate_vt_scan_dir)
         self.threadpool_vt.start(worker)
-        self.show_movie()
 
     def show_movie(self):
 
         if self.show_label == 1:
-
             self.description_for_search = make_label("Now, if a file was found malicious by more than 5 engines\n"
                                                      "it will be shown on the screen to your right", 15)
             self.hash_layout.addWidget(self.description_for_search)
@@ -635,7 +712,6 @@ class AppDemo(QMainWindow):
             # Start the movie
             movie.start()
             self.movie_list.addWidget(self.movie_label)
-            self.hash_layout.addLayout(self.movie_list)
             self.show_label = 0
 
     def hash_analysis(self):

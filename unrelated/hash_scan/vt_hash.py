@@ -284,21 +284,21 @@ class VTScan:
                 # a dictionary of files to send to the specified url
                 files = {"file": (os.path.basename(filename.path),
                                   open(os.path.abspath(filename.path), "rb"))}  # the requested format for posting
-                print(os.path.abspath(filename.path))
+                # print(os.path.abspath(filename.path))
                 res = requests.post(upload_url, headers=headers, files=files)
 
                 if res.status_code == 200:
 
                     result = res.json()
                     file_id = result.get("data").get("id")
-                    print("Successfully uploaded")
+                    # print("Successfully uploaded")
 
                     analysis_url = VT_API_URL + "analyses/" + file_id
                     analyse_res = requests.get(analysis_url, headers=headers)
 
                     if analyse_res.status_code == 200:
                         analyse_result = analyse_res.json()
-                        print(analyse_result)
+                        # print(analyse_result)
                         status = analyse_result.get("data").get("attributes").get("status")
                         if status == "completed":
                             print("completed")
@@ -318,8 +318,10 @@ class VTScan:
                             res = requests.get(info_url, headers=headers)
                             if res.status_code == 200:
                                 result = res.json()
+                                print(int(str(result.get("data").get("attributes").get("last_analysis_stats").get("malicious"))))
                                 if result.get("data").get("attributes").get("last_analysis_results"):
-                                    print(str(result.get("data").get("attributes").get("last_analysis_stats").get("malicious")))
+                                    if int(str(result.get("data").get("attributes").get("last_analysis_stats").get("malicious"))) > 5:
+                                        yield os.path.abspath(filename.path)
 
                 else:
                     print("Could not upload successfully")
