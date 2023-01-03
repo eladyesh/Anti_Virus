@@ -352,6 +352,7 @@ class AppDemo(QMainWindow):
                 self.show_label = 1
                 self.description_for_search.deleteLater()
                 self.movie_list.deleteLater()
+                self.suspicious_paths.deleteLater()
             self.hash_layout.deleteLater()
 
     def getSelectedItem(self):
@@ -621,6 +622,7 @@ class AppDemo(QMainWindow):
                  border: 1px solid #ccc;
                  border-radius: 5px;
                  outline: none;
+                 margin: 20px;
              }
 
              QListWidget::item {
@@ -687,7 +689,7 @@ class AppDemo(QMainWindow):
 
         scrollBarPaths.setStyleSheet(scrollBarPaths_stylesheet)
         self.suspicious_paths.setVerticalScrollBar(scrollBarPaths)
-        self.suspicious_paths.setMaximumSize(500, 350)
+        self.suspicious_paths.setMaximumSize(550, 350)
         self.movie_list.addWidget(self.suspicious_paths)
         self.hash_layout.addLayout(self.movie_list)
 
@@ -951,6 +953,9 @@ class AppDemo(QMainWindow):
 
         self.show_label = 1
         self.hash_layout.addWidget(self.scan_dir_button)
+
+        if self.movie_label is not None:
+            pass
 
         self.hash_visited = True
 

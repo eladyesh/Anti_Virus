@@ -1,7 +1,7 @@
 Getting file info by ID: 5fffd3e69093dc32727214ba5c8f2af5
 
 malicious: 36
-undetected : 35
+undetected : 34
 
 ==================================================
 Lionic
@@ -10,16 +10,6 @@ category : malicious
 result : Riskware.Win32.Generic.1!c
 method : blacklist
 update : 20230103
-==================================================
-
-
-==================================================
-Elastic
-version : 4.0.68
-category : malicious
-result : malicious (high confidence)
-method : blacklist
-update : 20221227
 ==================================================
 
 
@@ -114,10 +104,10 @@ update : 20230101
 
 
 ==================================================
-Cynet
-version : 4.0.0.27
+TrendMicro-HouseCall
+version : 10.0.0.1040
 category : malicious
-result : Malicious (score: 100)
+result : TROJ_GEN.R002H0CK222
 method : blacklist
 update : 20230103
 ==================================================
@@ -154,16 +144,6 @@ update : 20230101
 
 
 ==================================================
-McAfee-GW-Edition
-version : v2019.1.2+3728
-category : malicious
-result : BehavesLike.Win32.BadFile.ct
-method : blacklist
-update : 20230103
-==================================================
-
-
-==================================================
 Emsisoft
 version : 2022.6.0.32461
 category : malicious
@@ -174,12 +154,32 @@ update : 20230103
 
 
 ==================================================
-Ikarus
-version : 6.0.33.0
+McAfee-GW-Edition
+version : v2019.1.2+3728
 category : malicious
-result : Trojan.Agent
+result : BehavesLike.Win32.BadFile.ct
 method : blacklist
 update : 20230103
+==================================================
+
+
+==================================================
+Sophos
+version : 1.4.1.0
+category : malicious
+result : Mal/Generic-R
+method : blacklist
+update : 20230103
+==================================================
+
+
+==================================================
+SentinelOne
+version : 22.3.2.9
+category : malicious
+result : Static AI - Suspicious PE
+method : blacklist
+update : 20221003
 ==================================================
 
 
@@ -188,6 +188,16 @@ GData
 version : A:25.34924B:27.30138
 category : malicious
 result : Gen:Variant.Fugrafa.266878
+method : blacklist
+update : 20230103
+==================================================
+
+
+==================================================
+Google
+version : 1672772436
+category : malicious
+result : Detected
 method : blacklist
 update : 20230103
 ==================================================
@@ -254,10 +264,10 @@ update : 20230103
 
 
 ==================================================
-Google
-version : 1672765365
+Cynet
+version : 4.0.0.27
 category : malicious
-result : Detected
+result : Malicious (score: 100)
 method : blacklist
 update : 20230103
 ==================================================
@@ -284,26 +294,6 @@ update : 20230103
 
 
 ==================================================
-Malwarebytes
-version : 4.4.4.52
-category : malicious
-result : Malware.AI.4196690213
-method : blacklist
-update : 20230103
-==================================================
-
-
-==================================================
-TrendMicro-HouseCall
-version : 10.0.0.1040
-category : malicious
-result : TROJ_GEN.R002H0CK222
-method : blacklist
-update : 20230103
-==================================================
-
-
-==================================================
 Rising
 version : 25.0.0.27
 category : malicious
@@ -314,12 +304,12 @@ update : 20230103
 
 
 ==================================================
-SentinelOne
-version : 22.3.2.9
+Ikarus
+version : 6.0.33.0
 category : malicious
-result : Static AI - Suspicious PE
+result : Trojan.Agent
 method : blacklist
-update : 20221003
+update : 20230103
 ==================================================
 
 
@@ -360,6 +350,16 @@ category : malicious
 result : Trj/Chgt.AD
 method : blacklist
 update : 20230103
+==================================================
+
+
+==================================================
+CrowdStrike
+version : 1.0
+category : malicious
+result : win/malicious_confidence_90% (W)
+method : blacklist
+update : 20220812
 ==================================================
 
 
