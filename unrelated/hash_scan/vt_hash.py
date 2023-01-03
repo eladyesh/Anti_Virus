@@ -284,6 +284,7 @@ class VTScan:
                 # a dictionary of files to send to the specified url
                 files = {"file": (os.path.basename(filename.path),
                                   open(os.path.abspath(filename.path), "rb"))}  # the requested format for posting
+                print(os.path.abspath(filename.path))
                 res = requests.post(upload_url, headers=headers, files=files)
 
                 if res.status_code == 200:
@@ -297,7 +298,29 @@ class VTScan:
 
                     if analyse_res.status_code == 200:
                         analyse_result = analyse_res.json()
-                        print(analyse_result["data"]["attributes"]["stats"])
+                        print(analyse_result)
+                        status = analyse_result.get("data").get("attributes").get("status")
+                        if status == "completed":
+                            print("completed")
+                            print(analyse_result["data"]["attributes"]["stats"])
+                            if analyse_result["data"]["attributes"]["stats"]["malicious"] > 5:
+                                yield os.path.abspath(filename.path)
+                        elif status == "queued":
+                            print("qoued")
+                            with open(os.path.abspath(filename.path), "rb") as fi:
+                                b = fi.read()
+
+                                # creating a sha256 hash of the file
+                                hashsum = hashlib.sha256(b).hexdigest()
+                                check_hash(hashsum)
+
+                            info_url = VT_API_URL + "files/" + hashsum
+                            res = requests.get(info_url, headers=headers)
+                            if res.status_code == 200:
+                                result = res.json()
+                                if result.get("data").get("attributes").get("last_analysis_results"):
+                                    print(str(result.get("data").get("attributes").get("last_analysis_stats").get("malicious")))
+
                 else:
                     print("Could not upload successfully")
 

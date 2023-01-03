@@ -349,6 +349,9 @@ class AppDemo(QMainWindow):
             self.scan_dir_button.deleteLater()
             if self.movie_label is not None:
                 self.movie_label.deleteLater()
+                self.show_label = 1
+                self.description_for_search.deleteLater()
+                self.movie_list.deleteLater()
             self.hash_layout.deleteLater()
 
     def getSelectedItem(self):
@@ -600,21 +603,40 @@ class AppDemo(QMainWindow):
 
         self.static_visited = True
 
-    def execute_this_fn(self):
-        VTScan.scan_directory(self.dir)
+    def activate_vt_scan_dir(self):
+
+        for path in VTScan.scan_directory(self.dir):
+            print("path to malicious file ", path)
+
+    def scan_dir(self):
+
+        self.dir = str(QFileDialog.getExistingDirectory(self, "Select Directory"))
+        self.threadpool_vt = QThreadPool()
+        worker = Worker(self.activate_vt_scan_dir)
+        self.threadpool_vt.start(worker)
+        self.show_movie()
 
     def show_movie(self):
 
-        # Create the QLabel
-        self.movie_label = QLabel()
+        if self.show_label == 1:
 
-        # Set the GIF image as the QLabel's movie
-        movie = QMovie('file_scan.gif')
-        self.movie_label.setMovie(movie)
+            self.description_for_search = make_label("Now, if a file was found malicious by more than 5 engines\n"
+                                                     "it will be shown on the screen to your right", 15)
+            self.hash_layout.addWidget(self.description_for_search)
 
-        # Start the movie
-        movie.start()
-        self.hash_layout.addWidget(self.movie_label)
+            # Create the QLabel
+            self.movie_label = QLabel()
+            self.movie_list = QHBoxLayout()
+
+            # Set the GIF image as the QLabel's movie
+            movie = QMovie('file_scan.gif')
+            self.movie_label.setMovie(movie)
+
+            # Start the movie
+            movie.start()
+            self.movie_list.addWidget(self.movie_label)
+            self.hash_layout.addLayout(self.movie_list)
+            self.show_label = 0
 
     def hash_analysis(self):
 
@@ -849,13 +871,10 @@ class AppDemo(QMainWindow):
         self.scan_dir_button = QPushButton('Scan Dir for viruses')
         self.scan_dir_button.setStyleSheet(scan_dir_style_sheet)
         self.scan_dir_button.setMaximumSize(300, 50)
-        self.scan_dir_button.clicked.connect(self.show_movie)
-        self.hash_layout.addWidget(self.scan_dir_button)
+        self.scan_dir_button.clicked.connect(self.scan_dir)
 
-        # self.dir = str(QFileDialog.getExistingDirectory(self, "Select Directory"))
-        # self.threadpool_vt = QThreadPool()
-        # worker = Worker(self.execute_this_fn)
-        # self.threadpool_vt.start(worker)
+        self.show_label = 1
+        self.hash_layout.addWidget(self.scan_dir_button)
 
         self.hash_visited = True
 

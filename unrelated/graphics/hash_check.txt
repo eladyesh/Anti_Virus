@@ -1,7 +1,7 @@
 Getting file info by ID: f2141ebae786525caf50cb9d9c5029c2
 
-malicious: 16
-undetected : 56
+malicious: 14
+undetected : 52
 
 ==================================================
 Elastic
@@ -19,7 +19,7 @@ version : 35.24.1.0
 category : malicious
 result : Generic.mg.f2141ebae786525c
 method : blacklist
-update : 20230101
+update : 20230103
 ==================================================
 
 
@@ -29,7 +29,7 @@ version : 6.0.6.653
 category : malicious
 result : Artemis!F2141EBAE786
 method : blacklist
-update : 20230101
+update : 20230103
 ==================================================
 
 
@@ -39,7 +39,7 @@ version : 6.5.1.2
 category : malicious
 result : W32/Fugrafa.Z.gen!Eldorado
 method : blacklist
-update : 20230101
+update : 20230103
 ==================================================
 
 
@@ -49,7 +49,7 @@ version : 1.19.0.0
 category : malicious
 result : ML.Attribute.HighConfidence
 method : blacklist
-update : 20230101
+update : 20230102
 ==================================================
 
 
@@ -64,22 +64,12 @@ update : 20230101
 
 
 ==================================================
-Cynet
-version : 4.0.0.27
-category : malicious
-result : Malicious (score: 100)
-method : blacklist
-update : 20230101
-==================================================
-
-
-==================================================
 McAfee-GW-Edition
 version : v2019.1.2+3728
 category : malicious
 result : BehavesLike.Win32.Generic.pt
 method : blacklist
-update : 20230101
+update : 20230103
 ==================================================
 
 
@@ -99,17 +89,17 @@ version : 8.3.3.16
 category : malicious
 result : HEUR/AGEN.1226932
 method : blacklist
-update : 20230101
+update : 20230102
 ==================================================
 
 
 ==================================================
 Google
-version : 1672570829
+version : 1672729282
 category : malicious
 result : Detected
 method : blacklist
-update : 20230101
+update : 20230103
 ==================================================
 
 
@@ -137,9 +127,9 @@ update : 20221230
 Rising
 version : 25.0.0.27
 category : malicious
-result : Trojan.Generic@AI.90 (RDML:ugZL+ITJ6tQ4EUkBqUBlXg)
+result : Trojan.Generic@AI.97 (RDML:ugZL+ITJ6tQ4EUkBqUBlXg)
 method : blacklist
-update : 20230101
+update : 20230103
 ==================================================
 
 
@@ -150,16 +140,6 @@ category : malicious
 result : Trojan.Malware.300983.susgen
 method : blacklist
 update : 20221231
-==================================================
-
-
-==================================================
-CrowdStrike
-version : 1.0
-category : malicious
-result : win/malicious_confidence_70% (W)
-method : blacklist
-update : 20220812
 ==================================================
 
 
