@@ -989,22 +989,22 @@ class AppDemo(QMainWindow):
         self.hash_layout.addWidget(self.fuzzy_hash_label)
         self.hash_layout.addWidget(self.fuzzy_hash_button)
 
-        q = Queue()
-        self.num_of_line_thread = QThreadPool()
-        worker = Worker(get_num_of_lines, q)
-        print(q.qsize())
-        self.num_of_line_thread.start(worker)
+        # q = Queue()
+        # self.num_of_line_thread = QThreadPool()
+        # worker = Worker(get_num_of_lines, q)
+        # print(q.qsize())
+        # self.num_of_line_thread.start(worker)
 
-        self.create_top_level()
+        # self.create_top_level()
 
-        while True:
-            try:
-                first_element = q.get()
-                break
-            except Empty:
-                pass
+        # while True:
+        #     try:
+        #         first_element = q.get()
+        #         break
+        #     except Empty:
+        #         pass
 
-        self.dialog.destroy()
+        # self.dialog.destroy()
 
         # self.scan_fuzzy_hash_label =
         # print(os.getcwd())
