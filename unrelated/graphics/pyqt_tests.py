@@ -353,6 +353,8 @@ class AppDemo(QMainWindow):
                 self.description_for_search.deleteLater()
                 self.movie_list.deleteLater()
                 self.suspicious_paths.deleteLater()
+            self.fuzzy_hash_label.deleteLater()
+            self.fuzzy_hash_button.deleteLater()
             self.hash_layout.deleteLater()
 
     def getSelectedItem(self):
@@ -604,6 +606,9 @@ class AppDemo(QMainWindow):
 
         self.static_visited = True
 
+    def activate_fuzzy_hash(self):
+        pass
+
     def activate_vt_scan_dir(self):
 
         for path in VTScan.scan_directory(self.dir):
@@ -691,7 +696,7 @@ class AppDemo(QMainWindow):
         self.suspicious_paths.setVerticalScrollBar(scrollBarPaths)
         self.suspicious_paths.setMaximumSize(550, 350)
         self.movie_list.addWidget(self.suspicious_paths)
-        self.hash_layout.addLayout(self.movie_list)
+        self.hash_layout.insertLayout(self.hash_layout.indexOf(self.description_for_search) + 1, self.movie_list)
 
         worker = Worker(self.activate_vt_scan_dir)
         self.threadpool_vt.start(worker)
@@ -701,7 +706,7 @@ class AppDemo(QMainWindow):
         if self.show_label == 1:
             self.description_for_search = make_label("Now, if a file was found malicious by more than 5 engines\n"
                                                      "it will be shown on the screen to your right", 15)
-            self.hash_layout.addWidget(self.description_for_search)
+            self.hash_layout.insertWidget(self.hash_layout.indexOf(self.scan_dir_button) + 1, self.description_for_search)
 
             # Create the QLabel
             self.movie_label = QLabel()
@@ -954,9 +959,17 @@ class AppDemo(QMainWindow):
         self.show_label = 1
         self.hash_layout.addWidget(self.scan_dir_button)
 
-        if self.movie_label is not None:
-            pass
+        self.fuzzy_hash_label = make_label("Fuzzy Hashing Analysis", 24)
+        self.fuzzy_hash_button = QPushButton("Scan Virus With Fuzzy Hashing")
+        self.fuzzy_hash_button.setStyleSheet(scan_dir_style_sheet)
+        self.fuzzy_hash_button.setMaximumSize(550, 350)
+        self.hash_layout.addWidget(self.fuzzy_hash_label)
+        self.hash_layout.addWidget(self.fuzzy_hash_button)
 
+        number_of_lines_hash = num_of_lines()
+        print(number_of_lines_hash)
+        # self.scan_fuzzy_hash_label =
+        # print(os.getcwd())
         self.hash_visited = True
 
 
