@@ -1,27 +1,31 @@
-import sys
-from PyQt5.QtWidgets import QApplication, QLabel, QMainWindow, QPushButton, QVBoxLayout, QWidget
+from PyQt5.QtCore import QThread, pyqtSignal
+from PyQt5.QtWidgets import QDialog, QPushButton
 
 
-class MainWindow(QMainWindow):
+class MyDialog(QDialog):
     def __init__(self):
         super().__init__()
+        self.button = QPushButton("Close", self)
+        self.button.clicked.connect(self.close)
 
-        self.label1 = QLabel("Label 1")
-        self.label2 = QLabel("Label 2")
-        self.button = QPushButton("Button")
 
-        layout = QVBoxLayout()
-        layout.addWidget(self.label1)
-        layout.addWidget(self.button)
+class DialogThread(QThread):
+    dialog_closed = pyqtSignal()
 
-        # Insert label2 before the button
-        layout.insertWidget(1, self.label2)
+    def __init__(self):
+        super().__init__()
+        self.dialog = MyDialog()
 
-        central_widget = QWidget()
-        central_widget.setLayout(layout)
-        self.setCentralWidget(central_widget)
+    def run(self):
+        self.dialog.exec_()
+        self.dialog_closed.emit()
 
-app = QApplication(sys.argv)
-window = MainWindow()
-window.show()
-sys.exit(app.exec_())
+
+def on_dialog_closed():
+    print("Dialog closed")
+    # Execute the rest of the code here
+
+
+thread = DialogThread()
+thread.dialog_closed.connect(on_dialog_closed)
+thread.start()

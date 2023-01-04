@@ -15,6 +15,7 @@ from poc_start.unrelated.fuzzy_hashing.ssdeep_check import *
 from threading import Thread
 from multiprocessing import Process
 from http.server import HTTPServer, BaseHTTPRequestHandler
+from queue import Queue, Empty
 
 PATH_TO_MOVE = r"E:\\Cyber\\YB_CYBER\\project\\FinalProject\\poc_start\\poc_start\\unrelated\\graphics"
 
@@ -616,7 +617,7 @@ class AppDemo(QMainWindow):
 
     def scan_dir(self):
 
-        self.dir = str(QFileDialog.getExistingDirectory(self, "Select Directory"))
+        self.dir = str(QFileself.dialog.getExistingDirectory(self, "Select Directory"))
         self.threadpool_vt = QThreadPool()
         self.show_movie()
 
@@ -706,7 +707,8 @@ class AppDemo(QMainWindow):
         if self.show_label == 1:
             self.description_for_search = make_label("Now, if a file was found malicious by more than 5 engines\n"
                                                      "it will be shown on the screen to your right", 15)
-            self.hash_layout.insertWidget(self.hash_layout.indexOf(self.scan_dir_button) + 1, self.description_for_search)
+            self.hash_layout.insertWidget(self.hash_layout.indexOf(self.scan_dir_button) + 1,
+                                          self.description_for_search)
 
             # Create the QLabel
             self.movie_label = QLabel()
@@ -720,6 +722,27 @@ class AppDemo(QMainWindow):
             movie.start()
             self.movie_list.addWidget(self.movie_label)
             self.show_label = 0
+
+    def create_top_level(self):
+
+        self.dialog = QDialog(self)
+        self.dialog.setWindowTitle("Loading Data")
+
+        # Create the QLabel
+        movie_label = QLabel()
+        self.show_loading = make_label("Loading Hashes...", 24)
+
+        # Set the GIF image as the QLabel's movie
+        movie = QMovie('loading-circle-loading.gif')
+        movie_label.setMovie(movie)
+
+        # Start the movie
+        movie.start()
+        v_box_loading = QVBoxLayout()
+        v_box_loading.addWidget(self.show_loading)
+        v_box_loading.addWidget(movie_label)
+        self.dialog.setLayout(v_box_loading)
+        self.dialog.exec_()
 
     def hash_analysis(self):
 
@@ -966,8 +989,23 @@ class AppDemo(QMainWindow):
         self.hash_layout.addWidget(self.fuzzy_hash_label)
         self.hash_layout.addWidget(self.fuzzy_hash_button)
 
-        number_of_lines_hash = num_of_lines()
-        print(number_of_lines_hash)
+        q = Queue()
+        self.num_of_line_thread = QThreadPool()
+        worker = Worker(get_num_of_lines, q)
+        print(q.qsize())
+        self.num_of_line_thread.start(worker)
+
+        self.create_top_level()
+
+        while True:
+            try:
+                first_element = q.get()
+                break
+            except Empty:
+                pass
+
+        self.dialog.destroy()
+
         # self.scan_fuzzy_hash_label =
         # print(os.getcwd())
         self.hash_visited = True
