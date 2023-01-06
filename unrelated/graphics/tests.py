@@ -1,31 +1,22 @@
-from PyQt5.QtCore import QThread, pyqtSignal
-from PyQt5.QtWidgets import QDialog, QPushButton
+from PyQt5.QtWidgets import QApplication, QSpinBox
 
+app = QApplication([])
 
-class MyDialog(QDialog):
-    def __init__(self):
-        super().__init__()
-        self.button = QPushButton("Close", self)
-        self.button.clicked.connect(self.close)
+# create a spin box
+spin_box = QSpinBox()
 
+# set the range and step size
+spin_box.setRange(0, 100)
+spin_box.setSingleStep(5)
 
-class DialogThread(QThread):
-    dialog_closed = pyqtSignal()
+# set the starting value
+spin_box.setValue(50)
 
-    def __init__(self):
-        super().__init__()
-        self.dialog = MyDialog()
+# set the suffix and prefix
+spin_box.setPrefix("Number of hashes match: ")
 
-    def run(self):
-        self.dialog.exec_()
-        self.dialog_closed.emit()
+# set the wrap mode
+spin_box.setWrapping(True)
 
-
-def on_dialog_closed():
-    print("Dialog closed")
-    # Execute the rest of the code here
-
-
-thread = DialogThread()
-thread.dialog_closed.connect(on_dialog_closed)
-thread.start()
+spin_box.show()
+app.exec_()

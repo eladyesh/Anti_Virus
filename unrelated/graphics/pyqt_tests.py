@@ -165,6 +165,8 @@ class AppDemo(QMainWindow):
         super().__init__()
 
         self.movie_label = None
+        self.delete_widgets = None
+        self.fuzzy_spin = None
 
         self.page_layout = QVBoxLayout()
         self.btn_layout = QHBoxLayout()
@@ -356,6 +358,14 @@ class AppDemo(QMainWindow):
                 self.suspicious_paths.deleteLater()
             self.fuzzy_hash_label.deleteLater()
             self.fuzzy_hash_button.deleteLater()
+            if self.delete_widgets is not None:
+                for widget in self.delete_widgets:
+                    widget.deleteLater()
+            if self.fuzzy_spin is not None:
+                self.fuzzy_spin.deleteLater()
+            if QThreadPool.globalInstance().activeThreadCount() > 0:
+                print('here')
+                QThreadPool.globalInstance().clear()
             self.hash_layout.deleteLater()
 
     def getSelectedItem(self):
@@ -617,7 +627,7 @@ class AppDemo(QMainWindow):
 
     def scan_dir(self):
 
-        self.dir = str(QFileself.dialog.getExistingDirectory(self, "Select Directory"))
+        self.dir = str(QFileDialog.getExistingDirectory(self, "Select Directory"))
         self.threadpool_vt = QThreadPool()
         self.show_movie()
 
@@ -744,6 +754,103 @@ class AppDemo(QMainWindow):
         self.dialog.setLayout(v_box_loading)
         self.dialog.exec_()
 
+    def wait_for_threads(self, threads):
+
+        for thread in threads:
+            thread.waitForDone()
+
+    def fuzzy_scanning(self):
+
+        fuzzy_label = QLabel()
+
+        # Set the font color to black
+        fuzzy_label.setStyleSheet("color: black")
+
+        # Set the font to a cool font
+        font = QFont("Arial", 18, QFont.Bold)
+        fuzzy_label.setFont(font)
+
+        # Add a drop shadow to the font
+        fuzzy_label.setStyleSheet("QLabel { text-shadow: 2px 2px 2px #000000; }")
+        self.fuzzy_spin = QHBoxLayout()
+
+        # create a spin box
+        spin_box = QSpinBox()
+
+        # set the range and step size
+        spin_box.setRange(0, 100)
+        spin_box.setSingleStep(5)
+
+        # set the starting value
+        spin_box.setValue(0)
+
+        # set the suffix and prefix
+        spin_box.setPrefix("Number of hashes match: ")
+
+        # set the wrap mode
+        spin_box.setWrapping(True)
+        spin_box.setReadOnly(True)
+
+        # set the custom stylesheet
+        spin_box.setStyleSheet(
+            """
+            QSpinBox {
+                background-color: #fafafa;
+                color: #333333;
+                border: 1px solid #cccccc;
+                border-radius: 5px;
+                font-size: 16px;
+                padding: 5px;
+            }
+            """
+        )
+
+        self.fuzzy_spin.addWidget(fuzzy_label)
+        self.fuzzy_spin.addWidget(spin_box)
+        self.hash_layout.addLayout(self.fuzzy_spin)
+        self.delete_widgets = [spin_box, fuzzy_label]
+
+        h1 = ppdeep.hash_from_file("virus.exe")
+
+        class ThreadTask_49(QRunnable):
+            def run(self):
+                search_49_file(h1)
+
+        class ThreadTask_79(QRunnable):
+            def run(self):
+                search_79_file(h1)
+
+        class ThreadTask_label(QRunnable):
+            def run(self):
+                change_fuzzy_label(fuzzy_label)
+
+        class ThreadTask_Spin(QRunnable):
+            def run(self):
+                change_spin_counter(spin_box)
+
+        class WaitThread(QThread):
+            def run(self):
+                QThreadPool.globalInstance().waitForDone()
+
+        # create and start the first thread
+        thread1 = ThreadTask_49()
+        QThreadPool.globalInstance().start(thread1)
+
+        # create and start the second thread
+        thread2 = ThreadTask_79()
+        QThreadPool.globalInstance().start(thread2)
+
+        thread3 = ThreadTask_label()
+        QThreadPool.globalInstance().start(thread3)
+
+        # create and start the second thread
+        # thread4 = ThreadTask_Spin()
+        # QThreadPool.globalInstance().start(thread4)
+
+        # create the wait thread and start it in a separate thread
+        wait_thread = WaitThread()
+        wait_thread.start()
+
     def hash_analysis(self):
 
         self.clearLayout()
@@ -751,7 +858,6 @@ class AppDemo(QMainWindow):
         self.dynamic_visited = False
 
         self.hash_layout = QVBoxLayout()
-
         self.engine_tree = QTreeWidget()
         self.engine_tree.setHeaderLabels(['Name', 'Version', 'Category', 'Result', 'Method', 'Update'])
 
@@ -760,7 +866,10 @@ class AppDemo(QMainWindow):
         entropy_of_file = entropy_for_file("virus.exe")
         vtscan = VTScan()
 
+        show_tree = True
         engines, malicious, undetected = vtscan.info(md5_hash)
+        if engines == 0 and malicious == 0 and undetected == 0:
+            show_tree = False
 
         self.basic_info_label = make_label("Basic Information", 24)
         self.hash_layout.addWidget(self.basic_info_label)
@@ -768,184 +877,202 @@ class AppDemo(QMainWindow):
         # Create the QTableView
         self.basic_info = QTableView()
 
-        # Set the model on the QTableView
-        data = [
-            ['MD5 hash', md5_hash],
-            ['SHA-256 hash', sha_256_hash],
-            ['Entropy of file', entropy_of_file],
-            ['Number of engines detected as Malicious', malicious],
-            ['Number of engines not detected as Malicious', undetected],
-            ['File type', 'Win32 Exe']
-        ]
-        model = TableModel(data)
-        self.basic_info.setModel(model)
+        if show_tree:
+            # Set the model on the QTableView
+            data = [
+                ['MD5 hash', md5_hash],
+                ['SHA-256 hash', sha_256_hash],
+                ['Entropy of file', entropy_of_file],
+                ['Number of engines detected as Malicious', malicious],
+                ['Number of engines not detected as Malicious', undetected],
+                ['File type', 'Win32 Exe']
+            ]
+            model = TableModel(data)
+            self.basic_info.setModel(model)
 
-        # Set the style sheet and disable editing
-        style_sheet = """
-        QTableView {
-            font-family: "Arial Black";
-            font-size: 10pt;
-            color: #333;
-            background-color: #f5f5f5;
-            border: 2px solid #ccc;
-            border-radius: 5px;
-        }
-        QTableView::item {
-            padding: 10px;
-            background-color: #b3d9ff;
-        }
-        QTableView::item:selected {
-            background-color: #99ccff;
-            color: #fff;
-        }
-        QTableView::item:selected:!active {
+            # Set the style sheet and disable editing
+            style_sheet = """
+            QTableView {
+                font-family: "Arial Black";
+                font-size: 10pt;
+                color: #333;
+                background-color: #f5f5f5;
+                border: 2px solid #ccc;
+                border-radius: 5px;
+            }
+            QTableView::item {
+                padding: 10px;
+                background-color: #b3d9ff;
+            }
+            QTableView::item:selected {
+                background-color: #99ccff;
+                color: #fff;
+            }
+            QTableView::item:selected:!active {
+                background-color: #3399ff;
+                color: #fff;
+            }
+            QTableView::item:selected:active {
             background-color: #3399ff;
-            color: #fff;
-        }
-        QTableView::item:selected:active {
-        background-color: #3399ff;
-            color: #fff;
-        }
-        QHeaderView {
-            font-size: 18pt;
-            font-weight: bold;
-            color: #333;
-            background-color: #f5f5f5;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-        }
-        QHeaderView::section {
-            padding: 10px;
-        }
-        QHeaderView::section:selected {
-            background-color: #3399ff;
-            color: #fff;
-        }
-        """
-
-        self.basic_info.setStyleSheet(style_sheet)
-        self.basic_info.setEditTriggers(QTableView.NoEditTriggers)
-
-        # Allow the cells to be resized using the mouse
-        self.basic_info.horizontalHeader().setSectionsMovable(True)
-        self.basic_info.horizontalHeader().setSectionResizeMode(QHeaderView.Interactive)
-        self.basic_info.setMinimumSize(550, 360)
-        self.hash_layout.addWidget(self.basic_info)
-
-        self.virus_total_label = make_label("Virus Total Engine Results", 24)
-        self.hash_layout.addWidget(self.virus_total_label)
-
-        # Add a top-level item for each engine
-        for engine in engines:
-            # Create a QTreeWidgetItem for the engine
-            item = QTreeWidgetItem([engine['name'], engine['version'], str(engine['category']), str(engine['result']),
-                                    str(engine['method']), str(engine['update'])])
-
-            # # Set additional data for the item using setData
-            # item.setData(0, 0, engine['name'])
-            # item.setData(1, 0, engine['type'])
-            # item.setData(2, 0, engine['thrust'])
-            # item.setData(3, 0, engine['weight'])
-
-            # Add the item to the tree
-            self.engine_tree.addTopLevelItem(item)
-
-        # Set the style sheet for the tree widget
-        self.engine_tree.setStyleSheet('''
-            QTreeWidget {
-                font-family: sans-serif;
-                font-size: 14px;
-                color: white;
-                background-color: #333;
-                border: 2px solid #444;
-                gridline-color: #666;
+                color: #fff;
             }
-            QTreeWidget::item {
-                padding: 5px;
-                margin: 0px;
-            }
-            QTreeWidget::item:hover {
-                background-color: #555;
-            }
-            QTreeWidget::item:selected {
-                background-color: #777;
-            }
-            QTreeWidget::item:selected:active {
-                background-color: #999;
-            }
-            QTreeWidget::item:selected:!active {
-                background-color: #bbb;
-            }
-            QTreeWidget::indicator {
-                width: 16px;
-                height: 16px;
-            }
-            QTreeWidget::indicator:unchecked {
-                border: 1px solid white;
-            }
-            QTreeWidget::indicator:unchecked:hover {
-                border: 1px solid #aaa;
-            }
-            QTreeWidget::indicator:unchecked:pressed {
-                border: 1px solid #555;
-            }
-            QTreeWidget::indicator:checked {
-                background-color: white;
-            }
-            QTreeWidget::indicator:checked:hover {
-                background-color: #aaa;
-            }
-            QTreeWidget::indicator:checked:pressed {
-                background-color: #555;
-            }
-            QTreeWidget::indicator:indeterminate {
-                background-color: white;
-                border: 1px dotted white;
-            }
-            QTreeWidget::indicator:indeterminate:hover {
-                background-color: #aaa;
-                border: 1px dotted #aaa;
-            }
-            QTreeWidget::indicator:indeterminate:pressed {
-                background-color: #555;
-                border: 1px dotted #555;
-            }
-            QTreeWidget::branch {
-                background: transparent;
-            }
-            QTreeWidget::branch:closed:has-children {
-                image: none;
-                border: 0px;
-            }
-            QTreeWidget::branch:open:has-children {
-                image: none;
-                border: 0px;
-            }
-            QTreeWidget::branch:has-children:!has-siblings:closed,
-            QTreeWidget::branch:closed:has-children:has-siblings {
-                image: none;
-                border: 0px;
-            }
-            QTreeWidget::branch:open:has-children:has-siblings  {
-                image: none;
-                border: 0px;
-            }
-            QTreeWidget::header {
-                font-size: 24px;
+            QHeaderView {
+                font-size: 18pt;
                 font-weight: bold;
-                background-color: #444;
-                border: 2px solid #555;
-                min-height: 20px;
+                color: #333;
+                background-color: #f5f5f5;
+                border: 1px solid #ccc;
+                border-radius: 5px;
             }
-            QTreeWidget::item {
-                min-height: 30px;
-                min-width: 400px;
-                width: 200px;
+            QHeaderView::section {
+                padding: 10px;
             }
-        ''')
+            QHeaderView::section:selected {
+                background-color: #3399ff;
+                color: #fff;
+            }
+            """
 
-        self.engine_tree.setMinimumSize(550, 550)
-        self.hash_layout.addWidget(self.engine_tree)
+            self.basic_info.setStyleSheet(style_sheet)
+            self.basic_info.setEditTriggers(QTableView.NoEditTriggers)
+
+            # Allow the cells to be resized using the mouse
+            self.basic_info.horizontalHeader().setSectionsMovable(True)
+            self.basic_info.horizontalHeader().setSectionResizeMode(QHeaderView.Interactive)
+            self.basic_info.setMinimumSize(550, 360)
+            self.hash_layout.addWidget(self.basic_info)
+
+            self.virus_total_label = make_label("Virus Total Engine Results", 24)
+            self.hash_layout.addWidget(self.virus_total_label)
+
+            # Add a top-level item for each engine
+            for engine in engines:
+                # Create a QTreeWidgetItem for the engine
+                item = QTreeWidgetItem([engine['name'], engine['version'], str(engine['category']), str(engine['result']),
+                                        str(engine['method']), str(engine['update'])])
+
+                # # Set additional data for the item using setData
+                # item.setData(0, 0, engine['name'])
+                # item.setData(1, 0, engine['type'])
+                # item.setData(2, 0, engine['thrust'])
+                # item.setData(3, 0, engine['weight'])
+
+                # Add the item to the tree
+                self.engine_tree.addTopLevelItem(item)
+
+            # Set the style sheet for the tree widget
+            self.engine_tree.setStyleSheet('''
+                QTreeWidget {
+                    font-family: sans-serif;
+                    font-size: 14px;
+                    color: white;
+                    background-color: #333;
+                    border: 2px solid #444;
+                    gridline-color: #666;
+                }
+                QTreeWidget::item {
+                    padding: 5px;
+                    margin: 0px;
+                }
+                QTreeWidget::item:hover {
+                    background-color: #555;
+                }
+                QTreeWidget::item:selected {
+                    background-color: #777;
+                }
+                QTreeWidget::item:selected:active {
+                    background-color: #999;
+                }
+                QTreeWidget::item:selected:!active {
+                    background-color: #bbb;
+                }
+                QTreeWidget::indicator {
+                    width: 16px;
+                    height: 16px;
+                }
+                QTreeWidget::indicator:unchecked {
+                    border: 1px solid white;
+                }
+                QTreeWidget::indicator:unchecked:hover {
+                    border: 1px solid #aaa;
+                }
+                QTreeWidget::indicator:unchecked:pressed {
+                    border: 1px solid #555;
+                }
+                QTreeWidget::indicator:checked {
+                    background-color: white;
+                }
+                QTreeWidget::indicator:checked:hover {
+                    background-color: #aaa;
+                }
+                QTreeWidget::indicator:checked:pressed {
+                    background-color: #555;
+                }
+                QTreeWidget::indicator:indeterminate {
+                    background-color: white;
+                    border: 1px dotted white;
+                }
+                QTreeWidget::indicator:indeterminate:hover {
+                    background-color: #aaa;
+                    border: 1px dotted #aaa;
+                }
+                QTreeWidget::indicator:indeterminate:pressed {
+                    background-color: #555;
+                    border: 1px dotted #555;
+                }
+                QTreeWidget::branch {
+                    background: transparent;
+                }
+                QTreeWidget::branch:closed:has-children {
+                    image: none;
+                    border: 0px;
+                }
+                QTreeWidget::branch:open:has-children {
+                    image: none;
+                    border: 0px;
+                }
+                QTreeWidget::branch:has-children:!has-siblings:closed,
+                QTreeWidget::branch:closed:has-children:has-siblings {
+                    image: none;
+                    border: 0px;
+                }
+                QTreeWidget::branch:open:has-children:has-siblings  {
+                    image: none;
+                    border: 0px;
+                }
+                QTreeWidget::header {
+                    font-size: 24px;
+                    font-weight: bold;
+                    background-color: #444;
+                    border: 2px solid #555;
+                    min-height: 20px;
+                }
+                QTreeWidget::item {
+                    min-height: 30px;
+                    min-width: 400px;
+                    width: 200px;
+                }
+            ''')
+
+            self.engine_tree.setMinimumSize(550, 550)
+            self.hash_layout.addWidget(self.engine_tree)
+
+        else:
+
+            # Create the label
+            label = QLabel("We're sorry, we couldn't upload your file to VirusTotal :(")
+
+            # Set the font color to red
+            label.setStyleSheet("color: red")
+
+            # Set the font to a bold italicized serif font
+            font = QFont("Arial", 18, QFont.Bold, True)
+            label.setFont(font)
+
+            # Add some padding to the label
+            label.setStyleSheet("QLabel { padding: 20px; }")
+            self.hash_layout.addWidget(label)
+
         self.page_layout.addLayout(self.hash_layout)
 
         self.scan_dir_label = make_label("Directory Analysis", 24)
@@ -989,25 +1116,7 @@ class AppDemo(QMainWindow):
         self.hash_layout.addWidget(self.fuzzy_hash_label)
         self.hash_layout.addWidget(self.fuzzy_hash_button)
 
-        # q = Queue()
-        # self.num_of_line_thread = QThreadPool()
-        # worker = Worker(get_num_of_lines, q)
-        # print(q.qsize())
-        # self.num_of_line_thread.start(worker)
-
-        # self.create_top_level()
-
-        # while True:
-        #     try:
-        #         first_element = q.get()
-        #         break
-        #     except Empty:
-        #         pass
-
-        # self.dialog.destroy()
-
-        # self.scan_fuzzy_hash_label =
-        # print(os.getcwd())
+        self.fuzzy_hash_button.clicked.connect(self.fuzzy_scanning)
         self.hash_visited = True
 
 
