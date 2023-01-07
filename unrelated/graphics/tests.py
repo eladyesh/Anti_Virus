@@ -1,22 +1,40 @@
-from PyQt5.QtWidgets import QApplication, QSpinBox
+import sys
+from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QPushButton, QListWidget
 
-app = QApplication([])
+class MainWidget(QWidget):
+    def __init__(self):
+        super().__init__()
+        self.list_widgets = {}
+        self.init_ui()
 
-# create a spin box
-spin_box = QSpinBox()
+    def init_ui(self):
+        layout = QVBoxLayout(self)
+        self.setLayout(layout)
 
-# set the range and step size
-spin_box.setRange(0, 100)
-spin_box.setSingleStep(5)
+        # Create a button for each list widget
+        for i in range(3):
+            button = QPushButton('+', self)
+            button.setFixedSize(40, 40)
+            button.clicked.connect(self.toggle_list_widget)
+            layout.addWidget(button)
+            self.list_widgets[button] = None
 
-# set the starting value
-spin_box.setValue(50)
+    def toggle_list_widget(self):
+        button = self.sender()
+        if self.list_widgets[button] is None:
+            list_widget = QListWidget(self)
+            self.list_widgets[button] = list_widget
+            list_widget.show()
+            button.setText('-')
+        else:
+            list_widget = self.list_widgets[button]
+            list_widget.close()
+            self.list_widgets[button] = None
+            button.setText('+')
 
-# set the suffix and prefix
-spin_box.setPrefix("Number of hashes match: ")
-
-# set the wrap mode
-spin_box.setWrapping(True)
-
-spin_box.show()
-app.exec_()
+if __name__ == '__main__':
+    app = QApplication(sys.argv)
+    main_widget = MainWidget()
+    main_widget.show()
+    sys.exit(app.exec_())

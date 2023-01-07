@@ -339,6 +339,7 @@ class AppDemo(QMainWindow):
             self.static_button.setDisabled(False)
             self.packers_widget.deleteLater()
             self.packers_label.deleteLater()
+            self.imports_label.deleteLater()
             self.table_and_strings_layout.deleteLater()
 
         if self.hash_visited:
@@ -388,6 +389,14 @@ class AppDemo(QMainWindow):
         self.threadpool_sender = QThreadPool()
         worker = Worker(activate_sender)
         self.threadpool_sender.start(activate_sender)
+
+    def open_list(self):
+        button = self.sender()
+        button.setText(button.text().replace("+", "-"))
+        if self.list_index[button].isVisible():
+            self.list_index[button].setVisible(False)
+        else:
+            self.list_index[button].setVisible(True)
 
     def activate_vm(self):
         os.chdir(r"C:\Program Files (x86)\VMware\VMware Workstation")
@@ -613,12 +622,75 @@ class AppDemo(QMainWindow):
         self.packers_widget.setVerticalScrollBar(scrollBarPackers)
         self.table_and_strings_layout.addWidget(self.packers_label)
         self.table_and_strings_layout.addWidget(self.packers_widget)
+
+        self.imports_label = make_label("Imports", 24)
+        self.table_and_strings_layout.addWidget(self.imports_label)
+
+        pe_scan = ScanPE(os.path.abspath("virus.exe").replace("graphics", "hash_scan"))
+        dlls = pe_scan.run_pe_scan_exe()
+        print(dlls)  # key = tuple - first key: library, value: list of imports
+
+        self.delete_imports = []
+        self.list_index = dict({})
+
+        for library, imports in dlls.items():
+
+            h_box_imports = QHBoxLayout()
+            imports_button = QPushButton(f"+ {library[0]}")
+            imports_button.setMinimumSize(200, 50)
+            imports_button.setMaximumSize(200, 50)
+            imports_button.setStyleSheet("background-color: green; color: white; border-radius: 10px; "
+                                         "justify-content: left; font-size: 15px")
+
+            import_list = QListWidget()
+            import_list.setVisible(False)
+            import_list.setStyleSheet("""
+                       QListWidget {
+                           background-color: #f5f5f5;
+                           border: 1px solid #ccc;
+                           border-radius: 5px;
+                           outline: none;
+                           justify-content: left;
+                           margin: 10px;
+                       }
+
+                       QListWidget::item {
+                           color: #444;
+                           border: none;
+                           padding: 10px;
+                           font-size: 14px;
+                           font-weight: 500;
+                       }
+
+                       QListWidget::item:hover {
+                           background-color: #eee;
+                       }
+
+                       QListWidget::item:selected {
+                           background-color: #333;
+                           color: #fff;
+                       }
+                   """)
+            import_list.setMaximumSize(275, 500)
+            import_list.setMinimumSize(275, 300)
+
+            for imp in imports:
+                import_list.addItem(str(imp))
+
+            self.list_index[imports_button] = import_list
+            imports_button.clicked.connect(lambda: self.open_list())
+
+            h_box_imports.addWidget(imports_button)
+            h_box_imports.addWidget(import_list)
+            h_box_imports.setAlignment(Qt.AlignLeft)
+
+            self.delete_imports.append(h_box_imports)
+            self.delete_imports.append(imports_button)
+            self.delete_imports.append(import_list)
+            self.table_and_strings_layout.addLayout(h_box_imports)
+
         self.page_layout.addLayout(self.table_and_strings_layout)
-
         self.static_visited = True
-
-    def activate_fuzzy_hash(self):
-        pass
 
     def activate_vt_scan_dir(self):
 
@@ -948,8 +1020,9 @@ class AppDemo(QMainWindow):
             # Add a top-level item for each engine
             for engine in engines:
                 # Create a QTreeWidgetItem for the engine
-                item = QTreeWidgetItem([engine['name'], engine['version'], str(engine['category']), str(engine['result']),
-                                        str(engine['method']), str(engine['update'])])
+                item = QTreeWidgetItem(
+                    [engine['name'], engine['version'], str(engine['category']), str(engine['result']),
+                     str(engine['method']), str(engine['update'])])
 
                 # # Set additional data for the item using setData
                 # item.setData(0, 0, engine['name'])
