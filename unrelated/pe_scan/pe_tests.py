@@ -1,3 +1,5 @@
+import os
+
 import pefile
 import pereader
 from dataclasses import dataclass
@@ -386,14 +388,15 @@ class ScanPE:
     def run_pe_scan_exe(self):
 
         dlls = dict({})
-        headers = run_command("exe\\peScan.exe " + self.path)[0]
+        headers = run_command(os.path.abspath("exe\\peScan.exe").replace("graphics", "pe_scan") + " " + self.path)[0]
+        print(os.path.abspath("exe\\peScan.exe").replace("graphics", "pe_scan") + " " + self.path)
+        print(run_command(os.path.abspath("exe\\peScan.exe ").replace("graphics", "pe_scan") + " " + self.path))
         headers = headers.split("\n\n")[-1].split("\n")[1:]
         headers = [line.replace("\t\t", "") for line in headers]
         headers = " ".join(headers).split("\t")[1:]
         headers = [line.replace(",", "") for line in headers]
 
         for dll in headers:
-
             dll = dll.split(" ")
             name_and_address = tuple([dll[0], dll[1], dll[2]])
             dll_imports = [imp for imp in dll[3:-1]]
@@ -402,19 +405,15 @@ class ScanPE:
             # key = [name, decimal address, hex address]
             dlls[name_and_address] = dll_imports
 
-
         return dlls
 
-
-
-            # dll_imports.append([dll[0], dll[1], ])
+        # dll_imports.append([dll[0], dll[1], ])
         # print(" ".join(headers).split("\t"))
 
 
 if __name__ == '__main__':
-
     pe_scan = ScanPE("exe\\virus.exe")
-    pe_scan.run_pe_scan_exe()
+    print(pe_scan.run_pe_scan_exe())
 
     # Scan for write and execute flags
     print(pe_scan.scan_sections())

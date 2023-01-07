@@ -1,40 +1,34 @@
 import sys
+from PyQt5.QtWidgets import QApplication, QLabel, QFrame, QHBoxLayout
+from PyQt5.QtGui import QFont
 from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QPushButton, QListWidget
 
-class MainWidget(QWidget):
-    def __init__(self):
-        super().__init__()
-        self.list_widgets = {}
-        self.init_ui()
+# Create an instance of QApplication
+app = QApplication(sys.argv)
 
-    def init_ui(self):
-        layout = QVBoxLayout(self)
-        self.setLayout(layout)
+# Create a QLabel with rich text formatting
+label = QLabel("This is an error message.")
+exclamation = QLabel("<p style='color:red;font-size:30px'>&#x2757;</p>")
+exclamation.setTextFormat(Qt.RichText)
 
-        # Create a button for each list widget
-        for i in range(3):
-            button = QPushButton('+', self)
-            button.setFixedSize(40, 40)
-            button.clicked.connect(self.toggle_list_widget)
-            layout.addWidget(button)
-            self.list_widgets[button] = None
+# Set the font to an error font
+font = app.font()
+font.setWeight(QFont.DemiBold)
+font.setPointSize(30)
+label.setFont(font)
 
-    def toggle_list_widget(self):
-        button = self.sender()
-        if self.list_widgets[button] is None:
-            list_widget = QListWidget(self)
-            self.list_widgets[button] = list_widget
-            list_widget.show()
-            button.setText('-')
-        else:
-            list_widget = self.list_widgets[button]
-            list_widget.close()
-            self.list_widgets[button] = None
-            button.setText('+')
+# Create a horizontal layout and add the label and exclamation mark
+layout = QHBoxLayout()
+layout.addWidget(label)
+layout.addWidget(exclamation)
 
-if __name__ == '__main__':
-    app = QApplication(sys.argv)
-    main_widget = MainWidget()
-    main_widget.show()
-    sys.exit(app.exec_())
+# Create a QFrame container widget and set the layout
+container = QFrame()
+container.setLayout(layout)
+print("got here")
+
+# Show the container widget
+container.show()
+
+# Run the application loop
+sys.exit(app.exec_())

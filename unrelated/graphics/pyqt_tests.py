@@ -340,6 +340,7 @@ class AppDemo(QMainWindow):
             self.packers_widget.deleteLater()
             self.packers_label.deleteLater()
             self.imports_label.deleteLater()
+            self.pe_tests_label.deleteLater()
             self.table_and_strings_layout.deleteLater()
 
         if self.hash_visited:
@@ -688,6 +689,11 @@ class AppDemo(QMainWindow):
             self.delete_imports.append(imports_button)
             self.delete_imports.append(import_list)
             self.table_and_strings_layout.addLayout(h_box_imports)
+
+
+        # PE TESTS
+        self.pe_tests_label = make_label("PE examination", 24)
+        self.table_and_strings_layout.addWidget(self.pe_tests_label)
 
         self.page_layout.addLayout(self.table_and_strings_layout)
         self.static_visited = True
