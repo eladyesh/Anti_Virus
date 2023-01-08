@@ -1,34 +1,24 @@
 import sys
-from PyQt5.QtWidgets import QApplication, QLabel, QFrame, QHBoxLayout
+from PyQt5.QtWidgets import QApplication, QWidget, QLabel
 from PyQt5.QtGui import QFont
-from PyQt5.QtCore import Qt
 
-# Create an instance of QApplication
-app = QApplication(sys.argv)
 
-# Create a QLabel with rich text formatting
-label = QLabel("This is an error message.")
-exclamation = QLabel("<p style='color:red;font-size:30px'>&#x2757;</p>")
-exclamation.setTextFormat(Qt.RichText)
+class ErrorWindow(QWidget):
+    def __init__(self):
+        super().__init__()
+        self.initUI()
 
-# Set the font to an error font
-font = app.font()
-font.setWeight(QFont.DemiBold)
-font.setPointSize(30)
-label.setFont(font)
+    def initUI(self):
+        error_label = QLabel("This is an error message!", self)
+        error_label.setFont(QFont("DemiBold", 30))
+        error_label.setStyleSheet("color: red;")
 
-# Create a horizontal layout and add the label and exclamation mark
-layout = QHBoxLayout()
-layout.addWidget(label)
-layout.addWidget(exclamation)
+        self.setGeometry(300, 300, 400, 200)
+        self.setWindowTitle('Error Message')
+        self.show()
 
-# Create a QFrame container widget and set the layout
-container = QFrame()
-container.setLayout(layout)
-print("got here")
 
-# Show the container widget
-container.show()
-
-# Run the application loop
-sys.exit(app.exec_())
+if __name__ == '__main__':
+    app = QApplication(sys.argv)
+    ex = ErrorWindow()
+    sys.exit(app.exec_())

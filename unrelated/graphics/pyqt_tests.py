@@ -340,7 +340,14 @@ class AppDemo(QMainWindow):
             self.packers_widget.deleteLater()
             self.packers_label.deleteLater()
             self.imports_label.deleteLater()
+
+            for imp in self.delete_imports:
+                imp.deleteLater()
+
             self.pe_tests_label.deleteLater()
+            self.frame_dll_test.deleteLater()
+            self.frame_pe_linker.deleteLater()
+            self.frame_pe_sections.deleteLater()
             self.table_and_strings_layout.deleteLater()
 
         if self.hash_visited:
@@ -366,7 +373,6 @@ class AppDemo(QMainWindow):
             if self.fuzzy_spin is not None:
                 self.fuzzy_spin.deleteLater()
             if QThreadPool.globalInstance().activeThreadCount() > 0:
-                print('here')
                 QThreadPool.globalInstance().clear()
             self.hash_layout.deleteLater()
 
@@ -577,6 +583,7 @@ class AppDemo(QMainWindow):
                 border: 1px solid #ccc;
                 border-radius: 5px;
                 outline: none;
+                margin: 5px;
             }
 
             QListWidget::item {
@@ -652,7 +659,7 @@ class AppDemo(QMainWindow):
                            border-radius: 5px;
                            outline: none;
                            justify-content: left;
-                           margin: 10px;
+                           margin: 20px;
                        }
 
                        QListWidget::item {
@@ -690,13 +697,75 @@ class AppDemo(QMainWindow):
             self.delete_imports.append(import_list)
             self.table_and_strings_layout.addLayout(h_box_imports)
 
-
         # PE TESTS
         self.pe_tests_label = make_label("PE examination", 24)
         self.table_and_strings_layout.addWidget(self.pe_tests_label)
 
         self.page_layout.addLayout(self.table_and_strings_layout)
         self.static_visited = True
+
+        fractioned = check_for_fractioned_imports(dlls)
+
+        self.frame_dll_test = QFrame()
+        self.frame_dll_test.setFrameShape(QFrame.StyledPanel)
+        self.dll_test_h_box = QHBoxLayout(self.frame_dll_test)
+        self.frame_dll_test.setStyleSheet("border: 1px solid purple;")
+        self.dll_test = make_label(f"PE was found to have {len(fractioned)} fractionated imports !", 16)
+        self.dll_test.setFont(QFont("DemiBold", 16))
+        self.dll_test.setStyleSheet("color: red;")
+
+        self.dll_test_list_widget = QListWidget()
+        for frac in fractioned:
+            self.dll_test_list_widget.addItem(str(frac))
+
+        self.dll_test_list_widget.setStyleSheet(self.list_widget_style_sheet)
+        self.dll_test_h_box.addWidget(self.dll_test)
+        self.dll_test_h_box.addWidget(self.dll_test_list_widget)
+        self.dll_test_h_box.setAlignment(Qt.AlignLeft)
+        self.dll_test_list_widget.setMaximumSize(250, 250)
+        self.dll_test_list_widget.setMinimumSize(250, 150)
+        # self.dll_test_h_box.setContentsMargins(0, 0, 405, 0)
+        self.table_and_strings_layout.addWidget(self.frame_dll_test)
+
+        # pe linker
+        result = str(pe_scan.linker_test()).replace("result.", "")
+
+        self.frame_pe_linker = QFrame()
+        self.frame_pe_linker.setFrameShape(QFrame.StyledPanel)
+        self.frame_pe_linker_h_box = QHBoxLayout(self.frame_pe_linker)
+        self.frame_pe_linker.setStyleSheet("border: 1px solid purple;")
+
+        self.frame_pe_linker_label = make_label(f"PE Rich Linker and Optional Header Linker is - {result}", 16)
+        self.frame_pe_linker_label.setFont(QFont("DemiBold", 16))
+        self.frame_pe_linker_label.setStyleSheet("color: red;")
+        self.frame_pe_linker_h_box.addWidget(self.frame_pe_linker_label)
+        self.table_and_strings_layout.addWidget(self.frame_pe_linker)
+
+        # pe scan sections
+        sections = pe_scan.scan_sections()
+
+        self.frame_pe_sections = QFrame()
+        self.frame_pe_sections.setFrameShape(QFrame.StyledPanel)
+        self.frame_pe_sections_h_box = QHBoxLayout(self.frame_pe_sections)
+        self.frame_pe_sections.setStyleSheet("border: 1px solid purple;")
+        self.frame_pe_sections_label = make_label(f"PE scan with suspicious imports", 16)
+        self.frame_pe_sections_label.setFont(QFont("DemiBold", 16))
+        self.frame_pe_sections_label.setStyleSheet("color: red;")
+
+        self.frame_pe_sections_list_widget = QListWidget()
+        for sec in sections:
+            self.frame_pe_sections_list_widget.addItem(str(sec))
+
+        self.frame_pe_sections_list_widget.setStyleSheet(self.list_widget_style_sheet)
+        self.frame_pe_sections_h_box.addWidget(self.frame_pe_sections_label)
+        self.frame_pe_sections_h_box.addWidget(self.frame_pe_sections_list_widget)
+        self.frame_pe_sections_h_box.setAlignment(Qt.AlignLeft)
+
+        self.frame_pe_sections_list_widget.setMaximumSize(250, 250)
+        self.frame_pe_sections_list_widget.setMinimumSize(250, 150)
+        # self.dll_test_h_box.setContentsMargins(0, 0, 405, 0)
+
+        self.table_and_strings_layout.addWidget(self.frame_pe_sections)
 
     def activate_vt_scan_dir(self):
 
