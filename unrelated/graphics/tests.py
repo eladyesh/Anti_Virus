@@ -10,48 +10,32 @@ tree = ast.parse(source)
 
 # Find the Call node that represents the open function
 for node in ast.walk(tree):
+
     if isinstance(node, ast.Call):
         if isinstance(node.func, ast.Name):
             func_name = node.func.id
-            if func_name == "open":
+        elif isinstance(node.func, ast.Attribute):
+            # func_name = node.func.attr
+            func_name = f"{node.func.value.id}.{node.func.attr}"
 
-                # The first argument of the open function is the file name
-                file_name = node.args[0]
-                print(f"File name: {file_name.s}")
+        # Extract the arguments passed to the function
+        args = [arg.id if isinstance(arg, ast.Name) else arg.s if isinstance(arg, ast.Str) else None for arg in node.args]
 
-                # The second argument of the open function is the mode
-                mode = node.args[1]
-                print(f"Mode: {mode.s}")
+        # Print the function name and arguments
+        print(f"Function '{func_name}' called with arguments {args}")
 
-                # Find the write function after the open function
-                for next_node in ast.iter_child_nodes(node):
-                    if isinstance(next_node, ast.Expr) and isinstance(next_node.value,
-                                                                      ast.Call) and next_node.value.func.id == "write":
-                        # The argument of the write function is the content to be written
-                        content = next_node.value.args[0]
-                        print(f"Content: {content.s}")
-
-            elif func_name == "write":
-                print("got here")
-
-
-        #elif isinstance(node.func, ast.Attribute):
-        #    print("got here 2")
-        #    func_name = node.func.attr
-        #    if func_name == "open":
-
-        #        # The first argument of the open function is the file name
-        #        file_name = node.args[0]
-        #        print(f"File name: {file_name.s}")
-
-        #        # The second argument of the open function is the mode
-        #        mode = node.args[1]
-        #        print(f"Mode: {mode.s}")
-
-        #        # Find the write function after the open function
-        #        for next_node in ast.iter_child_nodes(node):
-        #            if isinstance(next_node, ast.Expr) and isinstance(next_node.value,
-        #                                                              ast.Call) and next_node.value.func.id == "write":
-        #                # The argument of the write function is the content to be written
-        #                content = next_node.value.args[0]
-        #                print(f"Content: {content.s}")
+        # if func_name == "open":
+        #     # The first argument of the open function is the file name
+        #     file_name = node.args[0]
+        #     print(f"File name: {file_name.s}")
+        #
+        #     # The second argument of the open function is the mode
+        #     mode = node.args[1]
+        #     print(f"Mode: {mode.s}")
+        #
+        # if func_name == "write":
+        #     # The first argument of the write function is the string to be written
+        #
+        #     string_to_write = node.args[0]
+        #
+        #     print(f"String to write: {string_to_write.s}")
