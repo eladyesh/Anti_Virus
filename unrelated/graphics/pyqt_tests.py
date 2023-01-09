@@ -414,7 +414,7 @@ class AppDemo(QMainWindow):
                 self.movie_list_ip.deleteLater()
                 self.suspicious_ip.deleteLater()
                 self.movie_label_ip.deleteLater()
-                self.ip_thread.cancel(self.worker_ip)
+                self.ip_thread.terminate()
 
             self.hash_layout.deleteLater()
 
@@ -1024,9 +1024,10 @@ class AppDemo(QMainWindow):
     def ip_analysis(self):
 
         if self.show_analysis_label == 1:
-            self.description_for_ip_analysis = make_label("Now, if a website was found malicious by more than 5 engines\n"
-                                                     "it will be shown on the list to your right\n"
-                                                          "And you will be blocked from using it", 15)
+            self.description_for_ip_analysis = make_label(
+                "Now, if a website was found malicious by more than 5 engines\n"
+                "it will be shown on the list to your right\n"
+                "And you will be blocked from using it", 15)
 
             self.hash_layout.addWidget(self.description_for_ip_analysis)
 
@@ -1043,16 +1044,15 @@ class AppDemo(QMainWindow):
             self.movie_list_ip.addWidget(self.movie_label_ip)
             self.show_analysis_label = 0
 
-            self.ip_thread = QThreadPool()
-            self.worker_ip = Worker(self.activate_vt_scan_ip)
+            self.ip_thread = QThread()
+            self.ip_thread.run = self.activate_vt_scan_ip
 
             self.suspicious_ip = QListWidget()
             self.suspicious_ip.setStyleSheet(self.list_widget_style_sheet)
             self.suspicious_ip.setMaximumSize(350, 350)
             self.movie_list_ip.addWidget(self.suspicious_ip)
             self.hash_layout.addLayout(self.movie_list_ip)
-
-            self.ip_thread.start(self.worker_ip)
+            self.ip_thread.start()
 
     def hash_analysis(self):
 
