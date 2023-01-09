@@ -164,9 +164,38 @@ class AppDemo(QMainWindow):
     def __init__(self):
         super().__init__()
 
+        self.list_widget_style_sheet = """
+            QListWidget {
+                background-color: #f5f5f5;
+                border: 1px solid #ccc;
+                border-radius: 5px;
+                outline: none;
+                margin: 5px;
+            }
+
+            QListWidget::item {
+                color: #444;
+                border: none;
+                padding: 10px;
+                font-size: 14px;
+                font-weight: 500;
+            }
+
+            QListWidget::item:hover {
+                background-color: #eee;
+            }
+
+            QListWidget::item:selected {
+                background-color: #333;
+                color: #fff;
+            }
+        """
+
         self.movie_label = None
+        self.movie_label_ip = None
         self.delete_widgets = None
         self.fuzzy_spin = None
+        self.virus_total_label = None
 
         self.page_layout = QVBoxLayout()
         self.btn_layout = QHBoxLayout()
@@ -353,8 +382,10 @@ class AppDemo(QMainWindow):
         if self.hash_visited:
             self.index = self.page_layout.indexOf(self.hash_layout)
             self.page_layout.removeItem(self.page_layout.takeAt(self.index))
-            self.virus_total_label.deleteLater()
-            self.engine_tree.deleteLater()
+            if self.virus_total_label is not None:
+                self.virus_total_label.deleteLater()
+                self.engine_tree.deleteLater()
+
             self.basic_info_label.deleteLater()
             self.basic_info.deleteLater()
             self.scan_dir_label.deleteLater()
@@ -374,6 +405,17 @@ class AppDemo(QMainWindow):
                 self.fuzzy_spin.deleteLater()
             if QThreadPool.globalInstance().activeThreadCount() > 0:
                 QThreadPool.globalInstance().clear()
+
+            self.ip_analysis_label.deleteLater()
+            self.ip_button.deleteLater()
+            if self.movie_label_ip is not None:
+                self.show_label_ip = 1
+                self.description_for_ip_analysis.deleteLater()
+                self.movie_list_ip.deleteLater()
+                self.suspicious_ip.deleteLater()
+                self.movie_label_ip.deleteLater()
+                self.ip_thread.cancel(self.worker_ip)
+
             self.hash_layout.deleteLater()
 
     def getSelectedItem(self):
@@ -427,6 +469,7 @@ class AppDemo(QMainWindow):
 
         # self.page_layout.addLayout(self.btn_layout)
         self.static_button.setEnabled(False)
+        self.hash_button.setDisabled(False)
 
         self.virus_table = QTableWidget()
         self.virus_table.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
@@ -577,33 +620,6 @@ class AppDemo(QMainWindow):
 
         scrollBar.setStyleSheet(self.scrollBar_stylesheet)
 
-        self.list_widget_style_sheet = """
-            QListWidget {
-                background-color: #f5f5f5;
-                border: 1px solid #ccc;
-                border-radius: 5px;
-                outline: none;
-                margin: 5px;
-            }
-
-            QListWidget::item {
-                color: #444;
-                border: none;
-                padding: 10px;
-                font-size: 14px;
-                font-weight: 500;
-            }
-
-            QListWidget::item:hover {
-                background-color: #eee;
-            }
-
-            QListWidget::item:selected {
-                background-color: #333;
-                color: #fff;
-            }
-        """
-
         self.list_strings_widget.setStyleSheet(self.list_widget_style_sheet)
         self.strings_label = make_label("Suspicious Strings", 24)
         self.list_strings_widget.setVerticalScrollBar(scrollBar)
@@ -707,12 +723,14 @@ class AppDemo(QMainWindow):
         fractioned = check_for_fractioned_imports(dlls)
 
         self.frame_dll_test = QFrame()
-        self.frame_dll_test.setFrameShape(QFrame.StyledPanel)
+        self.frame_dll_test.setFrameShape(QFrame.Box)
         self.dll_test_h_box = QHBoxLayout(self.frame_dll_test)
-        self.frame_dll_test.setStyleSheet("border: 1px solid purple;")
+        self.dll_test_h_box.setContentsMargins(0, 0, 0, 0)
+        self.frame_dll_test.setStyleSheet("border: 2px solid purple;")
         self.dll_test = make_label(f"PE was found to have {len(fractioned)} fractionated imports !", 16)
         self.dll_test.setFont(QFont("DemiBold", 16))
-        self.dll_test.setStyleSheet("color: red;")
+        self.dll_test.setStyleSheet("color: red; border: none;")
+        self.dll_test.setFrameShape(QFrame.NoFrame)
 
         self.dll_test_list_widget = QListWidget()
         for frac in fractioned:
@@ -733,11 +751,11 @@ class AppDemo(QMainWindow):
         self.frame_pe_linker = QFrame()
         self.frame_pe_linker.setFrameShape(QFrame.StyledPanel)
         self.frame_pe_linker_h_box = QHBoxLayout(self.frame_pe_linker)
-        self.frame_pe_linker.setStyleSheet("border: 1px solid purple;")
+        self.frame_pe_linker.setStyleSheet("border: 2px solid purple;")
 
         self.frame_pe_linker_label = make_label(f"PE Rich Linker and Optional Header Linker is - {result}", 16)
         self.frame_pe_linker_label.setFont(QFont("DemiBold", 16))
-        self.frame_pe_linker_label.setStyleSheet("color: red;")
+        self.frame_pe_linker_label.setStyleSheet("color: red; border: none;")
         self.frame_pe_linker_h_box.addWidget(self.frame_pe_linker_label)
         self.table_and_strings_layout.addWidget(self.frame_pe_linker)
 
@@ -747,10 +765,10 @@ class AppDemo(QMainWindow):
         self.frame_pe_sections = QFrame()
         self.frame_pe_sections.setFrameShape(QFrame.StyledPanel)
         self.frame_pe_sections_h_box = QHBoxLayout(self.frame_pe_sections)
-        self.frame_pe_sections.setStyleSheet("border: 1px solid purple;")
+        self.frame_pe_sections.setStyleSheet("border: 2px solid purple;")
         self.frame_pe_sections_label = make_label(f"PE scan with suspicious imports", 16)
         self.frame_pe_sections_label.setFont(QFont("DemiBold", 16))
-        self.frame_pe_sections_label.setStyleSheet("color: red;")
+        self.frame_pe_sections_label.setStyleSheet("color: red; border: none;")
 
         self.frame_pe_sections_list_widget = QListWidget()
         for sec in sections:
@@ -771,6 +789,11 @@ class AppDemo(QMainWindow):
 
         for path in VTScan.scan_directory(self.dir):
             self.suspicious_paths.addItem(str(path))
+
+    def activate_vt_scan_ip(self):
+
+        for ip in VTScan.scan_for_suspicious_cache():
+            self.suspicious_ip.addItem(str(ip))
 
     def scan_dir(self):
 
@@ -954,7 +977,7 @@ class AppDemo(QMainWindow):
 
         self.fuzzy_spin.addWidget(fuzzy_label)
         self.fuzzy_spin.addWidget(spin_box)
-        self.hash_layout.addLayout(self.fuzzy_spin)
+        self.hash_layout.insertLayout(self.hash_layout.indexOf(self.ip_analysis_label), self.fuzzy_spin)
         self.delete_widgets = [spin_box, fuzzy_label]
 
         h1 = ppdeep.hash_from_file("virus.exe")
@@ -998,12 +1021,46 @@ class AppDemo(QMainWindow):
         wait_thread = WaitThread()
         wait_thread.start()
 
+    def ip_analysis(self):
+
+        if self.show_analysis_label == 1:
+            self.description_for_ip_analysis = make_label("Now, if a website was found malicious by more than 5 engines\n"
+                                                     "it will be shown on the list to your right\n"
+                                                          "And you will be blocked from using it", 15)
+
+            self.hash_layout.addWidget(self.description_for_ip_analysis)
+
+            # Create the QLabel
+            self.movie_label_ip = QLabel()
+            self.movie_list_ip = QHBoxLayout()
+
+            # Set the GIF image as the QLabel's movie
+            movie = QMovie('file_scan.gif')
+            self.movie_label_ip.setMovie(movie)
+
+            # Start the movie
+            movie.start()
+            self.movie_list_ip.addWidget(self.movie_label_ip)
+            self.show_analysis_label = 0
+
+            self.ip_thread = QThreadPool()
+            self.worker_ip = Worker(self.activate_vt_scan_ip)
+
+            self.suspicious_ip = QListWidget()
+            self.suspicious_ip.setStyleSheet(self.list_widget_style_sheet)
+            self.suspicious_ip.setMaximumSize(350, 350)
+            self.movie_list_ip.addWidget(self.suspicious_ip)
+            self.hash_layout.addLayout(self.movie_list_ip)
+
+            self.ip_thread.start(self.worker_ip)
+
     def hash_analysis(self):
 
         self.clearLayout()
         self.static_visited = False
         self.dynamic_visited = False
 
+        self.hash_button.setDisabled(True)
         self.hash_layout = QVBoxLayout()
         self.engine_tree = QTreeWidget()
         self.engine_tree.setHeaderLabels(['Name', 'Version', 'Category', 'Result', 'Method', 'Update'])
@@ -1214,7 +1271,7 @@ class AppDemo(QMainWindow):
             label.setStyleSheet("color: red")
 
             # Set the font to a bold italicized serif font
-            font = QFont("Arial", 18, QFont.Bold, True)
+            font = QFont("Zapfino", 18, QFont.Bold, True)
             label.setFont(font)
 
             # Add some padding to the label
@@ -1265,6 +1322,19 @@ class AppDemo(QMainWindow):
         self.hash_layout.addWidget(self.fuzzy_hash_button)
 
         self.fuzzy_hash_button.clicked.connect(self.fuzzy_scanning)
+
+        # IP analysis
+        self.ip_analysis_label = make_label("IP Analysis", 24)
+        self.hash_layout.addWidget(self.ip_analysis_label)
+
+        self.ip_button = QPushButton("Scan network for suspicious used IP's")
+        self.ip_button.setStyleSheet(scan_dir_style_sheet)
+
+        self.show_analysis_label = 1
+        self.ip_button.clicked.connect(self.ip_analysis)
+        self.ip_button.setMaximumSize(550, 250)
+        self.hash_layout.addWidget(self.ip_button)
+
         self.hash_visited = True
 
 

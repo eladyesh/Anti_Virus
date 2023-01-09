@@ -35,7 +35,7 @@ class RequestHandler(BaseHTTPRequestHandler):
 
 
 def start_server():
-    httpd = HTTPServer(("172.16.2.85", 8080), RequestHandler)
+    httpd = HTTPServer(("192.168.16.1", 8080), RequestHandler)
     httpd.serve_forever()
 
 
@@ -221,28 +221,36 @@ class VTScan:
     @staticmethod
     def scan_for_suspicious_cache():
 
+        headers = {
+            "x_apikey": VT_API_KEY,  # api key
+            "User-Agent": "vtscan v.1.0",
+            "Accept-Encoding": "gzip, deflate"
+            # the client can accept a response which has been compressed using the DEFLATE algorithm
+        }
+
         ip_pattern = re.compile(r'(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})')
         ip_match = []
         block_ip = ["185.51.231.193", "205.251.196.240", "13.107.238.1", "13.107.6.254"]
-        #dns_cache = run_command(["ipconfig", "/displaydns"]).decode()
-        #for line in dns_cache.split("\r\n"):
-        #    if ip_pattern.search(line) is not None:
-        #        ip_match.append(ip_pattern.search(line)[0])
+        dns_cache = run_command(["ipconfig", "/displaydns"]).decode()
+        for line in dns_cache.split("\r\n"):
+            if ip_pattern.search(line) is not None:
+                ip_match.append(ip_pattern.search(line)[0])
 
-        #ip_match.remove("127.0.0.1")
+        ip_match.remove("127.0.0.1")
 
-        #url_to_vt = "https://www.virustotal.com/api/v3/urls/"
+        url_to_vt = "https://www.virustotal.com/api/v3/urls/"
 
-        # for ip in ip_match:
-        #     url_to_check = base64.urlsafe_b64encode(ip.encode()).decode().strip("=")
-        #     res = requests.get(url_to_vt + url_to_check, headers=self.headers)
-        #     if res.status_code == 200:
-        #         result = res.json()
-        #         # print(result["data"]["attributes"]["last_analysis_results"]) --> engines
-        #         if result["data"]["attributes"]["last_analysis_stats"]["malicious"] > 5:
-        #             block_ip.append(ip)
+        for ip in ip_match:
+            url_to_check = base64.urlsafe_b64encode(ip.encode()).decode().strip("=")
+            res = requests.get(url_to_vt + url_to_check, headers=headers)
+            if res.status_code == 200:
+                result = res.json()
+                print(result["data"]["attributes"]["last_analysis_stats"])
+                # print(result["data"]["attributes"]["last_analysis_results"]) --> engines
+                if result["data"]["attributes"]["last_analysis_stats"]["malicious"] > 5:
+                    block_ip.append(ip)
+                    yield ip
 
-        print("here")
         server_thread = threading.Thread(target=start_server)
         server_thread.start()
 
@@ -252,11 +260,11 @@ class VTScan:
                     ip = packet.dst_addr
                     # print("packet dst in block ip ", packet.src_port, packet.dst_port, packet.src_addr, packet.dst_addr,packet.direction)
                     # print(f"got here out {packet.is_outbound}")
-                    packet.dst_addr = "172.16.2.85"
+                    packet.dst_addr = "192.168.16.1"
                     packet.dst_port = 8080
                     packet.direction = 0
                     # print("packet modified ", packet.src_port, packet.dst_port, packet.src_addr, packet.dst_addr, packet.direction)
-                if packet.src_addr == "172.16.2.85" and packet.src_port == 8080:
+                if packet.src_addr == "192.168.16.1" and packet.src_port == 8080:
                     # print("packet src http ", packet.src_port, packet.dst_port, packet.src_addr, packet.dst_addr,
                     #       packet.direction)
                     packet.src_addr = ip
@@ -318,9 +326,11 @@ class VTScan:
                             res = requests.get(info_url, headers=headers)
                             if res.status_code == 200:
                                 result = res.json()
-                                print(int(str(result.get("data").get("attributes").get("last_analysis_stats").get("malicious"))))
+                                print(int(str(
+                                    result.get("data").get("attributes").get("last_analysis_stats").get("malicious"))))
                                 if result.get("data").get("attributes").get("last_analysis_results"):
-                                    if int(str(result.get("data").get("attributes").get("last_analysis_stats").get("malicious"))) > 5:
+                                    if int(str(result.get("data").get("attributes").get("last_analysis_stats").get(
+                                            "malicious"))) > 5:
                                         yield os.path.abspath(filename.path)
 
                 else:
@@ -359,8 +369,8 @@ class VTScan:
                 self.f.write("")
                 for r in results:
                     if results[r].get("category") == "malicious":
-
-                        engine_dict = {'name': '', 'version': '', 'category': '', 'result': '', 'method': '', 'update': ''}
+                        engine_dict = {'name': '', 'version': '', 'category': '', 'result': '', 'method': '',
+                                       'update': ''}
 
                         self.f.write("==================================================" + "\n")
                         self.f.write(results[r].get("engine_name") + "\n")
@@ -388,7 +398,7 @@ class VTScan:
         else:
             self.f.write("failed to get information :(" + "\n")
             self.f.write("status code: " + str(res.status_code) + "\n")
-            sys.exit(1)
+            return 0, 0, 0
 
 
 if __name__ == "__main__":
@@ -400,9 +410,9 @@ if __name__ == "__main__":
     # args = vars(parser.parse_args())
 
     # running scan on suspicious file
-    md5_hash = md5("nop.exe")
-    vtscan = VTScan()
-    vtscan.info(md5_hash)
+    # md5_hash = md5("nop.exe")
+    # vtscan = VTScan()
+    # vtscan.info(md5_hash)
     # vtscan.analyse()
-    # VTScan.scan_for_suspicious_cache()
+    VTScan.scan_for_suspicious_cache()
     # VTScan.scan_directory("D:\Cyber\Sockets")
