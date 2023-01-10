@@ -17,7 +17,7 @@ from multiprocessing import Process
 from http.server import HTTPServer, BaseHTTPRequestHandler
 from queue import Queue, Empty
 
-PATH_TO_MOVE = r"E:\\Cyber\\YB_CYBER\\project\\FinalProject\\poc_start\\poc_start\\unrelated\\graphics"
+PATH_TO_MOVE = r"D:\\Cyber\\YB_CYBER\\project\\FinalProject\\poc_start\\poc_start\\unrelated\\graphics"
 
 qss = """
 #Window{ 
@@ -77,12 +77,6 @@ def make_label(text, font_size):
     label.setGraphicsEffect(shadow)
 
     return label
-
-
-def activate_sender():
-    print("got to sender")
-    s = Sender()
-    s.run()
 
 
 class Worker(QRunnable):
@@ -226,6 +220,7 @@ class AppDemo(QMainWindow):
         self.dynamic_button = QPushButton("Dynamic Analysis")
         self.dynamic_button.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Expanding)
         self.dynamic_button.setFlat(True)
+        self.dynamic_button.setDisabled(True)
 
         self.static_button = QPushButton("Static Analysis")
         self.static_button.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Expanding)
@@ -340,6 +335,7 @@ class AppDemo(QMainWindow):
         self.start_vm_btn.clicked.connect(lambda: self.activate_vm())
         self.static_button.clicked.connect(lambda: [self.static_analysis()])
         self.hash_button.clicked.connect(lambda: [self.hash_analysis()])
+        self.dynamic_button.clicked.connect(lambda: [self.dynamic_analysis()])
 
     def clearLayout(self):
 
@@ -430,14 +426,14 @@ class AppDemo(QMainWindow):
         with open(path, "wb") as f:
             f.write(bytes)
 
-        while not os.path.exists(r"E:\Cyber\YB_CYBER\project\FinalProject\poc_start\poc_start\unrelated\graphics"
+        while not os.path.exists(r"D:\Cyber\YB_CYBER\project\FinalProject\poc_start\poc_start\unrelated\graphics"
                                  r"\virus.exe"):
             print('File does not exists')
             pass
 
         self.threadpool_sender = QThreadPool()
-        worker = Worker(activate_sender)
-        self.threadpool_sender.start(activate_sender)
+        worker = Worker(self.activate_sender)
+        self.threadpool_sender.start(self.activate_sender)
 
     def open_list(self):
         button = self.sender()
@@ -454,6 +450,15 @@ class AppDemo(QMainWindow):
 
         # r"C:\Program Files (x86)\VMware\VMware Workstation"
         # r'vmrun -T ws start "C:\\Users\\user\\OneDrive\\Windows 10 and later x64.vmx"'
+
+    def activate_sender(self):
+
+        print("got to sender")
+        s = Sender()
+        for got in s.run():
+            if got == 1:
+                self.dynamic_button.setEnabled(True)
+                return
 
     def start_vm(self):
         self.threadpool_vm = QThreadPool()
@@ -1336,6 +1341,12 @@ class AppDemo(QMainWindow):
         self.hash_layout.addWidget(self.ip_button)
 
         self.hash_visited = True
+
+    def dynamic_analysis(self):
+
+        self.clearLayout()
+
+        # TODO - now build dynamic analysis layout
 
 
 app = QApplication(sys.argv)
