@@ -220,7 +220,7 @@ class AppDemo(QMainWindow):
         self.dynamic_button = QPushButton("Dynamic Analysis")
         self.dynamic_button.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Expanding)
         self.dynamic_button.setFlat(True)
-        self.dynamic_button.setDisabled(True)
+        self.dynamic_button.setDisabled(False)
 
         self.static_button = QPushButton("Static Analysis")
         self.static_button.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Expanding)
@@ -1346,8 +1346,13 @@ class AppDemo(QMainWindow):
 
         self.clearLayout()
 
-        # TODO - now build dynamic analysis layout
+        if os.path.exists("LOG.txt"):
+            with open("LOG.txt", "r") as f:
+                log_content = f.read()
 
+        for function in log_content.split("\n\n\n\n\n\n\n"):
+            pass
+            # TODO - now show detailed analysis
 
 app = QApplication(sys.argv)
 app.setStyleSheet(qss)
