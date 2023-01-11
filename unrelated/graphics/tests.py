@@ -1,11 +1,14 @@
-import redis
+from PyQt5 import QtGui
+from PyQt5.QtWidgets import *
 
-# Connect to a Redis server running on localhost
-r = redis.Redis(host='localhost', port=6379, db=0)
+# Creating a light shade of purple color
+light_purple = QtGui.QColor(255, 153, 255, 180)
 
-# Set a value
-r.set('mykey', 'myvalue')
+# Creating a "cool" font
+cool_font = QtGui.QFont("Comic Sans MS", 18)
+cool_font.setItalic(True)
 
-# Get a value
-value = r.get('mykey')
-print(value)
+# Using the color and font
+label = QLabel("This is a cool label with light purple color")
+label.setStyleSheet("color: {}".format(light_purple.name()))
+label.setFont(cool_font)

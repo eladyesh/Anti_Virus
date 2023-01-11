@@ -1,15 +1,25 @@
-Getting file info by ID: 5fffd3e69093dc32727214ba5c8f2af5
+Getting file info by ID: 73539f4f1a4092a3e66304307a791f1c
 
-malicious: 38
-undetected : 33
+malicious: 40
+undetected : 29
+
+==================================================
+Bkav
+version : 1.3.0.9899
+category : malicious
+result : W32.AIDetectNet.01
+method : blacklist
+update : 20230110
+==================================================
+
 
 ==================================================
 Lionic
 version : 7.5
 category : malicious
-result : Riskware.Win32.Generic.1!c
+result : Trojan.Win32.Generic.4!c
 method : blacklist
-update : 20230106
+update : 20230110
 ==================================================
 
 
@@ -17,9 +27,9 @@ update : 20230106
 MicroWorld-eScan
 version : 14.0.409.0
 category : malicious
-result : Gen:Variant.Fugrafa.266878
+result : Trojan.GenericKD.64806357
 method : blacklist
-update : 20221231
+update : 20230110
 ==================================================
 
 
@@ -27,9 +37,9 @@ update : 20221231
 FireEye
 version : 35.24.1.0
 category : malicious
-result : Generic.mg.5fffd3e69093dc32
+result : Generic.mg.73539f4f1a4092a3
 method : blacklist
-update : 20230106
+update : 20230110
 ==================================================
 
 
@@ -37,9 +47,9 @@ update : 20230106
 ALYac
 version : 1.1.3.1
 category : malicious
-result : Gen:Variant.Fugrafa.266878
+result : Trojan.GenericKD.64806357
 method : blacklist
-update : 20230106
+update : 20230110
 ==================================================
 
 
@@ -49,7 +59,17 @@ version : 2.3.1.101
 category : malicious
 result : Unsafe
 method : blacklist
-update : 20230106
+update : 20230110
+==================================================
+
+
+==================================================
+VIPRE
+version : 6.0.0.35
+category : malicious
+result : Trojan.GenericKD.64806357
+method : blacklist
+update : 20230110
 ==================================================
 
 
@@ -57,19 +77,39 @@ update : 20230106
 Sangfor
 version : 2.23.0.0
 category : malicious
-result : Suspicious.Win32.Save.a
+result : Trojan.Win32.Injector.Vote
 method : blacklist
 update : 20230106
 ==================================================
 
 
 ==================================================
-Cyren
-version : 6.5.1.2
+K7AntiVirus
+version : 12.62.46292
 category : malicious
-result : W32/Tedy.H.gen!Eldorado
+result : Trojan ( 0057a98d1 )
 method : blacklist
-update : 20230106
+update : 20230110
+==================================================
+
+
+==================================================
+Alibaba
+version : 0.3.0.5
+category : malicious
+result : Trojan:Win64/Injector.dc79c879
+method : blacklist
+update : 20190527
+==================================================
+
+
+==================================================
+K7GW
+version : 12.62.46278
+category : malicious
+result : Trojan ( 0057a98d1 )
+method : blacklist
+update : 20230109
 ==================================================
 
 
@@ -79,27 +119,187 @@ version : 1.19.0.0
 category : malicious
 result : ML.Attribute.HighConfidence
 method : blacklist
-update : 20230106
+update : 20230110
 ==================================================
 
 
 ==================================================
-Elastic
-version : 4.0.69
+ESET-NOD32
+version : 26559
 category : malicious
-result : malicious (high confidence)
+result : a variant of Win64/Injector.EY
 method : blacklist
-update : 20230105
+update : 20230110
 ==================================================
 
 
 ==================================================
 APEX
-version : 6.373
+version : 6.374
 category : malicious
 result : Malicious
 method : blacklist
-update : 20230104
+update : 20230110
+==================================================
+
+
+==================================================
+BitDefender
+version : 7.2
+category : malicious
+result : Trojan.GenericKD.64806357
+method : blacklist
+update : 20230110
+==================================================
+
+
+==================================================
+Avast
+version : 22.11.7701.0
+category : malicious
+result : Win32:TrojanX-gen [Trj]
+method : blacklist
+update : 20230110
+==================================================
+
+
+==================================================
+Tencent
+version : 1.0.0.1
+category : malicious
+result : Win32.Trojan.Agen.Pnkl
+method : blacklist
+update : 20230110
+==================================================
+
+
+==================================================
+Emsisoft
+version : 2022.6.0.32461
+category : malicious
+result : Trojan.GenericKD.64806357 (B)
+method : blacklist
+update : 20230110
+==================================================
+
+
+==================================================
+F-Secure
+version : 18.10.1137.128
+category : malicious
+result : Heuristic.HEUR/AGEN.1240951
+method : blacklist
+update : 20230110
+==================================================
+
+
+==================================================
+Zillya
+version : 2.0.0.4790
+category : malicious
+result : Trojan.Injector.Win64.4452
+method : blacklist
+update : 20230110
+==================================================
+
+
+==================================================
+McAfee-GW-Edition
+version : v2019.1.2+3728
+category : malicious
+result : Artemis!Trojan
+method : blacklist
+update : 20230109
+==================================================
+
+
+==================================================
+Sophos
+version : 1.4.1.0
+category : malicious
+result : Mal/Generic-S (PUA)
+method : blacklist
+update : 20230110
+==================================================
+
+
+==================================================
+Ikarus
+version : 6.0.33.0
+category : malicious
+result : Trojan.MSIL.Rozena
+method : blacklist
+update : 20230110
+==================================================
+
+
+==================================================
+GData
+version : A:25.34984B:27.30219
+category : malicious
+result : Trojan.GenericKD.64806357
+method : blacklist
+update : 20230110
+==================================================
+
+
+==================================================
+Google
+version : 1673355683
+category : malicious
+result : Detected
+method : blacklist
+update : 20230110
+==================================================
+
+
+==================================================
+Avira
+version : 8.3.3.16
+category : malicious
+result : HEUR/AGEN.1240951
+method : blacklist
+update : 20230110
+==================================================
+
+
+==================================================
+Antiy-AVL
+version : 3.0
+category : malicious
+result : Trojan/Win64.Injector
+method : blacklist
+update : 20230110
+==================================================
+
+
+==================================================
+Gridinsoft
+version : 1.0.105.174
+category : malicious
+result : Trojan.Win32.Downloader.sa
+method : blacklist
+update : 20230110
+==================================================
+
+
+==================================================
+Arcabit
+version : 2022.0.0.18
+category : malicious
+result : Trojan.Generic.D3DCDDD5
+method : blacklist
+update : 20230110
+==================================================
+
+
+==================================================
+Microsoft
+version : 1.1.19900.2
+category : malicious
+result : Trojan:Win32/Tiggre!rfn
+method : blacklist
+update : 20230110
 ==================================================
 
 
@@ -109,177 +309,7 @@ version : 4.0.0.27
 category : malicious
 result : Malicious (score: 100)
 method : blacklist
-update : 20230106
-==================================================
-
-
-==================================================
-BitDefender
-version : 7.2
-category : malicious
-result : Gen:Variant.Fugrafa.266878
-method : blacklist
-update : 20230106
-==================================================
-
-
-==================================================
-Avast
-version : 22.11.7701.0
-category : malicious
-result : Win32:Malware-gen
-method : blacklist
-update : 20230106
-==================================================
-
-
-==================================================
-Ad-Aware
-version : 3.0.21.193
-category : malicious
-result : Gen:Variant.Fugrafa.266878
-method : blacklist
-update : 20230101
-==================================================
-
-
-==================================================
-Emsisoft
-version : 2022.6.0.32461
-category : malicious
-result : Gen:Variant.Fugrafa.266878 (B)
-method : blacklist
-update : 20230106
-==================================================
-
-
-==================================================
-F-Secure
-version : 18.10.1137.128
-category : malicious
-result : Heuristic.HEUR/AGEN.1226917
-method : blacklist
-update : 20230106
-==================================================
-
-
-==================================================
-VIPRE
-version : 6.0.0.35
-category : malicious
-result : Gen:Variant.Fugrafa.266878
-method : blacklist
-update : 20230106
-==================================================
-
-
-==================================================
-McAfee-GW-Edition
-version : v2019.1.2+3728
-category : malicious
-result : BehavesLike.Win32.BadFile.ct
-method : blacklist
-update : 20230106
-==================================================
-
-
-==================================================
-Sophos
-version : 1.4.1.0
-category : malicious
-result : Mal/Generic-R
-method : blacklist
-update : 20230106
-==================================================
-
-
-==================================================
-SentinelOne
-version : 22.3.2.9
-category : malicious
-result : Static AI - Suspicious PE
-method : blacklist
-update : 20221003
-==================================================
-
-
-==================================================
-GData
-version : A:25.34951B:27.30172
-category : malicious
-result : Gen:Variant.Fugrafa.266878
-method : blacklist
-update : 20230106
-==================================================
-
-
-==================================================
-Avira
-version : 8.3.3.16
-category : malicious
-result : HEUR/AGEN.1226917
-method : blacklist
-update : 20230106
-==================================================
-
-
-==================================================
-Antiy-AVL
-version : 3.0
-category : malicious
-result : Trojan/Win32.Wacatac
-method : blacklist
-update : 20230106
-==================================================
-
-
-==================================================
-Gridinsoft
-version : 1.0.105.174
-category : malicious
-result : Ransom.Win32.Wacatac.oa!s2
-method : blacklist
-update : 20230106
-==================================================
-
-
-==================================================
-Arcabit
-version : 2022.0.0.18
-category : malicious
-result : Trojan.Fugrafa.D4127E
-method : blacklist
-update : 20230106
-==================================================
-
-
-==================================================
-Microsoft
-version : 1.1.19900.2
-category : malicious
-result : Trojan:Win32/Wacatac.B!ml
-method : blacklist
-update : 20230106
-==================================================
-
-
-==================================================
-Google
-version : 1673006492
-category : malicious
-result : Detected
-method : blacklist
-update : 20230106
-==================================================
-
-
-==================================================
-Acronis
-version : 1.2.0.113
-category : malicious
-result : suspicious
-method : blacklist
-update : 20221114
+update : 20230110
 ==================================================
 
 
@@ -287,9 +317,9 @@ update : 20221114
 McAfee
 version : 6.0.6.653
 category : malicious
-result : Artemis!5FFFD3E69093
+result : Artemis!73539F4F1A40
 method : blacklist
-update : 20230105
+update : 20230110
 ==================================================
 
 
@@ -297,9 +327,9 @@ update : 20230105
 MAX
 version : 2023.1.4.1
 category : malicious
-result : malware (ai score=80)
+result : malware (ai score=82)
 method : blacklist
-update : 20230106
+update : 20230110
 ==================================================
 
 
@@ -307,9 +337,9 @@ update : 20230106
 Malwarebytes
 version : 4.4.4.52
 category : malicious
-result : Malware.AI.4196690213
+result : Trojan.Injector
 method : blacklist
-update : 20230106
+update : 20230110
 ==================================================
 
 
@@ -317,9 +347,9 @@ update : 20230106
 TrendMicro-HouseCall
 version : 10.0.0.1040
 category : malicious
-result : TROJ_GEN.R002H0CK222
+result : TROJ_GEN.R002H0AA623
 method : blacklist
-update : 20230106
+update : 20230110
 ==================================================
 
 
@@ -327,39 +357,29 @@ update : 20230106
 Rising
 version : 25.0.0.27
 category : malicious
-result : Trojan.Generic@AI.90 (RDML:RmnTNCv0jtvsFgof+9OZPQ)
+result : Trojan.Injector!8.C4 (CLOUD)
 method : blacklist
-update : 20230106
+update : 20230110
 ==================================================
 
 
 ==================================================
-Ikarus
-version : 6.0.33.0
+SentinelOne
+version : 22.3.2.9
 category : malicious
-result : Trojan.Agent
+result : Static AI - Malicious PE
 method : blacklist
-update : 20230106
+update : 20221003
 ==================================================
 
 
 ==================================================
-MaxSecure
-version : 1.0.0.1
+BitDefenderTheta
+version : 7.2.37796.0
 category : malicious
-result : Trojan.Malware.196653410.susgen
+result : Gen:NN.ZemsilF.36212.am0@aaCsuKb
 method : blacklist
-update : 20230106
-==================================================
-
-
-==================================================
-Fortinet
-version : 6.4.258.0
-category : malicious
-result : W32/PossibleThreat
-method : blacklist
-update : 20230106
+update : 20230110
 ==================================================
 
 
@@ -367,9 +387,9 @@ update : 20230106
 AVG
 version : 22.11.7701.0
 category : malicious
-result : Win32:Malware-gen
+result : Win32:TrojanX-gen [Trj]
 method : blacklist
-update : 20230106
+update : 20230110
 ==================================================
 
 
@@ -379,7 +399,7 @@ version : 4.6.4.2
 category : malicious
 result : Trj/Chgt.AD
 method : blacklist
-update : 20230106
+update : 20230110
 ==================================================
 
 

@@ -1345,14 +1345,65 @@ class AppDemo(QMainWindow):
     def dynamic_analysis(self):
 
         self.clearLayout()
+        self.dynamic_layout = QVBoxLayout()
+        self.page_layout.addLayout(self.dynamic_layout)
+
+        self.start_dynamic = make_label("Function Analysis", 24)
+        self.dynamic_layout.addWidget(self.start_dynamic)
 
         if os.path.exists("LOG.txt"):
             with open("LOG.txt", "r") as f:
                 log_content = f.read()
 
+        else:
+            print("Could not find log")
+            return
+
+        # Creating a light shade of purple color
+        light_purple = QColor(255, 153, 255, 180)
+
+        self.delete_funcs = []
         for function in log_content.split("\n\n\n\n\n\n\n"):
-            pass
-            # TODO - now show detailed analysis
+
+            # problem with QFrame
+            frame_for_function = QFrame()
+            frame_for_function.setFrameShape(QFrame.Box)
+            frame_for_function.setStyleSheet("border: 2px solid purple; margin: 10px;")
+
+            v_box_for_func = QVBoxLayout(frame_for_function)
+            v_box_for_func.setContentsMargins(0, 0, 0, 0)
+
+            func = 0
+            for line in [line for line in function.split("\n") if line != ""]:
+                if "-" in line:
+                    line = line.replace("-", "").replace("intercepted call to ", "")
+
+                if "Done" in line:
+                    continue
+
+                if func == 0:
+                    func_head_label = QLabel(line)
+                    func_head_label.setFont(QFont("Comic Sans MS", 24))
+                    func_head_label.setStyleSheet("color: {}; border: none;".format(light_purple.name()))
+                    func_head_label.setFrameShape(QFrame.NoFrame)
+                    v_box_for_func.addWidget(func_head_label)
+                    self.delete_funcs.append(func_head_label)
+                    func = 1
+                    continue
+
+                func_label = QLabel(line)
+                func_label.setFont(QFont("Comic Sans MS", 12))
+                func_label.setStyleSheet("color: {}; border: none;".format(light_purple.name()))
+                func_label.setFrameShape(QFrame.NoFrame)
+                v_box_for_func.addWidget(func_label)
+                self.delete_funcs.append(func_label)
+
+            self.dynamic_layout.addWidget(frame_for_function)
+            self.delete_funcs.append(frame_for_function)
+            self.delete_funcs.append(v_box_for_func)
+
+            print("\n\n\n\n\n\n\n")
+
 
 app = QApplication(sys.argv)
 app.setStyleSheet(qss)
