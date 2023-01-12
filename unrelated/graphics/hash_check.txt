@@ -1,7 +1,7 @@
 Getting file info by ID: 73539f4f1a4092a3e66304307a791f1c
 
-malicious: 40
-undetected : 29
+malicious: 41
+undetected : 28
 
 ==================================================
 Bkav
@@ -9,7 +9,7 @@ version : 1.3.0.9899
 category : malicious
 result : W32.AIDetectNet.01
 method : blacklist
-update : 20230110
+update : 20230112
 ==================================================
 
 
@@ -18,6 +18,16 @@ Lionic
 version : 7.5
 category : malicious
 result : Trojan.Win32.Generic.4!c
+method : blacklist
+update : 20230112
+==================================================
+
+
+==================================================
+Elastic
+version : 4.0.70
+category : malicious
+result : malicious (high confidence)
 method : blacklist
 update : 20230110
 ==================================================
@@ -29,27 +39,27 @@ version : 14.0.409.0
 category : malicious
 result : Trojan.GenericKD.64806357
 method : blacklist
-update : 20230110
+update : 20230112
 ==================================================
 
 
 ==================================================
-FireEye
-version : 35.24.1.0
+CAT-QuickHeal
+version : 22.00
 category : malicious
-result : Generic.mg.73539f4f1a4092a3
+result : Trojan.IGENERIC
 method : blacklist
-update : 20230110
+update : 20230112
 ==================================================
 
 
 ==================================================
-ALYac
-version : 1.1.3.1
+McAfee
+version : 6.0.6.653
 category : malicious
-result : Trojan.GenericKD.64806357
+result : RDN/Generic.dx
 method : blacklist
-update : 20230110
+update : 20230112
 ==================================================
 
 
@@ -59,17 +69,17 @@ version : 2.3.1.101
 category : malicious
 result : Unsafe
 method : blacklist
-update : 20230110
+update : 20230112
 ==================================================
 
 
 ==================================================
-VIPRE
-version : 6.0.0.35
+Zillya
+version : 2.0.0.4791
 category : malicious
-result : Trojan.GenericKD.64806357
+result : Trojan.Injector.Win64.4452
 method : blacklist
-update : 20230110
+update : 20230111
 ==================================================
 
 
@@ -77,7 +87,7 @@ update : 20230110
 Sangfor
 version : 2.23.0.0
 category : malicious
-result : Trojan.Win32.Injector.Vote
+result : Trojan.Win32.Injector.Vjyj
 method : blacklist
 update : 20230106
 ==================================================
@@ -85,11 +95,11 @@ update : 20230106
 
 ==================================================
 K7AntiVirus
-version : 12.62.46292
+version : 12.62.46327
 category : malicious
 result : Trojan ( 0057a98d1 )
 method : blacklist
-update : 20230110
+update : 20230112
 ==================================================
 
 
@@ -105,11 +115,11 @@ update : 20190527
 
 ==================================================
 K7GW
-version : 12.62.46278
+version : 12.62.46306
 category : malicious
 result : Trojan ( 0057a98d1 )
 method : blacklist
-update : 20230109
+update : 20230111
 ==================================================
 
 
@@ -119,17 +129,17 @@ version : 1.19.0.0
 category : malicious
 result : ML.Attribute.HighConfidence
 method : blacklist
-update : 20230110
+update : 20230112
 ==================================================
 
 
 ==================================================
 ESET-NOD32
-version : 26559
+version : 26570
 category : malicious
 result : a variant of Win64/Injector.EY
 method : blacklist
-update : 20230110
+update : 20230112
 ==================================================
 
 
@@ -149,7 +159,7 @@ version : 7.2
 category : malicious
 result : Trojan.GenericKD.64806357
 method : blacklist
-update : 20230110
+update : 20230112
 ==================================================
 
 
@@ -159,7 +169,7 @@ version : 22.11.7701.0
 category : malicious
 result : Win32:TrojanX-gen [Trj]
 method : blacklist
-update : 20230110
+update : 20230112
 ==================================================
 
 
@@ -169,7 +179,7 @@ version : 1.0.0.1
 category : malicious
 result : Win32.Trojan.Agen.Pnkl
 method : blacklist
-update : 20230110
+update : 20230112
 ==================================================
 
 
@@ -179,27 +189,17 @@ version : 2022.6.0.32461
 category : malicious
 result : Trojan.GenericKD.64806357 (B)
 method : blacklist
-update : 20230110
+update : 20230112
 ==================================================
 
 
 ==================================================
-F-Secure
-version : 18.10.1137.128
+VIPRE
+version : 6.0.0.35
 category : malicious
-result : Heuristic.HEUR/AGEN.1240951
+result : Trojan.GenericKD.64806357
 method : blacklist
-update : 20230110
-==================================================
-
-
-==================================================
-Zillya
-version : 2.0.0.4790
-category : malicious
-result : Trojan.Injector.Win64.4452
-method : blacklist
-update : 20230110
+update : 20230111
 ==================================================
 
 
@@ -209,7 +209,17 @@ version : v2019.1.2+3728
 category : malicious
 result : Artemis!Trojan
 method : blacklist
-update : 20230109
+update : 20230112
+==================================================
+
+
+==================================================
+FireEye
+version : 35.24.1.0
+category : malicious
+result : Generic.mg.73539f4f1a4092a3
+method : blacklist
+update : 20230112
 ==================================================
 
 
@@ -219,37 +229,37 @@ version : 1.4.1.0
 category : malicious
 result : Mal/Generic-S (PUA)
 method : blacklist
-update : 20230110
+update : 20230112
 ==================================================
 
 
 ==================================================
-Ikarus
-version : 6.0.33.0
+SentinelOne
+version : 23.1.0.5
 category : malicious
-result : Trojan.MSIL.Rozena
+result : Static AI - Malicious PE
 method : blacklist
-update : 20230110
+update : 20230111
 ==================================================
 
 
 ==================================================
 GData
-version : A:25.34984B:27.30219
+version : A:25.34998B:27.30241
 category : malicious
 result : Trojan.GenericKD.64806357
 method : blacklist
-update : 20230110
+update : 20230112
 ==================================================
 
 
 ==================================================
 Google
-version : 1673355683
+version : 1673521257
 category : malicious
 result : Detected
 method : blacklist
-update : 20230110
+update : 20230112
 ==================================================
 
 
@@ -259,7 +269,7 @@ version : 8.3.3.16
 category : malicious
 result : HEUR/AGEN.1240951
 method : blacklist
-update : 20230110
+update : 20230112
 ==================================================
 
 
@@ -269,7 +279,7 @@ version : 3.0
 category : malicious
 result : Trojan/Win64.Injector
 method : blacklist
-update : 20230110
+update : 20230112
 ==================================================
 
 
@@ -279,7 +289,7 @@ version : 1.0.105.174
 category : malicious
 result : Trojan.Win32.Downloader.sa
 method : blacklist
-update : 20230110
+update : 20230112
 ==================================================
 
 
@@ -289,7 +299,7 @@ version : 2022.0.0.18
 category : malicious
 result : Trojan.Generic.D3DCDDD5
 method : blacklist
-update : 20230110
+update : 20230112
 ==================================================
 
 
@@ -299,7 +309,7 @@ version : 1.1.19900.2
 category : malicious
 result : Trojan:Win32/Tiggre!rfn
 method : blacklist
-update : 20230110
+update : 20230112
 ==================================================
 
 
@@ -309,17 +319,17 @@ version : 4.0.0.27
 category : malicious
 result : Malicious (score: 100)
 method : blacklist
-update : 20230110
+update : 20230112
 ==================================================
 
 
 ==================================================
-McAfee
-version : 6.0.6.653
+ALYac
+version : 1.1.3.1
 category : malicious
-result : Artemis!73539F4F1A40
+result : Trojan.GenericKD.64806357
 method : blacklist
-update : 20230110
+update : 20230112
 ==================================================
 
 
@@ -329,7 +339,7 @@ version : 2023.1.4.1
 category : malicious
 result : malware (ai score=82)
 method : blacklist
-update : 20230110
+update : 20230112
 ==================================================
 
 
@@ -339,7 +349,7 @@ version : 4.4.4.52
 category : malicious
 result : Trojan.Injector
 method : blacklist
-update : 20230110
+update : 20230112
 ==================================================
 
 
@@ -349,7 +359,7 @@ version : 10.0.0.1040
 category : malicious
 result : TROJ_GEN.R002H0AA623
 method : blacklist
-update : 20230110
+update : 20230112
 ==================================================
 
 
@@ -359,17 +369,17 @@ version : 25.0.0.27
 category : malicious
 result : Trojan.Injector!8.C4 (CLOUD)
 method : blacklist
-update : 20230110
+update : 20230112
 ==================================================
 
 
 ==================================================
-SentinelOne
-version : 22.3.2.9
+Ikarus
+version : 6.0.33.0
 category : malicious
-result : Static AI - Malicious PE
+result : Trojan.MSIL.Rozena
 method : blacklist
-update : 20221003
+update : 20230112
 ==================================================
 
 
@@ -389,7 +399,7 @@ version : 22.11.7701.0
 category : malicious
 result : Win32:TrojanX-gen [Trj]
 method : blacklist
-update : 20230110
+update : 20230112
 ==================================================
 
 
@@ -399,7 +409,7 @@ version : 4.6.4.2
 category : malicious
 result : Trj/Chgt.AD
 method : blacklist
-update : 20230110
+update : 20230111
 ==================================================
 
 

@@ -17,7 +17,8 @@ from multiprocessing import Process
 from http.server import HTTPServer, BaseHTTPRequestHandler
 from queue import Queue, Empty
 
-PATH_TO_MOVE = r"D:\\Cyber\\YB_CYBER\\project\\FinalProject\\poc_start\\poc_start\\unrelated\\graphics"
+PATH_TO_MOVE = os.getcwd()
+# print(PATH_TO_MOVE) # r"D:\\Cyber\\YB_CYBER\\project\\FinalProject\\poc_start\\poc_start\\unrelated\\graphics"
 
 qss = """
 #Window{ 
@@ -413,6 +414,12 @@ class AppDemo(QMainWindow):
                 self.ip_thread.terminate()
 
             self.hash_layout.deleteLater()
+
+        if self.dynamic_visited:
+            self.start_dynamic.deleteLater()
+            for widget in self.delete_funcs:
+                widget.deleteLater()
+            self.dynamic_layout.deleteLater()
 
     def getSelectedItem(self):
         print("got here")
@@ -1355,6 +1362,8 @@ class AppDemo(QMainWindow):
             with open("LOG.txt", "r") as f:
                 log_content = f.read()
 
+                print(log_content.count("suspicious"))
+
         else:
             print("Could not find log")
             return
@@ -1402,7 +1411,7 @@ class AppDemo(QMainWindow):
             self.delete_funcs.append(frame_for_function)
             self.delete_funcs.append(v_box_for_func)
 
-            print("\n\n\n\n\n\n\n")
+        self.dynamic_visited = True
 
 
 app = QApplication(sys.argv)
