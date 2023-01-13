@@ -27,6 +27,15 @@ class PythonVirus:
     def check_for_keylogger(self):
 
         self.keylogger_detected = 0
+        self.suspicious_imoprts_for_keylogger = ['PIL', 'requests', 'cryptography.fernet', 'sounddevice', 'scipy.io.wavfile', 'pynput.keyboard', 'win32clipboard',
+                                                 'platform', 'socket', 'smtplib', 'email', 'email.mime.base',
+                                                 'email.mime.text', 'email.mime.multipart']
+
+        self.suspicious_funcs = ['MIMEMultipart', 'getpass.getuser', 'time.time', 's.starttls', 'socket.gethostname']
+        self.suspicious_functions_and_params = {""}
+
+        for imp in self.get_imports():
+            pass
 
         # Find the Call node that represents the open function
         for node in ast.walk(self.tree):
