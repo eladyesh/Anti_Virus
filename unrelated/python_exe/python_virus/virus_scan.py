@@ -27,15 +27,23 @@ class PythonVirus:
     def check_for_keylogger(self):
 
         self.keylogger_detected = 0
-        self.suspicious_imoprts_for_keylogger = ['PIL', 'requests', 'cryptography.fernet', 'sounddevice', 'scipy.io.wavfile', 'pynput.keyboard', 'win32clipboard',
+        self.suspicious_imoprts_for_keylogger = ['PIL', 'requests', 'cryptography.fernet', 'sounddevice', 'scipy.io'
+                                                                                                          '.wavfile',
+                                                 'pynput.keyboard', 'win32clipboard',
                                                  'platform', 'socket', 'smtplib', 'email', 'email.mime.base',
                                                  'email.mime.text', 'email.mime.multipart']
 
-        self.suspicious_funcs = ['MIMEMultipart', 'getpass.getuser', 'time.time', 's.starttls', 'socket.gethostname']
-        self.suspicious_functions_and_params = {""}
+        self.suspicious_funcs = ['MIMEMultipart', 'getpass.getuser', 'time.time', 's.starttls', 'socket.gethostname', 'attachment.read',
+                                 'Listener', 'listener.join', 'screenshot', 'win32clipboard.OpenClipboard', 'win32clipboard.GetClipboardData',
+                                 'win32clipboard.CloseClipboard']
 
+        self.suspicious_functions_and_params = {'MIMEBase': ['application', 'octet-stream'], 'open': ['attachment', 'rb'],
+                                                }
+
+        self.imp_counter = 0
         for imp in self.get_imports():
-            pass
+            if imp in self.suspicious_imoprts_for_keylogger:
+                self.imp_counter += 1
 
         # Find the Call node that represents the open function
         for node in ast.walk(self.tree):
