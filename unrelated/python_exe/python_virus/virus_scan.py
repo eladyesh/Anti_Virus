@@ -1,5 +1,6 @@
 import ast
 import inspect
+import re
 
 
 class PythonVirus:
@@ -35,11 +36,20 @@ class PythonVirus:
 
         self.suspicious_funcs = ['MIMEMultipart', 'getpass.getuser', 'time.time', 's.starttls', 'socket.gethostname', 'attachment.read',
                                  'Listener', 'listener.join', 'screenshot', 'win32clipboard.OpenClipboard', 'win32clipboard.GetClipboardData',
-                                 'win32clipboard.CloseClipboard']
+                                 'win32clipboard.CloseClipboard', 'platform.processor', 'platform.system', 'platform'
+                                                                                                           '.version', 'platform.machine',
+                                 'send_mail', 'Fernet', 'ImageGrab.grab', 'smtplib.SMTP', 'MIMEText']
 
         self.suspicious_functions_and_params = {'MIMEBase': ['application', 'octet-stream'], 'open': ['attachment', 'rb'],
-                                                }
+                                                'socket.gethostbyname': 'hostname'}
 
+        self.suspicious_regex_patterns = [re.compile(r'(\w+)\.starttls'), re.compile(r'(\w+)\.set_payload'),
+                                          re.compile(r'(\w+)\.encrypt'), re.compile(r'(\w+)\.login'), re.compile(r'(\w+)\.rec'),
+                                          re.compile(r'(\w+)\.wait'), re.compile(r'(\w+)\.encode_base64'), re.compile(r'(\w+)\.add_header')]
+
+        self.suspicious_params = ['Keys', 'keys', 'space', 'Key', 'key', 'k']
+
+        # imports
         self.imp_counter = 0
         for imp in self.get_imports():
             if imp in self.suspicious_imoprts_for_keylogger:
@@ -53,7 +63,10 @@ class PythonVirus:
                     func_name = node.func.id
                 elif isinstance(node.func, ast.Attribute):
                     # func_name = node.func.attr
-                    func_name = f"{node.func.value.id}.{node.func.attr}"
+                    try:
+                        func_name = f"{node.func.value.id}.{node.func.attr}"
+                    except AttributeError:
+                        print('attribute error')
 
                 # Extract the arguments passed to the function
                 args = [arg.id if isinstance(arg, ast.Name) else arg.s if isinstance(arg, ast.Str) else None for arg in
