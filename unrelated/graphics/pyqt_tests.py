@@ -1352,6 +1352,8 @@ class AppDemo(QMainWindow):
     def dynamic_analysis(self):
 
         self.clearLayout()
+        self.static_visited = False
+        self.hash_visited = False
         self.dynamic_layout = QVBoxLayout()
         self.page_layout.addLayout(self.dynamic_layout)
 

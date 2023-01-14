@@ -1,10 +1,7 @@
 import re
 
-string = "anyvariable.starttls"
-pattern = re.compile(r'(\w+)\.(\w+)')
+string = "f.encrypt"
+pattern = re.compile(r'(\w+)\.encrypt')
 match = pattern.search(string)
 if match:
-    variable = match.group(1)
-    function = match.group(2)
-    print("variable:", variable)
-    print("function:", function)
+    print("got here")
