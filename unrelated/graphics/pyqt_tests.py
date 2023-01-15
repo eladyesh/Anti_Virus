@@ -322,15 +322,26 @@ class AppDemo(QMainWindow):
         }
         """)
 
-        self.widget.setLayout(self.page_layout)
+        self.container = QGroupBox()
+        # self.widget.setLayout(self.page_layout)
+        self.container.setLayout(self.page_layout)
 
         # Scroll Area Properties
         self.scroll.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOn)
         self.scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
         self.scroll.setWidgetResizable(True)
-        self.scroll.setWidget(self.widget)
-
+        self.scroll.setWidget(self.container)
         self.setCentralWidget(self.scroll)
+
+        # # horizontal scroll area
+        # self.scroll_horizontal = QScrollArea()
+        # self.widget_horizontal = QWidget()
+        # self.widget_horizontal.setLayout(self.page_layout)
+        # self.scroll_horizontal.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+        # self.scroll_horizontal.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOn)
+        # self.scroll_horizontal.setWidgetResizable(True)
+        # self.scroll_horizontal.setWidget(self.widget_horizontal)
+        # self.setCentralWidget(self.scroll_horizontal)
 
         self.btn.clicked.connect(lambda: self.getSelectedItem())
         self.start_vm_btn.clicked.connect(lambda: self.activate_vm())
@@ -1380,6 +1391,12 @@ class AppDemo(QMainWindow):
             frame_for_function = QFrame()
             frame_for_function.setFrameShape(QFrame.Box)
             frame_for_function.setStyleSheet("border: 2px solid purple; margin: 10px;")
+
+            # Get the width of the screen
+            screen_width = QMainWindow().width()
+
+            # Set the maximum width of the QFrame to the width of the screen
+            frame_for_function.setMaximumSize(screen_width, 2147483647)
 
             v_box_for_func = QVBoxLayout(frame_for_function)
             v_box_for_func.setContentsMargins(0, 0, 0, 0)

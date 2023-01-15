@@ -1,4 +1,4 @@
-/* In order for c# to work, you have to turn off the VirtualAlloc, CreateThread, And CloseHandle Hooks */
+/* In order for c# to work, you have to turn off the VirtualAlloc, CreateThread, And OpenProcess Hooks */
 
 #include "pch.h"
 #include "cpu.h"
@@ -634,10 +634,10 @@ struct FILE_HOOKING {
         LOG("\n----------intercepted call to CreateFileA----------\n\n", "");
 
         if (CheckContain::contains(files, std::string(lpFileName), false))
-            LOG("EXE file is tring to reach a suscpicous folder!", "");
+            LOG("EXE file is tring to reach a suspicious folder!", "");
 
         LOG("The name of the file or device to be created or opened is ", lpFileName);
-        LOG("The requested access to the file or device ", dwDesiredAccess);
+        LOG("The requested access to the file or device is ", dwDesiredAccess);
         LOG("The requested sharing mode of the file or device is ", dwShareMode);
 
         if (dwCreationDisposition == 2)
