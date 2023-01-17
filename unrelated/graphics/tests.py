@@ -1,33 +1,51 @@
-from urllib.parse import urljoin
-
 import requests
+from requests.adapters import HTTPAdapter
+from urllib3.util.retry import Retry
 from bs4 import BeautifulSoup
-import re
+import time
 
-# define the seed url
-seed_url = "https://docs.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-createfilea"
+#url = "https://docs.microsoft.com/en-us/windows/win32/fileio/file-management-functions"
+url = "https://learn.microsoft.com/en-us/windows/win32/winsock/winsock-functions"
+page = requests.get(url)
+soup = BeautifulSoup(page.content, "html.parser")
 
-# function name to search for
-function_names = "CreateFileW"
+links = []
 
+functions = soup.find_all("tr")
+for function in functions:
+    name = function.find("td")
+    if name:
+        print(name.text)
+        link = name.find("a")
+        if "href" in link.attrs:
+            print(link["href"])
+            links.append(link["href"])
 
-def search_page(url):
-    response = requests.get(url)
-    soup = BeautifulSoup(response.text, 'html.parser')
-    # search for the function name in the page
-    if function_names[:-1] in soup.get_text():
-        # extract the prototype of the function
-        prototype = soup.find("code", text=re.compile(function_names[0]))
-        if prototype:
-            print(f"Prototype of {function_names[0]}: {prototype.text}")
+#import requests
+#from bs4 import BeautifulSoup
+session = requests.Session()
+retry = Retry(connect=3, backoff_factor=0.5)
+adapter = HTTPAdapter(max_retries=retry)
+session.mount('http://', adapter)
+session.mount('https://', adapter)
+recevied = []
+#link = "https://docs.microsoft.com/en-us/windows/desktop/api/FileAPI/nf-fileapi-writefilegather"
+for link in links:
+    try:
+        page = session.get(f"https://docs.microsoft.com{link}")
+    except requests.exceptions.ConnectionError:
+        continue
+    soup = BeautifulSoup(page.content, "html.parser")
+    time.sleep(2)
+    params = soup.find("code", class_="lang-cpp")
+    try:
+        params.text
+    except AttributeError:
+        params = soup.find("code",class_ = "lang-c++")
+    print(params.text)
+    print(params.text.split())
+    recevied.append(params.text.split())
+'''proto = soup.find("div", class_="syntax")
+print(proto.text)'''
 
-    # find all links in the page
-    links = soup.find_all('a')
-    for link in links:
-        link_url = link.get('href')
-        # check if the link is a valid URL
-        if link_url and link_url.startswith("http"):
-            search_page(urljoin(seed_url, link_url))
-
-
-search_page(seed_url)
+print(len(recevied))

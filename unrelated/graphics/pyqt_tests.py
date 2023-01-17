@@ -16,6 +16,8 @@ from threading import Thread
 from multiprocessing import Process
 from http.server import HTTPServer, BaseHTTPRequestHandler
 from queue import Queue, Empty
+import types
+import functools
 
 PATH_TO_MOVE = os.getcwd()
 # print(PATH_TO_MOVE) # r"D:\\Cyber\\YB_CYBER\\project\\FinalProject\\poc_start\\poc_start\\unrelated\\graphics"
@@ -158,6 +160,9 @@ class AppDemo(QMainWindow):
 
     def __init__(self):
         super().__init__()
+
+        # threads for the fuzzy hashing
+        self.thread1, self.thread2, self.thread3, self.thread4 = None, None, None, None
 
         self.list_widget_style_sheet = """
             QListWidget {
@@ -404,6 +409,7 @@ class AppDemo(QMainWindow):
                 self.description_for_search.deleteLater()
                 self.movie_list.deleteLater()
                 self.suspicious_paths.deleteLater()
+                self.threadpool_vt.terminate()
             self.fuzzy_hash_label.deleteLater()
             self.fuzzy_hash_button.deleteLater()
             if self.delete_widgets is not None:
@@ -411,8 +417,12 @@ class AppDemo(QMainWindow):
                     widget.deleteLater()
             if self.fuzzy_spin is not None:
                 self.fuzzy_spin.deleteLater()
-            if QThreadPool.globalInstance().activeThreadCount() > 0:
-                QThreadPool.globalInstance().clear()
+
+            if self.thread1 is not None and self.thread2 is not None and self.thread3 is not None and self.thread4 is not None:
+                self.thread1.terminate()
+                self.thread2.terminate()
+                self.thread3.terminate()
+                self.thread4.terminate()
 
             self.ip_analysis_label.deleteLater()
             self.ip_button.deleteLater()
@@ -444,7 +454,7 @@ class AppDemo(QMainWindow):
         with open(path, "wb") as f:
             f.write(bytes)
 
-        while not os.path.exists(r"D:\Cyber\YB_CYBER\project\FinalProject\poc_start\poc_start\unrelated\graphics"
+        while not os.path.exists(r"E:\Cyber\YB_CYBER\project\FinalProject\poc_start\poc_start\unrelated\graphics"
                                  r"\virus.exe"):
             print('File does not exists')
             pass
@@ -821,7 +831,7 @@ class AppDemo(QMainWindow):
     def scan_dir(self):
 
         self.dir = str(QFileDialog.getExistingDirectory(self, "Select Directory"))
-        self.threadpool_vt = QThreadPool()
+        self.threadpool_vt = QThread()
         self.show_movie()
 
         self.suspicious_paths = QListWidget()
@@ -902,8 +912,8 @@ class AppDemo(QMainWindow):
         self.movie_list.addWidget(self.suspicious_paths)
         self.hash_layout.insertLayout(self.hash_layout.indexOf(self.description_for_search) + 1, self.movie_list)
 
-        worker = Worker(self.activate_vt_scan_dir)
-        self.threadpool_vt.start(worker)
+        self.threadpool_vt.run = self.activate_vt_scan_dir
+        self.threadpool_vt.start()
 
     def show_movie(self):
 
@@ -1026,23 +1036,29 @@ class AppDemo(QMainWindow):
                 QThreadPool.globalInstance().waitForDone()
 
         # create and start the first thread
-        thread1 = ThreadTask_49()
-        QThreadPool.globalInstance().start(thread1)
+        self.thread1 = QThread()
+        self.thread1.run = ThreadTask_49().run
+        self.thread1.start()
+
+        # create and start the first thread
+        self.thread2 = QThread()
+        self.thread2.run = ThreadTask_79().run
+        self.thread2.start()
+
+        # create and start the first thread
+        self.thread3 = QThread()
+        self.thread3.run = ThreadTask_label().run
+        self.thread3.start()
 
         # create and start the second thread
-        thread2 = ThreadTask_79()
-        QThreadPool.globalInstance().start(thread2)
-
-        thread3 = ThreadTask_label()
-        QThreadPool.globalInstance().start(thread3)
-
-        # create and start the second thread
-        # thread4 = ThreadTask_Spin()
-        # QThreadPool.globalInstance().start(thread4)
+        # create and start the first thread
+        self.thread4 = QThread()
+        self.thread4.run = ThreadTask_Spin().run
+        self.thread4.start()
 
         # create the wait thread and start it in a separate thread
-        wait_thread = WaitThread()
-        wait_thread.start()
+        # wait_thread = WaitThread()
+        # wait_thread.start()
 
     def ip_analysis(self):
 
@@ -1396,7 +1412,7 @@ class AppDemo(QMainWindow):
             screen_width = QMainWindow().width()
 
             # Set the maximum width of the QFrame to the width of the screen
-            frame_for_function.setMaximumSize(screen_width, 2147483647)
+            frame_for_function.setMaximumSize(screen_width + 515, 2147483647)
 
             v_box_for_func = QVBoxLayout(frame_for_function)
             v_box_for_func.setContentsMargins(0, 0, 0, 0)
