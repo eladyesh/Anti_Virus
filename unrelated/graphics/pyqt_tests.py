@@ -12,12 +12,14 @@ from poc_start.unrelated.pe_scan.entropy import *
 from poc_start.unrelated.pe_scan.pe_tests import *
 from poc_start.unrelated.Yara.ya_ra import YaraChecks
 from poc_start.unrelated.fuzzy_hashing.ssdeep_check import *
+from poc_start.unrelated.virus_db.redis_virus import Redis
 from threading import Thread
 from multiprocessing import Process
 from http.server import HTTPServer, BaseHTTPRequestHandler
 from queue import Queue, Empty
 import types
 import functools
+
 
 PATH_TO_MOVE = os.getcwd()
 # print(PATH_TO_MOVE) # r"D:\\Cyber\\YB_CYBER\\project\\FinalProject\\poc_start\\poc_start\\unrelated\\graphics"
@@ -163,6 +165,9 @@ class AppDemo(QMainWindow):
 
         # threads for the fuzzy hashing
         self.thread1, self.thread2, self.thread3, self.thread4 = None, None, None, None
+
+        self.redis_virus = Redis()
+        # self.redis_virus.delete_keys_without_hash()
 
         self.list_widget_style_sheet = """
             QListWidget {
@@ -447,6 +452,8 @@ class AppDemo(QMainWindow):
         item = QListWidgetItem(self.listbox_view.item(0))
         path = item.text()
         bytes = b""
+        self.redis_virus.hset_dict(str(md5("virus.exe")), {"name": "elad"})
+        self.redis_virus.print_all()
 
         with open(path, "rb") as f:
             bytes += f.read()

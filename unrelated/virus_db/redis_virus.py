@@ -1,13 +1,77 @@
 import redis
 
-pool = redis.ConnectionPool(host='localhost', port=6379, db=0)
-redis = redis.Redis(connection_pool=pool)
 
-redis.set('mykey', 'Hello from Python!')
-value = redis.get('mykey')
-print(value)
+class Redis:
+    def __init__(self, host='localhost', port=6379, db=0):
+        self.redis = redis.Redis(host=host, port=port, db=db)
 
-redis.zadd('vehicles', {'car': 0})
-redis.zadd('vehicles', {'bike': 0})
-vehicles = redis.zrange('vehicles', 0, -1)
-print(vehicles)
+    def set(self, key, value):
+        """Set a key-value pair in the Redis database."""
+        self.redis.set(key, value)
+
+    def hset_dict(self, key, d=None):
+        """Set a key-value pair where key is a string and value is a dictionary"""
+        if d is None:
+            d = {}
+        for k, v in d.items():
+            self.redis.hset(key, k, v)
+
+    def hgetall(self, key):
+        """Retrieve all the fields and values of a hash stored at key"""
+        return self.redis.hgetall(key)
+
+    def get(self, key):
+        """Retrieve the value of a key from the Redis database."""
+        return self.redis.get(key)
+
+    def delete(self, key):
+        """Delete a key from the Redis database."""
+        self.redis.delete(key)
+
+    def incr(self, key):
+        """Increment the value of a key in the Redis database."""
+        self.redis.incr(key)
+
+    def decr(self, key):
+        """Decrement the value of a key in the Redis database."""
+        self.redis.decr(key)
+
+    def keys(self):
+        """Retrieve all keys in the Redis database."""
+        return self.redis.keys()
+
+    def flush(self):
+        """Deletes all existing keys in the Redis database."""
+        self.redis.flushall()
+
+    def delete_keys_without_hash(self):
+        for key in self.redis.keys():
+            if self.redis.type(key) == b"string":
+                if len(key) < 32:
+                    self.delete(key)
+            else:
+                self.delete(key)
+
+    def print_all(self):
+
+        """Prints all keys and their values in the Redis database."""
+        # Iterating over all the keys in the Redis database
+        for key in self.redis.keys():
+            print(key)
+            key_type = self.redis.type(key)
+            if key_type == b'string':
+                print(key, ":", self.redis.get(key).decode())
+            elif key_type == b'hash':
+                print(key, ":", self.redis.hgetall(key))
+
+
+if __name__ == "__main__":
+    # Creating an instance of the Redis class
+    r = Redis()
+
+    # Setting an empty dictionary as the value of the key 'example'
+    r.hset_dict("example")
+
+    # retrieving the values of the key
+    print(r.hgetall("example"))
+    # Output: {}
