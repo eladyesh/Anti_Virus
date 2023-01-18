@@ -299,7 +299,7 @@ The number of times user is trying to send message via socket is 1
 ----------intercepted call to recv----------
 
 
-The buffer socket recieved is 
+The buffer socket recieved is
 
 HTTP/1.1 301 Moved Permanently
 Via: 1.1 192.168.50.253 (McAfee Web Gateway 9.2.13.37696)
@@ -455,5 +455,4 @@ A pointer to the buffer that contains data to be written in the address space of
 The number of bytes to be written to the specified process is 67
 
 ----------Done intercepting call to WriteProcessMemory----------
-
 
