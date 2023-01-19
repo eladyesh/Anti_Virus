@@ -74,4 +74,12 @@ if __name__ == "__main__":
 
     # retrieving the values of the key
     print(r.hgetall("example"))
+
+    self.redis_virus.hset_dict(str(md5("virus.exe")),
+                               {"num_of_rules": 0, "num_of_packers": 0, "fractioned_imports_test": 0,
+                                "rick_optional_linker_test": 0, "imports_test": 0, "num_of_!": 0,
+                                "num_of_identifies": 0, "num_of_has_passed_cpu": 0, "num_of_engines:": 0,
+                                "num_of_fuzzy_found": 0, "final_assesment": 0})
+    # self.redis_virus.print_all()
+
     # Output: {}

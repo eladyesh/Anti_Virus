@@ -452,8 +452,6 @@ class AppDemo(QMainWindow):
         item = QListWidgetItem(self.listbox_view.item(0))
         path = item.text()
         bytes = b""
-        self.redis_virus.hset_dict(str(md5("virus.exe")), {"name": "elad"})
-        self.redis_virus.print_all()
 
         with open(path, "rb") as f:
             bytes += f.read()
