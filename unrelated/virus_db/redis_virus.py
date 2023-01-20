@@ -52,10 +52,17 @@ class Redis:
             else:
                 self.delete(key)
 
+    def exists(self, key):
+        return self.redis.exists(key)
+
+    def hset(self, key, k, v):
+        self.redis.hset(key, k, v)
+
     def print_all(self):
 
         """Prints all keys and their values in the Redis database."""
         # Iterating over all the keys in the Redis database
+        print("printing all")
         for key in self.redis.keys():
             print(key)
             key_type = self.redis.type(key)
@@ -64,22 +71,29 @@ class Redis:
             elif key_type == b'hash':
                 print(key, ":", self.redis.hgetall(key))
 
+    def change_to_reg(self):
+        for hash_key in self.redis.keys():
+            if self.redis.type(hash_key) == b'hash':
+                cursor = '0'
+                while cursor != 0:
+                    cursor, data = self.redis.hscan(hash_key, cursor=cursor)
+                    for key, value in data.items():
+                        if isinstance(key, bytes):
+                            key_decoded = key.decode()
+                        if isinstance(value, bytes):
+                            value_decoded = value.decode()
+                        self.redis.hdel(hash_key, key)
+                        self.redis.hset(hash_key, key_decoded, value_decoded)
+            if isinstance(hash_key, bytes):
+                hash_key_decoded = hash_key.decode()
+
+
+
 
 if __name__ == "__main__":
     # Creating an instance of the Redis class
     r = Redis()
 
-    # Setting an empty dictionary as the value of the key 'example'
-    r.hset_dict("example")
-
-    # retrieving the values of the key
-    print(r.hgetall("example"))
-
-    self.redis_virus.hset_dict(str(md5("virus.exe")),
-                               {"num_of_rules": 0, "num_of_packers": 0, "fractioned_imports_test": 0,
-                                "rick_optional_linker_test": 0, "imports_test": 0, "num_of_!": 0,
-                                "num_of_identifies": 0, "num_of_has_passed_cpu": 0, "num_of_engines:": 0,
-                                "num_of_fuzzy_found": 0, "final_assesment": 0})
     # self.redis_virus.print_all()
 
     # Output: {}
