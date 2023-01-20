@@ -453,16 +453,24 @@ class AppDemo(QMainWindow):
         path = item.text()
         bytes = b""
 
-        with open(path, "rb") as f:
-            bytes += f.read()
-        shutil.move(str(path), PATH_TO_MOVE + "\\virus.exe")
-        with open(path, "wb") as f:
-            f.write(bytes)
+        # with open(path, "rb") as f:
+        #     bytes += f.read()
+        # shutil.move(str(path), PATH_TO_MOVE + "\\virus.exe")
+        # with open(path, "wb") as f:
+        #     f.write(bytes)
 
-        while not os.path.exists(r"E:\Cyber\YB_CYBER\project\FinalProject\poc_start\poc_start\unrelated\graphics"
-                                 r"\virus.exe"):
-            print('File does not exists')
-            pass
+        # self.redis_virus.hset_dict(str(md5("virus.exe")),
+        #                            {"num_of_rules": 0, "num_of_packers": 0, "fractioned_imports_test": 0,
+        #                             "rick_optional_linker_test": 0, "imports_test": 0, "num_of_!": 0,
+        #                             "num_of_identifies": 0, "num_of_has_passed_cpu": 0, "num_of_engines:": 0,
+        #                             "num_of_fuzzy_found": 0, "final_assesment": 0})
+        self.redis_virus.change_to_reg()
+        self.redis_virus.print_all()
+
+        # while not os.path.exists(r"E:\Cyber\YB_CYBER\project\FinalProject\poc_start\poc_start\unrelated\graphics"
+        #                          r"\virus.exe"):
+        #     print('File does not exists')
+        #     pass
 
         self.threadpool_sender = QThreadPool()
         worker = Worker(self.activate_sender)
@@ -470,7 +478,10 @@ class AppDemo(QMainWindow):
 
     def open_list(self):
         button = self.sender()
-        button.setText(button.text().replace("+", "-"))
+        if "+" in button.text():
+            button.setText(button.text().replace("+", "-"))
+        else:
+            button.setText(button.text().replace("-", "+"))
         if self.list_index[button].isVisible():
             self.list_index[button].setVisible(False)
         else:

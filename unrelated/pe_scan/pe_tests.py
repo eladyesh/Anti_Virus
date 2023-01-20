@@ -1,4 +1,5 @@
 import os
+from collections import Counter
 
 import pefile
 import pereader
@@ -300,14 +301,15 @@ class ScanPE:
         """
 
         pe = pereader.PE(self.path, is_entropy=False)
+        sections = []
         for sect in pe.section_header:
 
             # Write and Execute flags
             if self.suspicious_flags[0] in sect.flags and self.suspicious_flags[1] in sect.flags and \
                     self.suspicious_flags[2] in sect.flags:
-                return sect.Name
+                sections.append(sect.Name.decode())
 
-        return False
+        return sections
 
     # def scan_imoprts(self):
     #
@@ -389,8 +391,6 @@ class ScanPE:
 
         dlls = dict({})
         headers = run_command(os.path.abspath("exe\\peScan.exe").replace("graphics", "pe_scan") + " " + self.path)[0]
-        print(os.path.abspath("exe\\peScan.exe").replace("graphics", "pe_scan") + " " + self.path)
-        print(run_command(os.path.abspath("exe\\peScan.exe ").replace("graphics", "pe_scan") + " " + self.path))
         headers = headers.split("\n\n")[-1].split("\n")[1:]
         headers = [line.replace("\t\t", "") for line in headers]
         headers = " ".join(headers).split("\t")[1:]
@@ -400,7 +400,6 @@ class ScanPE:
             dll = dll.split(" ")
             name_and_address = tuple([dll[0], dll[1], dll[2]])
             dll_imports = [imp for imp in dll[3:-1]]
-            print(name_and_address, dll_imports)
 
             # key = [name, decimal address, hex address]
             dlls[name_and_address] = dll_imports
@@ -409,6 +408,23 @@ class ScanPE:
 
         # dll_imports.append([dll[0], dll[1], ])
         # print(" ".join(headers).split("\t"))
+
+
+def check_for_fractioned_imports(dlls):
+    fractioned = []
+    prefix_counter = Counter()
+    for library in dlls.keys():
+        print(library)
+        prefix = library[2][:3]
+        prefix_counter[prefix] += 1
+
+    most_common_prefix = prefix_counter.most_common(1)[0][0]
+    for library in dlls.keys():
+        if not library[2].startswith(most_common_prefix):
+            fractioned.append(library[0])
+
+    return fractioned
+
 
 
 if __name__ == '__main__':
