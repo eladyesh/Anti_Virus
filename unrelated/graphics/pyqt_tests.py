@@ -19,6 +19,7 @@ from http.server import HTTPServer, BaseHTTPRequestHandler
 from queue import Queue, Empty
 import types
 import functools
+import pickle
 
 
 PATH_TO_MOVE = os.getcwd()
@@ -462,13 +463,16 @@ class AppDemo(QMainWindow):
         self.md5_hash = str(md5("virus.exe"))
         if not self.redis_virus.exists(self.md5_hash):
             self.redis_virus.hset_dict(self.md5_hash,
-                                       {"num_of_rules": 0, "num_of_packers": 0, "fractioned_imports_test": 0,
-                                        "rick_optional_linker_test": 0, "imports_test": 0, "num_of_!": 0,
+                                       {"num_of_rules": pickle.dumps([0]), "num_of_packers": pickle.dumps([0]), "fractioned_imports_test": pickle.dumps([0]),
+                                        "rick_optional_linker_test": pickle.dumps([0]), "imports_test": pickle.dumps([0]), "num_of_!": 0,
                                         "num_of_identifies": 0, "num_of_has_passed_cpu": 0, "num_of_engines:": 0,
                                         "num_of_fuzzy_found": 0, "final_assesment": 0})
+
+
         # self.redis_virus.change_to_reg()
-        # self.redis_virus.hset(self.md5_hash, "num_of_rules", 5)
-        self.redis_virus.print_all()
+        # self.redis_virus.hset(self.md5_hash, "num_of_rules", pickle.dumps(["bad_rule", 5]))
+        print(pickle.loads(self.redis_virus.hgetall(self.md5_hash)[b"num_of_rules"]))
+        # self.redis_virus.print_all()
         # print(int(self.redis_virus.hgetall('5fffd3e69093dc32727214ba5c8f2af5')[b'num_of_rules'].decode()) * 5)
 
         # while not os.path.exists(r"E:\Cyber\YB_CYBER\project\FinalProject\poc_start\poc_start\unrelated\graphics"
