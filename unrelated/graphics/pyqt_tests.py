@@ -1,5 +1,6 @@
 import sys, os
 from PyQt5.QtWidgets import *
+from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 from PyQt5 import QtCore
 from PyQt5.QtCore import Qt, QUrl, pyqtSlot, QRunnable, QThreadPool, QVariant, QAbstractTableModel
@@ -462,7 +463,8 @@ class AppDemo(QMainWindow):
         self.md5_hash = str(md5("virus.exe"))
         if not self.redis_virus.exists(self.md5_hash):
             self.redis_virus.hset_dict(self.md5_hash,
-                                       {"rules": pickle.dumps([0]), "packers": pickle.dumps([0]), "fractioned_imports_test": pickle.dumps([0]),
+                                       {"rules": pickle.dumps([0]), "packers": pickle.dumps([0]), "entropy_vs_normal": pickle.dumps([0]),
+                                        "fractioned_imports_test": pickle.dumps([0]),
                                         "rick_optional_linker_test": pickle.dumps([0]), "sections_test": pickle.dumps([0]), "suspicious_!": pickle.dumps([0]),
                                         "identifies": pickle.dumps([0]), "has_passed_cpu": pickle.dumps([0]), "num_of_engines:": 0,
                                         "num_of_fuzzy_found": 0, "final_assesment": 0})
@@ -541,6 +543,11 @@ class AppDemo(QMainWindow):
         sections = sections_entropy("virus.exe")[1:]
         print(sections)
 
+        self.md5_hash = str(md5("virus.exe"))
+        entropy_of_virus_vs_reg = entropy_vs_normal("virus.exe")
+        self.redis_virus.hset(self.md5_hash, "entropy_vs_normal", pickle.dumps(entropy_of_virus_vs_reg))
+        self.redis_virus.print_key(self.md5_hash, "entropy_vs_normal", True)
+
         self.virus_table.setItem(0, 0, QTableWidgetItem("Name"))
         self.virus_table.setItem(0, 1, QTableWidgetItem("Virtual Address"))
         self.virus_table.setItem(0, 2, QTableWidgetItem("Virtual Size"))
@@ -615,8 +622,6 @@ class AppDemo(QMainWindow):
         # YARA
         yara_strings = YaraChecks.check_for_strings("virus.exe")
         yara_packers = YaraChecks.check_for_packer("virus.exe")
-
-        self.md5_hash = str(md5("virus.exe"))
 
         self.redis_virus.hset(self.md5_hash, "rules", pickle.dumps([match.rule for match in yara_strings[2]]))
         self.redis_virus.print_key(self.md5_hash, "rules", True)
@@ -1066,8 +1071,9 @@ class AppDemo(QMainWindow):
         class ThreadTask_Spin(QRunnable):
             def run(self):
 
-                # TODO - enter redis base - num_of_fuzzy_found
-                change_spin_counter(spin_box)
+                r = Redis()
+                md5_hash = md5("virus.exe")
+                change_spin_counter(spin_box, r, md5_hash)
 
         class WaitThread(QThread):
             def run(self):
