@@ -168,7 +168,6 @@ class AppDemo(QMainWindow):
         self.thread1, self.thread2, self.thread3, self.thread4 = None, None, None, None
 
         self.redis_virus = Redis()
-        # self.redis_virus.delete_keys_without_hash()
 
         self.list_widget_style_sheet = """
             QListWidget {
@@ -463,15 +462,15 @@ class AppDemo(QMainWindow):
         self.md5_hash = str(md5("virus.exe"))
         if not self.redis_virus.exists(self.md5_hash):
             self.redis_virus.hset_dict(self.md5_hash,
-                                       {"num_of_rules": pickle.dumps([0]), "num_of_packers": pickle.dumps([0]), "fractioned_imports_test": pickle.dumps([0]),
-                                        "rick_optional_linker_test": pickle.dumps([0]), "imports_test": pickle.dumps([0]), "num_of_!": 0,
-                                        "num_of_identifies": 0, "num_of_has_passed_cpu": 0, "num_of_engines:": 0,
+                                       {"rules": pickle.dumps([0]), "packers": pickle.dumps([0]), "fractioned_imports_test": pickle.dumps([0]),
+                                        "rick_optional_linker_test": pickle.dumps([0]), "sections_test": pickle.dumps([0]), "suspicious_!": pickle.dumps([0]),
+                                        "identifies": pickle.dumps([0]), "has_passed_cpu": pickle.dumps([0]), "num_of_engines:": 0,
                                         "num_of_fuzzy_found": 0, "final_assesment": 0})
 
 
         # self.redis_virus.change_to_reg()
         # self.redis_virus.hset(self.md5_hash, "num_of_rules", pickle.dumps(["bad_rule", 5]))
-        print(pickle.loads(self.redis_virus.hgetall(self.md5_hash)[b"num_of_rules"]))
+        # print(pickle.loads(self.redis_virus.hgetall(self.md5_hash)[b"num_of_rules"]))
         # self.redis_virus.print_all()
         # print(int(self.redis_virus.hgetall('5fffd3e69093dc32727214ba5c8f2af5')[b'num_of_rules'].decode()) * 5)
 
@@ -616,7 +615,14 @@ class AppDemo(QMainWindow):
         # YARA
         yara_strings = YaraChecks.check_for_strings("virus.exe")
         yara_packers = YaraChecks.check_for_packer("virus.exe")
-        print(yara_packers)
+
+        self.md5_hash = str(md5("virus.exe"))
+
+        self.redis_virus.hset(self.md5_hash, "rules", pickle.dumps([match.rule for match in yara_strings[2]]))
+        self.redis_virus.print_key(self.md5_hash, "rules", True)
+
+        self.redis_virus.hset(self.md5_hash, "packers", pickle.dumps([match.rule for match in yara_packers]))
+        self.redis_virus.print_key(self.md5_hash, "packers", True)
 
         for dll in yara_strings[0]:
             self.list_strings_widget.addItem(str(dll))
@@ -778,6 +784,8 @@ class AppDemo(QMainWindow):
         self.static_visited = True
 
         fractioned = check_for_fractioned_imports(dlls)
+        self.redis_virus.hset(self.md5_hash, "fractioned_imports_test", pickle.dumps(fractioned))
+        self.redis_virus.print_key(self.md5_hash, "fractioned_imports_test", True)
 
         self.frame_dll_test = QFrame()
         self.frame_dll_test.setFrameShape(QFrame.Box)
@@ -804,6 +812,8 @@ class AppDemo(QMainWindow):
 
         # pe linker
         result = str(pe_scan.linker_test()).replace("result.", "")
+        self.redis_virus.hset(self.md5_hash, "rick_optional_linker_test", pickle.dumps([result]))
+        self.redis_virus.print_key(self.md5_hash, "rick_optional_linker_test", True)
 
         self.frame_pe_linker = QFrame()
         self.frame_pe_linker.setFrameShape(QFrame.StyledPanel)
@@ -818,6 +828,8 @@ class AppDemo(QMainWindow):
 
         # pe scan sections
         sections = pe_scan.scan_sections()
+        self.redis_virus.hset(self.md5_hash, "sections_test", pickle.dumps(sections))
+        self.redis_virus.print_key(self.md5_hash, "sections_test", True)
 
         self.frame_pe_sections = QFrame()
         self.frame_pe_sections.setFrameShape(QFrame.StyledPanel)
@@ -1053,6 +1065,8 @@ class AppDemo(QMainWindow):
 
         class ThreadTask_Spin(QRunnable):
             def run(self):
+
+                # TODO - enter redis base - num_of_fuzzy_found
                 change_spin_counter(spin_box)
 
         class WaitThread(QThread):
@@ -1129,12 +1143,17 @@ class AppDemo(QMainWindow):
         self.engine_tree.setHeaderLabels(['Name', 'Version', 'Category', 'Result', 'Method', 'Update'])
 
         md5_hash = md5("virus.exe")
+        self.md5_hash = md5_hash
         sha_256_hash = sha_256("virus.exe")
         entropy_of_file = entropy_for_file("virus.exe")
         vtscan = VTScan()
 
         show_tree = True
         engines, malicious, undetected = vtscan.info(md5_hash)
+
+        self.redis_virus.hset(self.md5_hash, "num_of_engines", malicious)
+        self.redis_virus.print_key(self.md5_hash, "num_of_engines", False)
+
         if engines == 0 and malicious == 0 and undetected == 0:
             show_tree = False
 
@@ -1407,6 +1426,7 @@ class AppDemo(QMainWindow):
         self.hash_visited = False
         self.dynamic_layout = QVBoxLayout()
         self.page_layout.addLayout(self.dynamic_layout)
+        self.md5_hash = str(md5("virus.exe")) # TODO - delete all self.md5_hash besides the the one in getSelectedItem
 
         self.start_dynamic = make_label("Function Analysis", 24)
         self.dynamic_layout.addWidget(self.start_dynamic)
@@ -1425,9 +1445,26 @@ class AppDemo(QMainWindow):
         light_purple = QColor(255, 153, 255, 180)
 
         self.delete_funcs = []
+        suspect_functions = []
+        identified_functions = []
+        has_passed_cpu_functions = []
         for function in log_content.split("\n\n\n\n\n\n\n"):
 
-            # problem with QFrame
+            suspicious_marks, has_passed_cpu = function.count("suspicious"), function.count("Has passed permitted cpu")
+            if suspicious_marks > 0:
+                lines = [line for line in function.split("\n") if line != ""]
+                func_header = lines[0].replace("-", "").replace("intercepted call to ", "")
+                suspect_functions.append(func_header)
+            if has_passed_cpu > 0:
+                lines = [line for line in function.split("\n") if line != ""]
+                func_header = lines[0].replace("-", "").replace("intercepted call to ", "")
+                has_passed_cpu_functions.append(func_header)
+            if "IDENTIFIED" in function:
+                lines = [line for line in function.split("\n") if line != ""]
+                func_header = lines[0].replace("-", "").replace("intercepted call to ", "")
+                identified_functions.append(func_header)
+
+            # problem with QFrame - TODO
             frame_for_function = QFrame()
             frame_for_function.setFrameShape(QFrame.Box)
             frame_for_function.setStyleSheet("border: 2px solid purple; margin: 10px;")
@@ -1471,6 +1508,15 @@ class AppDemo(QMainWindow):
             self.delete_funcs.append(v_box_for_func)
 
         self.dynamic_visited = True
+
+        self.redis_virus.hset(self.md5_hash, "suspicious_!", pickle.dumps(suspect_functions))
+        self.redis_virus.print_key(self.md5_hash, "suspicious_!", True)
+
+        self.redis_virus.hset(self.md5_hash, "has_passed_cpu", pickle.dumps(has_passed_cpu_functions))
+        self.redis_virus.print_key(self.md5_hash, "has_passed_cpu", True)
+
+        self.redis_virus.hset(self.md5_hash, "identifies", pickle.dumps(identified_functions))
+        self.redis_virus.print_key(self.md5_hash, "identifies", True)
 
 
 app = QApplication(sys.argv)

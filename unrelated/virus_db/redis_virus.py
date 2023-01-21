@@ -1,5 +1,5 @@
 import redis
-
+import pickle
 
 class Redis:
     def __init__(self, host='localhost', port=6379, db=0):
@@ -55,6 +55,12 @@ class Redis:
     def exists(self, key):
         return self.redis.exists(key)
 
+    def print_key(self, key, k, pick):
+        if pick:
+            print(pickle.loads(self.redis.hgetall(key)[k.encode()]))
+        else:
+            print(self.redis.hgetall(key)[k.encode()])
+
     def hset(self, key, k, v):
         self.redis.hset(key, k, v)
 
@@ -93,6 +99,7 @@ class Redis:
 if __name__ == "__main__":
     # Creating an instance of the Redis class
     r = Redis()
+    r.flush()
 
     # self.redis_virus.print_all()
 

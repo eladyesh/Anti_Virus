@@ -37,7 +37,7 @@ class YaraChecks:
                 for j in i.strings:
                     strings.append(j[2])
 
-        return dlls, strings
+        return dlls, strings, suspicious_strings_matches
 
 
 if __name__ == '__main__':
