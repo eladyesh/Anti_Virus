@@ -11,7 +11,10 @@ import subprocess
 import pydivert
 import re
 from http.server import HTTPServer, BaseHTTPRequestHandler
+import socket
 
+
+ip_for_server = socket.gethostbyname_ex(socket.gethostname())[-1][-1]
 
 class RequestHandler(BaseHTTPRequestHandler):
     def do_GET(self):
@@ -35,7 +38,7 @@ class RequestHandler(BaseHTTPRequestHandler):
 
 
 def start_server():
-    httpd = HTTPServer(("192.168.16.1", 8080), RequestHandler)
+    httpd = HTTPServer((ip_for_server, 8080), RequestHandler)
     httpd.serve_forever()
 
 
@@ -220,7 +223,7 @@ class VTScan:
 
     @staticmethod
     def scan_for_suspicious_cache():
-
+        print("got here")
         headers = {
             "x_apikey": VT_API_KEY,  # api key
             "User-Agent": "vtscan v.1.0",
@@ -247,7 +250,7 @@ class VTScan:
                 result = res.json()
                 print(result["data"]["attributes"]["last_analysis_stats"])
                 # print(result["data"]["attributes"]["last_analysis_results"]) --> engines
-                if result["data"]["attributes"]["last_analysis_stats"]["malicious"] > 5:
+                if result["data"]["attributes"]["last_analysis_stats"]["malicious"] > 0:
                     block_ip.append(ip)
                     yield ip
 
@@ -260,11 +263,11 @@ class VTScan:
                     ip = packet.dst_addr
                     # print("packet dst in block ip ", packet.src_port, packet.dst_port, packet.src_addr, packet.dst_addr,packet.direction)
                     # print(f"got here out {packet.is_outbound}")
-                    packet.dst_addr = "192.168.16.1"
+                    packet.dst_addr = ip_for_server
                     packet.dst_port = 8080
                     packet.direction = 0
                     # print("packet modified ", packet.src_port, packet.dst_port, packet.src_addr, packet.dst_addr, packet.direction)
-                if packet.src_addr == "192.168.16.1" and packet.src_port == 8080:
+                if packet.src_addr == ip_for_server and packet.src_port == 8080:
                     # print("packet src http ", packet.src_port, packet.dst_port, packet.src_addr, packet.dst_addr,
                     #       packet.direction)
                     packet.src_addr = ip
@@ -276,7 +279,7 @@ class VTScan:
 
     @staticmethod
     def scan_directory(path):
-
+        print("Got here")
         headers = {
             "x_apikey": VT_API_KEY,  # api key
             "User-Agent": "vtscan v.1.0",

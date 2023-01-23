@@ -1,5 +1,7 @@
 import math
 import hashlib
+import os.path
+
 import pefile
 from Crypto.Cipher import AES
 from Crypto.Random import get_random_bytes
@@ -65,14 +67,36 @@ def sections_entropy(path):
     for section in pe.sections:
         # print(section.Name.decode())
         sections.append([section.Name.decode(), hex(section.VirtualAddress), hex(section.Misc_VirtualSize),
-                                           hex(section.SizeOfRawData),
-                                           str(shannon_entropy(section.get_data()))])
+                         hex(section.SizeOfRawData),
+                         str(shannon_entropy(section.get_data()))])
         # print("\tvirtual address: " + hex(section.VirtualAddress))
         # print("\tvirtual size: " + hex(section.Misc_VirtualSize))
         # print("\traw size: " + hex(section.SizeOfRawData))
         # print("\tentropy: " + str(shannon_entropy(section.get_data())))
 
     return sections
+
+
+def entropy_vs_normal(path):
+    file_entropy = 0
+    res = []
+    virus_secs = []
+    reg_secs = []
+    virus_entropy = entropy_for_file(os.path.abspath(path))
+    reg_entropy = entropy_for_file(os.path.abspath("exe\\real_nop.exe").replace("graphics", "pe_scan"))
+
+    if virus_entropy - reg_entropy > 0:
+        file_entropy = virus_entropy - reg_entropy
+
+    pe_virus = pefile.PE(os.path.abspath(path))
+    pe_reg = pefile.PE(os.path.abspath("exe\\real_nop.exe").replace("graphics", "pe_scan"))
+    for section_reg, section_virus in zip(pe_reg.sections, pe_virus.sections):
+        if section_reg.Name.decode() == section_virus.Name.decode():
+            if shannon_entropy(section_virus.get_data()) > shannon_entropy(section_reg.get_data()):
+                res.append(section_reg.Name.decode())
+
+    res.append(file_entropy)  # the last elem will be file entropy
+    return res
 
 
 if __name__ == "__main__":

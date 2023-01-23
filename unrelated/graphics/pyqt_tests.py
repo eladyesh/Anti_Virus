@@ -454,11 +454,11 @@ class AppDemo(QMainWindow):
         path = item.text()
         bytes = b""
 
-        # with open(path, "rb") as f:
-        #     bytes += f.read()
-        # shutil.move(str(path), PATH_TO_MOVE + "\\virus.exe")
-        # with open(path, "wb") as f:
-        #     f.write(bytes)
+        with open(path, "rb") as f:
+            bytes += f.read()
+        shutil.move(str(path), PATH_TO_MOVE + "\\virus.exe")
+        with open(path, "wb") as f:
+            f.write(bytes)
 
         self.md5_hash = str(md5("virus.exe"))
         if not self.redis_virus.exists(self.md5_hash):
@@ -476,10 +476,10 @@ class AppDemo(QMainWindow):
         # self.redis_virus.print_all()
         # print(int(self.redis_virus.hgetall('5fffd3e69093dc32727214ba5c8f2af5')[b'num_of_rules'].decode()) * 5)
 
-        # while not os.path.exists(r"E:\Cyber\YB_CYBER\project\FinalProject\poc_start\poc_start\unrelated\graphics"
-        #                          r"\virus.exe"):
-        #     print('File does not exists')
-        #     pass
+        while not os.path.exists(r"E:\Cyber\YB_CYBER\project\FinalProject\poc_start\poc_start\unrelated\graphics"
+                                 r"\virus.exe"):
+            print('File does not exists')
+            pass
 
         self.threadpool_sender = QThreadPool()
         worker = Worker(self.activate_sender)
@@ -1094,8 +1094,6 @@ class AppDemo(QMainWindow):
         self.thread3.run = ThreadTask_label().run
         self.thread3.start()
 
-        # create and start the second thread
-        # create and start the first thread
         self.thread4 = QThread()
         self.thread4.run = ThreadTask_Spin().run
         self.thread4.start()
@@ -1470,7 +1468,7 @@ class AppDemo(QMainWindow):
                 func_header = lines[0].replace("-", "").replace("intercepted call to ", "")
                 identified_functions.append(func_header)
 
-            # problem with QFrame - TODO
+            # problem with QFrame - TODO - better
             frame_for_function = QFrame()
             frame_for_function.setFrameShape(QFrame.Box)
             frame_for_function.setStyleSheet("border: 2px solid purple; margin: 10px;")
@@ -1503,6 +1501,7 @@ class AppDemo(QMainWindow):
                     continue
 
                 func_label = QLabel(line)
+                func_label.setWordWrap(True)
                 func_label.setFont(QFont("Comic Sans MS", 12))
                 func_label.setStyleSheet("color: {}; border: none;".format(light_purple.name()))
                 func_label.setFrameShape(QFrame.NoFrame)

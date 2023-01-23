@@ -1,6 +1,7 @@
 import redis
 import pickle
 
+
 class Redis:
     def __init__(self, host='localhost', port=6379, db=0):
         self.redis = redis.Redis(host=host, port=port, db=db)
@@ -92,8 +93,6 @@ class Redis:
                         self.redis.hset(hash_key, key_decoded, value_decoded)
             if isinstance(hash_key, bytes):
                 hash_key_decoded = hash_key.decode()
-
-
 
 
 if __name__ == "__main__":
