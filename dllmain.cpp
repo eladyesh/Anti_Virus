@@ -119,7 +119,7 @@ Defining functions that are being hooked
     [in] int        len,
     [in] int        flags
     );
-    
+
     int recv(
     [in]  SOCKET s,
     [out] char   *buf,
@@ -144,9 +144,9 @@ Defining functions that are being hooked
 // Intializing maps and lists of suspicious function
 std::map<const char*, void*> fnMap;
 std::map<std::string, int> fnCounter;
-std::vector<const char*> suspicious_functions = { "CreateFileA", "DeleteFileA", "WriteFileEx", "WriteFile", "VirtualAlloc", "CreateThread", "OpenProcess", "VirtualAllocEx", "CreateRemoteThread", "CloseHandle", "RegOpenKeyExA", "RegSetValueExA", "RegCreateKeyExA", "RegGetValueA", "socket", "connect", "send", "recv" };
-std::vector<FARPROC> addresses(18);
-std::vector<char[6]> original(18);
+std::vector<const char*> suspicious_functions = { "CreateFileA", "DeleteFileA", "WriteFileEx", "WriteFile", "VirtualAlloc", "CreateThread", "OpenProcess", "VirtualAllocEx", "CreateRemoteThread", "CloseHandle", "RegOpenKeyExA", "RegSetValueExA", "RegCreateKeyExA", "RegGetValueA", "socket", "connect", "send", "recv", "SetWindowsHookExA", "GetKeyboardState", "SetFilePointer"};
+std::vector<FARPROC> addresses(21);
+std::vector<char[6]> original(21);
 std::map<HANDLE, int> handle_counter;
 std::map<const char*, int> function_index;
 
@@ -167,6 +167,10 @@ double maxCpu = 0;
 // port scanning variables
 const char* remote_ip; std::string injected_process = "";
 int connect_count = 0, run_once = 1; bool portScanner = false;
+
+// keboard hook counter
+int keyboard_hook = 0;
+int show_identified = 0;
 
 
 namespace FindProcess {
@@ -316,7 +320,7 @@ struct REGISTRY_HOOKING {
 
         if (samDesired == 0xF003F)
             LOG("A mask that specifies the desired access rights to the key to be opened is ", "KEY_ALL_ACCESS");
-            
+
         if (CheckContain::contains(keys, std::string(lpSubKey), true))
             LOG("EXE is trying to access a suspicious registry key!", "");
 
@@ -752,6 +756,13 @@ struct FILE_HOOKING {
         LOG("The buffer being written to the file is ", (LPCSTR)lpBuffer);
         LOG("The size of the buffer is ", nNumberOfBytesToWrite);
 
+        if (keyboard_hook >= 2) {
+            if (show_identified == 0) {
+                LOG("\n----------IDENTIFIED KEYBOARD LOGGING----------\n", "");
+                show_identified = 1;
+            }
+        }
+
         int index = function_index["WriteFile"];
         ++fnCounter[suspicious_functions[index]];
 
@@ -864,7 +875,7 @@ struct INJECT_HOOKING {
         const std::wstring name1 = FindProcess::FindProcessName(dwProcessId);
         std::string str1(name1.begin(), name1.end());
         if (str1 == std::string("VIRUS.EXE") || str1 == std::string("virus.exe")) return NULL;
-        
+
         LOG("\n----------intercepted call to OpenProcess----------\n\n", "");
 
         if (dwDesiredAccess == ((0x000F0000L) | (0x00100000L) | (0xFFFF)))
@@ -880,7 +891,7 @@ struct INJECT_HOOKING {
 
         int index = function_index["OpenProcess"];
         ++fnCounter[suspicious_functions[index]];
-          
+
         std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
         ostringstream oss;
         oss << std::chrono::duration_cast<std::chrono::nanoseconds> (end - begin).count() << ends;
@@ -1034,6 +1045,118 @@ struct INJECT_HOOKING {
     }
 };
 
+struct KeyBoard_HOOKING
+{
+    // start with SetWindowsHookExA, and follow the code in de_bug
+    static HHOOK __stdcall SetWindowsHookExAHook(int idHook, HOOKPROC lpfn, HINSTANCE hMod, DWORD dwThreadId) {
+
+        LOG("\n----------intercepted call to SetWindowsHookExA----------\n\n", "");
+
+        if (idHook == 13)
+            LOG("The type of hook to be installed is ", "WH_KEYBOARD_LL");
+        LOG("A pointer to the hook procedure is ", lpfn);
+        LOG("A handle to the DLL containing the hook procedure pointed to by the lpfn parameter is ", hMod);
+        
+        if (dwThreadId == 0)
+            LOG("The hook procedure is associated with all existing threads running in the same desktop as the calling thread.", "");
+
+        int index = function_index["SetWindowsHookExA"];
+        ++fnCounter[suspicious_functions[index]];
+
+        std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
+        ostringstream oss;
+        oss << std::chrono::duration_cast<std::chrono::nanoseconds> (end - begin).count() << ends;
+        std::string time_difference = std::string(oss.str().c_str());
+        time_difference.insert(1, ".");
+
+        LOG("Time difference since attachment of hooks in [s] is ", time_difference);
+
+        double cpuUsage = getCurrentValue();
+        if (maxCpu < cpuUsage) maxCpu = cpuUsage;
+        while (maxCpu > 100.0) maxCpu -= 100.0;
+        if (maxCpu > cpuPermitted) LOG("Has passed permitted cpu", "");
+        LOG("The current cpu usage percantage [%] is ", maxCpu);
+
+        LOG("\n----------Done intercepting call to SetWindowsHookExA----------\n\n", "");
+
+        WriteProcessMemory(GetCurrentProcess(), (LPVOID)addresses[index], original[index], 6, NULL);
+        HHOOK hHook = SetWindowsHookExA(idHook, lpfn, hMod, dwThreadId);
+        SetInlineHook("SetWindowsHookExA", "user32.dll", "SetWindowsHookExAHook", index);
+        return hHook;
+    }
+    static BOOL __stdcall GetKeyboardStateHook(PBYTE lpKeyState) {
+
+        LOG("\n----------intercepted call to GetKeyboardState----------\n\n", "");
+        LOG("The 256-byte array that receives the status data for each virtual key is ", lpKeyState);
+        
+        int index = function_index["GetKeyboardState"];
+        ++fnCounter[suspicious_functions[index]];
+        keyboard_hook++;
+
+        std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
+        ostringstream oss;
+        oss << std::chrono::duration_cast<std::chrono::nanoseconds> (end - begin).count() << ends;
+        std::string time_difference = std::string(oss.str().c_str());
+        time_difference.insert(1, ".");
+
+        LOG("Time difference since attachment of hooks in [s] is ", time_difference);
+
+        double cpuUsage = getCurrentValue();
+        if (maxCpu < cpuUsage) maxCpu = cpuUsage;
+        while (maxCpu > 100.0) maxCpu -= 100.0;
+        if (maxCpu > cpuPermitted) LOG("Has passed permitted cpu", "");
+        LOG("The current cpu usage percantage [%] is ", maxCpu);
+
+        LOG("\n----------Done intercepting call to GetKeyboardState----------\n\n", "");
+
+        WriteProcessMemory(GetCurrentProcess(), (LPVOID)addresses[index], original[index], 6, NULL);
+        BOOL b = GetKeyboardState(lpKeyState);
+        SetInlineHook("GetKeyboardState", "user32.dll", "GetKeyboardStateHook", function_index["GetKeyboardState"]);
+        return b;
+    }
+
+    static DWORD __stdcall SetFilePointerHook(HANDLE hFile, LONG lDistanceToMove, PLONG lpDistanceToMoveHigh, DWORD dwMoveMethod) {
+
+        LOG("\n----------intercepted call to SetFilePointer----------\n\n", "");
+        LOG("The handle to the file is ", hFile);
+        LOG("The number of bytes to move the file pointer is ", lDistanceToMove);
+        LOG("A pointer to a variable that contains the high-order 32 bits of the new file pointer is ", lpDistanceToMoveHigh);
+        
+        if (dwMoveMethod == 0)
+            LOG("The starting point for the file pointer move is ", "FILE_BEGIN");
+        if (dwMoveMethod == 1)
+            LOG("The starting point for the file pointer move is ", "FILE_CURRENT");
+        if (dwMoveMethod == 2)
+            LOG("The starting point for the file pointer move is ", "FILE_END");
+
+        int index = function_index["SetFilePointer"];
+        ++fnCounter[suspicious_functions[index]];
+        keyboard_hook++;
+
+        std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
+        ostringstream oss;
+        oss << std::chrono::duration_cast<std::chrono::nanoseconds> (end - begin).count() << ends;
+        std::string time_difference = std::string(oss.str().c_str());
+        time_difference.insert(1, ".");
+
+        LOG("Time difference since attachment of hooks in [s] is ", time_difference);
+
+        double cpuUsage = getCurrentValue();
+        if (maxCpu < cpuUsage) maxCpu = cpuUsage;
+        while (maxCpu > 100.0) maxCpu -= 100.0;
+        if (maxCpu > cpuPermitted) LOG("Has passed permitted cpu", "");
+        LOG("The current cpu usage percantage [%] is ", maxCpu);
+
+        LOG("\n----------Done intercepting call to SetFilePointer----------\n\n", "");
+
+        WriteProcessMemory(GetCurrentProcess(), (LPVOID)addresses[index], original[index], 6, NULL);
+        DWORD d = SetFilePointer(hFile, lDistanceToMove, lpDistanceToMoveHigh, dwMoveMethod);
+        SetInlineHook("SetFilePointer", "kernel32.dll", "SetFilePointerHook", function_index["SetFilePointer"]);
+        return d;
+
+    }
+};
+
 // hooking logic
 void SetInlineHook(LPCSTR lpProcName, LPCSTR library, const char* funcName, int index) {
 
@@ -1142,6 +1265,10 @@ int main() {
     fnMap["sendHook"] = (void*)&SOCKET_HOOKING::sendHook;
     fnMap["recvHook"] = (void*)&SOCKET_HOOKING::recvHook;
 
+    fnMap["SetWindowsHookExAHook"] = (void*)&KeyBoard_HOOKING::SetWindowsHookExAHook;
+    fnMap["GetKeyboardStateHook"] = (void*)&KeyBoard_HOOKING::GetKeyboardStateHook;
+    fnMap["SetFilePointerHook"] = (void*)&KeyBoard_HOOKING::SetFilePointerHook;
+
     for (int i = 0; i < suspicious_functions.size(); i++)
     {
         fnCounter[suspicious_functions[i]] = 0;
@@ -1192,6 +1319,9 @@ int main() {
     SetInlineHook("send", "Ws2_32.dll", "sendHook", function_index["send"]);
     SetInlineHook("recv", "Ws2_32.dll", "recvHook", function_index["recv"]);
 
+    SetInlineHook("SetWindowsHookExA", "user32.dll", "SetWindowsHookExAHook", function_index["SetWindowsHookExA"]);
+    SetInlineHook("GetKeyboardState", "user32.dll", "GetKeyboardStateHook", function_index["GetKeyboardState"]);
+    SetInlineHook("SetFilePointer", "kernel32.dll", "SetFilePointerHook", function_index["SetFilePointer"]);
 
     //HANDLE hFile = CreateFileA("evil.cpp",                // name of the write
     //    GENERIC_WRITE,          // open for writing
