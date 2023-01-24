@@ -14,31 +14,33 @@ regCreateKeyExA = QStandardItem("RegCreateKeyExA")
 adapi32.appendRow(regCreateKeyExA)
 adapi32.appendRow(QStandardItem("RegCreateKeyExA"))
 
-root = QStandardItem()
+root = QStandardItem("Imports")
 root.appendRow(kernel32)
 root.appendRow(adapi32)
 
 tree_view.setStyleSheet("""
 QTreeView {
-    background-color: #3b2e3e;
-    color: white;
-    border: 1px solid #ccc;
-    font-family: "Arial";
-    font-size: 12px;
+    background-color: white;
+    color: #907aa8;
+    border: 1px solid #3b2e3e;
+    font-family: "Verdana";
+    font-size: 14px;
 }
 
 QTreeView::item {
     padding: 5px;
-    border-bottom: 1px solid #ccc;
+    border-bottom: 1px solid #3b2e3e;
 }
 
 QTreeView::item:hover {
-    background-color: #6a4d6f;
+    background-color: #d6c7e3;
+    box-shadow: 2px 2px 5px #907aa8;
 }
 
 QTreeView::item:selected {
     background-color: #907aa8;
-    color: #f4f4f4;
+    color: black;
+    border-bottom: 2px solid black;
 }
 """)
 
