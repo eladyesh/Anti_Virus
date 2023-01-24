@@ -388,9 +388,7 @@ class AppDemo(QMainWindow):
             self.packers_widget.deleteLater()
             self.packers_label.deleteLater()
             self.imports_label.deleteLater()
-
-            for imp in self.delete_imports:
-                imp.deleteLater()
+            self.tree_imports.deleteLater()
 
             self.pe_tests_label.deleteLater()
             self.frame_dll_test.deleteLater()
@@ -725,61 +723,67 @@ class AppDemo(QMainWindow):
         self.delete_imports = []
         self.list_index = dict({})
 
-        for library, imports in dlls.items():
+        self.tree_imports = QTreeView()
+        self.tree_imports.setStyleSheet("""
+                QTreeView {
+                    font-family: sans-serif;
+                    font-size: 14px;
+                    color: white;
+                    background-color: #333;
+                    border: 2px solid #444;
+                    gridline-color: #666;
+                }
+                QTreeView::branch:has-children:!has-siblings:closed,
+                QTreeView::branch:closed:has-children:has-siblings {
+                    border-image: none;
+                    color: blue;
+                }
+                
+                QTreeView::branch:has-children:!has-siblings:open,
+                QTreeView::branch:open:has-children:has-siblings  {
+                    border-image: none;
+                    color: blue;
+                }
+                QTreeView::branch:selected {
+                    color: blue;
+                }
+                QTreeView::indicator 
+                { 
+                    color: blue; 
+                }
+                QTreeView::item {
+                    padding: 5px;
+                    margin: 1px;
+                }
+                QTreeView::item:hover {
+                    background-color: #555;
+                }
+                QTreeView::item:selected {
+                    background-color: #777;
+                }
+                QTreeView::item:selected:active {
+                    background-color: #999;
+                }
+                QTreeView::item:selected:!active {
+                    background-color: #bbb;
+                }
+            """)
 
-            h_box_imports = QHBoxLayout()
-            imports_button = QPushButton(f"+ {library[0]}")
-            imports_button.setMinimumSize(200, 50)
-            imports_button.setMaximumSize(200, 50)
-            imports_button.setStyleSheet("background-color: green; color: white; border-radius: 10px; "
-                                         "justify-content: left; font-size: 15px")
+        root = QStandardItem("See Imports")
+        for library, imps in dlls.items():
 
-            import_list = QListWidget()
-            import_list.setVisible(False)
-            import_list.setStyleSheet("""
-                       QListWidget {
-                           background-color: #f5f5f5;
-                           border: 1px solid #ccc;
-                           border-radius: 5px;
-                           outline: none;
-                           justify-content: left;
-                           margin: 20px;
-                       }
+            lib = library[0]
+            dll = QStandardItem(lib)
+            for imp in imps:
+                dll.appendRow(QStandardItem(imp))
 
-                       QListWidget::item {
-                           color: #444;
-                           border: none;
-                           padding: 10px;
-                           font-size: 14px;
-                           font-weight: 500;
-                       }
+            root.appendRow(dll)
 
-                       QListWidget::item:hover {
-                           background-color: #eee;
-                       }
-
-                       QListWidget::item:selected {
-                           background-color: #333;
-                           color: #fff;
-                       }
-                   """)
-            import_list.setMaximumSize(275, 500)
-            import_list.setMinimumSize(275, 300)
-
-            for imp in imports:
-                import_list.addItem(str(imp))
-
-            self.list_index[imports_button] = import_list
-            imports_button.clicked.connect(lambda: self.open_list())
-
-            h_box_imports.addWidget(imports_button)
-            h_box_imports.addWidget(import_list)
-            h_box_imports.setAlignment(Qt.AlignLeft)
-
-            self.delete_imports.append(h_box_imports)
-            self.delete_imports.append(imports_button)
-            self.delete_imports.append(import_list)
-            self.table_and_strings_layout.addLayout(h_box_imports)
+        model = QStandardItemModel()
+        model.appendRow(root)
+        self.tree_imports.setModel(model)
+        self.tree_imports.setMinimumSize(700, 300)
+        self.table_and_strings_layout.addWidget(self.tree_imports)
 
         # PE TESTS
         self.pe_tests_label = make_label("PE examination", 24)
