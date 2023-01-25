@@ -13,8 +13,8 @@ import re
 from http.server import HTTPServer, BaseHTTPRequestHandler
 import socket
 
-
 ip_for_server = socket.gethostbyname_ex(socket.gethostname())[-1][-1]
+
 
 class RequestHandler(BaseHTTPRequestHandler):
     def do_GET(self):
@@ -260,6 +260,7 @@ class VTScan:
         with pydivert.WinDivert() as w:
             for packet in w:
                 if packet.dst_addr in block_ip:
+                    print("got here")
                     ip = packet.dst_addr
                     # print("packet dst in block ip ", packet.src_port, packet.dst_port, packet.src_addr, packet.dst_addr,packet.direction)
                     # print(f"got here out {packet.is_outbound}")
@@ -413,9 +414,9 @@ if __name__ == "__main__":
     # args = vars(parser.parse_args())
 
     # running scan on suspicious file
-    # md5_hash = md5("nop.exe")
-    # vtscan = VTScan()
-    # vtscan.info(md5_hash)
+    md5_hash = md5("nop.exe")
+    vtscan = VTScan()
+    vtscan.info(md5_hash)
     # vtscan.analyse()
-    VTScan.scan_for_suspicious_cache()
+    # VTScan.scan_for_suspicious_cache()
     # VTScan.scan_directory("D:\Cyber\Sockets")
