@@ -1,51 +1,56 @@
-from PyQt5.QtGui import QStandardItemModel, QStandardItem
-from PyQt5.QtWidgets import QTreeView, QApplication
-app = QApplication([])
-tree_view = QTreeView()
+import sys
+from PyQt5.QtCore import Qt, QPointF
+from PyQt5.QtGui import QPalette, QColor, QPen, QPainterPath, QPainter
+from PyQt5.QtWidgets import QApplication, QListWidget, QLabel, QStyledItemDelegate, QVBoxLayout, QWidget, QStyle, \
+    QListWidgetItem, QMainWindow
 
-kernel32 = QStandardItem("Kernel32.dll")
-createFileA = QStandardItem("CreateFileA")
-sleep = QStandardItem("Sleep")
-kernel32.appendRow(createFileA)
-kernel32.appendRow(sleep)
 
-adapi32 = QStandardItem("Adapi32.dll")
-regCreateKeyExA = QStandardItem("RegCreateKeyExA")
-adapi32.appendRow(regCreateKeyExA)
-adapi32.appendRow(QStandardItem("RegCreateKeyExA"))
+class BubbleWidget(QWidget):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setWindowFlags(Qt.ToolTip)
+        self.setAttribute(Qt.WA_TranslucentBackground)
 
-root = QStandardItem("Imports")
-root.appendRow(kernel32)
-root.appendRow(adapi32)
+    def paintEvent(self, event):
+        path = QPainterPath()
+        path.moveTo(self.rect().topRight() + QPointF(20, 0))
+        path.lineTo(self.rect().topRight() + QPointF(40, 20))
+        path.lineTo(self.rect().topRight() + QPointF(40, 0))
+        path.cubicTo(self.rect().topRight() + QPointF(40, 0), self.rect().topRight() + QPointF(40, -20),
+                     self.rect().topRight() + QPointF(20, -20))
+        path.closeSubpath()
+        painter = QPainter(self)
+        painter.setBrush(QColor("#2E2E2E"))
+        painter.setPen(QPen(Qt.white, 2))
+        painter.drawPath(path)
+        painter.drawText(path.boundingRect(), Qt.AlignCenter, "Top Level")
 
-tree_view.setStyleSheet("""
-QTreeView {
-    background-color: white;
-    color: #907aa8;
-    border: 1px solid #3b2e3e;
-    font-family: "Verdana";
-    font-size: 14px;
-}
 
-QTreeView::item {
-    padding: 5px;
-    border-bottom: 1px solid #3b2e3e;
-}
+class MainWindow(QMainWindow):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.list_widget = QListWidget()
+        self.setCentralWidget(self.list_widget)
+        for i in range(5):
+            item = QListWidgetItem("Item " + str(i))
+            self.list_widget.addItem(item)
+            self.list_widget.setItemWidget(item, QLabel("Name: Item " + str(i)))
+            self.list_widget.setMouseTracking(True)
+            self.list_widget.itemEntered.connect(self.show_bubble)
+            self.bubble = BubbleWidget()
+            self.bubble.hide()
 
-QTreeView::item:hover {
-    background-color: #d6c7e3;
-    box-shadow: 2px 2px 5px #907aa8;
-}
+    def show_bubble(self, item):
+        pos = self.list_widget.visualItemRect(item).topRight()
+        pos.setX(pos.x() + 20)
+        self.bubble.move(self.list_widget.mapToGlobal(pos))
+        self.bubble.show()
 
-QTreeView::item:selected {
-    background-color: #907aa8;
-    color: black;
-    border-bottom: 2px solid black;
-}
-""")
+    def leaveEvent(self, event):
+        self.bubble.hide()
 
-model = QStandardItemModel()
-model.appendRow(root)
-tree_view.setModel(model)
-tree_view.show()
-app.exec_()
+if __name__ == "__main__":
+    app = QApplication(sys.argv)
+    window = MainWindow()
+    window.show()
+    sys.exit(app.exec_())

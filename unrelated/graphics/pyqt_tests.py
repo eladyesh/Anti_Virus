@@ -724,48 +724,57 @@ class AppDemo(QMainWindow):
         self.list_index = dict({})
 
         self.tree_imports = QTreeView()
+        self.tree_imports.setEditTriggers(QAbstractItemView.NoEditTriggers)
         self.tree_imports.setStyleSheet("""
                 QTreeView {
                     font-family: sans-serif;
                     font-size: 14px;
-                    color: white;
+                    color: #87CEFA;
                     background-color: #333;
                     border: 2px solid #444;
                     gridline-color: #666;
                 }
+                
                 QTreeView::branch:has-children:!has-siblings:closed,
                 QTreeView::branch:closed:has-children:has-siblings {
                     border-image: none;
-                    color: blue;
+                    color: #87CEFA;
                 }
                 
                 QTreeView::branch:has-children:!has-siblings:open,
                 QTreeView::branch:open:has-children:has-siblings  {
                     border-image: none;
-                    color: blue;
+                    color: #87CEFA;
                 }
+                
                 QTreeView::branch:selected {
-                    color: blue;
+                    color: white;
                 }
-                QTreeView::indicator 
-                { 
-                    color: blue; 
+                
+                QTreeView::indicator {
+                    color: #87CEFA;
                 }
+                
                 QTreeView::item {
                     padding: 5px;
                     margin: 1px;
                 }
+                
                 QTreeView::item:hover {
                     background-color: #555;
                 }
+                
                 QTreeView::item:selected {
-                    background-color: #777;
+                    background-color: #737373;
+                    color: black;
                 }
+                
                 QTreeView::item:selected:active {
-                    background-color: #999;
+                    background-color: #737373;
                 }
+                
                 QTreeView::item:selected:!active {
-                    background-color: #bbb;
+                    background-color: #87CEFA;
                 }
             """)
 
