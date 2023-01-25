@@ -25,6 +25,11 @@ class PythonVirus:
                 imports.append(node.module)
         return imports
 
+    def find_ctypes_calls(self):
+        for node in ast.walk(self.tree):
+            if isinstance(node, ast.Call) and isinstance(node.func, ast.Attribute) and node.func.attr == 'WinApi':
+                print(node.func.value.id, node.func.attr, [arg.id for arg in node.args])
+
     def check_for_keylogger(self):
 
         self.keylogger_detected = 0
@@ -93,6 +98,7 @@ class PythonVirus:
 
 
 if __name__ == "__main__":
-    pv = PythonVirus("keylogger.py")
+    pv = PythonVirus("test.py")
     print(pv.get_imports())
-    pv.check_for_keylogger()
+    # pv.check_for_keylogger()
+    pv.find_ctypes_calls()
