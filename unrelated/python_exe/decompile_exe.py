@@ -39,6 +39,5 @@ def decompyle():
             shutil.move(file_path, os.getcwd())
             break
 
-
 if __name__ == '__main__':
     decompyle()

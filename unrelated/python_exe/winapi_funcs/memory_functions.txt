@@ -1,0 +1,103 @@
+AddSecureMemoryCacheCallback
+CopyMemory
+CreateMemoryResourceNotification
+FillMemory
+GetLargePageMinimum
+GetPhysicallyInstalledSystemMemory
+GetSystemFileCacheSize
+GetWriteWatch
+GlobalMemoryStatusEx
+MoveMemory
+QueryMemoryResourceNotification
+RemoveSecureMemoryCacheCallback
+ResetWriteWatch
+SecureMemoryCacheCallback
+SecureZeroMemory
+SetSystemFileCacheSize
+ZeroMemory
+GetProcessDEPPolicy
+GetSystemDEPPolicy
+SetProcessDEPPolicy
+CreateFileMappingA
+CreateFileMappingW
+CreateFileMapping2
+CreateFileMappingFromApp
+CreateFileMappingNuma
+FlushViewOfFile
+GetMappedFileName
+MapViewOfFile
+MapViewOfFile2
+MapViewOfFile3
+MapViewOfFile3FromApp
+MapViewOfFileEx
+MapViewOfFileExNuma
+MapViewOfFileFromApp
+MapViewOfFileNuma2
+OpenFileMapping
+OpenFileMappingFromApp
+UnmapViewOfFile
+UnmapViewOfFile2
+UnmapViewOfFileEx
+AllocateUserPhysicalPages
+AllocateUserPhysicalPagesNuma
+FreeUserPhysicalPages
+MapUserPhysicalPages
+MapUserPhysicalPagesScatter
+GetProcessHeap
+GetProcessHeaps
+HeapAlloc
+HeapCompact
+HeapCreate
+HeapDestroy
+HeapFree
+HeapLock
+HeapQueryInformation
+HeapReAlloc
+HeapSetInformation
+HeapSize
+HeapUnlock
+HeapValidate
+HeapWalk
+DiscardVirtualMemory
+OfferVirtualMemory
+PrefetchVirtualMemory
+QueryVirtualMemoryInformation
+ReclaimVirtualMemory
+SetProcessValidCallTargets
+VirtualAlloc
+VirtualAlloc2
+VirtualAlloc2FromApp
+VirtualAllocEx
+VirtualAllocExNuma
+VirtualAllocFromApp
+VirtualFree
+VirtualFreeEx
+VirtualLock
+VirtualProtect
+VirtualProtectEx
+VirtualProtectFromApp
+VirtualQuery
+VirtualQueryEx
+VirtualUnlock
+GlobalAlloc, LocalAlloc
+GlobalDiscard, LocalDiscard
+GlobalFlags, LocalFlags
+GlobalFree, LocalFree
+GlobalHandle, LocalHandle
+GlobalLock, LocalLock
+GlobalReAlloc, LocalReAlloc
+GlobalSize, LocalSize
+GlobalUnlock, LocalUnlock
+BadMemoryCallbackRoutine
+GetMemoryErrorHandlingCapabilities
+RegisterBadMemoryNotification
+UnregisterBadMemoryNotification
+CreateEnclave
+InitializeEnclave
+IsEnclaveTypeSupported
+LoadEnclaveData
+AtlThunk_AllocateData
+AtlThunk_DataToCode
+AtlThunk_FreeData
+AtlThunk_InitData
+WriteProcessMemory
