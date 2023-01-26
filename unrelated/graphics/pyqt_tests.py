@@ -3,7 +3,7 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 from PyQt5 import QtCore
-from PyQt5.QtCore import Qt, QUrl, pyqtSlot, QRunnable, QThreadPool, QVariant, QAbstractTableModel
+from PyQt5.QtCore import Qt, QUrl, pyqtSlot, QRunnable, QThreadPool, QVariant, QAbstractTableModel, QRectF
 import PyQt5.QtGui
 from PyQt5.QtCore import QObject, QThread, pyqtSignal
 import shutil
@@ -613,6 +613,36 @@ class AppDemo(QMainWindow):
         self.table_and_strings_layout.addWidget(self.virus_table_label)
         self.table_and_strings_layout.addWidget(self.virus_table, 0)
 
+        class bubbleWidget(QWidget):
+            def __init__(self, text, parent=None):
+                super().__init__(parent)
+                self.text = text
+                self.setWindowFlags(Qt.ToolTip)
+                self.setAttribute(Qt.WA_TranslucentBackground)
+
+            def paintEvent(self, event):
+                path = QPainterPath()
+                path.addRoundedRect(QRectF(self.rect().adjusted(10, 10, -10, -10)), 10, 10)
+                painter = QPainter(self)
+                painter.setBrush(QColor("white"))
+                painter.setPen(Qt.NoPen)
+                painter.drawPath(path)
+                painter.setPen(QPen(Qt.black))
+                font = QFont("Arial", 12, QFont.Bold)
+                painter.setFont(font)
+                painter.drawText(path.boundingRect(), Qt.AlignCenter, self.text)
+
+        def show_bubble(item):
+            item_text = item.text()
+            self.bubble = bubbleWidget(item_text)
+            pos = self.list_strings_widget.visualItemRect(item).topRight()
+            pos.setX(pos.x() + 20)
+            self.bubble.move(self.list_strings_widget.mapToGlobal(pos))
+            self.bubble.show()
+
+        def leaveEvent(event):
+            self.bubble.hide()
+
         # Create a list widget and add some items to it
         self.list_strings_widget = QListWidget()
         self.list_strings_widget.setMinimumSize(550, 550)
@@ -629,9 +659,17 @@ class AppDemo(QMainWindow):
 
         for dll in yara_strings[0]:
             self.list_strings_widget.addItem(str(dll))
+            self.list_strings_widget.setMouseTracking(True)
+            self.list_strings_widget.itemEntered.connect(show_bubble)
+            self.bubble = bubbleWidget(dll)
+            self.bubble.hide()
 
         for string in yara_strings[1]:
             self.list_strings_widget.addItem(str(string.decode()))
+            self.list_strings_widget.setMouseTracking(True)
+            self.list_strings_widget.itemEntered.connect(show_bubble)
+            self.bubble = bubbleWidget(str(string.decode()))
+            self.bubble.hide()
 
         # Create a scroll bar and set its properties
         scrollBar = QScrollBar()

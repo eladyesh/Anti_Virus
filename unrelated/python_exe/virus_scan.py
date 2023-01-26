@@ -47,6 +47,7 @@ class PythonVirus:
             if isinstance(node, ast.Import):
                 for alias in node.names:
                     imports.append(alias.name)
+
             elif isinstance(node, ast.ImportFrom):
                 imports.append(node.module)
         return imports
@@ -69,14 +70,15 @@ class PythonVirus:
                 for line in f:
                     name = line.strip()
                     winapi_functions.append(name)
-        # print(winapi_functions)
+        print(winapi_functions)
 
         code_path = "D:\\Cyber\\YB_CYBER\\project\\FinalProject\\poc_start\\poc_start\\unrelated\\python_exe\\test.py"
 
         winapi_calls = find_winapi_calls(code_path, winapi_functions)
 
         for call in winapi_calls:
-            print(call)
+            if call != "":
+                print(call)
 
     def check_for_keylogger(self):
 
