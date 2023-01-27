@@ -5,7 +5,9 @@ import re
 import subprocess
 import requests
 from bs4 import BeautifulSoup
-from decompile_exe import *
+from poc_start.unrelated.python_exe.decompile_exe import *
+from googlesearch import search
+import threading
 
 
 class PythonVirus:
@@ -35,7 +37,8 @@ class PythonVirus:
         # response_registry = requests.get("https://learn.microsoft.com/en-us/windows/win32/sysinfo/registry-functions")
         # response_keyboard = requests.get("https://learn.microsoft.com/en-us/windows/win32/inputdev/keyboard-input")
         # response_memory = requests.get("https://learn.microsoft.com/en-us/windows/win32/memory/memory-management-functions")
-        response = requests.get("https://learn.microsoft.com/en-us/windows/win32/procthread/process-and-thread-functions")
+        response = requests.get(
+            "https://learn.microsoft.com/en-us/windows/win32/procthread/process-and-thread-functions")
         soup = BeautifulSoup(response.text, 'html.parser')
 
         functions = soup.find_all("tr")
@@ -63,8 +66,14 @@ class PythonVirus:
 
     @staticmethod
     def scrape_for_info(winap_func):
-        return ""
-        url = f"https://docs.microsoft.com/en-us/windows/win32/api/{winap_func.lower()}"
+
+        def get_first_result(query):
+            for url in search(query):
+                return url
+
+        func_name = winap_func
+        url = get_first_result(func_name)
+
         page = requests.get(url)
         soup = BeautifulSoup(page.content, 'html.parser')
         soup_str = soup.prettify()
@@ -106,6 +115,86 @@ class PythonVirus:
                 calls += call + "\n"
         return calls
 
+    @staticmethod
+    def make_function_dict():
+
+        def get_first_result(query):
+            for url in search(query):
+                return url
+
+        def search_for_file_functions():
+            function_dict = {}
+            with open("winapi_funcs" + "\\" + "file_functions.txt", "r") as file:
+                for line in file:
+                    line = line.strip()
+                    function_dict[line] = get_first_result(line)
+                    print("Done with ", line)
+
+        def search_for_keyboard_functions():
+            function_dict = {}
+            with open("winapi_funcs" + "\\" + "keboard_functions.txt", "r") as file:
+                for line in file:
+                    line = line.strip()
+                    function_dict[line] = get_first_result(line)
+                    print("Done with ", line)
+
+        def search_for_memory_functions():
+            function_dict = {}
+            with open("winapi_funcs" + "\\" + "memory_functions.txt", "r") as file:
+                for line in file:
+                    line = line.strip()
+                    function_dict[line] = get_first_result(line)
+                    print("Done with ", line)
+            print(function_dict)
+
+        def search_for_registry_functions():
+            function_dict = {}
+            with open("winapi_funcs" + "\\" + "registry_functions.txt", "r") as file:
+                for line in file:
+                    line = line.strip()
+                    function_dict[line] = get_first_result(line)
+                    print("Done with ", line)
+            print(function_dict)
+
+        def search_for_thread_functions():
+            function_dict = {}
+            with open("winapi_funcs" + "\\" + "thread_functions.txt", "r") as file:
+                for line in file:
+                    line = line.strip()
+                    function_dict[line] = get_first_result(line)
+                    print("Done with ", line)
+            print(function_dict)
+
+        def search_for_winsock_functions():
+            function_dict = {}
+            with open("winapi_funcs" + "\\" + "winsock_functions.txt", "r") as file:
+                for line in file:
+                    line = line.strip()
+                    function_dict[line] = get_first_result(line)
+                    print("Done with ", line)
+            print(function_dict)
+
+        thread1 = threading.Thread(target=search_for_file_functions)
+        thread2 = threading.Thread(target=search_for_thread_functions)
+        thread3 = threading.Thread(target=search_for_winsock_functions)
+        thread4 = threading.Thread(target=search_for_keyboard_functions)
+        thread5 = threading.Thread(target=search_for_memory_functions)
+        thread6 = threading.Thread(target=search_for_registry_functions)
+
+        thread1.start()
+        thread2.start()
+        thread3.start()
+        thread4.start()
+        thread5.start()
+        thread6.start()
+
+        thread1.join()
+        thread2.join()
+        thread3.join()
+        thread4.join()
+        thread5.join()
+        thread6.join()
+
     def log_for_winapi(self, calls):
 
         # Use regular expression to match the function names and their parameters
@@ -139,18 +228,24 @@ class PythonVirus:
                                                  'platform', 'socket', 'smtplib', 'email', 'email.mime.base',
                                                  'email.mime.text', 'email.mime.multipart']
 
-        self.suspicious_funcs = ['MIMEMultipart', 'getpass.getuser', 'time.time', 's.starttls', 'socket.gethostname', 'attachment.read',
-                                 'Listener', 'listener.join', 'screenshot', 'win32clipboard.OpenClipboard', 'win32clipboard.GetClipboardData',
+        self.suspicious_funcs = ['MIMEMultipart', 'getpass.getuser', 'time.time', 's.starttls', 'socket.gethostname',
+                                 'attachment.read',
+                                 'Listener', 'listener.join', 'screenshot', 'win32clipboard.OpenClipboard',
+                                 'win32clipboard.GetClipboardData',
                                  'win32clipboard.CloseClipboard', 'platform.processor', 'platform.system', 'platform'
-                                                                                                           '.version', 'platform.machine',
+                                                                                                           '.version',
+                                 'platform.machine',
                                  'send_mail', 'Fernet', 'ImageGrab.grab', 'smtplib.SMTP', 'MIMEText']
 
-        self.suspicious_functions_and_params = {'MIMEBase': ['application', 'octet-stream'], 'open': ['attachment', 'rb'],
+        self.suspicious_functions_and_params = {'MIMEBase': ['application', 'octet-stream'],
+                                                'open': ['attachment', 'rb'],
                                                 'socket.gethostbyname': 'hostname'}
 
         self.suspicious_regex_patterns = [re.compile(r'(\w+)\.starttls'), re.compile(r'(\w+)\.set_payload'),
-                                          re.compile(r'(\w+)\.encrypt'), re.compile(r'(\w+)\.login'), re.compile(r'(\w+)\.rec'),
-                                          re.compile(r'(\w+)\.wait'), re.compile(r'(\w+)\.encode_base64'), re.compile(r'(\w+)\.add_header')]
+                                          re.compile(r'(\w+)\.encrypt'), re.compile(r'(\w+)\.login'),
+                                          re.compile(r'(\w+)\.rec'),
+                                          re.compile(r'(\w+)\.wait'), re.compile(r'(\w+)\.encode_base64'),
+                                          re.compile(r'(\w+)\.add_header')]
 
         self.suspicious_params = ['Keys', 'keys', 'space', 'Key', 'key', 'k']
 
@@ -201,7 +296,8 @@ if __name__ == "__main__":
     pv = PythonVirus("virus.exe")
     # print(pv.get_imports())
     # pv.check_for_keylogger()
-    print(pv.find_ctypes_calls())
+    # print(pv.find_ctypes_calls())
     pv.log_for_winapi(pv.find_ctypes_calls())
     # pv.crawl_for_winapi()
     # print(PythonVirus.scrape_for_info("CreateFileA"))
+    # PythonVirus.make_function_dict()

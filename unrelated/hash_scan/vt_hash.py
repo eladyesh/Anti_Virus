@@ -13,7 +13,7 @@ import re
 from http.server import HTTPServer, BaseHTTPRequestHandler
 import socket
 
-ip_for_server = socket.gethostbyname_ex(socket.gethostname())[-1][-1]
+ip_for_server = socket.gethostbyname_ex(socket.gethostname())[-1][0]
 
 
 class RequestHandler(BaseHTTPRequestHandler):
@@ -260,7 +260,7 @@ class VTScan:
         with pydivert.WinDivert() as w:
             for packet in w:
                 if packet.dst_addr in block_ip:
-                    print("got here")
+                    print("got here to block ip")
                     ip = packet.dst_addr
                     # print("packet dst in block ip ", packet.src_port, packet.dst_port, packet.src_addr, packet.dst_addr,packet.direction)
                     # print(f"got here out {packet.is_outbound}")

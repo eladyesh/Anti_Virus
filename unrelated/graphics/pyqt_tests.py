@@ -23,7 +23,6 @@ import types
 import functools
 import pickle
 
-
 PATH_TO_MOVE = os.getcwd()
 # print(PATH_TO_MOVE) # r"D:\\Cyber\\YB_CYBER\\project\\FinalProject\\poc_start\\poc_start\\unrelated\\graphics"
 
@@ -462,12 +461,14 @@ class AppDemo(QMainWindow):
         self.md5_hash = str(md5("virus.exe"))
         if not self.redis_virus.exists(self.md5_hash):
             self.redis_virus.hset_dict(self.md5_hash,
-                                       {"rules": pickle.dumps([0]), "packers": pickle.dumps([0]), "entropy_vs_normal": pickle.dumps([0]),
+                                       {"rules": pickle.dumps([0]), "packers": pickle.dumps([0]),
+                                        "entropy_vs_normal": pickle.dumps([0]),
                                         "fractioned_imports_test": pickle.dumps([0]),
-                                        "rick_optional_linker_test": pickle.dumps([0]), "sections_test": pickle.dumps([0]), "suspicious_!": pickle.dumps([0]),
-                                        "identifies": pickle.dumps([0]), "has_passed_cpu": pickle.dumps([0]), "num_of_engines:": 0,
+                                        "rick_optional_linker_test": pickle.dumps([0]),
+                                        "sections_test": pickle.dumps([0]), "suspicious_!": pickle.dumps([0]),
+                                        "identifies": pickle.dumps([0]), "has_passed_cpu": pickle.dumps([0]),
+                                        "num_of_engines:": 0,
                                         "num_of_fuzzy_found": 0, "final_assesment": 0})
-
 
         # self.redis_virus.change_to_reg()
         # self.redis_virus.hset(self.md5_hash, "num_of_rules", pickle.dumps(["bad_rule", 5]))
@@ -632,14 +633,99 @@ class AppDemo(QMainWindow):
                 painter.setPen(QColor(0, 0, 0, 0))
                 painter.drawRect(QRectF(10, 10, self.width() - 20, self.height() - 20))
                 painter.setPen(QPen(Qt.black))
-                font = QFont("Arial", 10, QFont.Bold)
+                font = QFont("Arial", 12, QFont.Bold)
                 painter.setFont(font)
-                painter.drawText(QRectF(20, 20, self.width() - 20, self.height() - 20),
+                painter.drawText(QRectF(10, 10, self.width() - 20, self.height() - 20),
                                  Qt.AlignTop | Qt.AlignLeft | Qt.TextWordWrap, self.text)
 
         def show_bubble(item):
+
+            self.bubble_dict = {'CreateToolhelp32Snapshot': 'Takes a snapshot of the specified processes, as well as '
+                                                            'the heaps, modules, and threads used by these '
+                                                            'processes', 'Process32First': 'Retrieves information '
+                                                                                           'about the first process '
+                                                                                           'encountered in a system '
+                                                                                           'snapshot',
+                                'Process32Next': 'Retrieves information about the next process recorded in a system '
+                                                 'snapshot', 'LoadLibrary': 'Loads the specified  module into the '
+                                                                            'address space of the calling process',
+                                'GetProcAddress': 'Retrieves the address of an exported function (also known as a '
+                                                  'procedure) or variable from the specified dynamic-link library ('
+                                                  'DLL)', 'GetModuleHandle': 'Retrieves a module handle for the '
+                                                                             'specified module', 'SetWindowsHookEx':
+                                    'Installs an application-defined hook procedure into a hook chain', 'GetMessage':
+                                    "Retrieves a message from the calling thread's message queue", 'CallNextHookEx':
+                                    'Passes the hook information to the next hook procedure in the current hook '
+                                    'chain', 'OpenClipboard': 'Opens the clipboard for examination and prevents other '
+                                                              'applications from modifying the clipboard content',
+                                'GetClipboardData': 'Retrieves data from the clipboard in a specified format',
+                                'CloseClipboard': 'Closes the clipboard', 'RegOpenKeyExA': 'Opens the specified '
+                                                                                           'registry key',
+                                'RegSetValueExA': 'Sets the data and type of a specified value under a registry key',
+                                'RegCreateKeyExA': 'Creates the specified registry key', 'RegGetValueA': 'Retrieves '
+                                                                                                         'the type '
+                                                                                                         'and data '
+                                                                                                         'for the '
+                                                                                                         'specified '
+                                                                                                         'registry '
+                                                                                                         'value',
+                                'socket': 'The socket function creates a socket that is bound to a specific transport '
+                                          'service provider.', 'recv': 'The recv function receives data from a '
+                                                                       'connected socket or a bound connectionless '
+                                                                       'socket.', 'connect': 'The connect function '
+                                                                                             'establishes a '
+                                                                                             'connection to a '
+                                                                                             'specified socket.',
+                                'send': 'The send function sends data on a connected socket.', 'CreateFileA':
+                                    'Creates or opens '
+                                    'a file or I/O '
+                                    'device',
+                                'DeleteFileA': 'Deletes an existing file', 'WriteFileEx': 'Writes data to the '
+                                                                                          'specified file or '
+                                                                                          'input/output (I/O) '
+                                                                                          'device', 'WriteFile':
+                                    'Writes data to the specified file or input/output (I/O) device', 'VirtualAlloc':
+                                    'Reserves, commits, or changes the state  of a region of pages in the virtual '
+                                    'address space of the calling process', 'VirtualAllocEx': 'Reserves, commits, '
+                                                                                              'or changes the state  '
+                                                                                              'of a region of memory '
+                                                                                              'within the virtual '
+                                                                                              'address space of a '
+                                                                                              'specified process',
+                                'WriteProcessMemory': 'Writes data to an area of memory in a specified process',
+                                'CreateThread': 'Creates a thread to execute within the virtual address space of the '
+                                                'calling process', 'CreateRemoteThread': 'Creates a thread that runs '
+                                                                                         'in the virtual address '
+                                                                                         'space of another process',
+                                'CloseHandle': 'Closes an open object handle',
+                                'KERNEL32': "Kernel32.dll is a dynamic link library (DLL) file that is an essential "
+                                            "component of the Windows operating system. It contains a collection of "
+                                            "functions and resources that are used by other programs to perform "
+                                            "various system-related tasks, such as memory management, process and "
+                                            "thread management, and input/output operations.", "ADVAPI32":
+                                    "Advapi32. dll is a part of the advanced API services library. It provides access to advanced functionality that "
+                                    "comes in addition to the kernel.", "Ws2_32": "The Ws2_32.dll loads the service "
+                                                                                  "provider's interface DLL into the "
+                                                                                  "system by using the standard "
+                                                                                  "Microsoft Windows dynamic library "
+                                                                                  "loading mechanisms, "
+                                                                                  "and initializes it by calling "
+                                                                                  "WSPStartup.",
+                                "SOFTWARE\\Policies\\Microsoft\\Windows Defender": "A registry key in the Windows "
+                                                                                   "operating system that is used to "
+                                                                                   "configure various settings for "
+                                                                                   "Windows Defender, which is the "
+                                                                                   "built-in antivirus and malware "
+                                                                                   "protection software in Windows.",
+                                "Software\\Microsoft\\Windows\\CurrentVersion\\Run": "A registry key located in the "
+                                                                                     "Windows Registry. It is used to "
+                                                                                     "configure applications or "
+                                                                                     "scripts to run automatically "
+                                                                                     "when a user logs in to the "
+                                                                                     "system"}
+
             item_text = item.text()
-            self.bubble = bubbleWidget(item_text + "\n" + PythonVirus.scrape_for_info(item_text))
+            self.bubble = bubbleWidget(item_text + "\n\n" + self.bubble_dict[item_text])
             self.bubble.setStyleSheet("background-color:transparent;")
             pos = self.list_strings_widget.visualItemRect(item).topRight()
             pos.setX(pos.x() + 20)
@@ -1129,7 +1215,6 @@ class AppDemo(QMainWindow):
 
         class ThreadTask_Spin(QRunnable):
             def run(self):
-
                 r = Redis()
                 md5_hash = md5("virus.exe")
                 change_spin_counter(spin_box, r, md5_hash)
@@ -1489,7 +1574,7 @@ class AppDemo(QMainWindow):
         self.hash_visited = False
         self.dynamic_layout = QVBoxLayout()
         self.page_layout.addLayout(self.dynamic_layout)
-        self.md5_hash = str(md5("virus.exe")) # TODO - delete all self.md5_hash besides the the one in getSelectedItem
+        self.md5_hash = str(md5("virus.exe"))  # TODO - delete all self.md5_hash besides the the one in getSelectedItem
 
         self.start_dynamic = make_label("Function Analysis", 24)
         self.dynamic_layout.addWidget(self.start_dynamic)
