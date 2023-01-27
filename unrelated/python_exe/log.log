@@ -1,0 +1,586 @@
+2023-01-27 14:06:21,967 [+] pydumpck is a multi-threads tool for decompile exe,elf,pyz,pyc packed by python which is base on pycdc and uncompyle6.sometimes its py-file result not exactly right ,maybe could use uncompyle6.
+--------------------
+pydumpck initilizing with 1.15.14 :pyinstaller_dump.py:115-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyinstaller_dump.py on(pyinstaller_dump.run) at 8384@MainThread  
+2023-01-27 14:06:21,968 [*] plugins loaded with ['pycdc'] :__init__.py:107-10  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\py_common_dump\__init__.py on(__init__.load_plugins) at 8384@MainThread  
+2023-01-27 14:06:21,968 [*] target file input:D:\Cyber\YB_CYBER\project\FinalProject\poc_start\poc_start\unrelated\python_exe\virus.exe
+to:output_2967131 :__init__.py:142-10  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\py_common_dump\__init__.py on(__init__.main) at 8384@MainThread  
+2023-01-27 14:06:21,968 [*] start dump target file. :__init__.py:153-10  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\py_common_dump\__init__.py on(__init__.main) at 8384@MainThread  
+2023-01-27 14:06:24,996 [+] struct file found:b'' :__init__.py:136-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\py_package\package_struct\__init__.py on(__init__.add) at 8384@MainThread  
+2023-01-27 14:06:24,996 [*] 
+export pyc :__init__.py:94-10  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\py_package\package_struct\__init__.py on(__init__.progress_check) at 8384@MainThread  
+2023-01-27 14:06:36,137 [*] 
+decompile pyc :__init__.py:96-10  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\py_package\package_struct\__init__.py on(__init__.progress_check) at 8384@MainThread  
+2023-01-27 14:06:36,147 [+] find suitable python-version:(3, 10),magic:3439 :__init__.py:41-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\pyc\__init__.py on(__init__.check_marshal) at 8384@ThreadPoolExecutor-0_4  
+2023-01-27 14:06:36,153 [+] find suitable python-version:(3, 10),magic:3439 :__init__.py:41-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\pyc\__init__.py on(__init__.check_marshal) at 8384@ThreadPoolExecutor-0_5  
+2023-01-27 14:06:36,154 [+] find suitable python-version:(3, 10),magic:3439 :__init__.py:41-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\pyc\__init__.py on(__init__.check_marshal) at 8384@ThreadPoolExecutor-0_12  
+2023-01-27 14:06:36,157 [+] find suitable python-version:(3, 10),magic:3439 :__init__.py:41-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\pyc\__init__.py on(__init__.check_marshal) at 8384@ThreadPoolExecutor-0_9  
+2023-01-27 14:06:36,158 [+] find suitable python-version:(3, 10),magic:3439 :__init__.py:41-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\pyc\__init__.py on(__init__.check_marshal) at 8384@ThreadPoolExecutor-0_7  
+2023-01-27 14:06:36,159 [+] find suitable python-version:(3, 10),magic:3439 :__init__.py:41-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\pyc\__init__.py on(__init__.check_marshal) at 8384@ThreadPoolExecutor-0_8  
+2023-01-27 14:06:36,160 [+] find suitable python-version:(3, 10),magic:3439 :__init__.py:41-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\pyc\__init__.py on(__init__.check_marshal) at 8384@ThreadPoolExecutor-0_14  
+2023-01-27 14:06:36,166 [+] find suitable python-version:(3, 10),magic:3439 :__init__.py:41-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\pyc\__init__.py on(__init__.check_marshal) at 8384@ThreadPoolExecutor-0_6  
+2023-01-27 14:06:36,246 [+] decompile bytecode by pycdc success on file:output_2967131\struct.pyc,length:232 :__init__.py:60-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\__init__.py on(__init__.exec_pycdc) at 8384@ThreadPoolExecutor-0_4  
+2023-01-27 14:06:36,253 [+] decompile bytecode on file:output_2967131\struct.pyc,length:232 :__init__.py:38-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\py_package\package_struct\__init__.py on(__init__.decompile_pyc) at 8384@ThreadPoolExecutor-0_4  
+2023-01-27 14:06:36,255 [+] decompile bytecode by pycdc success on file:output_2967131\test.pyc,length:743 :__init__.py:60-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\__init__.py on(__init__.exec_pycdc) at 8384@ThreadPoolExecutor-0_12  
+2023-01-27 14:06:36,255 [+] decompile bytecode by pycdc success on file:output_2967131\pyimod03_ctypes.pyc,length:416 :__init__.py:60-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\__init__.py on(__init__.exec_pycdc) at 8384@ThreadPoolExecutor-0_9  
+2023-01-27 14:06:36,256 [+] decompile bytecode by pycdc success on file:output_2967131\pyimod01_archive.pyc,length:6732 :__init__.py:60-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\__init__.py on(__init__.exec_pycdc) at 8384@ThreadPoolExecutor-0_5  
+2023-01-27 14:06:36,256 [!] 
+Warning: Stack history is not empty!
+Warning: block stack is not empty!
+Warning: Stack history is not empty!
+Warning: block stack is not empty!
+on exec_pycdc:output_2967131\pyimod02_importers.pyc.structed.pyc :__init__.py:54-30  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\__init__.py on(__init__.exec_pycdc) at 8384@ThreadPoolExecutor-0_6  
+2023-01-27 14:06:36,256 [+] decompile bytecode by pycdc success on file:output_2967131\pyimod02_importers.pyc,length:15459 :__init__.py:60-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\__init__.py on(__init__.exec_pycdc) at 8384@ThreadPoolExecutor-0_6  
+2023-01-27 14:06:36,261 [+] decompile bytecode by pycdc success on file:output_2967131\pyi_rth_subprocess.pyc,length:573 :__init__.py:60-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\__init__.py on(__init__.exec_pycdc) at 8384@ThreadPoolExecutor-0_14  
+2023-01-27 14:06:36,261 [!] 
+Warning: Stack history is not empty!
+Warning: block stack is not empty!
+on exec_pycdc:output_2967131\pyimod04_pywin32.pyc.structed.pyc :__init__.py:54-30  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\__init__.py on(__init__.exec_pycdc) at 8384@ThreadPoolExecutor-0_7  
+2023-01-27 14:06:36,261 [+] decompile bytecode by pycdc success on file:output_2967131\pyiboot01_bootstrap.pyc,length:115 :__init__.py:60-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\__init__.py on(__init__.exec_pycdc) at 8384@ThreadPoolExecutor-0_8  
+2023-01-27 14:06:36,262 [+] decompile bytecode by pycdc success on file:output_2967131\pyimod04_pywin32.pyc,length:752 :__init__.py:60-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\__init__.py on(__init__.exec_pycdc) at 8384@ThreadPoolExecutor-0_7  
+2023-01-27 14:06:36,270 [+] decompile bytecode on file:output_2967131\pyimod03_ctypes.pyc,length:416 :__init__.py:38-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\py_package\package_struct\__init__.py on(__init__.decompile_pyc) at 8384@ThreadPoolExecutor-0_9  
+2023-01-27 14:06:36,272 [+] decompile bytecode on file:output_2967131\pyimod01_archive.pyc,length:6732 :__init__.py:38-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\py_package\package_struct\__init__.py on(__init__.decompile_pyc) at 8384@ThreadPoolExecutor-0_5  
+2023-01-27 14:06:36,272 [+] decompile bytecode on file:output_2967131\pyimod02_importers.pyc,length:15459 :__init__.py:38-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\py_package\package_struct\__init__.py on(__init__.decompile_pyc) at 8384@ThreadPoolExecutor-0_6  
+2023-01-27 14:06:36,277 [+] decompile bytecode on file:output_2967131\test.pyc,length:743 :__init__.py:38-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\py_package\package_struct\__init__.py on(__init__.decompile_pyc) at 8384@ThreadPoolExecutor-0_12  
+2023-01-27 14:06:36,279 [+] decompile bytecode on file:output_2967131\pyimod04_pywin32.pyc,length:752 :__init__.py:38-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\py_package\package_struct\__init__.py on(__init__.decompile_pyc) at 8384@ThreadPoolExecutor-0_7  
+2023-01-27 14:06:36,280 [+] decompile bytecode on file:output_2967131\pyiboot01_bootstrap.pyc,length:115 :__init__.py:38-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\py_package\package_struct\__init__.py on(__init__.decompile_pyc) at 8384@ThreadPoolExecutor-0_8  
+2023-01-27 14:06:36,282 [+] decompile bytecode on file:output_2967131\pyi_rth_subprocess.pyc,length:573 :__init__.py:38-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\py_package\package_struct\__init__.py on(__init__.decompile_pyc) at 8384@ThreadPoolExecutor-0_14  
+2023-01-27 14:06:37,151 [*] 
+extract pyz :__init__.py:98-10  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\py_package\package_struct\__init__.py on(__init__.progress_check) at 8384@MainThread  
+2023-01-27 14:06:37,194 [+] Found 88 files in PYZ archive :pyz_extract.py:60-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\pyz_extract.py on(pyz_extract._handle_file) at 8384@MainThread  
+2023-01-27 14:06:38,979 [*] 
+decompile pyc for `extract pyz` :__init__.py:100-10  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\py_package\package_struct\__init__.py on(__init__.progress_check) at 8384@MainThread  
+2023-01-27 14:06:39,009 [+] find suitable python-version:(3, 10),magic:3439 :__init__.py:41-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\pyc\__init__.py on(__init__.check_marshal) at 8384@ThreadPoolExecutor-0_23  
+2023-01-27 14:06:39,024 [+] find suitable python-version:(3, 10),magic:3439 :__init__.py:41-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\pyc\__init__.py on(__init__.check_marshal) at 8384@ThreadPoolExecutor-0_15  
+2023-01-27 14:06:39,043 [+] find suitable python-version:(3, 10),magic:3439 :__init__.py:41-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\pyc\__init__.py on(__init__.check_marshal) at 8384@ThreadPoolExecutor-0_10  
+2023-01-27 14:06:39,055 [+] find suitable python-version:(3, 10),magic:3439 :__init__.py:41-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\pyc\__init__.py on(__init__.check_marshal) at 8384@ThreadPoolExecutor-0_33  
+2023-01-27 14:06:39,056 [+] find suitable python-version:(3, 10),magic:3439 :__init__.py:41-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\pyc\__init__.py on(__init__.check_marshal) at 8384@ThreadPoolExecutor-0_71  
+2023-01-27 14:06:39,057 [+] find suitable python-version:(3, 10),magic:3439 :__init__.py:41-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\pyc\__init__.py on(__init__.check_marshal) at 8384@ThreadPoolExecutor-0_57  
+2023-01-27 14:06:39,057 [+] find suitable python-version:(3, 10),magic:3439 :__init__.py:41-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\pyc\__init__.py on(__init__.check_marshal) at 8384@ThreadPoolExecutor-0_62  
+2023-01-27 14:06:39,060 [+] find suitable python-version:(3, 10),magic:3439 :__init__.py:41-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\pyc\__init__.py on(__init__.check_marshal) at 8384@ThreadPoolExecutor-0_46  
+2023-01-27 14:06:39,061 [+] find suitable python-version:(3, 10),magic:3439 :__init__.py:41-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\pyc\__init__.py on(__init__.check_marshal) at 8384@ThreadPoolExecutor-0_47  
+2023-01-27 14:06:39,061 [+] find suitable python-version:(3, 10),magic:3439 :__init__.py:41-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\pyc\__init__.py on(__init__.check_marshal) at 8384@ThreadPoolExecutor-0_14  
+2023-01-27 14:06:39,062 [+] find suitable python-version:(3, 10),magic:3439 :__init__.py:41-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\pyc\__init__.py on(__init__.check_marshal) at 8384@ThreadPoolExecutor-0_70  
+2023-01-27 14:06:39,063 [+] find suitable python-version:(3, 10),magic:3439 :__init__.py:41-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\pyc\__init__.py on(__init__.check_marshal) at 8384@ThreadPoolExecutor-0_45  
+2023-01-27 14:06:39,066 [+] find suitable python-version:(3, 10),magic:3439 :__init__.py:41-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\pyc\__init__.py on(__init__.check_marshal) at 8384@ThreadPoolExecutor-0_55  
+2023-01-27 14:06:39,069 [+] find suitable python-version:(3, 10),magic:3439 :__init__.py:41-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\pyc\__init__.py on(__init__.check_marshal) at 8384@ThreadPoolExecutor-0_83  
+2023-01-27 14:06:39,074 [+] find suitable python-version:(3, 10),magic:3439 :__init__.py:41-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\pyc\__init__.py on(__init__.check_marshal) at 8384@ThreadPoolExecutor-0_26  
+2023-01-27 14:06:39,078 [+] find suitable python-version:(3, 10),magic:3439 :__init__.py:41-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\pyc\__init__.py on(__init__.check_marshal) at 8384@ThreadPoolExecutor-0_84  
+2023-01-27 14:06:39,080 [+] find suitable python-version:(3, 10),magic:3439 :__init__.py:41-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\pyc\__init__.py on(__init__.check_marshal) at 8384@ThreadPoolExecutor-0_81  
+2023-01-27 14:06:39,081 [+] find suitable python-version:(3, 10),magic:3439 :__init__.py:41-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\pyc\__init__.py on(__init__.check_marshal) at 8384@ThreadPoolExecutor-0_82  
+2023-01-27 14:06:39,085 [+] find suitable python-version:(3, 10),magic:3439 :__init__.py:41-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\pyc\__init__.py on(__init__.check_marshal) at 8384@ThreadPoolExecutor-0_40  
+2023-01-27 14:06:39,088 [+] find suitable python-version:(3, 10),magic:3439 :__init__.py:41-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\pyc\__init__.py on(__init__.check_marshal) at 8384@ThreadPoolExecutor-0_31  
+2023-01-27 14:06:39,088 [+] find suitable python-version:(3, 10),magic:3439 :__init__.py:41-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\pyc\__init__.py on(__init__.check_marshal) at 8384@ThreadPoolExecutor-0_28  
+2023-01-27 14:06:39,092 [+] find suitable python-version:(3, 10),magic:3439 :__init__.py:41-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\pyc\__init__.py on(__init__.check_marshal) at 8384@ThreadPoolExecutor-0_86  
+2023-01-27 14:06:39,093 [+] find suitable python-version:(3, 10),magic:3439 :__init__.py:41-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\pyc\__init__.py on(__init__.check_marshal) at 8384@ThreadPoolExecutor-0_50  
+2023-01-27 14:06:39,096 [+] find suitable python-version:(3, 10),magic:3439 :__init__.py:41-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\pyc\__init__.py on(__init__.check_marshal) at 8384@ThreadPoolExecutor-0_27  
+2023-01-27 14:06:39,098 [+] find suitable python-version:(3, 10),magic:3439 :__init__.py:41-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\pyc\__init__.py on(__init__.check_marshal) at 8384@ThreadPoolExecutor-0_53  
+2023-01-27 14:06:39,101 [+] find suitable python-version:(3, 10),magic:3439 :__init__.py:41-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\pyc\__init__.py on(__init__.check_marshal) at 8384@ThreadPoolExecutor-0_58  
+2023-01-27 14:06:39,109 [+] find suitable python-version:(3, 10),magic:3439 :__init__.py:41-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\pyc\__init__.py on(__init__.check_marshal) at 8384@ThreadPoolExecutor-0_64  
+2023-01-27 14:06:39,109 [+] find suitable python-version:(3, 10),magic:3439 :__init__.py:41-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\pyc\__init__.py on(__init__.check_marshal) at 8384@ThreadPoolExecutor-0_29  
+2023-01-27 14:06:39,117 [+] find suitable python-version:(3, 10),magic:3439 :__init__.py:41-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\pyc\__init__.py on(__init__.check_marshal) at 8384@ThreadPoolExecutor-0_8  
+2023-01-27 14:06:39,117 [+] find suitable python-version:(3, 10),magic:3439 :__init__.py:41-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\pyc\__init__.py on(__init__.check_marshal) at 8384@ThreadPoolExecutor-0_20  
+2023-01-27 14:06:39,118 [+] find suitable python-version:(3, 10),magic:3439 :__init__.py:41-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\pyc\__init__.py on(__init__.check_marshal) at 8384@ThreadPoolExecutor-0_37  
+2023-01-27 14:06:39,118 [+] find suitable python-version:(3, 10),magic:3439 :__init__.py:41-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\pyc\__init__.py on(__init__.check_marshal) at 8384@ThreadPoolExecutor-0_3  
+2023-01-27 14:06:39,119 [+] find suitable python-version:(3, 10),magic:3439 :__init__.py:41-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\pyc\__init__.py on(__init__.check_marshal) at 8384@ThreadPoolExecutor-0_76  
+2023-01-27 14:06:39,121 [+] find suitable python-version:(3, 10),magic:3439 :__init__.py:41-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\pyc\__init__.py on(__init__.check_marshal) at 8384@ThreadPoolExecutor-0_65  
+2023-01-27 14:06:39,122 [+] find suitable python-version:(3, 10),magic:3439 :__init__.py:41-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\pyc\__init__.py on(__init__.check_marshal) at 8384@ThreadPoolExecutor-0_66  
+2023-01-27 14:06:39,123 [+] find suitable python-version:(3, 10),magic:3439 :__init__.py:41-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\pyc\__init__.py on(__init__.check_marshal) at 8384@ThreadPoolExecutor-0_59  
+2023-01-27 14:06:39,124 [+] find suitable python-version:(3, 10),magic:3439 :__init__.py:41-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\pyc\__init__.py on(__init__.check_marshal) at 8384@ThreadPoolExecutor-0_22  
+2023-01-27 14:06:39,124 [+] find suitable python-version:(3, 10),magic:3439 :__init__.py:41-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\pyc\__init__.py on(__init__.check_marshal) at 8384@ThreadPoolExecutor-0_9  
+2023-01-27 14:06:39,125 [+] find suitable python-version:(3, 10),magic:3439 :__init__.py:41-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\pyc\__init__.py on(__init__.check_marshal) at 8384@ThreadPoolExecutor-0_72  
+2023-01-27 14:06:39,126 [+] find suitable python-version:(3, 10),magic:3439 :__init__.py:41-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\pyc\__init__.py on(__init__.check_marshal) at 8384@ThreadPoolExecutor-0_78  
+2023-01-27 14:06:39,130 [+] find suitable python-version:(3, 10),magic:3439 :__init__.py:41-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\pyc\__init__.py on(__init__.check_marshal) at 8384@ThreadPoolExecutor-0_39  
+2023-01-27 14:06:39,131 [+] find suitable python-version:(3, 10),magic:3439 :__init__.py:41-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\pyc\__init__.py on(__init__.check_marshal) at 8384@ThreadPoolExecutor-0_77  
+2023-01-27 14:06:39,136 [+] find suitable python-version:(3, 10),magic:3439 :__init__.py:41-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\pyc\__init__.py on(__init__.check_marshal) at 8384@ThreadPoolExecutor-0_4  
+2023-01-27 14:06:39,136 [+] find suitable python-version:(3, 10),magic:3439 :__init__.py:41-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\pyc\__init__.py on(__init__.check_marshal) at 8384@ThreadPoolExecutor-0_21  
+2023-01-27 14:06:39,139 [+] find suitable python-version:(3, 10),magic:3439 :__init__.py:41-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\pyc\__init__.py on(__init__.check_marshal) at 8384@ThreadPoolExecutor-0_52  
+2023-01-27 14:06:39,141 [+] find suitable python-version:(3, 10),magic:3439 :__init__.py:41-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\pyc\__init__.py on(__init__.check_marshal) at 8384@ThreadPoolExecutor-0_51  
+2023-01-27 14:06:39,148 [+] find suitable python-version:(3, 10),magic:3439 :__init__.py:41-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\pyc\__init__.py on(__init__.check_marshal) at 8384@ThreadPoolExecutor-0_18  
+2023-01-27 14:06:39,154 [+] find suitable python-version:(3, 10),magic:3439 :__init__.py:41-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\pyc\__init__.py on(__init__.check_marshal) at 8384@ThreadPoolExecutor-0_6  
+2023-01-27 14:06:39,156 [+] find suitable python-version:(3, 10),magic:3439 :__init__.py:41-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\pyc\__init__.py on(__init__.check_marshal) at 8384@ThreadPoolExecutor-0_34  
+2023-01-27 14:06:39,158 [+] find suitable python-version:(3, 10),magic:3439 :__init__.py:41-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\pyc\__init__.py on(__init__.check_marshal) at 8384@ThreadPoolExecutor-0_16  
+2023-01-27 14:06:39,161 [+] find suitable python-version:(3, 10),magic:3439 :__init__.py:41-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\pyc\__init__.py on(__init__.check_marshal) at 8384@ThreadPoolExecutor-0_11  
+2023-01-27 14:06:39,164 [+] find suitable python-version:(3, 10),magic:3439 :__init__.py:41-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\pyc\__init__.py on(__init__.check_marshal) at 8384@ThreadPoolExecutor-0_74  
+2023-01-27 14:06:39,167 [+] find suitable python-version:(3, 10),magic:3439 :__init__.py:41-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\pyc\__init__.py on(__init__.check_marshal) at 8384@ThreadPoolExecutor-0_0  
+2023-01-27 14:06:39,168 [+] find suitable python-version:(3, 10),magic:3439 :__init__.py:41-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\pyc\__init__.py on(__init__.check_marshal) at 8384@ThreadPoolExecutor-0_12  
+2023-01-27 14:06:39,168 [+] find suitable python-version:(3, 10),magic:3439 :__init__.py:41-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\pyc\__init__.py on(__init__.check_marshal) at 8384@ThreadPoolExecutor-0_63  
+2023-01-27 14:06:39,170 [+] find suitable python-version:(3, 10),magic:3439 :__init__.py:41-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\pyc\__init__.py on(__init__.check_marshal) at 8384@ThreadPoolExecutor-0_38  
+2023-01-27 14:06:39,172 [+] find suitable python-version:(3, 10),magic:3439 :__init__.py:41-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\pyc\__init__.py on(__init__.check_marshal) at 8384@ThreadPoolExecutor-0_85  
+2023-01-27 14:06:39,173 [+] find suitable python-version:(3, 10),magic:3439 :__init__.py:41-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\pyc\__init__.py on(__init__.check_marshal) at 8384@ThreadPoolExecutor-0_13  
+2023-01-27 14:06:39,173 [+] find suitable python-version:(3, 10),magic:3439 :__init__.py:41-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\pyc\__init__.py on(__init__.check_marshal) at 8384@ThreadPoolExecutor-0_80  
+2023-01-27 14:06:39,177 [+] find suitable python-version:(3, 10),magic:3439 :__init__.py:41-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\pyc\__init__.py on(__init__.check_marshal) at 8384@ThreadPoolExecutor-0_2  
+2023-01-27 14:06:39,179 [+] find suitable python-version:(3, 10),magic:3439 :__init__.py:41-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\pyc\__init__.py on(__init__.check_marshal) at 8384@ThreadPoolExecutor-0_5  
+2023-01-27 14:06:39,184 [+] find suitable python-version:(3, 10),magic:3439 :__init__.py:41-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\pyc\__init__.py on(__init__.check_marshal) at 8384@ThreadPoolExecutor-0_24  
+2023-01-27 14:06:39,184 [+] find suitable python-version:(3, 10),magic:3439 :__init__.py:41-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\pyc\__init__.py on(__init__.check_marshal) at 8384@ThreadPoolExecutor-0_69  
+2023-01-27 14:06:39,186 [+] find suitable python-version:(3, 10),magic:3439 :__init__.py:41-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\pyc\__init__.py on(__init__.check_marshal) at 8384@ThreadPoolExecutor-0_68  
+2023-01-27 14:06:39,189 [+] find suitable python-version:(3, 10),magic:3439 :__init__.py:41-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\pyc\__init__.py on(__init__.check_marshal) at 8384@ThreadPoolExecutor-0_7  
+2023-01-27 14:06:39,196 [+] find suitable python-version:(3, 10),magic:3439 :__init__.py:41-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\pyc\__init__.py on(__init__.check_marshal) at 8384@ThreadPoolExecutor-0_32  
+2023-01-27 14:06:39,196 [+] find suitable python-version:(3, 10),magic:3439 :__init__.py:41-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\pyc\__init__.py on(__init__.check_marshal) at 8384@ThreadPoolExecutor-0_19  
+2023-01-27 14:06:39,197 [+] find suitable python-version:(3, 10),magic:3439 :__init__.py:41-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\pyc\__init__.py on(__init__.check_marshal) at 8384@ThreadPoolExecutor-0_56  
+2023-01-27 14:06:39,207 [+] find suitable python-version:(3, 10),magic:3439 :__init__.py:41-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\pyc\__init__.py on(__init__.check_marshal) at 8384@ThreadPoolExecutor-0_44  
+2023-01-27 14:06:39,211 [+] find suitable python-version:(3, 10),magic:3439 :__init__.py:41-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\pyc\__init__.py on(__init__.check_marshal) at 8384@ThreadPoolExecutor-0_17  
+2023-01-27 14:06:39,214 [+] find suitable python-version:(3, 10),magic:3439 :__init__.py:41-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\pyc\__init__.py on(__init__.check_marshal) at 8384@ThreadPoolExecutor-0_49  
+2023-01-27 14:06:39,214 [+] find suitable python-version:(3, 10),magic:3439 :__init__.py:41-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\pyc\__init__.py on(__init__.check_marshal) at 8384@ThreadPoolExecutor-0_42  
+2023-01-27 14:06:39,232 [+] find suitable python-version:(3, 10),magic:3439 :__init__.py:41-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\pyc\__init__.py on(__init__.check_marshal) at 8384@ThreadPoolExecutor-0_48  
+2023-01-27 14:06:39,236 [+] find suitable python-version:(3, 10),magic:3439 :__init__.py:41-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\pyc\__init__.py on(__init__.check_marshal) at 8384@ThreadPoolExecutor-0_25  
+2023-01-27 14:06:39,250 [+] find suitable python-version:(3, 10),magic:3439 :__init__.py:41-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\pyc\__init__.py on(__init__.check_marshal) at 8384@ThreadPoolExecutor-0_60  
+2023-01-27 14:06:39,264 [+] find suitable python-version:(3, 10),magic:3439 :__init__.py:41-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\pyc\__init__.py on(__init__.check_marshal) at 8384@ThreadPoolExecutor-0_87  
+2023-01-27 14:06:39,265 [+] find suitable python-version:(3, 10),magic:3439 :__init__.py:41-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\pyc\__init__.py on(__init__.check_marshal) at 8384@ThreadPoolExecutor-0_75  
+2023-01-27 14:06:39,270 [+] find suitable python-version:(3, 10),magic:3439 :__init__.py:41-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\pyc\__init__.py on(__init__.check_marshal) at 8384@ThreadPoolExecutor-0_43  
+2023-01-27 14:06:39,271 [+] find suitable python-version:(3, 10),magic:3439 :__init__.py:41-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\pyc\__init__.py on(__init__.check_marshal) at 8384@ThreadPoolExecutor-0_30  
+2023-01-27 14:06:39,276 [+] find suitable python-version:(3, 10),magic:3439 :__init__.py:41-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\pyc\__init__.py on(__init__.check_marshal) at 8384@ThreadPoolExecutor-0_73  
+2023-01-27 14:06:39,282 [+] find suitable python-version:(3, 10),magic:3439 :__init__.py:41-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\pyc\__init__.py on(__init__.check_marshal) at 8384@ThreadPoolExecutor-0_41  
+2023-01-27 14:06:39,284 [+] find suitable python-version:(3, 10),magic:3439 :__init__.py:41-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\pyc\__init__.py on(__init__.check_marshal) at 8384@ThreadPoolExecutor-0_36  
+2023-01-27 14:06:39,285 [+] find suitable python-version:(3, 10),magic:3439 :__init__.py:41-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\pyc\__init__.py on(__init__.check_marshal) at 8384@ThreadPoolExecutor-0_54  
+2023-01-27 14:06:39,286 [+] find suitable python-version:(3, 10),magic:3439 :__init__.py:41-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\pyc\__init__.py on(__init__.check_marshal) at 8384@ThreadPoolExecutor-0_1  
+2023-01-27 14:06:39,288 [+] find suitable python-version:(3, 10),magic:3439 :__init__.py:41-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\pyc\__init__.py on(__init__.check_marshal) at 8384@ThreadPoolExecutor-0_35  
+2023-01-27 14:06:39,294 [+] find suitable python-version:(3, 10),magic:3439 :__init__.py:41-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\pyc\__init__.py on(__init__.check_marshal) at 8384@ThreadPoolExecutor-0_79  
+2023-01-27 14:06:39,296 [+] find suitable python-version:(3, 10),magic:3439 :__init__.py:41-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\pyc\__init__.py on(__init__.check_marshal) at 8384@ThreadPoolExecutor-0_67  
+2023-01-27 14:06:39,298 [+] find suitable python-version:(3, 10),magic:3439 :__init__.py:41-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\pyc\__init__.py on(__init__.check_marshal) at 8384@ThreadPoolExecutor-0_61  
+2023-01-27 14:06:39,474 [+] decompile bytecode by pycdc success on file:output_2967131\PYZ-00.pyz_extract\_compat_pickle.pyc,length:4374 :__init__.py:60-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\__init__.py on(__init__.exec_pycdc) at 8384@ThreadPoolExecutor-0_10  
+2023-01-27 14:06:39,475 [+] decompile bytecode by pycdc success on file:output_2967131\PYZ-00.pyz_extract\_threading_local.pyc,length:5865 :__init__.py:60-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\__init__.py on(__init__.exec_pycdc) at 8384@ThreadPoolExecutor-0_23  
+2023-01-27 14:06:39,805 [!] 
+Warning: block stack is not empty!
+on exec_pycdc:output_2967131\PYZ-00.pyz_extract\netrc.pyc.structed.pyc :__init__.py:54-30  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\__init__.py on(__init__.exec_pycdc) at 8384@ThreadPoolExecutor-0_57  
+2023-01-27 14:06:39,805 [+] decompile bytecode by pycdc success on file:output_2967131\PYZ-00.pyz_extract\netrc.pyc,length:1688 :__init__.py:60-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\__init__.py on(__init__.exec_pycdc) at 8384@ThreadPoolExecutor-0_57  
+2023-01-27 14:06:39,848 [!] 
+Warning: block stack is not empty!
+Warning: block stack is not empty!
+on exec_pycdc:output_2967131\PYZ-00.pyz_extract\_strptime.pyc.structed.pyc :__init__.py:54-30  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\__init__.py on(__init__.exec_pycdc) at 8384@ThreadPoolExecutor-0_15  
+2023-01-27 14:06:39,850 [+] decompile bytecode by pycdc success on file:output_2967131\PYZ-00.pyz_extract\_strptime.pyc,length:11495 :__init__.py:60-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\__init__.py on(__init__.exec_pycdc) at 8384@ThreadPoolExecutor-0_15  
+2023-01-27 14:06:39,867 [+] decompile bytecode by pycdc success on file:output_2967131\PYZ-00.pyz_extract\datetime.pyc,length:662 :__init__.py:60-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\__init__.py on(__init__.exec_pycdc) at 8384@ThreadPoolExecutor-0_33  
+2023-01-27 14:06:39,884 [+] decompile bytecode on file:output_2967131\PYZ-00.pyz_extract\_threading_local.pyc,length:5865 :__init__.py:38-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\py_package\package_struct\__init__.py on(__init__.decompile_pyc) at 8384@ThreadPoolExecutor-0_23  
+2023-01-27 14:06:39,886 [+] decompile bytecode on file:output_2967131\PYZ-00.pyz_extract\_compat_pickle.pyc,length:4374 :__init__.py:38-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\py_package\package_struct\__init__.py on(__init__.decompile_pyc) at 8384@ThreadPoolExecutor-0_10  
+2023-01-27 14:06:39,888 [+] decompile bytecode on file:output_2967131\PYZ-00.pyz_extract\_strptime.pyc,length:11495 :__init__.py:38-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\py_package\package_struct\__init__.py on(__init__.decompile_pyc) at 8384@ThreadPoolExecutor-0_15  
+2023-01-27 14:06:39,896 [+] decompile bytecode on file:output_2967131\PYZ-00.pyz_extract\datetime.pyc,length:662 :__init__.py:38-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\py_package\package_struct\__init__.py on(__init__.decompile_pyc) at 8384@ThreadPoolExecutor-0_33  
+2023-01-27 14:06:39,900 [+] decompile bytecode on file:output_2967131\PYZ-00.pyz_extract\netrc.pyc,length:1688 :__init__.py:38-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\py_package\package_struct\__init__.py on(__init__.decompile_pyc) at 8384@ThreadPoolExecutor-0_57  
+2023-01-27 14:06:39,990 [!] 
+Warning: Stack history is not empty!
+Warning: block stack is not empty!
+on exec_pycdc:output_2967131\PYZ-00.pyz_extract\csv.pyc.structed.pyc :__init__.py:54-30  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\__init__.py on(__init__.exec_pycdc) at 8384@ThreadPoolExecutor-0_46  
+2023-01-27 14:06:39,991 [+] decompile bytecode by pycdc success on file:output_2967131\PYZ-00.pyz_extract\csv.pyc,length:4574 :__init__.py:60-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\__init__.py on(__init__.exec_pycdc) at 8384@ThreadPoolExecutor-0_46  
+2023-01-27 14:06:39,999 [+] decompile bytecode by pycdc success on file:output_2967131\PYZ-00.pyz_extract\ctypes\__init__.pyc,length:584 :__init__.py:60-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\__init__.py on(__init__.exec_pycdc) at 8384@ThreadPoolExecutor-0_0  
+2023-01-27 14:06:40,000 [+] decompile bytecode by pycdc success on file:output_2967131\PYZ-00.pyz_extract\email\policy.pyc,length:884 :__init__.py:60-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\__init__.py on(__init__.exec_pycdc) at 8384@ThreadPoolExecutor-0_70  
+2023-01-27 14:06:40,001 [+] decompile bytecode by pycdc success on file:output_2967131\PYZ-00.pyz_extract\copy.pyc,length:1960 :__init__.py:60-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\__init__.py on(__init__.exec_pycdc) at 8384@ThreadPoolExecutor-0_61  
+2023-01-27 14:06:40,004 [+] decompile bytecode by pycdc success on file:output_2967131\PYZ-00.pyz_extract\http\__init__.pyc,length:6403 :__init__.py:60-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\__init__.py on(__init__.exec_pycdc) at 8384@ThreadPoolExecutor-0_45  
+2023-01-27 14:06:40,004 [+] decompile bytecode on file:output_2967131\PYZ-00.pyz_extract\csv.pyc,length:4574 :__init__.py:38-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\py_package\package_struct\__init__.py on(__init__.decompile_pyc) at 8384@ThreadPoolExecutor-0_46  
+2023-01-27 14:06:40,007 [!] 
+Warning: Stack history is not empty!
+Warning: block stack is not empty!
+on exec_pycdc:output_2967131\PYZ-00.pyz_extract\uu.pyc.structed.pyc :__init__.py:54-30  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\__init__.py on(__init__.exec_pycdc) at 8384@ThreadPoolExecutor-0_14  
+2023-01-27 14:06:40,008 [+] decompile bytecode by pycdc success on file:output_2967131\PYZ-00.pyz_extract\socket.pyc,length:2165 :__init__.py:60-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\__init__.py on(__init__.exec_pycdc) at 8384@ThreadPoolExecutor-0_11  
+2023-01-27 14:06:40,009 [+] decompile bytecode by pycdc success on file:output_2967131\PYZ-00.pyz_extract\decimal.pyc,length:35 :__init__.py:60-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\__init__.py on(__init__.exec_pycdc) at 8384@ThreadPoolExecutor-0_63  
+2023-01-27 14:06:40,010 [+] decompile bytecode by pycdc success on file:output_2967131\PYZ-00.pyz_extract\importlib\machinery.pyc,length:807 :__init__.py:60-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\__init__.py on(__init__.exec_pycdc) at 8384@ThreadPoolExecutor-0_37  
+2023-01-27 14:06:40,011 [+] decompile bytecode by pycdc success on file:output_2967131\PYZ-00.pyz_extract\http\client.pyc,length:4073 :__init__.py:60-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\__init__.py on(__init__.exec_pycdc) at 8384@ThreadPoolExecutor-0_74  
+2023-01-27 14:06:40,011 [+] decompile bytecode by pycdc success on file:output_2967131\PYZ-00.pyz_extract\ssl.pyc,length:3480 :__init__.py:60-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\__init__.py on(__init__.exec_pycdc) at 8384@ThreadPoolExecutor-0_4  
+2023-01-27 14:06:40,012 [+] decompile bytecode on file:output_2967131\PYZ-00.pyz_extract\ctypes\__init__.pyc,length:584 :__init__.py:38-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\py_package\package_struct\__init__.py on(__init__.decompile_pyc) at 8384@ThreadPoolExecutor-0_0  
+2023-01-27 14:06:40,012 [+] decompile bytecode by pycdc success on file:output_2967131\PYZ-00.pyz_extract\quopri.pyc,length:285 :__init__.py:60-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\__init__.py on(__init__.exec_pycdc) at 8384@ThreadPoolExecutor-0_28  
+2023-01-27 14:06:40,013 [+] decompile bytecode by pycdc success on file:output_2967131\PYZ-00.pyz_extract\ctypes\_endian.pyc,length:1346 :__init__.py:60-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\__init__.py on(__init__.exec_pycdc) at 8384@ThreadPoolExecutor-0_62  
+2023-01-27 14:06:40,013 [+] decompile bytecode by pycdc success on file:output_2967131\PYZ-00.pyz_extract\contextlib.pyc,length:15270 :__init__.py:60-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\__init__.py on(__init__.exec_pycdc) at 8384@ThreadPoolExecutor-0_16  
+2023-01-27 14:06:40,013 [!] 
+Warning: Stack history is not empty!
+Warning: block stack is not empty!
+Warning: Stack history is not empty!
+Warning: block stack is not empty!
+on exec_pycdc:output_2967131\PYZ-00.pyz_extract\tempfile.pyc.structed.pyc :__init__.py:54-30  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\__init__.py on(__init__.exec_pycdc) at 8384@ThreadPoolExecutor-0_85  
+2023-01-27 14:06:40,014 [+] decompile bytecode by pycdc success on file:output_2967131\PYZ-00.pyz_extract\subprocess.pyc,length:1452 :__init__.py:60-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\__init__.py on(__init__.exec_pycdc) at 8384@ThreadPoolExecutor-0_84  
+2023-01-27 14:06:40,014 [+] decompile bytecode by pycdc success on file:output_2967131\PYZ-00.pyz_extract\uu.pyc,length:2361 :__init__.py:60-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\__init__.py on(__init__.exec_pycdc) at 8384@ThreadPoolExecutor-0_14  
+2023-01-27 14:06:40,017 [!] 
+Warning: Stack history is not empty!
+Warning: block stack is not empty!
+Warning: Stack history is not empty!
+Warning: block stack is not empty!
+Warning: Stack history is not empty!
+Warning: block stack is not empty!
+Warning: Stack history is not empty!
+Warning: block stack is not empty!
+Warning: block stack is not empty!
+on exec_pycdc:output_2967131\PYZ-00.pyz_extract\email\header.pyc.structed.pyc :__init__.py:54-30  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\__init__.py on(__init__.exec_pycdc) at 8384@ThreadPoolExecutor-0_38  
+2023-01-27 14:06:40,020 [+] decompile bytecode by pycdc success on file:output_2967131\PYZ-00.pyz_extract\tempfile.pyc,length:14501 :__init__.py:60-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\__init__.py on(__init__.exec_pycdc) at 8384@ThreadPoolExecutor-0_85  
+2023-01-27 14:06:40,021 [+] decompile bytecode by pycdc success on file:output_2967131\PYZ-00.pyz_extract\email\header.pyc,length:14888 :__init__.py:60-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\__init__.py on(__init__.exec_pycdc) at 8384@ThreadPoolExecutor-0_38  
+2023-01-27 14:06:40,024 [+] decompile bytecode on file:output_2967131\PYZ-00.pyz_extract\email\policy.pyc,length:884 :__init__.py:38-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\py_package\package_struct\__init__.py on(__init__.decompile_pyc) at 8384@ThreadPoolExecutor-0_70  
+2023-01-27 14:06:40,027 [+] decompile bytecode on file:output_2967131\PYZ-00.pyz_extract\http\__init__.pyc,length:6403 :__init__.py:38-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\py_package\package_struct\__init__.py on(__init__.decompile_pyc) at 8384@ThreadPoolExecutor-0_45  
+2023-01-27 14:06:40,029 [+] decompile bytecode on file:output_2967131\PYZ-00.pyz_extract\copy.pyc,length:1960 :__init__.py:38-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\py_package\package_struct\__init__.py on(__init__.decompile_pyc) at 8384@ThreadPoolExecutor-0_61  
+2023-01-27 14:06:40,031 [!] 
+Warning: Stack history is not empty!
+Warning: block stack is not empty!
+Warning: Stack history is not empty!
+Warning: block stack is not empty!
+Warning: Stack history is not empty!
+Warning: block stack is not empty!
+Warning: Stack history is empty, something wrong might have happened
+Warning: Stack history is not empty!
+Warning: block stack is not empty!
+on exec_pycdc:output_2967131\PYZ-00.pyz_extract\base64.pyc.structed.pyc :__init__.py:54-30  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\__init__.py on(__init__.exec_pycdc) at 8384@ThreadPoolExecutor-0_59  
+2023-01-27 14:06:40,032 [+] decompile bytecode by pycdc success on file:output_2967131\PYZ-00.pyz_extract\getpass.pyc,length:2335 :__init__.py:60-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\__init__.py on(__init__.exec_pycdc) at 8384@ThreadPoolExecutor-0_1  
+2023-01-27 14:06:40,032 [+] decompile bytecode by pycdc success on file:output_2967131\PYZ-00.pyz_extract\tarfile.pyc,length:400 :__init__.py:60-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\__init__.py on(__init__.exec_pycdc) at 8384@ThreadPoolExecutor-0_6  
+2023-01-27 14:06:40,032 [!] 
+Warning: Stack history is not empty!
+Warning: block stack is not empty!
+on exec_pycdc:output_2967131\PYZ-00.pyz_extract\py_compile.pyc.structed.pyc :__init__.py:54-30  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\__init__.py on(__init__.exec_pycdc) at 8384@ThreadPoolExecutor-0_80  
+2023-01-27 14:06:40,032 [+] decompile bytecode by pycdc success on file:output_2967131\PYZ-00.pyz_extract\optparse.pyc,length:2922 :__init__.py:60-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\__init__.py on(__init__.exec_pycdc) at 8384@ThreadPoolExecutor-0_24  
+2023-01-27 14:06:40,033 [+] decompile bytecode by pycdc success on file:output_2967131\PYZ-00.pyz_extract\base64.pyc,length:13022 :__init__.py:60-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\__init__.py on(__init__.exec_pycdc) at 8384@ThreadPoolExecutor-0_59  
+2023-01-27 14:06:40,035 [!] 
+Warning: Stack history is not empty!
+Warning: block stack is not empty!
+on exec_pycdc:output_2967131\PYZ-00.pyz_extract\lzma.pyc.structed.pyc :__init__.py:54-30  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\__init__.py on(__init__.exec_pycdc) at 8384@ThreadPoolExecutor-0_25  
+2023-01-27 14:06:40,036 [+] decompile bytecode by pycdc success on file:output_2967131\PYZ-00.pyz_extract\py_compile.pyc,length:5627 :__init__.py:60-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\__init__.py on(__init__.exec_pycdc) at 8384@ThreadPoolExecutor-0_80  
+2023-01-27 14:06:40,038 [!] 
+Warning: Stack history is not empty!
+Warning: block stack is not empty!
+Warning: Stack history is not empty!
+Warning: block stack is not empty!
+Warning: Stack history is not empty!
+Warning: block stack is not empty!
+on exec_pycdc:output_2967131\PYZ-00.pyz_extract\importlib\_bootstrap.pyc.structed.pyc :__init__.py:54-30  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\__init__.py on(__init__.exec_pycdc) at 8384@ThreadPoolExecutor-0_39  
+2023-01-27 14:06:40,038 [+] decompile bytecode by pycdc success on file:output_2967131\PYZ-00.pyz_extract\lzma.pyc,length:12801 :__init__.py:60-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\__init__.py on(__init__.exec_pycdc) at 8384@ThreadPoolExecutor-0_25  
+2023-01-27 14:06:40,039 [+] decompile bytecode by pycdc success on file:output_2967131\PYZ-00.pyz_extract\importlib\_bootstrap.pyc,length:24355 :__init__.py:60-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\__init__.py on(__init__.exec_pycdc) at 8384@ThreadPoolExecutor-0_39  
+2023-01-27 14:06:40,040 [+] decompile bytecode by pycdc success on file:output_2967131\PYZ-00.pyz_extract\bz2.pyc,length:10095 :__init__.py:60-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\__init__.py on(__init__.exec_pycdc) at 8384@ThreadPoolExecutor-0_20  
+2023-01-27 14:06:40,040 [!] 
+Warning: Stack history is not empty!
+Warning: block stack is not empty!
+Warning: block stack is not empty!
+on exec_pycdc:output_2967131\PYZ-00.pyz_extract\email\headerregistry.pyc.structed.pyc :__init__.py:54-30  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\__init__.py on(__init__.exec_pycdc) at 8384@ThreadPoolExecutor-0_41  
+2023-01-27 14:06:40,042 [!] 
+Warning: Stack history is not empty!
+Warning: block stack is not empty!
+Warning: Stack history is not empty!
+Warning: block stack is not empty!
+Warning: Stack history is not empty!
+Warning: block stack is not empty!
+Warning: Stack history is not empty!
+Warning: block stack is not empty!
+Warning: Stack history is not empty!
+Warning: block stack is not empty!
+Warning: Stack history is not empty!
+Warning: block stack is not empty!
+Warning: Stack history is not empty!
+Warning: block stack is not empty!
+on exec_pycdc:output_2967131\PYZ-00.pyz_extract\shlex.pyc.structed.pyc :__init__.py:54-30  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\__init__.py on(__init__.exec_pycdc) at 8384@ThreadPoolExecutor-0_82  
+2023-01-27 14:06:40,043 [+] decompile bytecode by pycdc success on file:output_2967131\PYZ-00.pyz_extract\email\headerregistry.pyc,length:19965 :__init__.py:60-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\__init__.py on(__init__.exec_pycdc) at 8384@ThreadPoolExecutor-0_41  
+2023-01-27 14:06:40,043 [+] decompile bytecode by pycdc success on file:output_2967131\PYZ-00.pyz_extract\contextvars.pyc,length:131 :__init__.py:60-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\__init__.py on(__init__.exec_pycdc) at 8384@ThreadPoolExecutor-0_3  
+2023-01-27 14:06:40,043 [+] decompile bytecode by pycdc success on file:output_2967131\PYZ-00.pyz_extract\shlex.pyc,length:17235 :__init__.py:60-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\__init__.py on(__init__.exec_pycdc) at 8384@ThreadPoolExecutor-0_82  
+2023-01-27 14:06:40,045 [!] 
+Warning: block stack is not empty!
+Warning: Stack history is not empty!
+Warning: block stack is not empty!
+on exec_pycdc:output_2967131\PYZ-00.pyz_extract\tracemalloc.pyc.structed.pyc :__init__.py:54-30  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\__init__.py on(__init__.exec_pycdc) at 8384@ThreadPoolExecutor-0_86  
+2023-01-27 14:06:40,045 [!] 
+Warning: Stack history is not empty!
+Warning: block stack is not empty!
+Warning: Stack history is not empty!
+Warning: block stack is not empty!
+Warning: Stack history is not empty!
+Warning: block stack is not empty!
+Warning: Stack history is not empty!
+Warning: block stack is not empty!
+Warning: Stack history is not empty!
+Warning: block stack is not empty!
+Warning: Stack history is not empty!
+Warning: block stack is not empty!
+on exec_pycdc:output_2967131\PYZ-00.pyz_extract\gzip.pyc.structed.pyc :__init__.py:54-30  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\__init__.py on(__init__.exec_pycdc) at 8384@ThreadPoolExecutor-0_73  
+2023-01-27 14:06:40,045 [+] decompile bytecode by pycdc success on file:output_2967131\PYZ-00.pyz_extract\tracemalloc.pyc,length:12009 :__init__.py:60-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\__init__.py on(__init__.exec_pycdc) at 8384@ThreadPoolExecutor-0_86  
+2023-01-27 14:06:40,046 [+] decompile bytecode by pycdc success on file:output_2967131\PYZ-00.pyz_extract\gzip.pyc,length:21881 :__init__.py:60-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\__init__.py on(__init__.exec_pycdc) at 8384@ThreadPoolExecutor-0_73  
+2023-01-27 14:06:40,052 [+] decompile bytecode by pycdc success on file:output_2967131\PYZ-00.pyz_extract\zipfile.pyc,length:349 :__init__.py:60-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\__init__.py on(__init__.exec_pycdc) at 8384@ThreadPoolExecutor-0_87  
+2023-01-27 14:06:40,053 [+] decompile bytecode by pycdc success on file:output_2967131\PYZ-00.pyz_extract\pickle.pyc,length:992 :__init__.py:60-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\__init__.py on(__init__.exec_pycdc) at 8384@ThreadPoolExecutor-0_30  
+2023-01-27 14:06:40,053 [+] decompile bytecode by pycdc success on file:output_2967131\PYZ-00.pyz_extract\importlib\abc.pyc,length:172 :__init__.py:60-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\__init__.py on(__init__.exec_pycdc) at 8384@ThreadPoolExecutor-0_51  
+2023-01-27 14:06:40,053 [+] decompile bytecode by pycdc success on file:output_2967131\PYZ-00.pyz_extract\email\base64mime.pyc,length:3000 :__init__.py:60-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\__init__.py on(__init__.exec_pycdc) at 8384@ThreadPoolExecutor-0_66  
+2023-01-27 14:06:40,053 [+] decompile bytecode by pycdc success on file:output_2967131\PYZ-00.pyz_extract\numbers.pyc,length:11279 :__init__.py:60-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\__init__.py on(__init__.exec_pycdc) at 8384@ThreadPoolExecutor-0_78  
+2023-01-27 14:06:40,054 [!] 
+Warning: block stack is not empty!
+Warning: Stack history is not empty!
+Warning: block stack is not empty!
+Warning: Stack history is not empty!
+Warning: block stack is not empty!
+Warning: Stack history is not empty!
+Warning: block stack is not empty!
+Warning: Stack history is not empty!
+Warning: block stack is not empty!
+on exec_pycdc:output_2967131\PYZ-00.pyz_extract\textwrap.pyc.structed.pyc :__init__.py:54-30  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\__init__.py on(__init__.exec_pycdc) at 8384@ThreadPoolExecutor-0_12  
+2023-01-27 14:06:40,056 [+] decompile bytecode by pycdc success on file:output_2967131\PYZ-00.pyz_extract\textwrap.pyc,length:15442 :__init__.py:60-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\__init__.py on(__init__.exec_pycdc) at 8384@ThreadPoolExecutor-0_12  
+2023-01-27 14:06:40,058 [!] 
+Warning: Stack history is not empty!
+Warning: block stack is not empty!
+on exec_pycdc:output_2967131\PYZ-00.pyz_extract\email\charset.pyc.structed.pyc :__init__.py:54-30  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\__init__.py on(__init__.exec_pycdc) at 8384@ThreadPoolExecutor-0_29  
+2023-01-27 14:06:40,059 [+] decompile bytecode by pycdc success on file:output_2967131\PYZ-00.pyz_extract\email\charset.pyc,length:12395 :__init__.py:60-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\__init__.py on(__init__.exec_pycdc) at 8384@ThreadPoolExecutor-0_29  
+2023-01-27 14:06:40,059 [!] 
+Warning: Stack history is not empty!
+Warning: block stack is not empty!
+Warning: Stack history is not empty!
+Warning: block stack is not empty!
+Warning: Stack history is not empty!
+Warning: block stack is not empty!
+Warning: Stack history is not empty!
+Warning: block stack is not empty!
+Warning: block stack is not empty!
+Warning: block stack is not empty!
+on exec_pycdc:output_2967131\PYZ-00.pyz_extract\ftplib.pyc.structed.pyc :__init__.py:54-30  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\__init__.py on(__init__.exec_pycdc) at 8384@ThreadPoolExecutor-0_52  
+2023-01-27 14:06:40,059 [+] decompile bytecode by pycdc success on file:output_2967131\PYZ-00.pyz_extract\email\parser.pyc,length:5148 :__init__.py:60-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\__init__.py on(__init__.exec_pycdc) at 8384@ThreadPoolExecutor-0_48  
+2023-01-27 14:06:40,060 [+] decompile bytecode by pycdc success on file:output_2967131\PYZ-00.pyz_extract\getopt.pyc,length:805 :__init__.py:60-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\__init__.py on(__init__.exec_pycdc) at 8384@ThreadPoolExecutor-0_72  
+2023-01-27 14:06:40,061 [!] 
+Warning: Stack history is not empty!
+Warning: block stack is not empty!
+Warning: Stack history is not empty!
+Warning: block stack is not empty!
+Warning: Stack history is not empty!
+Warning: block stack is not empty!
+Warning: block stack is not empty!
+on exec_pycdc:output_2967131\PYZ-00.pyz_extract\email\utils.pyc.structed.pyc :__init__.py:54-30  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\__init__.py on(__init__.exec_pycdc) at 8384@ThreadPoolExecutor-0_36  
+2023-01-27 14:06:40,061 [+] decompile bytecode by pycdc success on file:output_2967131\PYZ-00.pyz_extract\hashlib.pyc,length:2630 :__init__.py:60-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\__init__.py on(__init__.exec_pycdc) at 8384@ThreadPoolExecutor-0_47  
+2023-01-27 14:06:40,061 [+] decompile bytecode by pycdc success on file:output_2967131\PYZ-00.pyz_extract\ftplib.pyc,length:19544 :__init__.py:60-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\__init__.py on(__init__.exec_pycdc) at 8384@ThreadPoolExecutor-0_52  
+2023-01-27 14:06:40,062 [+] decompile bytecode by pycdc success on file:output_2967131\PYZ-00.pyz_extract\email\utils.pyc,length:9083 :__init__.py:60-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\__init__.py on(__init__.exec_pycdc) at 8384@ThreadPoolExecutor-0_36  
+2023-01-27 14:06:40,072 [!] 
+Warning: block stack is not empty!
+Warning: Stack history is not empty!
+Warning: block stack is not empty!
+Warning: Stack history is not empty!
+Warning: block stack is not empty!
+Warning: Stack history is not empty!
+Warning: block stack is not empty!
+Warning: Stack history is not empty!
+Warning: block stack is not empty!
+on exec_pycdc:output_2967131\PYZ-00.pyz_extract\email\generator.pyc.structed.pyc :__init__.py:54-30  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\__init__.py on(__init__.exec_pycdc) at 8384@ThreadPoolExecutor-0_53  
+2023-01-27 14:06:40,072 [+] decompile bytecode by pycdc success on file:output_2967131\PYZ-00.pyz_extract\email\generator.pyc,length:11169 :__init__.py:60-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\__init__.py on(__init__.exec_pycdc) at 8384@ThreadPoolExecutor-0_53  
+2023-01-27 14:06:40,082 [+] decompile bytecode on file:output_2967131\PYZ-00.pyz_extract\http\client.pyc,length:4073 :__init__.py:38-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\py_package\package_struct\__init__.py on(__init__.decompile_pyc) at 8384@ThreadPoolExecutor-0_74  
+2023-01-27 14:06:40,082 [+] decompile bytecode on file:output_2967131\PYZ-00.pyz_extract\socket.pyc,length:2165 :__init__.py:38-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\py_package\package_struct\__init__.py on(__init__.decompile_pyc) at 8384@ThreadPoolExecutor-0_11  
+2023-01-27 14:06:40,083 [+] decompile bytecode on file:output_2967131\PYZ-00.pyz_extract\tarfile.pyc,length:400 :__init__.py:38-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\py_package\package_struct\__init__.py on(__init__.decompile_pyc) at 8384@ThreadPoolExecutor-0_6  
+2023-01-27 14:06:40,083 [+] decompile bytecode on file:output_2967131\PYZ-00.pyz_extract\optparse.pyc,length:2922 :__init__.py:38-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\py_package\package_struct\__init__.py on(__init__.decompile_pyc) at 8384@ThreadPoolExecutor-0_24  
+2023-01-27 14:06:40,084 [+] decompile bytecode on file:output_2967131\PYZ-00.pyz_extract\tempfile.pyc,length:14501 :__init__.py:38-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\py_package\package_struct\__init__.py on(__init__.decompile_pyc) at 8384@ThreadPoolExecutor-0_85  
+2023-01-27 14:06:40,084 [+] decompile bytecode on file:output_2967131\PYZ-00.pyz_extract\ctypes\_endian.pyc,length:1346 :__init__.py:38-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\py_package\package_struct\__init__.py on(__init__.decompile_pyc) at 8384@ThreadPoolExecutor-0_62  
+2023-01-27 14:06:40,086 [+] decompile bytecode on file:output_2967131\PYZ-00.pyz_extract\contextlib.pyc,length:15270 :__init__.py:38-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\py_package\package_struct\__init__.py on(__init__.decompile_pyc) at 8384@ThreadPoolExecutor-0_16  
+2023-01-27 14:06:40,086 [+] decompile bytecode on file:output_2967131\PYZ-00.pyz_extract\importlib\_bootstrap.pyc,length:24355 :__init__.py:38-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\py_package\package_struct\__init__.py on(__init__.decompile_pyc) at 8384@ThreadPoolExecutor-0_39  
+2023-01-27 14:06:40,087 [+] decompile bytecode on file:output_2967131\PYZ-00.pyz_extract\bz2.pyc,length:10095 :__init__.py:38-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\py_package\package_struct\__init__.py on(__init__.decompile_pyc) at 8384@ThreadPoolExecutor-0_20  
+2023-01-27 14:06:40,087 [+] decompile bytecode on file:output_2967131\PYZ-00.pyz_extract\py_compile.pyc,length:5627 :__init__.py:38-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\py_package\package_struct\__init__.py on(__init__.decompile_pyc) at 8384@ThreadPoolExecutor-0_80  
+2023-01-27 14:06:40,087 [+] decompile bytecode on file:output_2967131\PYZ-00.pyz_extract\contextvars.pyc,length:131 :__init__.py:38-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\py_package\package_struct\__init__.py on(__init__.decompile_pyc) at 8384@ThreadPoolExecutor-0_3  
+2023-01-27 14:06:40,088 [+] decompile bytecode on file:output_2967131\PYZ-00.pyz_extract\ssl.pyc,length:3480 :__init__.py:38-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\py_package\package_struct\__init__.py on(__init__.decompile_pyc) at 8384@ThreadPoolExecutor-0_4  
+2023-01-27 14:06:40,089 [+] decompile bytecode on file:output_2967131\PYZ-00.pyz_extract\subprocess.pyc,length:1452 :__init__.py:38-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\py_package\package_struct\__init__.py on(__init__.decompile_pyc) at 8384@ThreadPoolExecutor-0_84  
+2023-01-27 14:06:40,090 [+] decompile bytecode on file:output_2967131\PYZ-00.pyz_extract\getpass.pyc,length:2335 :__init__.py:38-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\py_package\package_struct\__init__.py on(__init__.decompile_pyc) at 8384@ThreadPoolExecutor-0_1  
+2023-01-27 14:06:40,090 [+] decompile bytecode on file:output_2967131\PYZ-00.pyz_extract\importlib\machinery.pyc,length:807 :__init__.py:38-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\py_package\package_struct\__init__.py on(__init__.decompile_pyc) at 8384@ThreadPoolExecutor-0_37  
+2023-01-27 14:06:40,093 [+] decompile bytecode on file:output_2967131\PYZ-00.pyz_extract\uu.pyc,length:2361 :__init__.py:38-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\py_package\package_struct\__init__.py on(__init__.decompile_pyc) at 8384@ThreadPoolExecutor-0_14  
+2023-01-27 14:06:40,101 [!] 
+Warning: Stack history is not empty!
+Warning: block stack is not empty!
+Warning: Stack history is not empty!
+Warning: block stack is not empty!
+on exec_pycdc:output_2967131\PYZ-00.pyz_extract\bisect.pyc.structed.pyc :__init__.py:54-30  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\__init__.py on(__init__.exec_pycdc) at 8384@ThreadPoolExecutor-0_21  
+2023-01-27 14:06:40,101 [+] decompile bytecode by pycdc success on file:output_2967131\PYZ-00.pyz_extract\bisect.pyc,length:2359 :__init__.py:60-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\__init__.py on(__init__.exec_pycdc) at 8384@ThreadPoolExecutor-0_21  
+2023-01-27 14:06:40,104 [+] decompile bytecode by pycdc success on file:output_2967131\PYZ-00.pyz_extract\email\errors.pyc,length:3758 :__init__.py:60-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\__init__.py on(__init__.exec_pycdc) at 8384@ThreadPoolExecutor-0_67  
+2023-01-27 14:06:40,104 [!] decompile bytecode by pycdc fail,file:output_2967131\PYZ-00.pyz_extract\email\contentmanager.pyc,with error:None :__init__.py:65-30  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\__init__.py on(__init__.exec_pycdc) at 8384@ThreadPoolExecutor-0_34  
+2023-01-27 14:06:40,105 [!] decompile bytecode by pycdc fail,file:output_2967131\PYZ-00.pyz_extract\email\message.pyc,with error:None :__init__.py:65-30  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\__init__.py on(__init__.exec_pycdc) at 8384@ThreadPoolExecutor-0_27  
+2023-01-27 14:06:40,106 [!] fail to decompile bytecode on file:output_2967131\PYZ-00.pyz_extract\email\contentmanager.pyc,with error:uncompyle6 not initilized :__init__.py:41-30  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\py_package\package_struct\__init__.py on(__init__.decompile_pyc) at 8384@ThreadPoolExecutor-0_34  
+2023-01-27 14:06:40,106 [!] fail to decompile bytecode on file:output_2967131\PYZ-00.pyz_extract\email\message.pyc,with error:uncompyle6 not initilized :__init__.py:41-30  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\py_package\package_struct\__init__.py on(__init__.decompile_pyc) at 8384@ThreadPoolExecutor-0_27  
+2023-01-27 14:06:40,106 [+] decompile bytecode by pycdc success on file:output_2967131\PYZ-00.pyz_extract\string.pyc,length:6449 :__init__.py:60-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\__init__.py on(__init__.exec_pycdc) at 8384@ThreadPoolExecutor-0_9  
+2023-01-27 14:06:40,107 [!] decompile bytecode by pycdc fail,file:output_2967131\PYZ-00.pyz_extract\email\encoders.pyc,with error:None :__init__.py:65-30  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\__init__.py on(__init__.exec_pycdc) at 8384@ThreadPoolExecutor-0_42  
+2023-01-27 14:06:40,108 [!] fail to decompile bytecode on file:output_2967131\PYZ-00.pyz_extract\email\encoders.pyc,with error:uncompyle6 not initilized :__init__.py:41-30  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\py_package\package_struct\__init__.py on(__init__.decompile_pyc) at 8384@ThreadPoolExecutor-0_42  
+2023-01-27 14:06:40,109 [!] 
+Warning: Stack history is not empty!
+Warning: block stack is not empty!
+on exec_pycdc:output_2967131\PYZ-00.pyz_extract\selectors.pyc.structed.pyc :__init__.py:54-30  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\__init__.py on(__init__.exec_pycdc) at 8384@ThreadPoolExecutor-0_31  
+2023-01-27 14:06:40,109 [+] decompile bytecode by pycdc success on file:output_2967131\PYZ-00.pyz_extract\selectors.pyc,length:46044 :__init__.py:60-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\__init__.py on(__init__.exec_pycdc) at 8384@ThreadPoolExecutor-0_31  
+2023-01-27 14:06:40,110 [+] decompile bytecode by pycdc success on file:output_2967131\PYZ-00.pyz_extract\mimetypes.pyc,length:892 :__init__.py:60-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\__init__.py on(__init__.exec_pycdc) at 8384@ThreadPoolExecutor-0_77  
+2023-01-27 14:06:40,148 [+] decompile bytecode on file:output_2967131\PYZ-00.pyz_extract\quopri.pyc,length:285 :__init__.py:38-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\py_package\package_struct\__init__.py on(__init__.decompile_pyc) at 8384@ThreadPoolExecutor-0_28  
+2023-01-27 14:06:40,148 [+] decompile bytecode on file:output_2967131\PYZ-00.pyz_extract\email\parser.pyc,length:5148 :__init__.py:38-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\py_package\package_struct\__init__.py on(__init__.decompile_pyc) at 8384@ThreadPoolExecutor-0_48  
+2023-01-27 14:06:40,148 [+] decompile bytecode on file:output_2967131\PYZ-00.pyz_extract\email\headerregistry.pyc,length:19965 :__init__.py:38-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\py_package\package_struct\__init__.py on(__init__.decompile_pyc) at 8384@ThreadPoolExecutor-0_41  
+2023-01-27 14:06:40,148 [+] decompile bytecode on file:output_2967131\PYZ-00.pyz_extract\textwrap.pyc,length:15442 :__init__.py:38-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\py_package\package_struct\__init__.py on(__init__.decompile_pyc) at 8384@ThreadPoolExecutor-0_12  
+2023-01-27 14:06:40,149 [+] decompile bytecode on file:output_2967131\PYZ-00.pyz_extract\email\charset.pyc,length:12395 :__init__.py:38-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\py_package\package_struct\__init__.py on(__init__.decompile_pyc) at 8384@ThreadPoolExecutor-0_29  
+2023-01-27 14:06:40,151 [+] decompile bytecode on file:output_2967131\PYZ-00.pyz_extract\gzip.pyc,length:21881 :__init__.py:38-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\py_package\package_struct\__init__.py on(__init__.decompile_pyc) at 8384@ThreadPoolExecutor-0_73  
+2023-01-27 14:06:40,151 [+] decompile bytecode on file:output_2967131\PYZ-00.pyz_extract\getopt.pyc,length:805 :__init__.py:38-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\py_package\package_struct\__init__.py on(__init__.decompile_pyc) at 8384@ThreadPoolExecutor-0_72  
+2023-01-27 14:06:40,152 [+] decompile bytecode on file:output_2967131\PYZ-00.pyz_extract\tracemalloc.pyc,length:12009 :__init__.py:38-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\py_package\package_struct\__init__.py on(__init__.decompile_pyc) at 8384@ThreadPoolExecutor-0_86  
+2023-01-27 14:06:40,152 [+] decompile bytecode on file:output_2967131\PYZ-00.pyz_extract\email\generator.pyc,length:11169 :__init__.py:38-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\py_package\package_struct\__init__.py on(__init__.decompile_pyc) at 8384@ThreadPoolExecutor-0_53  
+2023-01-27 14:06:40,152 [!] 
+Warning: Stack history is not empty!
+Warning: block stack is not empty!
+on exec_pycdc:output_2967131\PYZ-00.pyz_extract\email\_encoded_words.pyc.structed.pyc :__init__.py:54-30  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\__init__.py on(__init__.exec_pycdc) at 8384@ThreadPoolExecutor-0_35  
+2023-01-27 14:06:40,153 [+] decompile bytecode by pycdc success on file:output_2967131\PYZ-00.pyz_extract\email\_encoded_words.pyc,length:4273 :__init__.py:60-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\__init__.py on(__init__.exec_pycdc) at 8384@ThreadPoolExecutor-0_35  
+2023-01-27 14:06:40,154 [!] 
+Warning: block stack is not empty!
+Warning: Stack history is not empty!
+Warning: block stack is not empty!
+Warning: block stack is not empty!
+on exec_pycdc:output_2967131\PYZ-00.pyz_extract\gettext.pyc.structed.pyc :__init__.py:54-30  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\__init__.py on(__init__.exec_pycdc) at 8384@ThreadPoolExecutor-0_43  
+2023-01-27 14:06:40,154 [!] 
+Warning: Stack history is not empty!
+Warning: block stack is not empty!
+Warning: block stack is not empty!
+Warning: block stack is not empty!
+Warning: Stack history is not empty!
+Warning: block stack is not empty!
+Warning: Stack history is not empty!
+Warning: block stack is not empty!
+on exec_pycdc:output_2967131\PYZ-00.pyz_extract\configparser.pyc.structed.pyc :__init__.py:54-30  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\__init__.py on(__init__.exec_pycdc) at 8384@ThreadPoolExecutor-0_60  
+2023-01-27 14:06:40,154 [+] decompile bytecode by pycdc success on file:output_2967131\PYZ-00.pyz_extract\statistics.pyc,length:4064 :__init__.py:60-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\__init__.py on(__init__.exec_pycdc) at 8384@ThreadPoolExecutor-0_83  
+2023-01-27 14:06:40,155 [+] decompile bytecode by pycdc success on file:output_2967131\PYZ-00.pyz_extract\gettext.pyc,length:15282 :__init__.py:60-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\__init__.py on(__init__.exec_pycdc) at 8384@ThreadPoolExecutor-0_43  
+2023-01-27 14:06:40,155 [!] 
+Warning: Stack history is not empty!
+Warning: block stack is not empty!
+on exec_pycdc:output_2967131\PYZ-00.pyz_extract\signal.pyc.structed.pyc :__init__.py:54-30  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\__init__.py on(__init__.exec_pycdc) at 8384@ThreadPoolExecutor-0_56  
+2023-01-27 14:06:40,156 [+] decompile bytecode by pycdc success on file:output_2967131\PYZ-00.pyz_extract\threading.pyc,length:308 :__init__.py:60-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\__init__.py on(__init__.exec_pycdc) at 8384@ThreadPoolExecutor-0_7  
+2023-01-27 14:06:40,156 [+] decompile bytecode by pycdc success on file:output_2967131\PYZ-00.pyz_extract\configparser.pyc,length:41900 :__init__.py:60-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\__init__.py on(__init__.exec_pycdc) at 8384@ThreadPoolExecutor-0_60  
+2023-01-27 14:06:40,156 [+] decompile bytecode by pycdc success on file:output_2967131\PYZ-00.pyz_extract\stringprep.pyc,length:304 :__init__.py:60-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\__init__.py on(__init__.exec_pycdc) at 8384@ThreadPoolExecutor-0_5  
+2023-01-27 14:06:40,157 [+] decompile bytecode by pycdc success on file:output_2967131\PYZ-00.pyz_extract\signal.pyc,length:2719 :__init__.py:60-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\__init__.py on(__init__.exec_pycdc) at 8384@ThreadPoolExecutor-0_56  
+2023-01-27 14:06:40,162 [!] 
+Warning: block stack is not empty!
+Warning: block stack is not empty!
+Warning: block stack is not empty!
+Warning: block stack is not empty!
+Warning: block stack is not empty!
+Warning: block stack is not empty!
+on exec_pycdc:output_2967131\PYZ-00.pyz_extract\calendar.pyc.structed.pyc :__init__.py:54-30  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\__init__.py on(__init__.exec_pycdc) at 8384@ThreadPoolExecutor-0_17  
+2023-01-27 14:06:40,162 [+] decompile bytecode by pycdc success on file:output_2967131\PYZ-00.pyz_extract\calendar.pyc,length:21664 :__init__.py:60-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\__init__.py on(__init__.exec_pycdc) at 8384@ThreadPoolExecutor-0_17  
+2023-01-27 14:06:40,165 [+] decompile bytecode by pycdc success on file:output_2967131\PYZ-00.pyz_extract\email\__init__.pyc,length:1527 :__init__.py:60-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\__init__.py on(__init__.exec_pycdc) at 8384@ThreadPoolExecutor-0_54  
+2023-01-27 14:06:40,166 [!] 
+Warning: block stack is not empty!
+Warning: block stack is not empty!
+on exec_pycdc:output_2967131\PYZ-00.pyz_extract\email\_policybase.pyc.structed.pyc :__init__.py:54-30  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\__init__.py on(__init__.exec_pycdc) at 8384@ThreadPoolExecutor-0_65  
+2023-01-27 14:06:40,166 [+] decompile bytecode on file:output_2967131\PYZ-00.pyz_extract\email\header.pyc,length:14888 :__init__.py:38-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\py_package\package_struct\__init__.py on(__init__.decompile_pyc) at 8384@ThreadPoolExecutor-0_38  
+2023-01-27 14:06:40,166 [+] decompile bytecode by pycdc success on file:output_2967131\PYZ-00.pyz_extract\email\_policybase.pyc,length:10459 :__init__.py:60-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\__init__.py on(__init__.exec_pycdc) at 8384@ThreadPoolExecutor-0_65  
+2023-01-27 14:06:40,171 [+] decompile bytecode on file:output_2967131\PYZ-00.pyz_extract\email\utils.pyc,length:9083 :__init__.py:38-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\py_package\package_struct\__init__.py on(__init__.decompile_pyc) at 8384@ThreadPoolExecutor-0_36  
+2023-01-27 14:06:40,172 [+] decompile bytecode on file:output_2967131\PYZ-00.pyz_extract\email\base64mime.pyc,length:3000 :__init__.py:38-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\py_package\package_struct\__init__.py on(__init__.decompile_pyc) at 8384@ThreadPoolExecutor-0_66  
+2023-01-27 14:06:40,176 [+] decompile bytecode on file:output_2967131\PYZ-00.pyz_extract\importlib\abc.pyc,length:172 :__init__.py:38-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\py_package\package_struct\__init__.py on(__init__.decompile_pyc) at 8384@ThreadPoolExecutor-0_51  
+2023-01-27 14:06:40,177 [+] decompile bytecode on file:output_2967131\PYZ-00.pyz_extract\base64.pyc,length:13022 :__init__.py:38-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\py_package\package_struct\__init__.py on(__init__.decompile_pyc) at 8384@ThreadPoolExecutor-0_59  
+2023-01-27 14:06:40,177 [+] decompile bytecode on file:output_2967131\PYZ-00.pyz_extract\bisect.pyc,length:2359 :__init__.py:38-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\py_package\package_struct\__init__.py on(__init__.decompile_pyc) at 8384@ThreadPoolExecutor-0_21  
+2023-01-27 14:06:40,177 [+] decompile bytecode on file:output_2967131\PYZ-00.pyz_extract\numbers.pyc,length:11279 :__init__.py:38-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\py_package\package_struct\__init__.py on(__init__.decompile_pyc) at 8384@ThreadPoolExecutor-0_78  
+2023-01-27 14:06:40,177 [+] decompile bytecode on file:output_2967131\PYZ-00.pyz_extract\decimal.pyc,length:35 :__init__.py:38-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\py_package\package_struct\__init__.py on(__init__.decompile_pyc) at 8384@ThreadPoolExecutor-0_63  
+2023-01-27 14:06:40,178 [+] decompile bytecode on file:output_2967131\PYZ-00.pyz_extract\hashlib.pyc,length:2630 :__init__.py:38-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\py_package\package_struct\__init__.py on(__init__.decompile_pyc) at 8384@ThreadPoolExecutor-0_47  
+2023-01-27 14:06:40,178 [+] decompile bytecode on file:output_2967131\PYZ-00.pyz_extract\shlex.pyc,length:17235 :__init__.py:38-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\py_package\package_struct\__init__.py on(__init__.decompile_pyc) at 8384@ThreadPoolExecutor-0_82  
+2023-01-27 14:06:40,178 [+] decompile bytecode on file:output_2967131\PYZ-00.pyz_extract\ftplib.pyc,length:19544 :__init__.py:38-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\py_package\package_struct\__init__.py on(__init__.decompile_pyc) at 8384@ThreadPoolExecutor-0_52  
+2023-01-27 14:06:40,179 [+] decompile bytecode on file:output_2967131\PYZ-00.pyz_extract\lzma.pyc,length:12801 :__init__.py:38-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\py_package\package_struct\__init__.py on(__init__.decompile_pyc) at 8384@ThreadPoolExecutor-0_25  
+2023-01-27 14:06:40,180 [+] decompile bytecode on file:output_2967131\PYZ-00.pyz_extract\pickle.pyc,length:992 :__init__.py:38-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\py_package\package_struct\__init__.py on(__init__.decompile_pyc) at 8384@ThreadPoolExecutor-0_30  
+2023-01-27 14:06:40,185 [!] 
+Warning: Stack history is not empty!
+Warning: block stack is not empty!
+Warning: block stack is not empty!
+on exec_pycdc:output_2967131\PYZ-00.pyz_extract\importlib\metadata.pyc.structed.pyc :__init__.py:54-30  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\__init__.py on(__init__.exec_pycdc) at 8384@ThreadPoolExecutor-0_49  
+2023-01-27 14:06:40,185 [!] 
+Warning: block stack is not empty!
+on exec_pycdc:output_2967131\PYZ-00.pyz_extract\email\iterators.pyc.structed.pyc :__init__.py:54-30  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\__init__.py on(__init__.exec_pycdc) at 8384@ThreadPoolExecutor-0_69  
+2023-01-27 14:06:40,186 [+] decompile bytecode by pycdc success on file:output_2967131\PYZ-00.pyz_extract\importlib\metadata.pyc,length:17433 :__init__.py:60-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\__init__.py on(__init__.exec_pycdc) at 8384@ThreadPoolExecutor-0_49  
+2023-01-27 14:06:40,187 [!] 
+Warning: block stack is not empty!
+on exec_pycdc:output_2967131\PYZ-00.pyz_extract\http\cookiejar.pyc.structed.pyc :__init__.py:54-30  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\__init__.py on(__init__.exec_pycdc) at 8384@ThreadPoolExecutor-0_40  
+2023-01-27 14:06:40,187 [!] 
+Warning: block stack is not empty!
+Warning: Stack history is not empty!
+Warning: block stack is not empty!
+on exec_pycdc:output_2967131\PYZ-00.pyz_extract\email\feedparser.pyc.structed.pyc :__init__.py:54-30  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\__init__.py on(__init__.exec_pycdc) at 8384@ThreadPoolExecutor-0_68  
+2023-01-27 14:06:40,187 [+] decompile bytecode by pycdc success on file:output_2967131\PYZ-00.pyz_extract\_pydecimal.pyc,length:3611 :__init__.py:60-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\__init__.py on(__init__.exec_pycdc) at 8384@ThreadPoolExecutor-0_58  
+2023-01-27 14:06:40,187 [+] decompile bytecode by pycdc success on file:output_2967131\PYZ-00.pyz_extract\_py_abc.pyc,length:3476 :__init__.py:60-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\__init__.py on(__init__.exec_pycdc) at 8384@ThreadPoolExecutor-0_19  
+2023-01-27 14:06:40,190 [!] 
+Warning: block stack is not empty!
+Warning: block stack is not empty!
+Warning: block stack is not empty!
+Warning: block stack is not empty!
+Warning: block stack is not empty!
+Warning: Stack history is not empty!
+Warning: block stack is not empty!
+on exec_pycdc:output_2967131\PYZ-00.pyz_extract\argparse.pyc.structed.pyc :__init__.py:54-30  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\__init__.py on(__init__.exec_pycdc) at 8384@ThreadPoolExecutor-0_18  
+2023-01-27 14:06:40,191 [+] decompile bytecode by pycdc success on file:output_2967131\PYZ-00.pyz_extract\email\iterators.pyc,length:1564 :__init__.py:60-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\__init__.py on(__init__.exec_pycdc) at 8384@ThreadPoolExecutor-0_69  
+2023-01-27 14:06:40,192 [!] 
+Warning: block stack is not empty!
+Warning: Stack history is not empty!
+Warning: block stack is not empty!
+on exec_pycdc:output_2967131\PYZ-00.pyz_extract\nturl2path.pyc.structed.pyc :__init__.py:54-30  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\__init__.py on(__init__.exec_pycdc) at 8384@ThreadPoolExecutor-0_22  
+2023-01-27 14:06:40,192 [+] decompile bytecode by pycdc success on file:output_2967131\PYZ-00.pyz_extract\shutil.pyc,length:290 :__init__.py:60-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\__init__.py on(__init__.exec_pycdc) at 8384@ThreadPoolExecutor-0_2  
+2023-01-27 14:06:40,192 [!] 
+Warning: Stack history is not empty!
+Warning: block stack is not empty!
+Warning: block stack is not empty!
+Warning: Stack history is not empty!
+Warning: block stack is not empty!
+Warning: Stack history is not empty!
+Warning: block stack is not empty!
+on exec_pycdc:output_2967131\PYZ-00.pyz_extract\pprint.pyc.structed.pyc :__init__.py:54-30  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\__init__.py on(__init__.exec_pycdc) at 8384@ThreadPoolExecutor-0_44  
+2023-01-27 14:06:40,192 [!] 
+Warning: Stack history is not empty!
+Warning: block stack is not empty!
+on exec_pycdc:output_2967131\PYZ-00.pyz_extract\_compression.pyc.structed.pyc :__init__.py:54-30  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\__init__.py on(__init__.exec_pycdc) at 8384@ThreadPoolExecutor-0_13  
+2023-01-27 14:06:40,193 [+] decompile bytecode by pycdc success on file:output_2967131\PYZ-00.pyz_extract\importlib\__init__.pyc,length:208 :__init__.py:60-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\__init__.py on(__init__.exec_pycdc) at 8384@ThreadPoolExecutor-0_75  
+2023-01-27 14:06:40,193 [!] decompile bytecode by pycdc fail,file:output_2967131\PYZ-00.pyz_extract\http\cookiejar.pyc,with error:Unsupported opcode: CALL_FUNCTION_EX
+ :__init__.py:65-30  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\__init__.py on(__init__.exec_pycdc) at 8384@ThreadPoolExecutor-0_40  
+2023-01-27 14:06:40,193 [!] 
+Warning: block stack is not empty!
+on exec_pycdc:output_2967131\PYZ-00.pyz_extract\importlib\util.pyc.structed.pyc :__init__.py:54-30  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\__init__.py on(__init__.exec_pycdc) at 8384@ThreadPoolExecutor-0_76  
+2023-01-27 14:06:40,193 [+] decompile bytecode by pycdc success on file:output_2967131\PYZ-00.pyz_extract\random.pyc,length:1583 :__init__.py:60-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\__init__.py on(__init__.exec_pycdc) at 8384@ThreadPoolExecutor-0_81  
+2023-01-27 14:06:40,193 [!] 
+Warning: Stack history is not empty!
+Warning: block stack is not empty!
+Warning: Stack history is not empty!
+Warning: block stack is not empty!
+on exec_pycdc:output_2967131\PYZ-00.pyz_extract\fractions.pyc.structed.pyc :__init__.py:54-30  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\__init__.py on(__init__.exec_pycdc) at 8384@ThreadPoolExecutor-0_55  
+2023-01-27 14:06:40,194 [+] decompile bytecode by pycdc success on file:output_2967131\PYZ-00.pyz_extract\email\feedparser.pyc,length:4142 :__init__.py:60-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\__init__.py on(__init__.exec_pycdc) at 8384@ThreadPoolExecutor-0_68  
+2023-01-27 14:06:40,198 [+] decompile bytecode by pycdc success on file:output_2967131\PYZ-00.pyz_extract\argparse.pyc,length:4149870 :__init__.py:60-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\__init__.py on(__init__.exec_pycdc) at 8384@ThreadPoolExecutor-0_18  
+2023-01-27 14:06:40,198 [+] decompile bytecode by pycdc success on file:output_2967131\PYZ-00.pyz_extract\nturl2path.pyc,length:2110 :__init__.py:60-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\__init__.py on(__init__.exec_pycdc) at 8384@ThreadPoolExecutor-0_22  
+2023-01-27 14:06:40,199 [+] decompile bytecode by pycdc success on file:output_2967131\PYZ-00.pyz_extract\pprint.pyc,length:17586 :__init__.py:60-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\__init__.py on(__init__.exec_pycdc) at 8384@ThreadPoolExecutor-0_44  
+2023-01-27 14:06:40,199 [+] decompile bytecode by pycdc success on file:output_2967131\PYZ-00.pyz_extract\_compression.pyc,length:3183 :__init__.py:60-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\__init__.py on(__init__.exec_pycdc) at 8384@ThreadPoolExecutor-0_13  
+2023-01-27 14:06:40,199 [!] fail to decompile bytecode on file:output_2967131\PYZ-00.pyz_extract\http\cookiejar.pyc,with error:Unsupported opcode: CALL_FUNCTION_EX
+ :__init__.py:41-30  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\py_package\package_struct\__init__.py on(__init__.decompile_pyc) at 8384@ThreadPoolExecutor-0_40  
+2023-01-27 14:06:40,199 [!] decompile bytecode by pycdc fail,file:output_2967131\PYZ-00.pyz_extract\importlib\util.pyc,with error:None :__init__.py:65-30  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\__init__.py on(__init__.exec_pycdc) at 8384@ThreadPoolExecutor-0_76  
+2023-01-27 14:06:40,200 [+] decompile bytecode by pycdc success on file:output_2967131\PYZ-00.pyz_extract\fractions.pyc,length:21006 :__init__.py:60-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\__init__.py on(__init__.exec_pycdc) at 8384@ThreadPoolExecutor-0_55  
+2023-01-27 14:06:40,201 [!] fail to decompile bytecode on file:output_2967131\PYZ-00.pyz_extract\importlib\util.pyc,with error:uncompyle6 not initilized :__init__.py:41-30  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\py_package\package_struct\__init__.py on(__init__.decompile_pyc) at 8384@ThreadPoolExecutor-0_76  
+2023-01-27 14:06:40,211 [+] decompile bytecode on file:output_2967131\PYZ-00.pyz_extract\email\errors.pyc,length:3758 :__init__.py:38-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\py_package\package_struct\__init__.py on(__init__.decompile_pyc) at 8384@ThreadPoolExecutor-0_67  
+2023-01-27 14:06:40,212 [+] decompile bytecode on file:output_2967131\PYZ-00.pyz_extract\mimetypes.pyc,length:892 :__init__.py:38-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\py_package\package_struct\__init__.py on(__init__.decompile_pyc) at 8384@ThreadPoolExecutor-0_77  
+2023-01-27 14:06:40,214 [+] decompile bytecode on file:output_2967131\PYZ-00.pyz_extract\email\_encoded_words.pyc,length:4273 :__init__.py:38-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\py_package\package_struct\__init__.py on(__init__.decompile_pyc) at 8384@ThreadPoolExecutor-0_35  
+2023-01-27 14:06:40,214 [+] decompile bytecode on file:output_2967131\PYZ-00.pyz_extract\email\_policybase.pyc,length:10459 :__init__.py:38-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\py_package\package_struct\__init__.py on(__init__.decompile_pyc) at 8384@ThreadPoolExecutor-0_65  
+2023-01-27 14:06:40,219 [+] decompile bytecode on file:output_2967131\PYZ-00.pyz_extract\stringprep.pyc,length:304 :__init__.py:38-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\py_package\package_struct\__init__.py on(__init__.decompile_pyc) at 8384@ThreadPoolExecutor-0_5  
+2023-01-27 14:06:40,221 [+] decompile bytecode on file:output_2967131\PYZ-00.pyz_extract\email\__init__.pyc,length:1527 :__init__.py:38-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\py_package\package_struct\__init__.py on(__init__.decompile_pyc) at 8384@ThreadPoolExecutor-0_54  
+2023-01-27 14:06:40,222 [+] decompile bytecode on file:output_2967131\PYZ-00.pyz_extract\zipfile.pyc,length:349 :__init__.py:38-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\py_package\package_struct\__init__.py on(__init__.decompile_pyc) at 8384@ThreadPoolExecutor-0_87  
+2023-01-27 14:06:40,223 [+] decompile bytecode on file:output_2967131\PYZ-00.pyz_extract\threading.pyc,length:308 :__init__.py:38-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\py_package\package_struct\__init__.py on(__init__.decompile_pyc) at 8384@ThreadPoolExecutor-0_7  
+2023-01-27 14:06:40,224 [+] decompile bytecode on file:output_2967131\PYZ-00.pyz_extract\string.pyc,length:6449 :__init__.py:38-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\py_package\package_struct\__init__.py on(__init__.decompile_pyc) at 8384@ThreadPoolExecutor-0_9  
+2023-01-27 14:06:40,225 [+] decompile bytecode on file:output_2967131\PYZ-00.pyz_extract\selectors.pyc,length:46044 :__init__.py:38-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\py_package\package_struct\__init__.py on(__init__.decompile_pyc) at 8384@ThreadPoolExecutor-0_31  
+2023-01-27 14:06:40,227 [+] decompile bytecode on file:output_2967131\PYZ-00.pyz_extract\configparser.pyc,length:41900 :__init__.py:38-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\py_package\package_struct\__init__.py on(__init__.decompile_pyc) at 8384@ThreadPoolExecutor-0_60  
+2023-01-27 14:06:40,227 [+] decompile bytecode on file:output_2967131\PYZ-00.pyz_extract\gettext.pyc,length:15282 :__init__.py:38-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\py_package\package_struct\__init__.py on(__init__.decompile_pyc) at 8384@ThreadPoolExecutor-0_43  
+2023-01-27 14:06:40,227 [+] decompile bytecode on file:output_2967131\PYZ-00.pyz_extract\calendar.pyc,length:21664 :__init__.py:38-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\py_package\package_struct\__init__.py on(__init__.decompile_pyc) at 8384@ThreadPoolExecutor-0_17  
+2023-01-27 14:06:40,227 [+] decompile bytecode on file:output_2967131\PYZ-00.pyz_extract\statistics.pyc,length:4064 :__init__.py:38-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\py_package\package_struct\__init__.py on(__init__.decompile_pyc) at 8384@ThreadPoolExecutor-0_83  
+2023-01-27 14:06:40,228 [+] decompile bytecode on file:output_2967131\PYZ-00.pyz_extract\signal.pyc,length:2719 :__init__.py:38-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\py_package\package_struct\__init__.py on(__init__.decompile_pyc) at 8384@ThreadPoolExecutor-0_56  
+2023-01-27 14:06:40,229 [!] 
+Warning: Stack history is not empty!
+Warning: block stack is not empty!
+Warning: block stack is not empty!
+Warning: block stack is not empty!
+Warning: Stack history is not empty!
+Warning: block stack is not empty!
+Warning: Stack history is not empty!
+Warning: block stack is not empty!
+Warning: Stack history is not empty!
+Warning: block stack is not empty!
+Warning: Stack history is not empty!
+Warning: block stack is not empty!
+on exec_pycdc:output_2967131\PYZ-00.pyz_extract\email\_header_value_parser.pyc.structed.pyc :__init__.py:54-30  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\__init__.py on(__init__.exec_pycdc) at 8384@ThreadPoolExecutor-0_64  
+2023-01-27 14:06:40,230 [+] decompile bytecode by pycdc success on file:output_2967131\PYZ-00.pyz_extract\email\_header_value_parser.pyc,length:29620 :__init__.py:60-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\__init__.py on(__init__.exec_pycdc) at 8384@ThreadPoolExecutor-0_64  
+2023-01-27 14:06:40,239 [!] 
+Warning: Stack history is not empty!
+Warning: block stack is not empty!
+Warning: Stack history is not empty!
+Warning: block stack is not empty!
+Warning: Stack history is not empty!
+Warning: block stack is not empty!
+on exec_pycdc:output_2967131\PYZ-00.pyz_extract\email\_parseaddr.pyc.structed.pyc :__init__.py:54-30  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\__init__.py on(__init__.exec_pycdc) at 8384@ThreadPoolExecutor-0_50  
+2023-01-27 14:06:40,241 [+] decompile bytecode by pycdc success on file:output_2967131\PYZ-00.pyz_extract\email\_parseaddr.pyc,length:4178 :__init__.py:60-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\__init__.py on(__init__.exec_pycdc) at 8384@ThreadPoolExecutor-0_50  
+2023-01-27 14:06:40,421 [+] decompile bytecode by pycdc success on file:output_2967131\PYZ-00.pyz_extract\typing.pyc,length:12584 :__init__.py:60-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\__init__.py on(__init__.exec_pycdc) at 8384@ThreadPoolExecutor-0_8  
+2023-01-27 14:06:40,427 [+] decompile bytecode on file:output_2967131\PYZ-00.pyz_extract\importlib\metadata.pyc,length:17433 :__init__.py:38-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\py_package\package_struct\__init__.py on(__init__.decompile_pyc) at 8384@ThreadPoolExecutor-0_49  
+2023-01-27 14:06:40,427 [+] decompile bytecode on file:output_2967131\PYZ-00.pyz_extract\importlib\__init__.pyc,length:208 :__init__.py:38-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\py_package\package_struct\__init__.py on(__init__.decompile_pyc) at 8384@ThreadPoolExecutor-0_75  
+2023-01-27 14:06:40,427 [+] decompile bytecode on file:output_2967131\PYZ-00.pyz_extract\_pydecimal.pyc,length:3611 :__init__.py:38-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\py_package\package_struct\__init__.py on(__init__.decompile_pyc) at 8384@ThreadPoolExecutor-0_58  
+2023-01-27 14:06:40,428 [+] decompile bytecode on file:output_2967131\PYZ-00.pyz_extract\nturl2path.pyc,length:2110 :__init__.py:38-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\py_package\package_struct\__init__.py on(__init__.decompile_pyc) at 8384@ThreadPoolExecutor-0_22  
+2023-01-27 14:06:40,428 [+] decompile bytecode on file:output_2967131\PYZ-00.pyz_extract\email\iterators.pyc,length:1564 :__init__.py:38-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\py_package\package_struct\__init__.py on(__init__.decompile_pyc) at 8384@ThreadPoolExecutor-0_69  
+2023-01-27 14:06:40,437 [+] decompile bytecode on file:output_2967131\PYZ-00.pyz_extract\email\feedparser.pyc,length:4142 :__init__.py:38-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\py_package\package_struct\__init__.py on(__init__.decompile_pyc) at 8384@ThreadPoolExecutor-0_68  
+2023-01-27 14:06:40,448 [+] decompile bytecode on file:output_2967131\PYZ-00.pyz_extract\argparse.pyc,length:4149870 :__init__.py:38-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\py_package\package_struct\__init__.py on(__init__.decompile_pyc) at 8384@ThreadPoolExecutor-0_18  
+2023-01-27 14:06:40,448 [+] decompile bytecode on file:output_2967131\PYZ-00.pyz_extract\random.pyc,length:1583 :__init__.py:38-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\py_package\package_struct\__init__.py on(__init__.decompile_pyc) at 8384@ThreadPoolExecutor-0_81  
+2023-01-27 14:06:40,448 [+] decompile bytecode on file:output_2967131\PYZ-00.pyz_extract\email\_parseaddr.pyc,length:4178 :__init__.py:38-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\py_package\package_struct\__init__.py on(__init__.decompile_pyc) at 8384@ThreadPoolExecutor-0_50  
+2023-01-27 14:06:40,448 [+] decompile bytecode on file:output_2967131\PYZ-00.pyz_extract\_py_abc.pyc,length:3476 :__init__.py:38-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\py_package\package_struct\__init__.py on(__init__.decompile_pyc) at 8384@ThreadPoolExecutor-0_19  
+2023-01-27 14:06:40,448 [+] decompile bytecode on file:output_2967131\PYZ-00.pyz_extract\shutil.pyc,length:290 :__init__.py:38-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\py_package\package_struct\__init__.py on(__init__.decompile_pyc) at 8384@ThreadPoolExecutor-0_2  
+2023-01-27 14:06:40,448 [+] decompile bytecode on file:output_2967131\PYZ-00.pyz_extract\fractions.pyc,length:21006 :__init__.py:38-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\py_package\package_struct\__init__.py on(__init__.decompile_pyc) at 8384@ThreadPoolExecutor-0_55  
+2023-01-27 14:06:40,449 [+] decompile bytecode on file:output_2967131\PYZ-00.pyz_extract\pprint.pyc,length:17586 :__init__.py:38-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\py_package\package_struct\__init__.py on(__init__.decompile_pyc) at 8384@ThreadPoolExecutor-0_44  
+2023-01-27 14:06:40,449 [+] decompile bytecode on file:output_2967131\PYZ-00.pyz_extract\email\_header_value_parser.pyc,length:29620 :__init__.py:38-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\py_package\package_struct\__init__.py on(__init__.decompile_pyc) at 8384@ThreadPoolExecutor-0_64  
+2023-01-27 14:06:40,449 [+] decompile bytecode on file:output_2967131\PYZ-00.pyz_extract\_compression.pyc,length:3183 :__init__.py:38-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\py_package\package_struct\__init__.py on(__init__.decompile_pyc) at 8384@ThreadPoolExecutor-0_13  
+2023-01-27 14:06:40,449 [+] decompile bytecode on file:output_2967131\PYZ-00.pyz_extract\typing.pyc,length:12584 :__init__.py:38-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\py_package\package_struct\__init__.py on(__init__.decompile_pyc) at 8384@ThreadPoolExecutor-0_8  
+2023-01-27 14:06:41,302 [!] decompile bytecode by pycdc fail,file:output_2967131\PYZ-00.pyz_extract\importlib\_bootstrap_external.pyc,with error:None :__init__.py:65-30  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\__init__.py on(__init__.exec_pycdc) at 8384@ThreadPoolExecutor-0_26  
+2023-01-27 14:06:41,303 [!] fail to decompile bytecode on file:output_2967131\PYZ-00.pyz_extract\importlib\_bootstrap_external.pyc,with error:uncompyle6 not initilized :__init__.py:41-30  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\py_package\package_struct\__init__.py on(__init__.decompile_pyc) at 8384@ThreadPoolExecutor-0_26  
+2023-01-27 14:06:41,661 [!] decompile bytecode by pycdc fail,file:output_2967131\PYZ-00.pyz_extract\logging\__init__.pyc,with error:None :__init__.py:65-30  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\__init__.py on(__init__.exec_pycdc) at 8384@ThreadPoolExecutor-0_32  
+2023-01-27 14:06:41,661 [!] fail to decompile bytecode on file:output_2967131\PYZ-00.pyz_extract\logging\__init__.pyc,with error:uncompyle6 not initilized :__init__.py:41-30  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\py_package\package_struct\__init__.py on(__init__.decompile_pyc) at 8384@ThreadPoolExecutor-0_32  
+2023-01-27 14:06:42,412 [!] decompile bytecode by pycdc fail,file:output_2967131\PYZ-00.pyz_extract\email\quoprimime.pyc,with error:None :__init__.py:65-30  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\__init__.py on(__init__.exec_pycdc) at 8384@ThreadPoolExecutor-0_71  
+2023-01-27 14:06:42,412 [!] fail to decompile bytecode on file:output_2967131\PYZ-00.pyz_extract\email\quoprimime.pyc,with error:uncompyle6 not initilized :__init__.py:41-30  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\py_package\package_struct\__init__.py on(__init__.decompile_pyc) at 8384@ThreadPoolExecutor-0_71  
+2023-01-27 14:06:49,904 [!] decompile bytecode by pycdc fail,file:output_2967131\PYZ-00.pyz_extract\platform.pyc,with error:Command '['C:\\Users\\user\\AppData\\Local\\Programs\\Python\\Python39\\Lib\\site-packages\\pydumpck\\pyc_checker\\lib_pycdc\\pycdc.exe', 'output_2967131\\PYZ-00.pyz_extract\\platform.pyc.structed.pyc']' timed out after 10 seconds :__init__.py:69-30  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyc_checker\__init__.py on(__init__.exec_pycdc) at 8384@ThreadPoolExecutor-0_79  
+2023-01-27 14:06:49,905 [!] fail to decompile bytecode on file:output_2967131\PYZ-00.pyz_extract\platform.pyc,with error:(TimeoutExpired(['C:\\Users\\user\\AppData\\Local\\Programs\\Python\\Python39\\Lib\\site-packages\\pydumpck\\pyc_checker\\lib_pycdc\\pycdc.exe', 'output_2967131\\PYZ-00.pyz_extract\\platform.pyc.structed.pyc'], 10), 'fail when handling output_2967131\\PYZ-00.pyz_extract\\platform.pyc -> output_2967131\\PYZ-00.pyz_extract\\platform.pyc.structed.pyc') :__init__.py:41-30  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\py_package\package_struct\__init__.py on(__init__.decompile_pyc) at 8384@ThreadPoolExecutor-0_79  
+2023-01-27 14:06:50,150 [*] 
+progress_check completed :__init__.py:102-10  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\py_package\package_struct\__init__.py on(__init__.progress_check) at 8384@MainThread  
+2023-01-27 14:06:50,151 [+] completed,cost 28183ms with result:63 arch file(s) handled. :__init__.py:120-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\py_common_dump\__init__.py on(__init__.statistics_status) at 8384@MainThread  

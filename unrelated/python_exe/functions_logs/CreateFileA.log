@@ -1,8 +1,0 @@
-2023-01-26 23:40:40,909 - CreateFileA - DEBUG - CreateFileA function called with parameters:
-2023-01-26 23:40:40,909 - CreateFileA - DEBUG - File Name: example.txt
-2023-01-26 23:40:40,909 - CreateFileA - DEBUG - Access: 268435456
-2023-01-26 23:40:40,909 - CreateFileA - DEBUG - Share Mode: 0
-2023-01-26 23:40:40,909 - CreateFileA - DEBUG - Security Attributes: None
-2023-01-26 23:40:40,909 - CreateFileA - DEBUG - Creation Disposition: 1
-2023-01-26 23:40:40,909 - CreateFileA - DEBUG - Flags and Attributes: 128
-2023-01-26 23:40:40,909 - CreateFileA - DEBUG - Template File: None

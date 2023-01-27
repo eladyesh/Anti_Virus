@@ -5,14 +5,23 @@ import re
 import subprocess
 import requests
 from bs4 import BeautifulSoup
+from decompile_exe import *
 
 
 class PythonVirus:
 
     def __init__(self, file):
 
+        self.path = os.path.abspath(file)
+        decompyle(self.path)
+
+        for filename in os.listdir(os.getcwd()):
+            if ".pyc.cdc.py" in filename:
+                self.file = filename
+                break
+
         # Load the source code of the Python file
-        with open(file, "r") as f:
+        with open(self.file, "r") as f:
             self.source = f.read()
 
         # Parse the source code
@@ -52,6 +61,22 @@ class PythonVirus:
                 imports.append(node.module)
         return imports
 
+    @staticmethod
+    def scrape_for_info(winap_func):
+        return ""
+        url = f"https://docs.microsoft.com/en-us/windows/win32/api/{winap_func.lower()}"
+        page = requests.get(url)
+        soup = BeautifulSoup(page.content, 'html.parser')
+        soup_str = soup.prettify()
+        content_start = soup_str.find("<content>")
+        content_end = soup_str.find("</content>")
+        content_str = soup_str[content_start:content_end]
+        p_start = content_str.find("<p>")
+        p_end = content_str.find("</p>")
+        p_tag = content_str[p_start:p_end + 4]
+        p_text = p_tag.strip().replace("<p>", "").split(".")[0]
+        return p_text.strip()
+
     def find_ctypes_calls(self):
 
         def find_winapi_calls(code_path, winapi_functions):
@@ -70,15 +95,40 @@ class PythonVirus:
                 for line in f:
                     name = line.strip()
                     winapi_functions.append(name)
-        print(winapi_functions)
+        # print(winapi_functions)
 
-        code_path = "D:\\Cyber\\YB_CYBER\\project\\FinalProject\\poc_start\\poc_start\\unrelated\\python_exe\\test.py"
+        # code_path = "D:\\Cyber\\YB_CYBER\\project\\FinalProject\\poc_start\\poc_start\\unrelated\\python_exe\\test.py"
+        winapi_calls = find_winapi_calls(self.file, winapi_functions)
 
-        winapi_calls = find_winapi_calls(code_path, winapi_functions)
-
+        calls = ''''''
         for call in winapi_calls:
             if call != "":
-                print(call)
+                calls += call + "\n"
+        return calls
+
+    def log_for_winapi(self, calls):
+
+        # Use regular expression to match the function names and their parameters
+        pattern = re.compile(r"(\w+)\s*=\s*ctypes\.windll\.(\w+)\.(\w+)\((.*)\)")
+
+        with open("log.txt", "w") as file:
+            functions_dict = {}
+            for match in pattern.finditer(calls):
+                library_name = match.group(2)
+                function_name = match.group(3)
+                parameters = match.group(4)
+                file.write(f"Library name: {library_name}\n")
+                file.write(f"Function name: {function_name}\n")
+                file.write(f"Parameters: {parameters}\n")
+                file.write("\n")
+
+                # Add function to dictionary
+                if function_name in functions_dict:
+                    functions_dict[function_name].append(parameters)
+                else:
+                    functions_dict[function_name] = [parameters]
+            print(functions_dict)
+            # TODO - additional checks on the functions dict
 
     def check_for_keylogger(self):
 
@@ -148,8 +198,10 @@ class PythonVirus:
 
 
 if __name__ == "__main__":
-    pv = PythonVirus("test.py")
+    pv = PythonVirus("virus.exe")
     # print(pv.get_imports())
     # pv.check_for_keylogger()
-    pv.find_ctypes_calls()
+    print(pv.find_ctypes_calls())
+    pv.log_for_winapi(pv.find_ctypes_calls())
     # pv.crawl_for_winapi()
+    # print(PythonVirus.scrape_for_info("CreateFileA"))

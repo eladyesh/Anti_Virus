@@ -14,6 +14,7 @@ from poc_start.unrelated.pe_scan.pe_tests import *
 from poc_start.unrelated.Yara.ya_ra import YaraChecks
 from poc_start.unrelated.fuzzy_hashing.ssdeep_check import *
 from poc_start.unrelated.virus_db.redis_virus import Redis
+from poc_start.unrelated.python_exe.virus_scan import PythonVirus
 from threading import Thread
 from multiprocessing import Process
 from http.server import HTTPServer, BaseHTTPRequestHandler
@@ -619,22 +620,27 @@ class AppDemo(QMainWindow):
                 self.text = text
                 self.setWindowFlags(Qt.ToolTip)
                 self.setAttribute(Qt.WA_TranslucentBackground)
+                self.setFixedSize(300, 300)  # set the size of the bubble to be smaller
+                self.setAutoFillBackground(False)  # remove black background
+                self.setAttribute(Qt.WA_TransparentForMouseEvents)
+                self.setStyleSheet("background-color:transparent;")
 
             def paintEvent(self, event):
-                path = QPainterPath()
-                path.addRoundedRect(QRectF(self.rect().adjusted(10, 10, -10, -10)), 10, 10)
                 painter = QPainter(self)
+                painter.setRenderHint(QPainter.Antialiasing)
                 painter.setBrush(QColor("white"))
-                painter.setPen(Qt.NoPen)
-                painter.drawPath(path)
+                painter.setPen(QColor(0, 0, 0, 0))
+                painter.drawRect(QRectF(10, 10, self.width() - 20, self.height() - 20))
                 painter.setPen(QPen(Qt.black))
-                font = QFont("Arial", 12, QFont.Bold)
+                font = QFont("Arial", 10, QFont.Bold)
                 painter.setFont(font)
-                painter.drawText(path.boundingRect(), Qt.AlignCenter, self.text)
+                painter.drawText(QRectF(20, 20, self.width() - 20, self.height() - 20),
+                                 Qt.AlignTop | Qt.AlignLeft | Qt.TextWordWrap, self.text)
 
         def show_bubble(item):
             item_text = item.text()
-            self.bubble = bubbleWidget(item_text)
+            self.bubble = bubbleWidget(item_text + "\n" + PythonVirus.scrape_for_info(item_text))
+            self.bubble.setStyleSheet("background-color:transparent;")
             pos = self.list_strings_widget.visualItemRect(item).topRight()
             pos.setX(pos.x() + 20)
             self.bubble.move(self.list_strings_widget.mapToGlobal(pos))
@@ -646,6 +652,7 @@ class AppDemo(QMainWindow):
         # Create a list widget and add some items to it
         self.list_strings_widget = QListWidget()
         self.list_strings_widget.setMinimumSize(550, 550)
+        self.list_strings_widget.itemEntered.connect(show_bubble)
 
         # YARA
         yara_strings = YaraChecks.check_for_strings("virus.exe")
@@ -661,6 +668,7 @@ class AppDemo(QMainWindow):
             self.list_strings_widget.addItem(str(dll))
             self.list_strings_widget.setMouseTracking(True)
             self.list_strings_widget.itemEntered.connect(show_bubble)
+            self.list_strings_widget.leaveEvent = leaveEvent
             self.bubble = bubbleWidget(dll)
             self.bubble.hide()
 

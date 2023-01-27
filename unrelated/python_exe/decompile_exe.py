@@ -21,9 +21,10 @@ def run_command(cmd):
                             encoding="utf-8").communicate()
 
 
-def decompyle():
+def decompyle(path):
+    print(path)
     run = run_command(
-        f"pydumpck D:\\Cyber\\YB_CYBER\\project\\FinalProject\\poc_start\\poc_start\\unrelated\\python_exe\\virus.exe")
+        f"pydumpck {path}")
 
     found = False
     output_file_path = ""
@@ -39,5 +40,6 @@ def decompyle():
             shutil.move(file_path, os.getcwd())
             break
 
+
 if __name__ == '__main__':
-    decompyle()
+    decompyle("lol")

@@ -1,16 +1,16 @@
 Library name: kernel32
 Function name: CreateFileA
-Parameters: "example.txt".encode("ascii"), GENERIC_ALL, 0, None, CREATE_NEW, FILE_ATTRIBUTE_NORMAL, None
+Parameters: 'example.txt'.encode('ascii'), GENERIC_ALL, 0, None, CREATE_NEW, FILE_ATTRIBUTE_NORMAL, None
 
 Library name: kernel32
 Function name: VirtualAllocEx
-Parameters: hProcess, None, ctypes.c_int(len(data)), ctypes.c_int(0x1000), ctypes.c_int(0x40)
+Parameters: hProcess, None, ctypes.c_int(len(data)), ctypes.c_int(4096), ctypes.c_int(64)
 
 Library name: kernel32
 Function name: VirtualAllocEx
-Parameters: hProcess, None, ctypes.c_int(len(data)), ctypes.c_int(0x1000), ctypes.c_int(0x40)
+Parameters: hProcess, None, ctypes.c_int(len(data)), ctypes.c_int(4096), ctypes.c_int(64)
 
 Library name: kernel32
 Function name: OpenProcess
-Parameters: ctypes.c_int(0x1F0FFF), False, ctypes.c_int(pid)
+Parameters: ctypes.c_int(2035711), False, ctypes.c_int(pid)
 
