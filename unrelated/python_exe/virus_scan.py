@@ -8,6 +8,7 @@ from bs4 import BeautifulSoup
 from poc_start.unrelated.python_exe.decompile_exe import *
 from googlesearch import search
 import threading
+import psutil
 
 
 class PythonVirus:
@@ -86,6 +87,16 @@ class PythonVirus:
         p_text = p_tag.strip().replace("<p>", "").split(".")[0]
         return p_text.strip()
 
+    def find_line_of_variable(self, variable):
+
+        with open(self.file, "r") as f:
+            source_code = f.read()
+            lines = source_code.split("\n")
+            for i, line in enumerate(lines):
+                match = re.search(r'\b' + variable + r'\b', line)
+                if match:
+                    return line
+
     def find_ctypes_calls(self):
 
         def find_winapi_calls(code_path, winapi_functions):
@@ -113,7 +124,8 @@ class PythonVirus:
         for call in winapi_calls:
             if call != "":
                 calls += call + "\n"
-        return calls
+
+        return "\n".join(list(set(calls.split("\n"))))
 
     @staticmethod
     def make_function_dict():
@@ -198,14 +210,28 @@ class PythonVirus:
     def log_for_winapi(self, calls):
 
         # Use regular expression to match the function names and their parameters
-        pattern = re.compile(r"(\w+)\s*=\s*ctypes\.windll\.(\w+)\.(\w+)\((.*)\)")
+        pattern = re.compile(r"(\w+)\s*=\s*ctypes\.windll\.(\w+)\.(\w+)\((.*)\)|ctypes\.windll\.(\w+)\.(\w+)\((.*)\)")
 
         with open("log.txt", "w") as file:
             functions_dict = {}
             for match in pattern.finditer(calls):
-                library_name = match.group(2)
-                function_name = match.group(3)
-                parameters = match.group(4)
+                if match.group(1) is None:
+                    variable_name = ""
+                else:
+                    variable_name = match.group(1)
+                if match.group(2) is None:
+                    library_name = match.group(5)
+                else:
+                    library_name = match.group(2)
+                if match.group(3) is None:
+                    function_name = match.group(6)
+                else:
+                    function_name = match.group(3)
+                if match.group(4) is None:
+                    parameters = match.group(7)
+                else:
+                    parameters = match.group(4)
+                file.write(f"Variable name: {variable_name}\n")
                 file.write(f"Library name: {library_name}\n")
                 file.write(f"Function name: {function_name}\n")
                 file.write(f"Parameters: {parameters}\n")
@@ -215,9 +241,30 @@ class PythonVirus:
                 if function_name in functions_dict:
                     functions_dict[function_name].append(parameters)
                 else:
-                    functions_dict[function_name] = [parameters]
+                    functions_dict[function_name] = [param.strip() for param in parameters.split(",")]
+
             print(functions_dict)
-            # TODO - additional checks on the functions dict
+
+            # check for injection
+            if 'VirtualAllocEx' in functions_dict.keys() and 'WriteProcessMemory' in functions_dict.keys():
+                if functions_dict['VirtualAllocEx'][0] == functions_dict['WriteProcessMemory'][0]:
+
+                    match = re.search(r'\((.*?)\)', functions_dict['OpenProcess'][-1])
+                    if match:
+                        pid_name = match.group(1)
+
+                    pid_line = self.find_line_of_variable(pid_name)
+                    pid = None
+                    exec(pid_line, {"os": os})
+                    process = psutil.Process(pid)
+                    file.write("==============INJECTION==============\n")
+                    file.write(f"Found Injection to process: {process.name()}\n")
+                    file.write(f"PID: {str(process.pid)}\n")
+                    file.write(f"Parent PID: {str(process.pid)}\n")
+
+                    data_line = self.find_line_of_variable(functions_dict["WriteProcessMemory"][2])
+                    file.write(f"The data being injected: {data_line.split('=')[1].strip()}\n")
+                    file.write("==============INJECTION==============\n")
 
     def check_for_keylogger(self):
 

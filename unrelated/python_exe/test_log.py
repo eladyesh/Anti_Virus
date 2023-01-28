@@ -1,10 +1,10 @@
-from selenium import webdriver
+import requests
+from bs4 import BeautifulSoup
 
-# Open Chrome browser
-browser = webdriver.Chrome()
+url = "https://www.exetools.com/"  # replace with website you want to crawl
+page = requests.get(url)
+soup = BeautifulSoup(page.content, 'html.parser')
 
-# Navigate to settings page
-browser.get("chrome://settings/clearBrowserData")
-
-# Clear browser history
-browser.find_element_by_xpath('//settings-ui').shadowRoot.getElementById('clearBrowsingDataConfirm').click()
+# Search for UPX on the website
+upx_text = soup.find_all(string='UPX')
+print(upx_text)

@@ -128,3 +128,4 @@ WriteEncryptedFileRaw
 WriteFile
 WriteFileEx
 WriteFileGather
+CloseHandle
