@@ -14,6 +14,7 @@ from poc_start.unrelated.pe_scan.pe_tests import *
 from poc_start.unrelated.Yara.ya_ra import YaraChecks
 from poc_start.unrelated.fuzzy_hashing.ssdeep_check import *
 from poc_start.unrelated.virus_db.redis_virus import Redis
+from poc_start.unrelated.pe_scan.language import Packers
 from poc_start.unrelated.python_exe.virus_scan import PythonVirus
 from threading import Thread
 from multiprocessing import Process
@@ -450,6 +451,12 @@ class AppDemo(QMainWindow):
         print("got here")
         item = QListWidgetItem(self.listbox_view.item(0))
         path = item.text()
+
+        if Packers.programming_language(path) == "py":  # TODO - send to python check
+            pass
+        elif Packers.programming_language(path) is not True:  # TODO - take care of errors
+            pass
+
         bytes = b""
 
         with open(path, "rb") as f:
@@ -640,92 +647,119 @@ class AppDemo(QMainWindow):
 
         def show_bubble(item):
 
-            self.bubble_dict = {'CreateToolhelp32Snapshot': 'Takes a snapshot of the specified processes, as well as '
-                                                            'the heaps, modules, and threads used by these '
-                                                            'processes', 'Process32First': 'Retrieves information '
-                                                                                           'about the first process '
-                                                                                           'encountered in a system '
-                                                                                           'snapshot',
-                                'Process32Next': 'Retrieves information about the next process recorded in a system '
-                                                 'snapshot', 'LoadLibrary': 'Loads the specified  module into the '
-                                                                            'address space of the calling process',
-                                'GetProcAddress': 'Retrieves the address of an exported function (also known as a '
-                                                  'procedure) or variable from the specified dynamic-link library ('
-                                                  'DLL)', 'GetModuleHandle': 'Retrieves a module handle for the '
-                                                                             'specified module', 'SetWindowsHookEx':
-                                    'Installs an application-defined hook procedure into a hook chain', 'GetMessage':
-                                    "Retrieves a message from the calling thread's message queue", 'CallNextHookEx':
-                                    'Passes the hook information to the next hook procedure in the current hook '
-                                    'chain', 'OpenClipboard': 'Opens the clipboard for examination and prevents other '
-                                                              'applications from modifying the clipboard content',
-                                'GetClipboardData': 'Retrieves data from the clipboard in a specified format',
-                                'CloseClipboard': 'Closes the clipboard', 'RegOpenKeyExA': 'Opens the specified '
-                                                                                           'registry key',
-                                'RegSetValueExA': 'Sets the data and type of a specified value under a registry key',
-                                'RegCreateKeyExA': 'Creates the specified registry key', 'RegGetValueA': 'Retrieves '
-                                                                                                         'the type '
-                                                                                                         'and data '
-                                                                                                         'for the '
-                                                                                                         'specified '
-                                                                                                         'registry '
-                                                                                                         'value',
-                                'socket': 'The socket function creates a socket that is bound to a specific transport '
-                                          'service provider.', 'recv': 'The recv function receives data from a '
-                                                                       'connected socket or a bound connectionless '
-                                                                       'socket.', 'connect': 'The connect function '
-                                                                                             'establishes a '
-                                                                                             'connection to a '
-                                                                                             'specified socket.',
-                                'send': 'The send function sends data on a connected socket.', 'CreateFileA':
-                                    'Creates or opens '
-                                    'a file or I/O '
-                                    'device',
-                                'DeleteFileA': 'Deletes an existing file', 'WriteFileEx': 'Writes data to the '
-                                                                                          'specified file or '
-                                                                                          'input/output (I/O) '
-                                                                                          'device', 'WriteFile':
-                                    'Writes data to the specified file or input/output (I/O) device', 'VirtualAlloc':
-                                    'Reserves, commits, or changes the state  of a region of pages in the virtual '
-                                    'address space of the calling process', 'VirtualAllocEx': 'Reserves, commits, '
-                                                                                              'or changes the state  '
-                                                                                              'of a region of memory '
-                                                                                              'within the virtual '
-                                                                                              'address space of a '
-                                                                                              'specified process',
-                                'WriteProcessMemory': 'Writes data to an area of memory in a specified process',
-                                'CreateThread': 'Creates a thread to execute within the virtual address space of the '
-                                                'calling process', 'CreateRemoteThread': 'Creates a thread that runs '
-                                                                                         'in the virtual address '
-                                                                                         'space of another process',
-                                'CloseHandle': 'Closes an open object handle',
-                                'KERNEL32': "Kernel32.dll is a dynamic link library (DLL) file that is an essential "
-                                            "component of the Windows operating system. It contains a collection of "
-                                            "functions and resources that are used by other programs to perform "
-                                            "various system-related tasks, such as memory management, process and "
-                                            "thread management, and input/output operations.", "ADVAPI32":
-                                    "Advapi32. dll is a part of the advanced API services library. It provides access to advanced functionality that "
-                                    "comes in addition to the kernel.", "Ws2_32": "The Ws2_32.dll loads the service "
-                                                                                  "provider's interface DLL into the "
-                                                                                  "system by using the standard "
-                                                                                  "Microsoft Windows dynamic library "
-                                                                                  "loading mechanisms, "
-                                                                                  "and initializes it by calling "
-                                                                                  "WSPStartup.",
-                                "SOFTWARE\\Policies\\Microsoft\\Windows Defender": "A registry key in the Windows "
-                                                                                   "operating system that is used to "
-                                                                                   "configure various settings for "
-                                                                                   "Windows Defender, which is the "
-                                                                                   "built-in antivirus and malware "
-                                                                                   "protection software in Windows.",
-                                "Software\\Microsoft\\Windows\\CurrentVersion\\Run": "A registry key located in the "
-                                                                                     "Windows Registry. It is used to "
-                                                                                     "configure applications or "
-                                                                                     "scripts to run automatically "
-                                                                                     "when a user logs in to the "
-                                                                                     "system"}
-
+            self.bubble_strings_dict = {
+                'CreateToolhelp32Snapshot': 'Takes a snapshot of the specified processes, as well as '
+                                            'the heaps, modules, and threads used by these '
+                                            'processes', 'Process32First': 'Retrieves information '
+                                                                           'about the first process '
+                                                                           'encountered in a system '
+                                                                           'snapshot',
+                'Process32Next': 'Retrieves information about the next process recorded in a system '
+                                 'snapshot', 'LoadLibrary': 'Loads the specified  module into the '
+                                                            'address space of the calling process',
+                'GetProcAddress': 'Retrieves the address of an exported function (also known as a '
+                                  'procedure) or variable from the specified dynamic-link library ('
+                                  'DLL)', 'GetModuleHandle': 'Retrieves a module handle for the '
+                                                             'specified module', 'SetWindowsHookEx':
+                    'Installs an application-defined hook procedure into a hook chain', 'GetMessage':
+                    "Retrieves a message from the calling thread's message queue", 'CallNextHookEx':
+                    'Passes the hook information to the next hook procedure in the current hook '
+                    'chain', 'OpenClipboard': 'Opens the clipboard for examination and prevents other '
+                                              'applications from modifying the clipboard content',
+                'GetClipboardData': 'Retrieves data from the clipboard in a specified format',
+                'CloseClipboard': 'Closes the clipboard', 'RegOpenKeyExA': 'Opens the specified '
+                                                                           'registry key',
+                'RegSetValueExA': 'Sets the data and type of a specified value under a registry key',
+                'RegCreateKeyExA': 'Creates the specified registry key', 'RegGetValueA': 'Retrieves '
+                                                                                         'the type '
+                                                                                         'and data '
+                                                                                         'for the '
+                                                                                         'specified '
+                                                                                         'registry '
+                                                                                         'value',
+                'socket': 'The socket function creates a socket that is bound to a specific transport '
+                          'service provider.', 'recv': 'The recv function receives data from a '
+                                                       'connected socket or a bound connectionless '
+                                                       'socket.', 'connect': 'The connect function '
+                                                                             'establishes a '
+                                                                             'connection to a '
+                                                                             'specified socket.',
+                'send': 'The send function sends data on a connected socket.', 'CreateFileA':
+                    'Creates or opens '
+                    'a file or I/O '
+                    'device',
+                'DeleteFileA': 'Deletes an existing file', 'WriteFileEx': 'Writes data to the '
+                                                                          'specified file or '
+                                                                          'input/output (I/O) '
+                                                                          'device', 'WriteFile':
+                    'Writes data to the specified file or input/output (I/O) device', 'VirtualAlloc':
+                    'Reserves, commits, or changes the state  of a region of pages in the virtual '
+                    'address space of the calling process', 'VirtualAllocEx': 'Reserves, commits, '
+                                                                              'or changes the state  '
+                                                                              'of a region of memory '
+                                                                              'within the virtual '
+                                                                              'address space of a '
+                                                                              'specified process',
+                'WriteProcessMemory': 'Writes data to an area of memory in a specified process',
+                'CreateThread': 'Creates a thread to execute within the virtual address space of the '
+                                'calling process', 'CreateRemoteThread': 'Creates a thread that runs '
+                                                                         'in the virtual address '
+                                                                         'space of another process',
+                'CloseHandle': 'Closes an open object handle',
+                'KERNEL32': "Kernel32.dll is a dynamic link library (DLL) file that is an essential "
+                            "component of the Windows operating system. It contains a collection of "
+                            "functions and resources that are used by other programs to perform "
+                            "various system-related tasks, such as memory management, process and "
+                            "thread management, and input/output operations.", "ADVAPI32":
+                    "Advapi32. dll is a part of the advanced API services library. It provides access to advanced functionality that "
+                    "comes in addition to the kernel.", "Ws2_32": "The Ws2_32.dll loads the service "
+                                                                  "provider's interface DLL into the "
+                                                                  "system by using the standard "
+                                                                  "Microsoft Windows dynamic library "
+                                                                  "loading mechanisms, "
+                                                                  "and initializes it by calling "
+                                                                  "WSPStartup.",
+                "SOFTWARE\\Policies\\Microsoft\\Windows Defender": "A registry key in the Windows "
+                                                                   "operating system that is used to "
+                                                                   "configure various settings for "
+                                                                   "Windows Defender, which is the "
+                                                                   "built-in antivirus and malware "
+                                                                   "protection software in Windows.",
+                "Software\\Microsoft\\Windows\\CurrentVersion\\Run": "A registry key located in the "
+                                                                     "Windows Registry. It is used to "
+                                                                     "configure applications or "
+                                                                     "scripts to run automatically "
+                                                                     "when a user logs in to the "
+                                                                     "system",
+                # now moving to packers
+                "PackerUPX_CompresorGratuito_wwwupxsourceforgenet": "Packers like UPX are used to scramble and mask "
+                                                                    "in an effort to make it more difficult for the "
+                                                                    "analyst/reverser to figure out what is going "
+                                                                    "on.",
+                "UPX_wwwupxsourceforgenet_additional": "Packers like UPX are used to scramble and mask "
+                                                                    "in an effort to make it more difficult for the "
+                                                                    "analyst/reverser to figure out what is going "
+                                                                    "on.",
+                "yodas_Protector_v1033_dllocx_Ashkbiz_Danehkar_h": "A signature that recognizes malware given by MalShare",
+                "Netopsystems_FEAD_Optimizer_1": "A signature that recognizes malware given by MalShare",
+                "UPX_290_LZMA": "Packers like UPX are used to scramble and mask "
+                                                                    "in an effort to make it more difficult for the "
+                                                                    "analyst/reverser to figure out what is going "
+                                                                    "on.",
+                "UPX_290_LZMA_Markus_Oberhumer_Laszlo_Molnar_John_Reiser": "Packers like UPX are used to scramble and mask "
+                                                                    "in an effort to make it more difficult for the "
+                                                                    "analyst/reverser to figure out what is going "
+                                                                    "on.",
+                "UPX_290_LZMA_additional": "Packers like UPX are used to scramble and mask "
+                                                                    "in an effort to make it more difficult for the "
+                                                                    "analyst/reverser to figure out what is going "
+                                                                    "on.",
+                "UPX_wwwupxsourceforgenet": "Packers like UPX are used to scramble and mask "
+                                                                    "in an effort to make it more difficult for the "
+                                                                    "analyst/reverser to figure out what is going "
+                                                                    "on.",}
             item_text = item.text()
-            self.bubble = bubbleWidget(item_text + "\n\n" + self.bubble_dict[item_text])
+            self.bubble = bubbleWidget(item_text + "\n\n" + self.bubble_strings_dict[item_text])
             self.bubble.setStyleSheet("background-color:transparent;")
             pos = self.list_strings_widget.visualItemRect(item).topRight()
             pos.setX(pos.x() + 20)
