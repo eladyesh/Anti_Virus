@@ -9,6 +9,24 @@ from poc_start.unrelated.python_exe.decompile_exe import *
 from googlesearch import search
 import threading
 import psutil
+from ast import For, Tuple, List
+
+
+def get_loop_params(path):
+
+    with open(path, "r") as f:
+        tree = ast.parse(f.read())
+        for node in ast.walk(tree):
+            if isinstance(node, ast.For):
+                loop_params = []
+                for i in node.body:
+                    if isinstance(i, ast.Name):
+                        loop_params.append(i.id)
+                if not loop_params:
+                    if isinstance(node.iter, ast.Tuple):
+                        return [e.n for e in node.iter.elts]
+                return loop_params
+
 
 
 class PythonVirus:
@@ -212,8 +230,8 @@ class PythonVirus:
         # Use regular expression to match the function names and their parameters
         pattern = re.compile(r"(\w+)\s*=\s*ctypes\.windll\.(\w+)\.(\w+)\((.*)\)|ctypes\.windll\.(\w+)\.(\w+)\((.*)\)")
 
-        with open("log.txt", "w") as file:
-            functions_dict = {}
+        functions_dict = {}
+        with open("log.txt", "a") as file:
             for match in pattern.finditer(calls):
                 if match.group(1) is None:
                     variable_name = ""
@@ -243,8 +261,6 @@ class PythonVirus:
                 else:
                     functions_dict[function_name] = [param.strip() for param in parameters.split(",")]
 
-            print(functions_dict)
-
             # check for injection
             if 'VirtualAllocEx' in functions_dict.keys() and 'WriteProcessMemory' in functions_dict.keys():
                 if functions_dict['VirtualAllocEx'][0] == functions_dict['WriteProcessMemory'][0]:
@@ -265,6 +281,26 @@ class PythonVirus:
                     data_line = self.find_line_of_variable(functions_dict["WriteProcessMemory"][2])
                     file.write(f"The data being injected: {data_line.split('=')[1].strip()}\n")
                     file.write("==============INJECTION==============\n")
+
+            # port scan
+            # Use regular expression to match the function names, parameters, and result
+            pattern = re.compile(r"(\w+)\s*=\s*winsock\.(\w+)\((.*)\)|winsock\.(\w+)\((.*)\)")
+
+            with open("log.txt", "a") as file:
+                for match in pattern.finditer(calls):
+                    variable_name = match.group(1) if match.group(1) else None
+                    function_name = match.group(2) if match.group(2) else match.group(4)
+                    parameters = match.group(3) if match.group(3) else match.group(5)
+                    functions_dict[function_name] = [param.strip() for param in parameters.split(",") if param.strip()]
+
+                    file.write(f"Variable name: {variable_name}\n") if variable_name else None
+                    file.write(f"Library name: winsock\n")
+                    file.write(f"Function name: {function_name}\n")
+                    file.write(f"Parameters: {parameters}\n")
+                    file.write("\n")
+
+            print(functions_dict)
+            print(get_loop_params(self.file)) # TODO - continue with param log
 
     def check_for_keylogger(self):
 

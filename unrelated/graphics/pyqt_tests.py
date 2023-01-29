@@ -628,7 +628,7 @@ class AppDemo(QMainWindow):
                 self.text = text
                 self.setWindowFlags(Qt.ToolTip)
                 self.setAttribute(Qt.WA_TranslucentBackground)
-                self.setFixedSize(300, 300)  # set the size of the bubble to be smaller
+                self.setFixedSize(400, 300)  # set the size of the bubble to be smaller
                 self.setAutoFillBackground(False)  # remove black background
                 self.setAttribute(Qt.WA_TransparentForMouseEvents)
                 self.setStyleSheet("background-color:transparent;")

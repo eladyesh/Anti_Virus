@@ -24,3 +24,27 @@ ctypes.windll.kernel32.WriteProcessMemory(hProcess, address, data, ctypes.c_int(
 
 # Close the handle to the process
 ctypes.windll.kernel32.CloseHandle(hProcess)
+
+# Load the Winsock library
+winsock = ctypes.windll.Ws2_32
+
+for port in [78, 79, 80]:
+    # Create a socket
+    s = ctypes.c_int(0)
+    s.value = winsock.socket(2, 1, 6)
+
+    # Connect to google.com
+    target = ctypes.create_string_buffer(b"google.com\0")
+    address = ctypes.create_string_buffer(b"\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00")
+    winsock.getaddrinfo(target, None, None, ctypes.byref(address))
+    port = ctypes.c_ushort(port)
+    result = winsock.connect(s, address, ctypes.sizeof(address), port)
+
+    # Check the result of the connection
+    if result == 0:
+        print("Connected to google.com on port", port)
+    else:
+        print("Failed to connect to google.com on port", port)
+
+    # Close the socket
+    winsock.closesocket(s)
