@@ -115,6 +115,8 @@ class PythonVirus:
                 if match:
                     return line
 
+        return False
+
     def find_ctypes_calls(self):
 
         def find_winapi_calls(code_path, winapi_functions):
@@ -280,7 +282,7 @@ class PythonVirus:
 
                     data_line = self.find_line_of_variable(functions_dict["WriteProcessMemory"][2])
                     file.write(f"The data being injected: {data_line.split('=')[1].strip()}\n")
-                    file.write("==============INJECTION==============\n")
+                    file.write("==============INJECTION==============\n\n")
 
             # port scan
             # Use regular expression to match the function names, parameters, and result
@@ -299,10 +301,21 @@ class PythonVirus:
                     file.write(f"Parameters: {parameters}\n")
                     file.write("\n")
 
-            print(functions_dict)
-            print(get_loop_params(self.file)) # TODO - continue with param log
+                print(functions_dict)
 
-    def check_for_keylogger(self):
+                if 'socket' in functions_dict.keys() and 'connect' in functions_dict.keys() and 'getaddrinfo' in functions_dict.keys():
+                    file.write("==============PORT SCANNING==============\n")
+                    file.write(f"Trying to scan through ports {get_loop_params(self.file)}\n")
+
+                    # website
+                    web_line = self.find_line_of_variable(functions_dict['getaddrinfo'][0])
+                    file.write(f"Trying to connect to website {web_line.split('=')[1].strip()}\n")
+                    file.write("==============PORT SCANNING==============\n\n")
+
+                # TODO - registry virus
+
+
+def check_for_keylogger(self):
 
         self.keylogger_detected = 0
         self.suspicious_imoprts_for_keylogger = ['PIL', 'requests', 'cryptography.fernet', 'sounddevice', 'scipy.io'

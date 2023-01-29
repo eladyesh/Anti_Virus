@@ -2,11 +2,6 @@ Library name: winsock
 Function name: getaddrinfo
 Parameters: target, None, None, ctypes.byref(address)
 
-Variable name: result
-Library name: winsock
-Function name: connect
-Parameters: s, address, ctypes.sizeof(address), port
-
 Library name: winsock
 Function name: closesocket
 Parameters: s
@@ -16,20 +11,34 @@ Library name: winsock
 Function name: socket
 Parameters: 2, 1, 6
 
-Variable name: file_handle
-Library name: kernel32
-Function name: CreateFileA
-Parameters: 'example.txt'.encode('ascii'), GENERIC_ALL, 0, None, CREATE_NEW, FILE_ATTRIBUTE_NORMAL, None
+Variable name: result
+Library name: winsock
+Function name: connect
+Parameters: s, address, ctypes.sizeof(address), port
 
+==============PORT SCANNING==============
+Trying to scan through ports [78, 79, 80]
+Trying to connect to website ctypes.create_string_buffer(b'google.com\x00')
+==============PORT SCANNING==============
 Variable name: 
 Library name: kernel32
 Function name: CloseHandle
 Parameters: hProcess
 
+Variable name: 
+Library name: kernel32
+Function name: WriteProcessMemory
+Parameters: hProcess, address, data, ctypes.c_int(len(data)), None
+
 Variable name: hProcess
 Library name: kernel32
 Function name: OpenProcess
 Parameters: ctypes.c_int(2035711), False, ctypes.c_int(pid)
+
+Variable name: file_handle
+Library name: kernel32
+Function name: CreateFileA
+Parameters: 'example.txt'.encode('ascii'), GENERIC_ALL, 0, None, CREATE_NEW, FILE_ATTRIBUTE_NORMAL, None
 
 Variable name: address
 Library name: kernel32
@@ -41,14 +50,9 @@ Library name: kernel32
 Function name: Sleep
 Parameters: 3000
 
-Variable name: 
-Library name: kernel32
-Function name: WriteProcessMemory
-Parameters: hProcess, address, data, ctypes.c_int(len(data)), None
-
 ==============INJECTION==============
 Found Injection to process: python.exe
-PID: 1744
-Parent PID: 1744
+PID: 15508
+Parent PID: 15508
 The data being injected: binascii.unhexlify('b80a000000c3')
 ==============INJECTION==============
