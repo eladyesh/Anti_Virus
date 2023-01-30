@@ -312,7 +312,17 @@ class PythonVirus:
                     file.write(f"Trying to connect to website {web_line.split('=')[1].strip()}\n")
                     file.write("==============PORT SCANNING==============\n\n")
 
-                # TODO - registry virus
+                # registry virus
+                if 'RegCloseKey' in functions_dict.keys() and 'RegCreateKeyExW' in functions_dict.keys() and 'RegOpenKeyExW' in functions_dict.keys() and 'RegSetValueExW' in functions_dict.keys():
+                    file.write("==============REGISTRY CHANGE==============\n")
+
+                    shell = self.find_line_of_variable(functions_dict['RegOpenKeyExW'][1]).split("=")[1].strip()
+                    file.write(f"Trying to add or change key {shell}\n")
+                    file.write(f"Trying to add key {functions_dict['RegCreateKeyExW'][1]}\n")
+
+                    exe = self.find_line_of_variable(functions_dict['RegSetValueExW'][-2]).split("=")[1].strip()
+                    file.write(f"Trying to set key to {exe}\n")
+                    file.write("==============REGISTRY CHANGE==============\n\n")
 
 
 def check_for_keylogger(self):
