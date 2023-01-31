@@ -1,44 +1,36 @@
 import sys
 from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QIcon
-from PyQt5.QtWidgets import QApplication, QMainWindow, QToolBar, QAction, QTextEdit
+from PyQt5.QtGui import QIcon, QMovie
+from PyQt5.QtWidgets import QApplication, QMainWindow, QToolBar, QAction, QLabel
 
 app = QApplication(sys.argv)
 
 window = QMainWindow()
 window.setWindowTitle("My Toolbar")
 
+# Add a loading bar to the window
+# loading_bar = QLabel(window)
+# movie = QMovie("loading-circle-loading.gif")
+# loading_bar.setMovie(movie)
+# movie.start()
+# loading_bar.setGeometry(0, 0, window.width(), 50)
+
 toolbar = QToolBar()
 toolbar.setMovable(False)
-toolbar.setStyleSheet("""
-QToolBar {
-background-color: #303030;
-color: white;
-padding: 10px;
-border: 1px solid #9b59b6;
-}
-
-QToolBar QAction {
-background-color: #303030;
-color: white;
-}
-
-QToolBar QAction:hover {
-background-color: #9b59b6;
-color: white;
-}
-""")
 
 # Add actions to the toolbar
-new_action = QAction(QIcon("images/arrow"), "")
-open_action = QAction(QIcon("images/arrow"), "")
-save_action = QAction(QIcon("images/arrow"), "")
-save_as_action = QAction(QIcon("images/arrow"), "")
+new_action = QAction(QIcon("images/arrow"), "New")
+open_action = QAction(QIcon("images/arrow"), "Open")
+save_action = QAction(QIcon("images/arrow"), "Save")
+save_as_action = QAction(QIcon("images/arrow"), "Save As")
 
 toolbar.addAction(new_action)
 toolbar.addAction(open_action)
 toolbar.addAction(save_action)
 toolbar.addAction(save_as_action)
+
+with open("css_files/toolbar.css") as f:
+    toolbar.setStyleSheet(f.read())
 
 window.addToolBar(Qt.LeftToolBarArea, toolbar)
 window.show()

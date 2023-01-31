@@ -390,6 +390,12 @@ class AppDemo(QMainWindow):
                 if widget is not None:
                     widget.deleteLater()
 
+            if self.load_for_hash:
+                self.load_for_hash.deleteLater()
+
+            if self.load_for_static:
+                self.load_for_static.deleteLater()
+
             index = self.page_layout.indexOf(self.activate_btn_layout)
             self.page_layout.removeItem(self.page_layout.takeAt(index))
             self.activate_btn_layout.deleteLater()
@@ -782,7 +788,8 @@ class AppDemo(QMainWindow):
             "UPX_wwwupxsourceforgenet": "Packers like UPX are used to scramble and mask "
                                         "in an effort to make it more difficult for the "
                                         "analyst/reverser to figure out what is going "
-                                        "on."}
+                                        "on.",
+            }
 
         def show_bubble(item):
 
@@ -1362,6 +1369,7 @@ class AppDemo(QMainWindow):
     def hash_analysis(self):
 
         self.clearLayout()
+
         self.static_visited = False
         self.dynamic_visited = False
 

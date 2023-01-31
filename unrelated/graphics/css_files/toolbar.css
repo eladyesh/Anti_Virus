@@ -1,0 +1,27 @@
+QToolBar {
+    background-color: white;
+    color: black;
+}
+
+#loadingCircle {
+    border-radius: 50%;
+    width: 10px;
+    height: 10px;
+    border-style: solid;
+    border-width: 2px;
+    border-color: black;
+    position: absolute;
+    top: 5px;
+    left: 50%;
+    margin-left: -5px;
+    animation: loading 1s linear infinite;
+}
+
+@keyframes loading {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
