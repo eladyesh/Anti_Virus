@@ -227,6 +227,24 @@ class AppDemo(QMainWindow):
         self.activate_btn_layout.addWidget(self.start_vm_btn)
         self.activate_btn_layout.addWidget(self.btn)
 
+        self.load_for_static = QPushButton('Load for Static Analysis', self)
+        self.load_for_hash = QPushButton('Load for Static Analysis', self)
+
+        self.static_hash_load = QHBoxLayout()
+        self.static_hash_load.addWidget(self.load_for_static)
+        self.static_hash_load.addWidget(self.load_for_hash)
+
+        self.load_for_static.setStyleSheet(
+            "QPushButton {background-color: #E6E6FA; color: #000080; border: 2px solid #9400D3; "
+            "border-radius: 10px; font: bold 14px; min-width: 80px; padding: 6px;} "
+            "QPushButton:hover {background-color: #D8BFD8; color: #4B0082;} QPushButton:pressed {"
+            "background-color: #DDA0DD; color: #8B008B;}")
+        self.load_for_hash.setStyleSheet(
+            "QPushButton {background-color: #E6E6FA; color: #000080; border: 2px solid #9400D3; "
+            "border-radius: 10px; font: bold 14px; min-width: 80px; padding: 6px;} "
+            "QPushButton:hover {background-color: #D8BFD8; color: #4B0082;} QPushButton:pressed {"
+            "background-color: #DDA0DD; color: #8B008B;}")
+
         self.l1 = make_label("YeshScanner", 24)
         self.l1.setAlignment(Qt.AlignCenter)
 
@@ -255,6 +273,7 @@ class AppDemo(QMainWindow):
         self.page_layout.addLayout(self.btn_layout)
         self.page_layout.addWidget(self.listbox_view)
         self.page_layout.addLayout(self.activate_btn_layout)
+        self.page_layout.addLayout(self.static_hash_load)
         self.page_layout.addStretch(1)
         self.page_layout.setContentsMargins(20, 20, 20, 20)
 
@@ -452,6 +471,7 @@ class AppDemo(QMainWindow):
         item = QListWidgetItem(self.listbox_view.item(0))
         path = item.text()
 
+        # TODO - take care of not exe
         if Packers.programming_language(path) == "py":  # TODO - send to python check
             pass
         elif Packers.programming_language(path) is not True:  # TODO - take care of errors
@@ -640,7 +660,7 @@ class AppDemo(QMainWindow):
                 painter.setPen(QColor(0, 0, 0, 0))
                 painter.drawRect(QRectF(10, 10, self.width() - 20, self.height() - 20))
                 painter.setPen(QPen(Qt.black))
-                font = QFont("Arial", 12, QFont.Bold)
+                font = QFont("Arial", 11, QFont.Bold)
                 painter.setFont(font)
                 painter.drawText(QRectF(10, 10, self.width() - 20, self.height() - 20),
                                  Qt.AlignTop | Qt.AlignLeft | Qt.TextWordWrap, self.text)
@@ -1675,7 +1695,7 @@ class AppDemo(QMainWindow):
             # problem with QFrame - TODO - better
             frame_for_function = QFrame()
             frame_for_function.setFrameShape(QFrame.Box)
-            frame_for_function.setStyleSheet("border: 2px solid purple; margin: 10px;")
+            frame_for_function.setStyleSheet("border: 4px solid purple; margin: 10px; border-radius: 25px;")
 
             # Get the width of the screen
             screen_width = QMainWindow().width()
@@ -1696,7 +1716,7 @@ class AppDemo(QMainWindow):
 
                 if func == 0:
                     func_head_label = QLabel(line)
-                    func_head_label.setFont(QFont("Comic Sans MS", 24))
+                    func_head_label.setFont(QFont("Comic Sans MS", 30))
                     func_head_label.setStyleSheet("color: {}; border: none;".format(light_purple.name()))
                     func_head_label.setFrameShape(QFrame.NoFrame)
                     v_box_for_func.addWidget(func_head_label)
@@ -1706,7 +1726,7 @@ class AppDemo(QMainWindow):
 
                 func_label = QLabel(line)
                 func_label.setWordWrap(True)
-                func_label.setFont(QFont("Comic Sans MS", 12))
+                func_label.setFont(QFont("Comic Sans MS", 18))
                 func_label.setStyleSheet("color: {}; border: none;".format(light_purple.name()))
                 func_label.setFrameShape(QFrame.NoFrame)
                 v_box_for_func.addWidget(func_label)
