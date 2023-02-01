@@ -166,6 +166,26 @@ class AppDemo(QMainWindow):
     def __init__(self):
         super().__init__()
 
+        # toolbar
+        self.toolbar = QToolBar()
+        self.toolbar.setMovable(False)
+
+        # Add actions to the toolbar
+        new_action = QAction(QIcon("images/arrow.png"), "New", self)
+        open_action = QAction(QIcon("images/arrow.png"), "Open", self)
+        save_action = QAction(QIcon("images/arrow.png"), "Save", self)
+        save_as_action = QAction(QIcon("images/arrow.png"), "Save", self)
+
+        self.toolbar.addAction(new_action)
+        self.toolbar.addAction(open_action)
+        self.toolbar.addAction(save_action)
+        self.toolbar.addAction(save_as_action)
+
+        with open("css_files/toolbar.css") as f:
+            self.toolbar.setStyleSheet(f.read())
+
+        self.addToolBar(Qt.LeftToolBarArea, self.toolbar)
+
         # threads for the fuzzy hashing
         self.thread1, self.thread2, self.thread3, self.thread4 = None, None, None, None
 
@@ -789,7 +809,7 @@ class AppDemo(QMainWindow):
                                         "in an effort to make it more difficult for the "
                                         "analyst/reverser to figure out what is going "
                                         "on.",
-            }
+        }
 
         def show_bubble(item):
 
