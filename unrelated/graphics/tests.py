@@ -1,38 +1,65 @@
 import sys
-from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QIcon, QMovie
-from PyQt5.QtWidgets import QApplication, QMainWindow, QToolBar, QAction, QLabel
+from PyQt5 import QtWidgets, QtGui, QtCore
 
-app = QApplication(sys.argv)
+class OverlayWindow(QtWidgets.QMainWindow):
+    def __init__(self):
+        super().__init__()
+        self.initUI()
 
-window = QMainWindow()
-window.setWindowTitle("My Toolbar")
+    def initUI(self):
+        self.setWindowFlags(QtCore.Qt.FramelessWindowHint | QtCore.Qt.WindowStaysOnTopHint)
+        self.setGeometry(100, 100, 200, 100)
 
-# Add a loading bar to the window
-# loading_bar = QLabel(window)
-# movie = QMovie("loading-circle-loading.gif")
-# loading_bar.setMovie(movie)
-# movie.start()
-# loading_bar.setGeometry(0, 0, window.width(), 50)
+        # Create the label for the text
+        label = QtWidgets.QLabel("Loading your data...")
+        label.setAlignment(QtCore.Qt.AlignCenter)
 
-toolbar = QToolBar()
-toolbar.setMovable(False)
+        # Style the text label
+        font = QtGui.QFont()
+        font.setFamily("Arial")
+        font.setPointSize(20)
+        font.setBold(True)
+        label.setFont(font)
+        label.setStyleSheet("color: blue;")
 
-# Add actions to the toolbar
-new_action = QAction(QIcon("images/arrow"), "New")
-open_action = QAction(QIcon("images/arrow"), "Open")
-save_action = QAction(QIcon("images/arrow"), "Save")
-save_as_action = QAction(QIcon("images/arrow"), "Save As")
+        # Create the main layout
+        layout = QtWidgets.QVBoxLayout()
+        layout.addWidget(label, 0, QtCore.Qt.AlignCenter)
 
-toolbar.addAction(new_action)
-toolbar.addAction(open_action)
-toolbar.addAction(save_action)
-toolbar.addAction(save_as_action)
+        central_widget = QtWidgets.QWidget(self)
+        central_widget.setLayout(layout)
+        self.setCentralWidget(central_widget)
 
-with open("css_files/toolbar.css") as f:
-    toolbar.setStyleSheet(f.read())
+        close_button = QtWidgets.QPushButton('X', self)
+        close_button.setFixedSize(30, 30)
+        close_button.clicked.connect(self.close)
+        close_button.move(170, 0)
 
-window.addToolBar(Qt.LeftToolBarArea, toolbar)
-window.show()
+    def mousePressEvent(self, event):
+        self.offset = event.pos()
 
+    def mouseMoveEvent(self, event):
+        x = event.globalX()
+        y = event.globalY()
+        x_w = self.offset.x()
+        y_w = self.offset.y()
+        self.move(x-x_w, y-y_w)
+
+class MainWindow(QtWidgets.QMainWindow):
+    def __init__(self):
+        super().__init__()
+        self.initUI()
+
+    def initUI(self):
+        button = QtWidgets.QPushButton("Open Overlay", self)
+        button.clicked.connect(self.openOverlay)
+        button.move(50, 50)
+
+    def openOverlay(self):
+        self.overlay_window = OverlayWindow()
+        self.overlay_window.show()
+
+app = QtWidgets.QApplication(sys.argv)
+main_window = MainWindow()
+main_window.show()
 sys.exit(app.exec_())

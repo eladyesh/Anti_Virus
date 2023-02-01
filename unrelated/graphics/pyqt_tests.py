@@ -82,7 +82,7 @@ def make_label(text, font_size):
     shadow = QGraphicsDropShadowEffect()
     shadow.setBlurRadius(5)
     shadow.setOffset(3, 3)
-    label.setGraphicsEffect(shadow)
+    # label.setGraphicsEffect(shadow)
 
     return label
 
@@ -166,239 +166,110 @@ class AppDemo(QMainWindow):
     def __init__(self):
         super().__init__()
 
+        self.flag = False
+        self.setWindowTitle("AntiVirus")
+        self.setWindowIcon(QIcon("images/virus.png"))
+
         # toolbar
         self.toolbar = QToolBar()
         self.toolbar.setMovable(False)
 
         # Add actions to the toolbar
-        new_action = QAction(QIcon("images/arrow.png"), "New", self)
-        open_action = QAction(QIcon("images/arrow.png"), "Open", self)
-        save_action = QAction(QIcon("images/arrow.png"), "Save", self)
-        save_as_action = QAction(QIcon("images/arrow.png"), "Save", self)
+        self.new_action = QAction(QIcon("images/main_menu.png"), "main_menu", self)
+        self.new_action.triggered.connect(lambda: self.main_menu_window())
 
-        self.toolbar.addAction(new_action)
-        self.toolbar.addAction(open_action)
-        self.toolbar.addAction(save_action)
-        self.toolbar.addAction(save_as_action)
+        self.open_action = QAction(QIcon("images/arrow.png"), "Open", self)
+        self.open_action.triggered.connect(lambda: self.show_loading_menu())
+
+        self.save_action = QAction(QIcon("images/arrow.png"), "Save", self)
+        self.save_as_action = QAction(QIcon("images/arrow.png"), "Save", self)
+
+        self.toolbar.addAction(self.new_action)
+        self.toolbar.addAction(self.open_action)
+        self.toolbar.addAction(self.save_action)
+        self.toolbar.addAction(self.save_as_action)
 
         with open("css_files/toolbar.css") as f:
             self.toolbar.setStyleSheet(f.read())
 
         self.addToolBar(Qt.LeftToolBarArea, self.toolbar)
 
-        # threads for the fuzzy hashing
-        self.thread1, self.thread2, self.thread3, self.thread4 = None, None, None, None
+        self.main_menu_window()
 
-        self.redis_virus = Redis()
+    def run_func_in_thread(self, func_to_run):
 
-        self.list_widget_style_sheet = """
-            QListWidget {
-                background-color: #f5f5f5;
-                border: 1px solid #ccc;
-                border-radius: 5px;
-                outline: none;
-                margin: 5px;
-            }
+        self.thread = QThread()
+        self.thread.run = func_to_run
+        return self.thread
 
-            QListWidget::item {
-                color: #444;
-                border: none;
-                padding: 10px;
-                font-size: 14px;
-                font-weight: 500;
-            }
+    def show_loading_menu(self):
 
-            QListWidget::item:hover {
-                background-color: #eee;
-            }
+        # self.clearLayout()
 
-            QListWidget::item:selected {
-                background-color: #333;
-                color: #fff;
-            }
-        """
+        class GifThread(QThread):
+            def __init__(self, label, movie):
+                QThread.__init__(self)
+                self.label = label
+                self.movie = movie
 
-        self.movie_label = None
-        self.movie_label_ip = None
-        self.delete_widgets = None
-        self.fuzzy_spin = None
-        self.virus_total_label = None
+            def run(self):
+                self.movie.start()
 
-        self.page_layout = QVBoxLayout()
-        self.btn_layout = QHBoxLayout()
-        self.run_once = 0
-        self.activate_btn_layout = QHBoxLayout()
-        self.resize(1200, 600)
+        class OverlayWindow(QMainWindow):
+            def __init__(self):
+                super().__init__()
+                self.initUI()
 
-        self.listbox_view = ListBoxWidget(self)
-        self.btn = QPushButton('Start Dynamic Scan', self)
-        self.btn.setStyleSheet("QPushButton {background-color: #E6E6FA; color: #000080; border: 2px solid #9400D3; "
-                               "border-radius: 10px; font: bold 14px; min-width: 80px; padding: 6px;} "
-                               "QPushButton:hover {background-color: #D8BFD8; color: #4B0082;} QPushButton:pressed {"
-                               "background-color: #DDA0DD; color: #8B008B;}")
+            def initUI(self):
+                self.setWindowFlags(QtCore.Qt.FramelessWindowHint | QtCore.Qt.WindowStaysOnTopHint)
+                # self.setAttribute(QtCore.Qt.WA_TranslucentBackground)
 
-        self.start_vm_btn = QPushButton('Start Virtual Machine', self)
-        self.start_vm_btn.setStyleSheet(
-            "QPushButton {background-color: #E6E6FA; color: #000080; border: 2px solid #9400D3; "
-            "border-radius: 10px; font: bold 14px; min-width: 80px; padding: 6px;} "
-            "QPushButton:hover {background-color: #D8BFD8; color: #4B0082;} QPushButton:pressed {"
-            "background-color: #DDA0DD; color: #8B008B;}")
+                # Create the label for the gif
 
-        self.activate_btn_layout.addWidget(self.start_vm_btn)
-        self.activate_btn_layout.addWidget(self.btn)
+                self.label_load = QLabel()
+                movie = QMovie("loading.gif")
+                self.label_load.setMovie(movie)
 
-        self.load_for_static = QPushButton('Load for Static Analysis', self)
-        self.load_for_hash = QPushButton('Load for Static Analysis', self)
+                # Create the label for the text
+                self.text_label = QLabel("Loading your data...")
+                self.label_load.setAlignment(QtCore.Qt.AlignCenter)
 
-        self.static_hash_load = QHBoxLayout()
-        self.static_hash_load.addWidget(self.load_for_static)
-        self.static_hash_load.addWidget(self.load_for_hash)
+                # Style the text label
+                font = QFont()
+                font.setFamily("Arial")
+                font.setPointSize(20)
+                font.setBold(True)
+                self.text_label.setFont(font)
+                self.text_label.setStyleSheet("color: #0096FF;")
+                self.text_label.setAlignment(QtCore.Qt.AlignCenter)
 
-        self.load_for_static.setStyleSheet(
-            "QPushButton {background-color: #E6E6FA; color: #000080; border: 2px solid #9400D3; "
-            "border-radius: 10px; font: bold 14px; min-width: 80px; padding: 6px;} "
-            "QPushButton:hover {background-color: #D8BFD8; color: #4B0082;} QPushButton:pressed {"
-            "background-color: #DDA0DD; color: #8B008B;}")
-        self.load_for_hash.setStyleSheet(
-            "QPushButton {background-color: #E6E6FA; color: #000080; border: 2px solid #9400D3; "
-            "border-radius: 10px; font: bold 14px; min-width: 80px; padding: 6px;} "
-            "QPushButton:hover {background-color: #D8BFD8; color: #4B0082;} QPushButton:pressed {"
-            "background-color: #DDA0DD; color: #8B008B;}")
+                # Create the main layout
+                self.layout_load = QVBoxLayout()
+                self.layout_load.addWidget(self.label_load, 0, QtCore.Qt.AlignCenter)
+                self.layout_load.addWidget(self.text_label, 0, QtCore.Qt.AlignBottom)
 
-        self.l1 = make_label("YeshScanner", 24)
-        self.l1.setAlignment(Qt.AlignCenter)
+                loading_thread = GifThread(self.label_load, movie)
+                loading_thread.run()
+                central_widget = QWidget(self)
+                central_widget.setLayout(self.layout_load)
+                self.setCentralWidget(central_widget)
 
-        self.dynamic_button = QPushButton("Dynamic Analysis")
-        self.dynamic_button.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Expanding)
-        self.dynamic_button.setFlat(True)
-        self.dynamic_button.setDisabled(False)
+                close_button = QPushButton('X', self)
+                close_button.setFixedSize(30, 30)
+                close_button.clicked.connect(self.close)
 
-        self.static_button = QPushButton("Static Analysis")
-        self.static_button.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Expanding)
-        self.static_button.setFlat(True)
+            def mousePressEvent(self, event):
+                self.offset = event.pos()
 
-        self.hash_button = QPushButton("Hash Analysis")
-        self.hash_button.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Expanding)
-        self.hash_button.setFlat(True)
+            def mouseMoveEvent(self, event):
+                x = event.globalX()
+                y = event.globalY()
+                x_w = self.offset.x()
+                y_w = self.offset.y()
+                self.move(x - x_w, y - y_w)
 
-        # btn_layout.addItem(Qt.SpacerItem(0, 0,QSizePolicy.Expanding, Qt.QSizePolicy.Minimum))
-        # self.btn_layout.addStretch(1)
-        self.btn_layout.addWidget(self.dynamic_button, Qt.AlignCenter)
-        self.btn_layout.addWidget(self.static_button, Qt.AlignCenter)
-        self.btn_layout.addWidget(self.hash_button, Qt.AlignCenter)
-        self.btn_layout.setAlignment(Qt.AlignCenter)
-
-        self.page_layout.setAlignment(Qt.AlignCenter)
-        self.page_layout.addWidget(self.l1)
-        self.page_layout.addLayout(self.btn_layout)
-        self.page_layout.addWidget(self.listbox_view)
-        self.page_layout.addLayout(self.activate_btn_layout)
-        self.page_layout.addLayout(self.static_hash_load)
-        self.page_layout.addStretch(1)
-        self.page_layout.setContentsMargins(20, 20, 20, 20)
-
-        self.dynamic_visited = False
-        self.static_visited = False
-        self.hash_visited = False
-
-        self.scroll = QScrollArea()  # Scroll Area which contains the widgets, set as the centralWidget
-        self.widget = QWidget()  # Widget that contains the collection of Vertical Box
-        self.scroll.setStyleSheet("""
-        QScrollArea {
-          boarder-radius: 20px;
-        }
-        
-        *, *::before, *::after{
-        boarder-radius:20px;
-        }
-        
-        QScrollArea QScrollBar {
-          /* Styles for all scrollbars */
-          border-radius: 100px;
-          background-color: #e6b3ff;
-        }
-        
-        QScrollArea QScrollBar::handle {
-          /* Styles for the handle (draggable part) of the scrollbar */
-          background-color: #d99eff;
-          border-radius: 20px;
-        }
-        
-        QScrollArea QScrollBar::add-line,
-        QScrollArea QScrollBar::sub-line {
-          /* Styles for the buttons on the scrollbar */
-          width: 0;
-          height: 0;
-          border-color: transparent;
-          background-color: transparent;
-        }
-        
-        QScrollArea QScrollBar:vertical {
-          /* Styles for vertical scrollbars */
-          border-top-right-radius: 20px;
-          border-bottom-right-radius: 20px;
-        }
-        
-        QScrollArea QScrollBar:horizontal {
-          /* Styles for horizontal scrollbars */
-          border-top-left-radius: 20px;
-          border-top-right-radius: 20px;
-        }
-        
-        QScrollArea QScrollBar:left-arrow,
-        QScrollArea QScrollBar:right-arrow,
-        QScrollArea QScrollBar:up-arrow,
-        QScrollArea QScrollBar:down-arrow {
-          /* Styles for the buttons on the scrollbar */
-          border-radius: 20px;
-          background-color: #e6b3ff;
-        }
-        
-        QScrollArea QScrollBar:vertical:increment,
-        QScrollArea QScrollBar:vertical:decrement,
-        QScrollArea QScrollBar:horizontal:increment,
-        QScrollArea QScrollBar:horizontal:decrement {
-          /* Styles for the buttons on the scrollbar */
-          border-radius: 20px;
-          background-color: #e6b3ff;
-        }
-        
-        QScrollArea QScrollBar:vertical:increment:pressed,
-        QScrollArea QScrollBar:vertical:decrement:pressed,
-        QScrollArea QScrollBar:horizontal:increment:pressed,
-        QScrollArea QScrollBar:horizontal:decrement:pressed {
-          /* Styles for the buttons on the scrollbar when pressed */
-          border-radius: 20px;
-          background-color: #b366ff;
-        }
-        """)
-
-        self.container = QGroupBox()
-        # self.widget.setLayout(self.page_layout)
-        self.container.setLayout(self.page_layout)
-
-        # Scroll Area Properties
-        self.scroll.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOn)
-        self.scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
-        self.scroll.setWidgetResizable(True)
-        self.scroll.setWidget(self.container)
-        self.setCentralWidget(self.scroll)
-
-        # # horizontal scroll area
-        # self.scroll_horizontal = QScrollArea()
-        # self.widget_horizontal = QWidget()
-        # self.widget_horizontal.setLayout(self.page_layout)
-        # self.scroll_horizontal.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
-        # self.scroll_horizontal.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOn)
-        # self.scroll_horizontal.setWidgetResizable(True)
-        # self.scroll_horizontal.setWidget(self.widget_horizontal)
-        # self.setCentralWidget(self.scroll_horizontal)
-
-        self.btn.clicked.connect(lambda: self.getSelectedItem())
-        self.start_vm_btn.clicked.connect(lambda: self.activate_vm())
-        self.static_button.clicked.connect(lambda: [self.static_analysis()])
-        self.hash_button.clicked.connect(lambda: [self.hash_analysis()])
-        self.dynamic_button.clicked.connect(lambda: [self.dynamic_analysis()])
+        self.overlay = OverlayWindow()
+        self.overlay.show()
 
     def clearLayout(self):
 
@@ -492,6 +363,229 @@ class AppDemo(QMainWindow):
                 widget.deleteLater()
             self.dynamic_layout.deleteLater()
 
+    def main_menu_window(self):
+
+        if self.flag:
+            self.clearLayout()
+        self.flag = True
+
+        # threads for the fuzzy hashing
+        self.thread1, self.thread2, self.thread3, self.thread4 = None, None, None, None
+
+        self.redis_virus = Redis()
+
+        self.list_widget_style_sheet = """
+            QListWidget {
+                background-color: #f5f5f5;
+                border: 1px solid #ccc;
+                border-radius: 5px;
+                outline: none;
+                margin: 5px;
+            }
+
+            QListWidget::item {
+                color: #444;
+                border: none;
+                padding: 10px;
+                font-size: 14px;
+                font-weight: 500;
+            }
+
+            QListWidget::item:hover {
+                background-color: #eee;
+            }
+
+            QListWidget::item:selected {
+                background-color: #333;
+                color: #fff;
+            }
+        """
+
+        self.movie_label = None
+        self.movie_label_ip = None
+        self.delete_widgets = None
+        self.fuzzy_spin = None
+        self.virus_total_label = None
+
+        self.page_layout = QVBoxLayout()
+        self.btn_layout = QHBoxLayout()
+        self.run_once = 0
+        self.activate_btn_layout = QHBoxLayout()
+        self.resize(1200, 600)
+
+        self.listbox_view = ListBoxWidget(self)
+        self.btn = QPushButton('Start Dynamic Scan', self)
+        self.btn.setStyleSheet("QPushButton {background-color: #E6E6FA; color: #000080; border: 2px solid #9400D3; "
+                               "border-radius: 10px; font: bold 14px; min-width: 80px; padding: 6px;} "
+                               "QPushButton:hover {background-color: #D8BFD8; color: #4B0082;} QPushButton:pressed {"
+                               "background-color: #DDA0DD; color: #8B008B;}")
+
+        self.start_vm_btn = QPushButton('Start Virtual Machine', self)
+        self.start_vm_btn.setStyleSheet(
+            "QPushButton {background-color: #E6E6FA; color: #000080; border: 2px solid #9400D3; "
+            "border-radius: 10px; font: bold 14px; min-width: 80px; padding: 6px;} "
+            "QPushButton:hover {background-color: #D8BFD8; color: #4B0082;} QPushButton:pressed {"
+            "background-color: #DDA0DD; color: #8B008B;}")
+
+        self.activate_btn_layout.addWidget(self.start_vm_btn)
+        self.activate_btn_layout.addWidget(self.btn)
+
+        self.load_for_static = QPushButton('Load for Static Analysis', self)
+        self.load_for_hash = QPushButton('Load for Static Analysis', self)
+
+        self.static_hash_load = QHBoxLayout()
+        self.static_hash_load.addWidget(self.load_for_static)
+        self.static_hash_load.addWidget(self.load_for_hash)
+
+        self.load_for_static.setStyleSheet(
+            "QPushButton {background-color: #E6E6FA; color: #000080; border: 2px solid #9400D3; "
+            "border-radius: 10px; font: bold 14px; min-width: 80px; padding: 6px;} "
+            "QPushButton:hover {background-color: #D8BFD8; color: #4B0082;} QPushButton:pressed {"
+            "background-color: #DDA0DD; color: #8B008B;}")
+        self.load_for_hash.setStyleSheet(
+            "QPushButton {background-color: #E6E6FA; color: #000080; border: 2px solid #9400D3; "
+            "border-radius: 10px; font: bold 14px; min-width: 80px; padding: 6px;} "
+            "QPushButton:hover {background-color: #D8BFD8; color: #4B0082;} QPushButton:pressed {"
+            "background-color: #DDA0DD; color: #8B008B;}")
+
+        self.l1 = make_label("YeshScanner", 24)
+        self.l1.setAlignment(Qt.AlignCenter)
+
+        self.dynamic_button = QPushButton("Dynamic Analysis")
+        # self.dynamic_button.setStyleSheet("QPushButton { background-color: #EAEDED; }")
+        self.dynamic_button.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Expanding)
+        self.dynamic_button.setFlat(True)
+        self.dynamic_button.setDisabled(False)
+
+        self.static_button = QPushButton("Static Analysis")
+        # self.static_button.setStyleSheet("QPushButton { background-color: #EAEDED; }")
+        self.static_button.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Expanding)
+        self.static_button.setFlat(True)
+
+        self.hash_button = QPushButton("Hash Analysis")
+        # .hash_button.setStyleSheet("QPushButton { background-color: #EAEDED; }")
+        self.hash_button.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Expanding)
+        self.hash_button.setFlat(True)
+
+        # btn_layout.addItem(Qt.SpacerItem(0, 0,QSizePolicy.Expanding, Qt.QSizePolicy.Minimum))
+        # self.btn_layout.addStretch(1)
+        self.btn_layout.addWidget(self.dynamic_button, Qt.AlignCenter)
+        self.btn_layout.addWidget(self.static_button, Qt.AlignCenter)
+        self.btn_layout.addWidget(self.hash_button, Qt.AlignCenter)
+        self.btn_layout.setAlignment(Qt.AlignCenter)
+
+        self.page_layout.setAlignment(Qt.AlignCenter)
+        self.page_layout.addWidget(self.l1)
+        self.page_layout.addLayout(self.btn_layout)
+        self.page_layout.addWidget(self.listbox_view)
+        self.page_layout.addLayout(self.activate_btn_layout)
+        self.page_layout.addLayout(self.static_hash_load)
+        self.page_layout.addStretch(1)
+        self.page_layout.setContentsMargins(20, 20, 20, 20)
+
+        self.dynamic_visited = False
+        self.static_visited = False
+        self.hash_visited = False
+
+        self.scroll = QScrollArea()  # Scroll Area which contains the widgets, set as the centralWidget
+        self.widget = QWidget()  # Widget that contains the collection of Vertical Box
+        self.scroll.setStyleSheet("""
+        QScrollArea {
+          boarder-radius: 20px;
+        }
+
+        *, *::before, *::after{
+        boarder-radius:20px;
+        }
+
+        QScrollArea QScrollBar {
+          /* Styles for all scrollbars */
+          border-radius: 100px;
+          background-color: #e6b3ff;
+        }
+
+        QScrollArea QScrollBar::handle {
+          /* Styles for the handle (draggable part) of the scrollbar */
+          background-color: #d99eff;
+          border-radius: 20px;
+        }
+
+        QScrollArea QScrollBar::add-line,
+        QScrollArea QScrollBar::sub-line {
+          /* Styles for the buttons on the scrollbar */
+          width: 0;
+          height: 0;
+          border-color: transparent;
+          background-color: transparent;
+        }
+
+        QScrollArea QScrollBar:vertical {
+          /* Styles for vertical scrollbars */
+          border-top-right-radius: 20px;
+          border-bottom-right-radius: 20px;
+        }
+
+        QScrollArea QScrollBar:horizontal {
+          /* Styles for horizontal scrollbars */
+          border-top-left-radius: 20px;
+          border-top-right-radius: 20px;
+        }
+
+        QScrollArea QScrollBar:left-arrow,
+        QScrollArea QScrollBar:right-arrow,
+        QScrollArea QScrollBar:up-arrow,
+        QScrollArea QScrollBar:down-arrow {
+          /* Styles for the buttons on the scrollbar */
+          border-radius: 20px;
+          background-color: #e6b3ff;
+        }
+
+        QScrollArea QScrollBar:vertical:increment,
+        QScrollArea QScrollBar:vertical:decrement,
+        QScrollArea QScrollBar:horizontal:increment,
+        QScrollArea QScrollBar:horizontal:decrement {
+          /* Styles for the buttons on the scrollbar */
+          border-radius: 20px;
+          background-color: #e6b3ff;
+        }
+
+        QScrollArea QScrollBar:vertical:increment:pressed,
+        QScrollArea QScrollBar:vertical:decrement:pressed,
+        QScrollArea QScrollBar:horizontal:increment:pressed,
+        QScrollArea QScrollBar:horizontal:decrement:pressed {
+          /* Styles for the buttons on the scrollbar when pressed */
+          border-radius: 20px;
+          background-color: #b366ff;
+        }
+        """)
+
+        self.container = QGroupBox()
+        # self.widget.setLayout(self.page_layout)
+        self.container.setLayout(self.page_layout)
+
+        # Scroll Area Properties
+        self.scroll.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOn)
+        self.scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+        self.scroll.setWidgetResizable(True)
+        self.scroll.setWidget(self.container)
+        self.setCentralWidget(self.scroll)
+
+        # # horizontal scroll area
+        # self.scroll_horizontal = QScrollArea()
+        # self.widget_horizontal = QWidget()
+        # self.widget_horizontal.setLayout(self.page_layout)
+        # self.scroll_horizontal.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+        # self.scroll_horizontal.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOn)
+        # self.scroll_horizontal.setWidgetResizable(True)
+        # self.scroll_horizontal.setWidget(self.widget_horizontal)
+        # self.setCentralWidget(self.scroll_horizontal)
+
+        self.btn.clicked.connect(lambda: self.getSelectedItem())
+        self.start_vm_btn.clicked.connect(lambda: self.activate_vm())
+        self.static_button.clicked.connect(lambda: [self.static_analysis()])
+        self.hash_button.clicked.connect(lambda: [self.hash_analysis()])
+        self.dynamic_button.clicked.connect(lambda: [self.dynamic_analysis()])
+
     def getSelectedItem(self):
         print("got here")
         item = QListWidgetItem(self.listbox_view.item(0))
@@ -573,6 +667,7 @@ class AppDemo(QMainWindow):
 
     def static_analysis(self):
 
+        # self.show_loading_menu()
         self.clearLayout()
         self.static_visited = True
         self.hash_visited = False
@@ -808,7 +903,10 @@ class AppDemo(QMainWindow):
             "UPX_wwwupxsourceforgenet": "Packers like UPX are used to scramble and mask "
                                         "in an effort to make it more difficult for the "
                                         "analyst/reverser to figure out what is going "
-                                        "on.",
+                                        "on.", "Microsoft_Visual_Cpp_V80_Debug": "A basic signature of exe written in "
+                                                                                 "c++ language version 8.0",
+            "Microsoft_Visual_Cpp_80_Debug_": "A basic signature of exe written in c++ language version 8.0",
+            "Microsoft_Visual_Cpp_80_Debug": "A basic signature of exe written in c++ language version 8.0 "
         }
 
         def show_bubble(item):
@@ -1389,7 +1487,7 @@ class AppDemo(QMainWindow):
     def hash_analysis(self):
 
         self.clearLayout()
-
+        # self.show_loading_menu()
         self.static_visited = False
         self.dynamic_visited = False
 
