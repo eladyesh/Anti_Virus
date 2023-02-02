@@ -2,6 +2,7 @@ QToolBar {
     background-color: white;
     color: black;
     border: 1px solid black;
+    spacing: 20px;
 }
 
 #loadingCircle {

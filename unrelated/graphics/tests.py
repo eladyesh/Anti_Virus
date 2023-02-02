@@ -1,65 +1,58 @@
 import sys
-from PyQt5 import QtWidgets, QtGui, QtCore
+from PyQt5.QtCore import Qt
+from PyQt5.QtGui import QPixmap, QMovie
+from PyQt5.QtWidgets import QApplication, QListWidget, QLabel, QVBoxLayout, QWidget
 
-class OverlayWindow(QtWidgets.QMainWindow):
-    def __init__(self):
-        super().__init__()
-        self.initUI()
 
-    def initUI(self):
-        self.setWindowFlags(QtCore.Qt.FramelessWindowHint | QtCore.Qt.WindowStaysOnTopHint)
-        self.setGeometry(100, 100, 200, 100)
+class ListBoxWidget(QListWidget):
+    def __init__(self, parent=None):
+        super().__init__(parent)
 
-        # Create the label for the text
-        label = QtWidgets.QLabel("Loading your data...")
-        label.setAlignment(QtCore.Qt.AlignCenter)
+        # perform drag and drop
+        self.setAcceptDrops(True)
+        self.setGeometry(0, 0, 500, 300)
+        self.move(300, 150)
 
-        # Style the text label
-        font = QtGui.QFont()
-        font.setFamily("Arial")
-        font.setPointSize(20)
-        font.setBold(True)
-        label.setFont(font)
-        label.setStyleSheet("color: blue;")
+        self.movie = QMovie("images/drag_and_drop.gif")
+        self.movie.start()
 
-        # Create the main layout
-        layout = QtWidgets.QVBoxLayout()
-        layout.addWidget(label, 0, QtCore.Qt.AlignCenter)
+        self.gif_label = QLabel(self)
+        self.gif_label.setMovie(self.movie)
+        self.gif_label.move(200, 100)
 
-        central_widget = QtWidgets.QWidget(self)
-        central_widget.setLayout(layout)
-        self.setCentralWidget(central_widget)
+    def dragEnterEvent(self, event):
+        if event.mimeData().hasUrls():
+            event.accept()
+        else:
+            event.ignore()
 
-        close_button = QtWidgets.QPushButton('X', self)
-        close_button.setFixedSize(30, 30)
-        close_button.clicked.connect(self.close)
-        close_button.move(170, 0)
+    def dragMoveEvent(self, event):
+        if event.mimeData().hasUrls():
+            event.setDropAction(Qt.CopyAction)
+            event.accept()
+        else:
+            event.ignore()
 
-    def mousePressEvent(self, event):
-        self.offset = event.pos()
+    def dropEvent(self, event):
+        if event.mimeData().hasUrls():
+            event.setDropAction(Qt.CopyAction)
+            event.accept()
+            links = []
 
-    def mouseMoveEvent(self, event):
-        x = event.globalX()
-        y = event.globalY()
-        x_w = self.offset.x()
-        y_w = self.offset.y()
-        self.move(x-x_w, y-y_w)
+            for url in event.mimeData().urls():
+                if url.isLocalFile():  # checking if url
+                    links.append(str(url.toLocalFile()))
+                else:  # meaning --> a website or other url
+                    links.append(str(url.toString()))
 
-class MainWindow(QtWidgets.QMainWindow):
-    def __init__(self):
-        super().__init__()
-        self.initUI()
+            self.addItems(links)
 
-    def initUI(self):
-        button = QtWidgets.QPushButton("Open Overlay", self)
-        button.clicked.connect(self.openOverlay)
-        button.move(50, 50)
+        else:
+            event.ignore()
 
-    def openOverlay(self):
-        self.overlay_window = OverlayWindow()
-        self.overlay_window.show()
 
-app = QtWidgets.QApplication(sys.argv)
-main_window = MainWindow()
-main_window.show()
-sys.exit(app.exec_())
+if __name__ == '__main__':
+    app = QApplication(sys.argv)
+    list_box_widget = ListBoxWidget()
+    list_box_widget.show()
+    sys.exit(app.exec_())

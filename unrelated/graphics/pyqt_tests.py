@@ -65,6 +65,127 @@ QLabel{
 }
 """
 
+bubble_strings_dict = {
+    'CreateToolhelp32Snapshot': 'Takes a snapshot of the specified processes, as well as '
+                                'the heaps, modules, and threads used by these '
+                                'processes', 'Process32First': 'Retrieves information '
+                                                               'about the first process '
+                                                               'encountered in a system '
+                                                               'snapshot',
+    'Process32Next': 'Retrieves information about the next process recorded in a system '
+                     'snapshot', 'LoadLibrary': 'Loads the specified  module into the '
+                                                'address space of the calling process',
+    'GetProcAddress': 'Retrieves the address of an exported function (also known as a '
+                      'procedure) or variable from the specified dynamic-link library ('
+                      'DLL)', 'GetModuleHandle': 'Retrieves a module handle for the '
+                                                 'specified module', 'SetWindowsHookEx':
+        'Installs an application-defined hook procedure into a hook chain', 'GetMessage':
+        "Retrieves a message from the calling thread's message queue", 'CallNextHookEx':
+        'Passes the hook information to the next hook procedure in the current hook '
+        'chain', 'OpenClipboard': 'Opens the clipboard for examination and prevents other '
+                                  'applications from modifying the clipboard content',
+    'GetClipboardData': 'Retrieves data from the clipboard in a specified format',
+    'CloseClipboard': 'Closes the clipboard', 'RegOpenKeyExA': 'Opens the specified '
+                                                               'registry key',
+    'RegSetValueExA': 'Sets the data and type of a specified value under a registry key',
+    'RegCreateKeyExA': 'Creates the specified registry key', 'RegGetValueA': 'Retrieves '
+                                                                             'the type '
+                                                                             'and data '
+                                                                             'for the '
+                                                                             'specified '
+                                                                             'registry '
+                                                                             'value',
+    'socket': 'The socket function creates a socket that is bound to a specific transport '
+              'service provider.', 'recv': 'The recv function receives data from a '
+                                           'connected socket or a bound connectionless '
+                                           'socket.', 'connect': 'The connect function '
+                                                                 'establishes a '
+                                                                 'connection to a '
+                                                                 'specified socket.',
+    'send': 'The send function sends data on a connected socket.', 'CreateFileA':
+        'Creates or opens '
+        'a file or I/O '
+        'device',
+    'DeleteFileA': 'Deletes an existing file', 'WriteFileEx': 'Writes data to the '
+                                                              'specified file or '
+                                                              'input/output (I/O) '
+                                                              'device', 'WriteFile':
+        'Writes data to the specified file or input/output (I/O) device', 'VirtualAlloc':
+        'Reserves, commits, or changes the state  of a region of pages in the virtual '
+        'address space of the calling process', 'VirtualAllocEx': 'Reserves, commits, '
+                                                                  'or changes the state  '
+                                                                  'of a region of memory '
+                                                                  'within the virtual '
+                                                                  'address space of a '
+                                                                  'specified process',
+    'WriteProcessMemory': 'Writes data to an area of memory in a specified process',
+    'CreateThread': 'Creates a thread to execute within the virtual address space of the '
+                    'calling process', 'CreateRemoteThread': 'Creates a thread that runs '
+                                                             'in the virtual address '
+                                                             'space of another process',
+    'CloseHandle': 'Closes an open object handle',
+    'KERNEL32': "Kernel32.dll is a dynamic link library (DLL) file that is an essential "
+                "component of the Windows operating system." , "ADVAPI32":
+        "Advapi32. dll is a part of the advanced API services library. It provides access to advanced "
+        "functionality that "
+        "comes in addition to the kernel.", "Ws2_32": "The Ws2_32.dll loads the service "
+                                                      "provider's interface DLL into the "
+                                                      "system by using the standard "
+                                                      "Microsoft Windows dynamic library "
+                                                      "loading mechanisms, "
+                                                      "and initializes it by calling "
+                                                      "WSPStartup.", "USER32": "user32.dll is a Dynamic "
+                                                                               "Link Library (DLL) file "
+                                                                               "that contains functions "
+                                                                               "for handling user input "
+                                                                               "and user interface "
+                                                                               "elements on Windows "
+                                                                               "operating systems. ",
+    "SOFTWARE\\Policies\\Microsoft\\Windows Defender": "A registry key in the Windows "
+                                                       "operating system that is used to "
+                                                       "configure various settings for "
+                                                       "Windows Defender, which is the "
+                                                       "built-in antivirus and malware "
+                                                       "protection software in Windows.",
+    "Software\\Microsoft\\Windows\\CurrentVersion\\Run": "A registry key located in the "
+                                                         "Windows Registry. It is used to "
+                                                         "configure applications or "
+                                                         "scripts to run automatically "
+                                                         "when a user logs in to the "
+                                                         "system",
+    # now moving to packers
+    "PackerUPX_CompresorGratuito_wwwupxsourceforgenet": "Packers like UPX are used to scramble and mask "
+                                                        "in an effort to make it more difficult for the "
+                                                        "analyst/reverser to figure out what is going "
+                                                        "on.",
+    "UPX_wwwupxsourceforgenet_additional": "Packers like UPX are used to scramble and mask "
+                                           "in an effort to make it more difficult for the "
+                                           "analyst/reverser to figure out what is going "
+                                           "on.",
+    "yodas_Protector_v1033_dllocx_Ashkbiz_Danehkar_h": "A signature that recognizes malware given by MalShare",
+    "Netopsystems_FEAD_Optimizer_1": "A signature that recognizes malware given by MalShare",
+    "UPX_290_LZMA": "Packers like UPX are used to scramble and mask "
+                    "in an effort to make it more difficult for the "
+                    "analyst/reverser to figure out what is going "
+                    "on.",
+    "UPX_290_LZMA_Markus_Oberhumer_Laszlo_Molnar_John_Reiser": "Packers like UPX are used to scramble and mask "
+                                                               "in an effort to make it more difficult for the "
+                                                               "analyst/reverser to figure out what is going "
+                                                               "on.",
+    "UPX_290_LZMA_additional": "Packers like UPX are used to scramble and mask "
+                               "in an effort to make it more difficult for the "
+                               "analyst/reverser to figure out what is going "
+                               "on.",
+    "UPX_wwwupxsourceforgenet": "Packers like UPX are used to scramble and mask "
+                                "in an effort to make it more difficult for the "
+                                "analyst/reverser to figure out what is going "
+                                "on.", "Microsoft_Visual_Cpp_V80_Debug": "A basic signature of exe written in "
+                                                                         "c++ language version 8.0",
+    "Microsoft_Visual_Cpp_80_Debug_": "A basic signature of exe written in c++ language version 8.0",
+    "Microsoft_Visual_Cpp_80_Debug": "A basic signature of exe written in c++ language version 8.0 ",
+    "OpenProcess": "Opens an existing local process object."
+}
+
 
 def make_label(text, font_size):
     label = QLabel(text)
@@ -175,19 +296,19 @@ class AppDemo(QMainWindow):
         self.toolbar.setMovable(False)
 
         # Add actions to the toolbar
-        self.new_action = QAction(QIcon("images/main_menu.png"), "main_menu", self)
-        self.new_action.triggered.connect(lambda: self.main_menu_window())
+        self.main_menu_action = QAction(QIcon("images/main_menu.png"), "main_menu", self)
+        self.main_menu_action.triggered.connect(lambda: self.main_menu_window())
 
-        self.open_action = QAction(QIcon("images/arrow.png"), "Open", self)
-        self.open_action.triggered.connect(lambda: self.show_loading_menu())
+        self.file_analysis_action = QAction(QIcon("images/exe_analysis.png"), "file_analysis", self)
+        self.file_analysis_action.triggered.connect(lambda: self.show_loading_menu())
 
-        self.save_action = QAction(QIcon("images/arrow.png"), "Save", self)
-        self.save_as_action = QAction(QIcon("images/arrow.png"), "Save", self)
+        self.directory_analysis = QAction(QIcon("images/directory_analysis.png"), "directory_analysis", self)
+        self.ip_analysis_action = QAction(QIcon("images/ip_analysis.png"), "ip_analysis", self)
 
-        self.toolbar.addAction(self.new_action)
-        self.toolbar.addAction(self.open_action)
-        self.toolbar.addAction(self.save_action)
-        self.toolbar.addAction(self.save_as_action)
+        self.toolbar.addAction(self.main_menu_action)
+        self.toolbar.addAction(self.file_analysis_action)
+        self.toolbar.addAction(self.directory_analysis)
+        self.toolbar.addAction(self.ip_analysis_action)
 
         with open("css_files/toolbar.css") as f:
             self.toolbar.setStyleSheet(f.read())
@@ -236,7 +357,7 @@ class AppDemo(QMainWindow):
 
                 # Style the text label
                 font = QFont()
-                font.setFamily("Arial")
+                font.setFamily("Zapfino")
                 font.setPointSize(20)
                 font.setBold(True)
                 self.text_label.setFont(font)
@@ -274,8 +395,9 @@ class AppDemo(QMainWindow):
     def clearLayout(self):
 
         if self.run_once == 0:
+
             for cnt in reversed(range(self.page_layout.count())):
-                if cnt == 0 or cnt == 1:
+                if cnt == 0 or cnt == 1 or cnt == 2:
                     continue
                 widget = self.page_layout.takeAt(cnt).widget()
                 if widget is not None:
@@ -287,9 +409,11 @@ class AppDemo(QMainWindow):
             if self.load_for_static:
                 self.load_for_static.deleteLater()
 
-            index = self.page_layout.indexOf(self.activate_btn_layout)
+            index = self.page_layout.indexOf(self.static_hash_load)
             self.page_layout.removeItem(self.page_layout.takeAt(index))
-            self.activate_btn_layout.deleteLater()
+            # self.start_label_explantion.deleteLater()
+
+            # self.activate_btn_layout.deleteLater()
             self.start_vm_btn.deleteLater()
             self.btn.deleteLater()
             self.run_once = 1
@@ -416,54 +540,80 @@ class AppDemo(QMainWindow):
         self.listbox_view = ListBoxWidget(self)
         self.btn = QPushButton('Start Dynamic Scan', self)
         self.btn.setStyleSheet("QPushButton {background-color: #E6E6FA; color: #000080; border: 2px solid #9400D3; "
-                               "border-radius: 10px; font: bold 14px; min-width: 80px; padding: 6px;} "
+                               "font: bold 14px; min-width: 80px; padding: 6px;} "
                                "QPushButton:hover {background-color: #D8BFD8; color: #4B0082;} QPushButton:pressed {"
                                "background-color: #DDA0DD; color: #8B008B;}")
 
         self.start_vm_btn = QPushButton('Start Virtual Machine', self)
         self.start_vm_btn.setStyleSheet(
             "QPushButton {background-color: #E6E6FA; color: #000080; border: 2px solid #9400D3; "
-            "border-radius: 10px; font: bold 14px; min-width: 80px; padding: 6px;} "
+            "font: bold 14px; min-width: 80px; padding: 6px;} "
             "QPushButton:hover {background-color: #D8BFD8; color: #4B0082;} QPushButton:pressed {"
             "background-color: #DDA0DD; color: #8B008B;}")
 
-        self.activate_btn_layout.addWidget(self.start_vm_btn)
-        self.activate_btn_layout.addWidget(self.btn)
+        # self.activate_btn_layout.addWidget(self.start_vm_btn)
+        # self.activate_btn_layout.addWidget(self.btn)
 
         self.load_for_static = QPushButton('Load for Static Analysis', self)
         self.load_for_hash = QPushButton('Load for Static Analysis', self)
 
         self.static_hash_load = QHBoxLayout()
+        self.static_hash_load.addWidget(self.start_vm_btn)
+        self.static_hash_load.addWidget(self.btn)
         self.static_hash_load.addWidget(self.load_for_static)
         self.static_hash_load.addWidget(self.load_for_hash)
 
         self.load_for_static.setStyleSheet(
             "QPushButton {background-color: #E6E6FA; color: #000080; border: 2px solid #9400D3; "
-            "border-radius: 10px; font: bold 14px; min-width: 80px; padding: 6px;} "
+            "font: bold 14px; min-width: 80px; padding: 6px;} "
             "QPushButton:hover {background-color: #D8BFD8; color: #4B0082;} QPushButton:pressed {"
             "background-color: #DDA0DD; color: #8B008B;}")
         self.load_for_hash.setStyleSheet(
             "QPushButton {background-color: #E6E6FA; color: #000080; border: 2px solid #9400D3; "
-            "border-radius: 10px; font: bold 14px; min-width: 80px; padding: 6px;} "
+            "font: bold 14px; min-width: 80px; padding: 6px;} "
             "QPushButton:hover {background-color: #D8BFD8; color: #4B0082;} QPushButton:pressed {"
             "background-color: #DDA0DD; color: #8B008B;}")
 
         self.l1 = make_label("YeshScanner", 24)
         self.l1.setAlignment(Qt.AlignCenter)
 
+        self.start_label_explantion = QLabel("Analyse suspicious files to detect malware and other breaches\n"
+                                             "Automatic, Fast, User Friendly")
+        font = QFont("Zapfino", 14)
+        self.start_label_explantion.setFont(font)
+        self.start_label_explantion.setAlignment(Qt.AlignCenter)
+
+        self.drag_and_drop_gif = QLabel()
+        self.drag_and_drop_gif.setFixedSize(500, 350)
+        self.movie_drag = QMovie("images/drag_and_drop.gif")
+        self.drag_and_drop_gif.setMovie(self.movie_drag)
+        self.drag_and_drop_gif.setAlignment(Qt.AlignCenter)
+
         self.dynamic_button = QPushButton("Dynamic Analysis")
-        # self.dynamic_button.setStyleSheet("QPushButton { background-color: #EAEDED; }")
+        self.dynamic_button.setStyleSheet(
+            "QPushButton {background-color: #E6E6FA; color: #000080; border: 2px solid #9400D3; "
+            "font: 20px; min-width: 80px; margin: 2px} "
+            "QPushButton:hover {background-color: #D8BFD8; color: #4B0082;} QPushButton:pressed {"
+            "background-color: #DDA0DD; color: #8B008B;}")
         self.dynamic_button.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Expanding)
         self.dynamic_button.setFlat(True)
         self.dynamic_button.setDisabled(False)
 
         self.static_button = QPushButton("Static Analysis")
-        # self.static_button.setStyleSheet("QPushButton { background-color: #EAEDED; }")
+        self.static_button.setStyleSheet(
+            "QPushButton {background-color: #E6E6FA; color: #000080; border: 2px solid #9400D3; "
+            "font: 20px; min-width: 80px; margin: 2px; } "
+            "QPushButton:hover {background-color: #D8BFD8; color: #4B0082;} QPushButton:pressed {"
+            "background-color: #DDA0DD; color: #8B008B;}")
         self.static_button.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Expanding)
         self.static_button.setFlat(True)
 
         self.hash_button = QPushButton("Hash Analysis")
-        # .hash_button.setStyleSheet("QPushButton { background-color: #EAEDED; }")
+        self.hash_button.setStyleSheet(
+            "QPushButton {background-color: #E6E6FA; color: #000080; border: 2px solid #9400D3; "
+            "font: 20px; min-width: 80px; margin: 2px;} "
+            "QPushButton:hover {background-color: #D8BFD8; color: #4B0082;} QPushButton:pressed {"
+            "background-color: #DDA0DD; color: #8B008B;}")
         self.hash_button.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Expanding)
         self.hash_button.setFlat(True)
 
@@ -476,12 +626,16 @@ class AppDemo(QMainWindow):
 
         self.page_layout.setAlignment(Qt.AlignCenter)
         self.page_layout.addWidget(self.l1)
+        self.page_layout.addWidget(self.start_label_explantion)
         self.page_layout.addLayout(self.btn_layout)
+        # self.page_layout.addWidget(self.drag_and_drop_gif)
+        # self.movie_drag.start()
+
         self.page_layout.addWidget(self.listbox_view)
-        self.page_layout.addLayout(self.activate_btn_layout)
+        # self.page_layout.addLayout(self.activate_btn_layout)
         self.page_layout.addLayout(self.static_hash_load)
         self.page_layout.addStretch(1)
-        self.page_layout.setContentsMargins(20, 20, 20, 20)
+        self.page_layout.setContentsMargins(80, 20, 80, 20)
 
         self.dynamic_visited = False
         self.static_visited = False
@@ -786,129 +940,6 @@ class AppDemo(QMainWindow):
                 painter.drawText(QRectF(10, 10, self.width() - 20, self.height() - 20),
                                  Qt.AlignTop | Qt.AlignLeft | Qt.TextWordWrap, self.text)
 
-        bubble_strings_dict = {
-            'CreateToolhelp32Snapshot': 'Takes a snapshot of the specified processes, as well as '
-                                        'the heaps, modules, and threads used by these '
-                                        'processes', 'Process32First': 'Retrieves information '
-                                                                       'about the first process '
-                                                                       'encountered in a system '
-                                                                       'snapshot',
-            'Process32Next': 'Retrieves information about the next process recorded in a system '
-                             'snapshot', 'LoadLibrary': 'Loads the specified  module into the '
-                                                        'address space of the calling process',
-            'GetProcAddress': 'Retrieves the address of an exported function (also known as a '
-                              'procedure) or variable from the specified dynamic-link library ('
-                              'DLL)', 'GetModuleHandle': 'Retrieves a module handle for the '
-                                                         'specified module', 'SetWindowsHookEx':
-                'Installs an application-defined hook procedure into a hook chain', 'GetMessage':
-                "Retrieves a message from the calling thread's message queue", 'CallNextHookEx':
-                'Passes the hook information to the next hook procedure in the current hook '
-                'chain', 'OpenClipboard': 'Opens the clipboard for examination and prevents other '
-                                          'applications from modifying the clipboard content',
-            'GetClipboardData': 'Retrieves data from the clipboard in a specified format',
-            'CloseClipboard': 'Closes the clipboard', 'RegOpenKeyExA': 'Opens the specified '
-                                                                       'registry key',
-            'RegSetValueExA': 'Sets the data and type of a specified value under a registry key',
-            'RegCreateKeyExA': 'Creates the specified registry key', 'RegGetValueA': 'Retrieves '
-                                                                                     'the type '
-                                                                                     'and data '
-                                                                                     'for the '
-                                                                                     'specified '
-                                                                                     'registry '
-                                                                                     'value',
-            'socket': 'The socket function creates a socket that is bound to a specific transport '
-                      'service provider.', 'recv': 'The recv function receives data from a '
-                                                   'connected socket or a bound connectionless '
-                                                   'socket.', 'connect': 'The connect function '
-                                                                         'establishes a '
-                                                                         'connection to a '
-                                                                         'specified socket.',
-            'send': 'The send function sends data on a connected socket.', 'CreateFileA':
-                'Creates or opens '
-                'a file or I/O '
-                'device',
-            'DeleteFileA': 'Deletes an existing file', 'WriteFileEx': 'Writes data to the '
-                                                                      'specified file or '
-                                                                      'input/output (I/O) '
-                                                                      'device', 'WriteFile':
-                'Writes data to the specified file or input/output (I/O) device', 'VirtualAlloc':
-                'Reserves, commits, or changes the state  of a region of pages in the virtual '
-                'address space of the calling process', 'VirtualAllocEx': 'Reserves, commits, '
-                                                                          'or changes the state  '
-                                                                          'of a region of memory '
-                                                                          'within the virtual '
-                                                                          'address space of a '
-                                                                          'specified process',
-            'WriteProcessMemory': 'Writes data to an area of memory in a specified process',
-            'CreateThread': 'Creates a thread to execute within the virtual address space of the '
-                            'calling process', 'CreateRemoteThread': 'Creates a thread that runs '
-                                                                     'in the virtual address '
-                                                                     'space of another process',
-            'CloseHandle': 'Closes an open object handle',
-            'KERNEL32': "Kernel32.dll is a dynamic link library (DLL) file that is an essential "
-                        "component of the Windows operating system. It contains a collection of "
-                        "functions and resources that are used by other programs to perform "
-                        "various system-related tasks, such as memory management, process and "
-                        "thread management, and input/output operations.", "ADVAPI32":
-                "Advapi32. dll is a part of the advanced API services library. It provides access to advanced "
-                "functionality that "
-                "comes in addition to the kernel.", "Ws2_32": "The Ws2_32.dll loads the service "
-                                                              "provider's interface DLL into the "
-                                                              "system by using the standard "
-                                                              "Microsoft Windows dynamic library "
-                                                              "loading mechanisms, "
-                                                              "and initializes it by calling "
-                                                              "WSPStartup.", "USER32": "user32.dll is a Dynamic "
-                                                                                       "Link Library (DLL) file "
-                                                                                       "that contains functions "
-                                                                                       "for handling user input "
-                                                                                       "and user interface "
-                                                                                       "elements on Windows "
-                                                                                       "operating systems. ",
-            "SOFTWARE\\Policies\\Microsoft\\Windows Defender": "A registry key in the Windows "
-                                                               "operating system that is used to "
-                                                               "configure various settings for "
-                                                               "Windows Defender, which is the "
-                                                               "built-in antivirus and malware "
-                                                               "protection software in Windows.",
-            "Software\\Microsoft\\Windows\\CurrentVersion\\Run": "A registry key located in the "
-                                                                 "Windows Registry. It is used to "
-                                                                 "configure applications or "
-                                                                 "scripts to run automatically "
-                                                                 "when a user logs in to the "
-                                                                 "system",
-            # now moving to packers
-            "PackerUPX_CompresorGratuito_wwwupxsourceforgenet": "Packers like UPX are used to scramble and mask "
-                                                                "in an effort to make it more difficult for the "
-                                                                "analyst/reverser to figure out what is going "
-                                                                "on.",
-            "UPX_wwwupxsourceforgenet_additional": "Packers like UPX are used to scramble and mask "
-                                                   "in an effort to make it more difficult for the "
-                                                   "analyst/reverser to figure out what is going "
-                                                   "on.",
-            "yodas_Protector_v1033_dllocx_Ashkbiz_Danehkar_h": "A signature that recognizes malware given by MalShare",
-            "Netopsystems_FEAD_Optimizer_1": "A signature that recognizes malware given by MalShare",
-            "UPX_290_LZMA": "Packers like UPX are used to scramble and mask "
-                            "in an effort to make it more difficult for the "
-                            "analyst/reverser to figure out what is going "
-                            "on.",
-            "UPX_290_LZMA_Markus_Oberhumer_Laszlo_Molnar_John_Reiser": "Packers like UPX are used to scramble and mask "
-                                                                       "in an effort to make it more difficult for the "
-                                                                       "analyst/reverser to figure out what is going "
-                                                                       "on.",
-            "UPX_290_LZMA_additional": "Packers like UPX are used to scramble and mask "
-                                       "in an effort to make it more difficult for the "
-                                       "analyst/reverser to figure out what is going "
-                                       "on.",
-            "UPX_wwwupxsourceforgenet": "Packers like UPX are used to scramble and mask "
-                                        "in an effort to make it more difficult for the "
-                                        "analyst/reverser to figure out what is going "
-                                        "on.", "Microsoft_Visual_Cpp_V80_Debug": "A basic signature of exe written in "
-                                                                                 "c++ language version 8.0",
-            "Microsoft_Visual_Cpp_80_Debug_": "A basic signature of exe written in c++ language version 8.0",
-            "Microsoft_Visual_Cpp_80_Debug": "A basic signature of exe written in c++ language version 8.0 "
-        }
-
         def show_bubble(item):
 
             item_text = item.text()
@@ -937,7 +968,7 @@ class AppDemo(QMainWindow):
         # Create a list widget and add some items to it
         self.list_strings_widget = QListWidget()
         self.list_strings_widget.setMinimumSize(550, 550)
-        self.list_strings_widget.itemEntered.connect(show_bubble)
+        # self.list_strings_widget.itemEntered.connect(show_bubble)
 
         # YARA
         yara_strings = YaraChecks.check_for_strings("virus.exe")
@@ -950,19 +981,23 @@ class AppDemo(QMainWindow):
         self.redis_virus.print_key(self.md5_hash, "packers", True)
 
         for dll in yara_strings[0]:
-            self.list_strings_widget.addItem(str(dll))
-            self.list_strings_widget.setMouseTracking(True)
-            self.list_strings_widget.itemEntered.connect(show_bubble)
-            self.list_strings_widget.leaveEvent = leaveEvent
-            self.bubble = bubbleWidget(dll)
-            self.bubble.hide()
+            item = QListWidgetItem(str(dll))
+            item.setToolTip(bubble_strings_dict[str(dll)])
+            self.list_strings_widget.addItem(item)
+            # self.list_strings_widget.setMouseTracking(True)
+            # self.list_strings_widget.itemEntered.connect(show_bubble)
+            # self.list_strings_widget.leaveEvent = leaveEvent
+            # self.bubble = bubbleWidget(dll)
+            # self.bubble.hide()
 
         for string in yara_strings[1]:
-            self.list_strings_widget.addItem(str(string.decode()))
-            self.list_strings_widget.setMouseTracking(True)
-            self.list_strings_widget.itemEntered.connect(show_bubble)
-            self.bubble = bubbleWidget(str(string.decode()))
-            self.bubble.hide()
+            item = QListWidgetItem(str(string.decode()))
+            item.setToolTip(bubble_strings_dict[string.decode()])
+            self.list_strings_widget.addItem(item)
+            # self.list_strings_widget.setMouseTracking(True)
+            # self.list_strings_widget.itemEntered.connect(show_bubble)
+            # self.bubble = bubbleWidget(str(string.decode()))
+            # self.bubble.hide()
 
         # Create a scroll bar and set its properties
         scrollBar = QScrollBar()
@@ -1037,12 +1072,14 @@ class AppDemo(QMainWindow):
         scrollBarPackers.setStyleSheet(self.scrollBar_stylesheet)
 
         for packer, tag in yara_packers.items():
-            self.packers_widget.addItem(str(packer))
-            self.packers_widget.setMouseTracking(True)
-            self.packers_widget.itemEntered.connect(show_bubble_packer)
-            self.packers_widget.leaveEvent = leaveEvent
-            self.bubble = bubbleWidget(packer)
-            self.bubble.hide()
+            item = QListWidgetItem(str(packer))
+            item.setToolTip(bubble_strings_dict[str(packer)])
+            self.packers_widget.addItem(item)
+            # self.packers_widget.setMouseTracking(True)
+            # self.packers_widget.itemEntered.connect(show_bubble_packer)
+            # self.packers_widget.leaveEvent = leaveEvent
+            # self.bubble = bubbleWidget(packer)
+            # self.bubble.hide()
 
         self.packers_widget.setMinimumSize(550, 200)
         self.packers_widget.setStyleSheet(self.list_widget_style_sheet)
@@ -1778,11 +1815,12 @@ class AppDemo(QMainWindow):
         self.clearLayout()
         self.static_visited = False
         self.hash_visited = False
+        self.dynamic_visited = True
         self.dynamic_layout = QVBoxLayout()
         self.page_layout.addLayout(self.dynamic_layout)
         self.md5_hash = str(md5("virus.exe"))  # TODO - delete all self.md5_hash besides the the one in getSelectedItem
 
-        self.start_dynamic = make_label("Function Analysis", 24)
+        self.start_dynamic = make_label("Function Analysis", 20)
         self.dynamic_layout.addWidget(self.start_dynamic)
 
         if os.path.exists("LOG.txt"):
@@ -1809,6 +1847,7 @@ class AppDemo(QMainWindow):
                 lines = [line for line in function.split("\n") if line != ""]
                 func_header = lines[0].replace("-", "").replace("intercepted call to ", "")
                 suspect_functions.append(func_header)
+
             if has_passed_cpu > 0:
                 lines = [line for line in function.split("\n") if line != ""]
                 func_header = lines[0].replace("-", "").replace("intercepted call to ", "")
@@ -1827,7 +1866,7 @@ class AppDemo(QMainWindow):
             screen_width = QMainWindow().width()
 
             # Set the maximum width of the QFrame to the width of the screen
-            frame_for_function.setMaximumSize(screen_width + 515, 2147483647)
+            frame_for_function.setMaximumSize(screen_width + 390, 2147483647)
 
             v_box_for_func = QVBoxLayout(frame_for_function)
             v_box_for_func.setContentsMargins(0, 0, 0, 0)
@@ -1842,7 +1881,7 @@ class AppDemo(QMainWindow):
 
                 if func == 0:
                     func_head_label = QLabel(line)
-                    func_head_label.setFont(QFont("Comic Sans MS", 30))
+                    func_head_label.setFont(QFont("Zapfino", 24))
                     func_head_label.setStyleSheet("color: {}; border: none;".format(light_purple.name()))
                     func_head_label.setFrameShape(QFrame.NoFrame)
                     v_box_for_func.addWidget(func_head_label)
@@ -1852,17 +1891,15 @@ class AppDemo(QMainWindow):
 
                 func_label = QLabel(line)
                 func_label.setWordWrap(True)
-                func_label.setFont(QFont("Comic Sans MS", 18))
+                func_label.setFont(QFont("Zapfino", 12))
                 func_label.setStyleSheet("color: {}; border: none;".format(light_purple.name()))
-                func_label.setFrameShape(QFrame.NoFrame)
+                # func_label.setFrameShape(QFrame.NoFrame)
                 v_box_for_func.addWidget(func_label)
                 self.delete_funcs.append(func_label)
 
             self.dynamic_layout.addWidget(frame_for_function)
             self.delete_funcs.append(frame_for_function)
             self.delete_funcs.append(v_box_for_func)
-
-        self.dynamic_visited = True
 
         self.redis_virus.hset(self.md5_hash, "suspicious_!", pickle.dumps(suspect_functions))
         self.redis_virus.print_key(self.md5_hash, "suspicious_!", True)
