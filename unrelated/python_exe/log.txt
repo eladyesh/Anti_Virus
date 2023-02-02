@@ -4,8 +4,8 @@ Function name: socket
 Parameters: 2, 1, 6
 
 Library name: winsock
-Function name: closesocket
-Parameters: s
+Function name: getaddrinfo
+Parameters: target, None, None, ctypes.byref(address)
 
 Variable name: result
 Library name: winsock
@@ -13,8 +13,8 @@ Function name: connect
 Parameters: s, address, ctypes.sizeof(address), port
 
 Library name: winsock
-Function name: getaddrinfo
-Parameters: target, None, None, ctypes.byref(address)
+Function name: closesocket
+Parameters: s
 
 ==============PORT SCANNING==============
 Trying to scan through ports [78, 79, 80]
@@ -27,30 +27,15 @@ Trying to add key 'open\\command'
 Trying to set key to 'C:\\Users\\IEUser\\Desktop\\research\\2023-01-20-malware-pers-21\\hack.exe'.encode('utf-8')
 ==============REGISTRY CHANGE==============
 
+Variable name: res
+Library name: advapi32
+Function name: RegCreateKeyExW
+Parameters: hkey, 'open\\command', 0, None, 0, 983103, None, ctypes.byref(hkR), None
+
 Variable name: 
 Library name: kernel32
 Function name: WriteProcessMemory
 Parameters: hProcess, address, data, ctypes.c_int(len(data)), None
-
-Variable name: hProcess
-Library name: kernel32
-Function name: OpenProcess
-Parameters: ctypes.c_int(2035711), False, ctypes.c_int(pid)
-
-Variable name: 
-Library name: advapi32
-Function name: RegCloseKey
-Parameters: hkey
-
-Variable name: address
-Library name: kernel32
-Function name: VirtualAllocEx
-Parameters: hProcess, None, ctypes.c_int(len(data)), ctypes.c_int(4096), ctypes.c_int(64)
-
-Variable name: res
-Library name: advapi32
-Function name: RegSetValueExW
-Parameters: hkR, None, 0, 1, exe, len(exe)
 
 Variable name: 
 Library name: advapi32
@@ -62,6 +47,16 @@ Library name: kernel32
 Function name: CloseHandle
 Parameters: hProcess
 
+Variable name: 
+Library name: advapi32
+Function name: RegCloseKey
+Parameters: hkey
+
+Variable name: file_handle
+Library name: kernel32
+Function name: CreateFileA
+Parameters: 'example.txt'.encode('ascii'), GENERIC_ALL, 0, None, CREATE_NEW, FILE_ATTRIBUTE_NORMAL, None
+
 Variable name: res
 Library name: advapi32
 Function name: RegOpenKeyExW
@@ -69,23 +64,28 @@ Parameters: ctypes.c_uint32(8), shell, 0, 131097, ctypes.byref(hkey)
 
 Variable name: res
 Library name: advapi32
-Function name: RegCreateKeyExW
-Parameters: hkey, 'open\\command', 0, None, 0, 983103, None, ctypes.byref(hkR), None
+Function name: RegSetValueExW
+Parameters: hkR, None, 0, 1, exe, len(exe)
 
-Variable name: file_handle
+Variable name: hProcess
 Library name: kernel32
-Function name: CreateFileA
-Parameters: 'example.txt'.encode('ascii'), GENERIC_ALL, 0, None, CREATE_NEW, FILE_ATTRIBUTE_NORMAL, None
+Function name: OpenProcess
+Parameters: ctypes.c_int(2035711), False, ctypes.c_int(pid)
 
 Variable name: 
 Library name: kernel32
 Function name: Sleep
 Parameters: 3000
 
+Variable name: address
+Library name: kernel32
+Function name: VirtualAllocEx
+Parameters: hProcess, None, ctypes.c_int(len(data)), ctypes.c_int(4096), ctypes.c_int(64)
+
 ==============INJECTION==============
 Found Injection to process: python.exe
-PID: 9628
-Parent PID: 9628
+PID: 3504
+Parent PID: 3504
 The data being injected: binascii.unhexlify('b80a000000c3')
 ==============INJECTION==============
 

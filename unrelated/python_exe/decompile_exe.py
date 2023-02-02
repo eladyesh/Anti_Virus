@@ -1,6 +1,5 @@
 import os
 import shutil
-
 import pefile
 import peid
 import subprocess
@@ -23,8 +22,7 @@ def run_command(cmd):
 
 def decompyle(path):
     print(path)
-    run = run_command(
-        f"pydumpck {path}")
+    run = run_command(["pydumpck", path])
 
     found = False
     output_file_path = ""
