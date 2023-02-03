@@ -10,15 +10,15 @@ class ListBoxWidget(QListWidget):
 
         # perform drag and drop
         self.setAcceptDrops(True)
-        self.setGeometry(0, 0, 500, 300)
-        self.move(300, 150)
+        self.setGeometry(0, 0, 500, 500)
+        # self.move(300, 150)
 
         self.movie = QMovie("images/drag_and_drop.gif")
         self.movie.start()
 
         self.gif_label = QLabel(self)
         self.gif_label.setMovie(self.movie)
-        self.gif_label.move(200, 100)
+        # self.gif_label.move(-100, -100)
 
     def dragEnterEvent(self, event):
         if event.mimeData().hasUrls():
@@ -46,7 +46,7 @@ class ListBoxWidget(QListWidget):
                     links.append(str(url.toString()))
 
             self.addItems(links)
-
+            self.movie.stop()  # Stop the movie
         else:
             event.ignore()
 

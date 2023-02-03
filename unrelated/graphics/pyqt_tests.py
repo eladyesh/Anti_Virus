@@ -125,7 +125,7 @@ bubble_strings_dict = {
                                                              'space of another process',
     'CloseHandle': 'Closes an open object handle',
     'KERNEL32': "Kernel32.dll is a dynamic link library (DLL) file that is an essential "
-                "component of the Windows operating system." , "ADVAPI32":
+                "component of the Windows operating system.", "ADVAPI32":
         "Advapi32. dll is a part of the advanced API services library. It provides access to advanced "
         "functionality that "
         "comes in addition to the kernel.", "Ws2_32": "The Ws2_32.dll loads the service "
@@ -248,6 +248,15 @@ class ListBoxWidget(QListWidget):
         self.setAcceptDrops(True)
         self.setGeometry(0, 0, 500, 300)
         self.move(300, 150)
+
+        self.movie = QMovie("images/drag_and_drop.gif")
+        self.gif_label = QLabel(self)
+        self.gif_label.setMovie(self.movie)
+        self.gif_label.setFixedSize(350, 200)
+        # self.gif_label.move(int((self.rect().width() - self.gif_label.width()) / 2), int((self.rect().height() - self.gif_label.height()) / 2))
+        self.gif_label.move(int(self.width() / 1.8), -int(self.height() / 4.5))
+        self.movie.start()
+
         # self.move(QApplication.desktop().screen().rect().center()- self.rect().center())
         # self.resize(300, 300)
 
@@ -256,6 +265,10 @@ class ListBoxWidget(QListWidget):
             event.accept()
         else:
             event.ignore()
+
+    def resizeEvent(self, event):
+        super().resizeEvent(event)
+        self.gif_label.move(int(self.width() / 3.3), -int(self.height() / 11))
 
     def dragMoveEvent(self, event):
         if event.mimeData().hasUrls():
@@ -277,7 +290,8 @@ class ListBoxWidget(QListWidget):
                     links.append(str(url.toString()))
 
             self.addItems(links)
-
+            self.movie.stop()
+            self.gif_label.deleteLater()
         else:
             event.ignore()
 
@@ -540,14 +554,15 @@ class AppDemo(QMainWindow):
         self.listbox_view = ListBoxWidget(self)
         self.btn = QPushButton('Start Dynamic Scan', self)
         self.btn.setStyleSheet("QPushButton {background-color: #E6E6FA; color: #000080; border: 2px solid #9400D3; "
-                               "font: bold 14px; min-width: 80px; padding: 6px;} "
+                               "font: bold 18px; min-width: 80px; padding: 6px; margin-top: 20px;} "
                                "QPushButton:hover {background-color: #D8BFD8; color: #4B0082;} QPushButton:pressed {"
                                "background-color: #DDA0DD; color: #8B008B;}")
 
         self.start_vm_btn = QPushButton('Start Virtual Machine', self)
         self.start_vm_btn.setStyleSheet(
             "QPushButton {background-color: #E6E6FA; color: #000080; border: 2px solid #9400D3; "
-            "font: bold 14px; min-width: 80px; padding: 6px;} "
+            "font: bold 18px; min-width: 80px; padding: 6px; border-bottom-left-radius: 15px; "
+            "margin-top: 20px;} "
             "QPushButton:hover {background-color: #D8BFD8; color: #4B0082;} QPushButton:pressed {"
             "background-color: #DDA0DD; color: #8B008B;}")
 
@@ -555,7 +570,7 @@ class AppDemo(QMainWindow):
         # self.activate_btn_layout.addWidget(self.btn)
 
         self.load_for_static = QPushButton('Load for Static Analysis', self)
-        self.load_for_hash = QPushButton('Load for Static Analysis', self)
+        self.load_for_hash = QPushButton('Load for Hash Analysis', self)
 
         self.static_hash_load = QHBoxLayout()
         self.static_hash_load.addWidget(self.start_vm_btn)
@@ -565,26 +580,29 @@ class AppDemo(QMainWindow):
 
         self.load_for_static.setStyleSheet(
             "QPushButton {background-color: #E6E6FA; color: #000080; border: 2px solid #9400D3; "
-            "font: bold 14px; min-width: 80px; padding: 6px;} "
+            "font: bold 18px; min-width: 100px; padding: 6px; width: 100px; margin-top: 20px;} "
             "QPushButton:hover {background-color: #D8BFD8; color: #4B0082;} QPushButton:pressed {"
             "background-color: #DDA0DD; color: #8B008B;}")
         self.load_for_hash.setStyleSheet(
             "QPushButton {background-color: #E6E6FA; color: #000080; border: 2px solid #9400D3; "
-            "font: bold 14px; min-width: 80px; padding: 6px;} "
+            "font: bold 18px; min-width: 80px; padding: 6px; border-bottom-right-radius: 15px; "
+            "margin-top: 20px;}} "
             "QPushButton:hover {background-color: #D8BFD8; color: #4B0082;} QPushButton:pressed {"
             "background-color: #DDA0DD; color: #8B008B;}")
 
-        self.l1 = make_label("YeshScanner", 24)
+        self.l1 = make_label("YESH SCANNER", 28)
         self.l1.setAlignment(Qt.AlignCenter)
+        self.l1.setStyleSheet("QLabel { font: bold; margin-bottom: 0px; padding: 10px;} ")
 
-        self.start_label_explantion = QLabel("Analyse suspicious files to detect malware and other breaches\n"
-                                             "Automatic, Fast, User Friendly")
-        font = QFont("Zapfino", 14)
+        self.start_label_explantion = QLabel("Analyse suspicious files to detect malware\n"
+                                             "Automatic, Fast, User Friendly\n")
+        font = QFont("Zapfino", 16)
         self.start_label_explantion.setFont(font)
+        self.setStyleSheet("QLabel { margin-bottom: 20px; } ")
         self.start_label_explantion.setAlignment(Qt.AlignCenter)
 
         self.drag_and_drop_gif = QLabel()
-        self.drag_and_drop_gif.setFixedSize(500, 350)
+        self.drag_and_drop_gif.setFixedSize(0, 20)
         self.movie_drag = QMovie("images/drag_and_drop.gif")
         self.drag_and_drop_gif.setMovie(self.movie_drag)
         self.drag_and_drop_gif.setAlignment(Qt.AlignCenter)
@@ -592,7 +610,8 @@ class AppDemo(QMainWindow):
         self.dynamic_button = QPushButton("Dynamic Analysis")
         self.dynamic_button.setStyleSheet(
             "QPushButton {background-color: #E6E6FA; color: #000080; border: 2px solid #9400D3; "
-            "font: 20px; min-width: 80px; margin: 2px} "
+            "font: bold 25px; min-width: 80px; margin: 5px; margin-right: 10px; margin-bottom: 10px; "
+            "border-top-left-radius: 20px;} "
             "QPushButton:hover {background-color: #D8BFD8; color: #4B0082;} QPushButton:pressed {"
             "background-color: #DDA0DD; color: #8B008B;}")
         self.dynamic_button.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Expanding)
@@ -602,7 +621,7 @@ class AppDemo(QMainWindow):
         self.static_button = QPushButton("Static Analysis")
         self.static_button.setStyleSheet(
             "QPushButton {background-color: #E6E6FA; color: #000080; border: 2px solid #9400D3; "
-            "font: 20px; min-width: 80px; margin: 2px; } "
+            "font: bold 25px; min-width: 80px; margin: 5px; margin-bottom: 10px;} "
             "QPushButton:hover {background-color: #D8BFD8; color: #4B0082;} QPushButton:pressed {"
             "background-color: #DDA0DD; color: #8B008B;}")
         self.static_button.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Expanding)
@@ -611,7 +630,8 @@ class AppDemo(QMainWindow):
         self.hash_button = QPushButton("Hash Analysis")
         self.hash_button.setStyleSheet(
             "QPushButton {background-color: #E6E6FA; color: #000080; border: 2px solid #9400D3; "
-            "font: 20px; min-width: 80px; margin: 2px;} "
+            "font: bold 25px; min-width: 80px; margin: 2px; margin-left: 10px; margin-bottom: 10px; "
+            "border-top-right-radius: 20px;} "
             "QPushButton:hover {background-color: #D8BFD8; color: #4B0082;} QPushButton:pressed {"
             "background-color: #DDA0DD; color: #8B008B;}")
         self.hash_button.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Expanding)
