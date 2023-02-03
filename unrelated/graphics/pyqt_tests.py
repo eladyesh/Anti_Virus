@@ -520,7 +520,7 @@ class AppDemo(QMainWindow):
                 outline: none;
                 margin: 5px;
                 color: #87CEFA; 
-                font-size: 20
+                font-size: 20ע
             }
 
             QListWidget::item {
@@ -978,6 +978,9 @@ class AppDemo(QMainWindow):
         for dll in yara_strings[0]:
             item = QListWidgetItem(str(dll))
             item.setToolTip(bubble_strings_dict[str(dll)])
+            font = item.font()
+            font.setPointSize(16)
+            item.setFont(font)
             self.list_strings_widget.addItem(item)
             # self.list_strings_widget.setMouseTracking(True)
             # self.list_strings_widget.itemEntered.connect(show_bubble)
@@ -987,6 +990,9 @@ class AppDemo(QMainWindow):
 
         for string in yara_strings[1]:
             item = QListWidgetItem(str(string.decode()))
+            font = item.font()
+            font.setPointSize(16)
+            item.setFont(font)
             item.setToolTip(bubble_strings_dict[string.decode()])
             self.list_strings_widget.addItem(item)
             # self.list_strings_widget.setMouseTracking(True)
@@ -1055,7 +1061,7 @@ class AppDemo(QMainWindow):
 
         self.packers_label = make_label("Packers And Protectors", 24)
         self.packers_widget = QListWidget()
-        self.packers_widget.itemEntered.connect(show_bubble)
+        # self.packers_widget.itemEntered.connect(show_bubble)
 
         scrollBarPackers = QScrollBar()
         scrollBarPackers.setOrientation(Qt.Vertical)
@@ -1069,6 +1075,9 @@ class AppDemo(QMainWindow):
         for packer, tag in yara_packers.items():
             item = QListWidgetItem(str(packer))
             item.setToolTip(bubble_strings_dict[str(packer)])
+            font = item.font()
+            font.setPointSize(16)
+            item.setFont(font)
             self.packers_widget.addItem(item)
             # self.packers_widget.setMouseTracking(True)
             # self.packers_widget.itemEntered.connect(show_bubble_packer)
@@ -1263,13 +1272,14 @@ class AppDemo(QMainWindow):
                  border-radius: 5px;
                  outline: none;
                  margin: 20px;
+                 font-size: 20px;
              }
 
              QListWidget::item {
                  color: #444;
                  border: none;
                  padding: 10px;
-                 font-size: 14px;
+                 font-size: 18px;
                  font-weight: 500;
              }
 
@@ -1547,7 +1557,6 @@ class AppDemo(QMainWindow):
         # Create the QTableView
         self.basic_info = QTableView()
 
-
         if show_tree:
             # Set the model on the QTableView
             data = [
@@ -1804,7 +1813,80 @@ class AppDemo(QMainWindow):
         self.dynamic_visited = True
         self.dynamic_layout = QVBoxLayout()
         self.page_layout.addLayout(self.dynamic_layout)
-        self.md5_hash = str(md5("virus.exe"))  # TODO - delete all self.md5_hash besides the the one in getSelectedItem
+        self.md5_hash = str(md5("virus.exe"))
+
+        class OverlayWindow(QMainWindow):
+            def __init__(self, function, functions_list):
+                super().__init__()
+                self.function = function
+                self.function_list = functions_list
+                self.initUI()
+
+            def initUI(self):
+                self.setWindowFlags(QtCore.Qt.FramelessWindowHint | QtCore.Qt.WindowStaysOnTopHint)
+                # self.setAttribute(QtCore.Qt.WA_TranslucentBackground)
+                self.new_func_list = [x for x in self.function_list if self.function in x]
+                print(self.new_func_list)
+
+                self.dynamic_analysis_layout = QVBoxLayout()
+                for function in self.new_func_list:
+                    frame_for_function = QFrame()
+                    frame_for_function.setFrameShape(QFrame.Box)
+                    frame_for_function.setStyleSheet("border: 4px solid purple; margin: 10px; border-radius: 25px;")
+
+                    # Get the width of the screen
+                    screen_width = QMainWindow().width()
+
+                    # Set the maximum width of the QFrame to the width of the screen
+                    frame_for_function.setMinimumSize(screen_width, 600)
+
+                    v_box_for_func = QVBoxLayout(frame_for_function)
+                    v_box_for_func.setContentsMargins(0, 0, 0, 0)
+
+                    func = 0
+                    for line in [line for line in function.split("\n") if line != ""]:
+                        if "-" in line:
+                            line = line.replace("-", "").replace("intercepted call to ", "")
+
+                        if "Done" in line:
+                            continue
+
+                        if func == 0:
+                            func_head_label = QLabel(line)
+                            func_head_label.setFont(QFont("Zapfino", 24))
+                            func_head_label.setStyleSheet("color: {}; border: none;".format(light_purple.name()))
+                            func_head_label.setFrameShape(QFrame.NoFrame)
+                            v_box_for_func.addWidget(func_head_label)
+                            func = 1
+                            continue
+
+                        func_label = QLabel(line)
+                        func_label.setWordWrap(True)
+                        func_label.setFont(QFont("Zapfino", 12))
+                        func_label.setStyleSheet("color: {}; border: none;".format(light_purple.name()))
+                        # func_label.setFrameShape(QFrame.NoFrame)
+                        v_box_for_func.addWidget(func_label)
+
+                    self.dynamic_analysis_layout.addWidget(frame_for_function)
+
+                central_widget = QWidget(self)
+                central_widget.setLayout(self.dynamic_analysis_layout)
+                self.setCentralWidget(central_widget)
+
+                close_button = QPushButton('X', self)
+                close_button.setFixedSize(30, 30)
+                close_button.clicked.connect(self.close)
+                self.show()
+
+            def mousePressEvent(self, event):
+                self.offset = event.pos()
+
+            def mouseMoveEvent(self, event):
+                x = event.globalX()
+                y = event.globalY()
+                x_w = self.offset.x()
+                y_w = self.offset.y()
+                self.move(x - x_w, y - y_w)
 
         self.start_dynamic = make_label("Function Analysis", 20)
         self.dynamic_layout.addWidget(self.start_dynamic)
@@ -1887,6 +1969,9 @@ class AppDemo(QMainWindow):
             self.delete_funcs.append(frame_for_function)
             self.delete_funcs.append(v_box_for_func)
 
+        self.overlay = OverlayWindow("CreateFileA", log_content.split("\n\n\n\n\n\n\n"))
+
+        # data base
         self.redis_virus.hset(self.md5_hash, "suspicious_!", pickle.dumps(suspect_functions))
         self.redis_virus.print_key(self.md5_hash, "suspicious_!", True)
 

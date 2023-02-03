@@ -1,28 +1,60 @@
 import sys
-from PyQt5.QtWidgets import QApplication, QMainWindow, QPushButton, QGridLayout, QWidget
+from PyQt5.QtWidgets import QApplication, QMainWindow, QGridLayout, QPushButton, QWidget
 
 
-class MyApp(QMainWindow):
+class WinAPIButtonWindow(QMainWindow):
     def __init__(self):
         super().__init__()
-        self.initUI()
 
-    def initUI(self):
-        # Create the central widget and layout
+        # Create a central widget
         central_widget = QWidget(self)
         self.setCentralWidget(central_widget)
-        grid_layout = QGridLayout(central_widget)
 
-        # Create the buttons and add them to the layout
-        for i in range(1, 20):
-            button = QPushButton(str(i), self)
-            grid_layout.addWidget(button, (i - 1) // 5, (i - 1) % 5)
+        # Create a grid layout
+        layout = QGridLayout()
+        central_widget.setLayout(layout)
 
-        self.show()
+        # Create a list of 19 WinAPI functions
+        winapi_functions = [
+            "CreateWindowExA", "CreateWindowExW", "CreateWindowA", "CreateWindowW",
+            "DefWindowProcA", "DefWindowProcW", "DestroyWindow", "GetMessageA",
+            "GetMessageW", "PostMessageA", "PostMessageW", "TranslateMessage",
+            "DispatchMessageA", "DispatchMessageW", "PeekMessageA", "PeekMessageW",
+            "GetWindowLongA", "GetWindowLongW", "SetWindowLongA", "SetWindowLongW"
+        ]
+
+        # Create a button for each function and add it to the grid layout
+        row = 0
+        column = 0
+        for i, winapi_function in enumerate(winapi_functions):
+            button = QPushButton(winapi_function)
+            button.setStyleSheet("""
+                QPushButton {
+                    font-family: sans-serif;
+                    border-radius: 5px;
+                    font-size: 19px;
+                    padding: 15px;
+                    margin: 10px;
+                    color: #87CEFA;
+                    background-color: #333;
+                    border: 2px solid #444;
+                }
+                QPushButton:hover {
+                    background-color: #555;
+                }
+                QPushButton:pressed {
+                    background-color: #666;
+                }
+            """)
+            layout.addWidget(button, row, column)
+            column += 1
+            if column == 4:
+                column = 0
+                row += 1
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     app = QApplication(sys.argv)
-    window = MyApp()
-    window.show()
+    win = WinAPIButtonWindow()
+    win.show()
     sys.exit(app.exec_())
