@@ -230,7 +230,7 @@ class TableModel(QAbstractTableModel):
         return len(self._data)
 
     def columnCount(self, parent=None):
-        return 2
+        return len(self._data[0])
 
     def data(self, index, role=Qt.DisplayRole):
         if role == Qt.DisplayRole:
@@ -514,28 +514,29 @@ class AppDemo(QMainWindow):
 
         self.list_widget_style_sheet = """
             QListWidget {
-                background-color: #f5f5f5;
+                background-color: #333;
                 border: 1px solid #ccc;
                 border-radius: 5px;
                 outline: none;
                 margin: 5px;
+                color: #87CEFA; 
+                font-size: 20
             }
 
             QListWidget::item {
-                color: #444;
                 border: none;
                 padding: 10px;
-                font-size: 14px;
+                font: 18px;
                 font-weight: 500;
+                color: #87CEFA; 
             }
 
             QListWidget::item:hover {
-                background-color: #eee;
+                background-color: #555;
             }
 
             QListWidget::item:selected {
-                background-color: #333;
-                color: #fff;
+                background-color: #777;
             }
         """
 
@@ -851,85 +852,59 @@ class AppDemo(QMainWindow):
         self.static_button.setEnabled(False)
         self.hash_button.setDisabled(False)
 
-        self.virus_table = QTableWidget()
-        self.virus_table.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
-        self.virus_table.setMinimumSize(700, 550)
-
-        # Row count
-        rows = len_sections("virus.exe")
-        self.virus_table.setRowCount(rows + 1)
-
-        # Column count
-        self.virus_table.setColumnCount(5)
+        self.virus_table = QTableView()
+        # self.virus_table.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
 
         sections = sections_entropy("virus.exe")[1:]
+        sections.insert(0, ["Name", "Virtual Address", "Virtual Size", "Raw Size", "Entropy"])
         print(sections)
+
+        model = TableModel(sections)
+        self.virus_table.setModel(model)
+
+        self.virus_table.setStyleSheet("""
+        QTableView {
+            font-family: sans-serif;
+            font-size: 18px;
+            color: #87CEFA;
+            background-color: #333;
+            border: 2px solid #444;
+            gridline-color: #666;
+        } 
+        QTableView::item {
+            padding: 20px;
+            margin: 20px;
+            min-width: 100px;
+            min-height: 20px;
+            font-weight: bold;
+        }
+        QTableView::header {
+            font-size: 24px;
+            font-weight: bold;
+            background-color: #444;
+            border: 2px solid #555;
+            min-height: 20px;
+        }
+    """)
+
+        # Set the column widths
+        self.virus_table.setColumnWidth(4, 200)
+        self.virus_table.setColumnWidth(2, 200)
+        self.virus_table.setColumnWidth(1, 200)
+        self.virus_table.setColumnWidth(0, 170)
+        self.virus_table.setColumnWidth(3, 150)
+        # basic_info.setColumnWidth(1, 620)
+
+        # Set the row heights
+        for row in range(model.rowCount()):
+            self.virus_table.setRowHeight(row, 40)
+
+        self.virus_table.setMinimumSize(100, 430)
 
         self.md5_hash = str(md5("virus.exe"))
         entropy_of_virus_vs_reg = entropy_vs_normal("virus.exe")
         self.redis_virus.hset(self.md5_hash, "entropy_vs_normal", pickle.dumps(entropy_of_virus_vs_reg))
         self.redis_virus.print_key(self.md5_hash, "entropy_vs_normal", True)
-
-        self.virus_table.setItem(0, 0, QTableWidgetItem("Name"))
-        self.virus_table.setItem(0, 1, QTableWidgetItem("Virtual Address"))
-        self.virus_table.setItem(0, 2, QTableWidgetItem("Virtual Size"))
-        self.virus_table.setItem(0, 3, QTableWidgetItem("Raw Size"))
-        self.virus_table.setItem(0, 4, QTableWidgetItem("Entropy"))
-
-        for i in range(5):
-            item = self.virus_table.item(0, i)
-            flags = item.flags()
-            flags &= ~Qt.ItemIsEditable
-            item.setFlags(flags)
-
-        for row in range(0, len(sections)):
-            for column in range(len(sections[0])):
-                self.virus_table.setItem(row + 1, column, QTableWidgetItem(sections[row][column]))
-                item = self.virus_table.item(row + 1, column)
-                flags = item.flags()
-                flags &= ~Qt.ItemIsEditable
-                item.setFlags(flags)
-
-        self.virus_table.resizeColumnsToContents()
-        self.virus_table.resizeRowsToContents()
-
-        # Set the size of the table to the maximum possible value
-        self.virus_table.resize(self.virus_table.horizontalHeader().maximumSectionSize(),
-                                self.virus_table.verticalHeader().maximumSectionSize())
-
-        window_width = QMainWindow().size().width()
-        window_height = QMainWindow().size().height()
-
-        # Set the width of all columns to 100 pixels
-        for i in range(self.virus_table.columnCount()):
-            self.virus_table.setColumnWidth(i, int(window_width // 2.9))
-
-        # Set the height of all rows to 50 pixels
-        for i in range(self.virus_table.rowCount()):
-            self.virus_table.setRowHeight(i, window_height // 8)
-
-        self.virus_table.setStyleSheet("""
-            QTableWidget {
-                background-color: #F8F8FF;
-            }
-            QTableWidget QTableCornerButton::section {
-                background-color: #F8F8FF;
-            }
-            QTableWidget QTableView {
-                color: #000080;
-                font-size: 14pt;
-                font-family: "Arial";
-            }
-            QTableWidget QHeaderView {
-                background-color: #F0F8FF;
-                color: #000080;
-                font-size: 12pt;
-                font-family: "Arial";
-            }
-            QTableWidget QTableView::item:selected {
-                background-color: #87CEFA;
-            }
-        """)
 
         self.table_and_strings_layout = QVBoxLayout()
 
@@ -1159,17 +1134,15 @@ class AppDemo(QMainWindow):
                 }
                 
                 QTreeView::item:selected {
-                    background-color: #737373;
-                    color: black;
+                    background-color: #777;
                 }
-                
-                QTreeView::item:selected:active {
-                    background-color: #737373;
+                QTableWidget::item:selected:active {
+                    background-color: #999;
                 }
-                
-                QTreeView::item:selected:!active {
-                    background-color: #87CEFA;
+                QTableWidget::item:selected:!active {
+                    background-color: #bbb;
                 }
+            
             """)
 
         root = QStandardItem("See Imports")
@@ -1574,6 +1547,7 @@ class AppDemo(QMainWindow):
         # Create the QTableView
         self.basic_info = QTableView()
 
+
         if show_tree:
             # Set the model on the QTableView
             data = [
@@ -1587,47 +1561,38 @@ class AppDemo(QMainWindow):
             model = TableModel(data)
             self.basic_info.setModel(model)
 
+            # Set the column widths
+            self.basic_info.setColumnWidth(0, 300)
+            self.basic_info.setColumnWidth(1, 620)
+
+            # Set the row heights
+            for row in range(model.rowCount()):
+                self.basic_info.setRowHeight(row, 35)
+
             # Set the style sheet and disable editing
             style_sheet = """
-            QTableView {
-                font-family: "Arial Black";
-                font-size: 10pt;
-                color: #333;
-                background-color: #f5f5f5;
-                border: 2px solid #ccc;
-                border-radius: 5px;
-            }
-            QTableView::item {
-                padding: 10px;
-                background-color: #b3d9ff;
-            }
-            QTableView::item:selected {
-                background-color: #99ccff;
-                color: #fff;
-            }
-            QTableView::item:selected:!active {
-                background-color: #3399ff;
-                color: #fff;
-            }
-            QTableView::item:selected:active {
-            background-color: #3399ff;
-                color: #fff;
-            }
-            QHeaderView {
-                font-size: 18pt;
-                font-weight: bold;
-                color: #333;
-                background-color: #f5f5f5;
-                border: 1px solid #ccc;
-                border-radius: 5px;
-            }
-            QHeaderView::section {
-                padding: 10px;
-            }
-            QHeaderView::section:selected {
-                background-color: #3399ff;
-                color: #fff;
-            }
+                QTableView {
+                    font-family: sans-serif;
+                    font-size: 18px;
+                    color: #87CEFA;
+                    background-color: #333;
+                    border: 2px solid #444;
+                    gridline-color: #666;
+                } 
+                QTableView::item {
+                    padding: 20px;
+                    margin: 20px;
+                    min-width: 100px;
+                    min-height: 20px;
+                    font-weight: bold;
+                }
+                QTableView::header {
+                    font-size: 24px;
+                    font-weight: bold;
+                    background-color: #444;
+                    border: 2px solid #555;
+                    min-height: 20px;
+                }
             """
 
             self.basic_info.setStyleSheet(style_sheet)
@@ -1636,7 +1601,7 @@ class AppDemo(QMainWindow):
             # Allow the cells to be resized using the mouse
             self.basic_info.horizontalHeader().setSectionsMovable(True)
             self.basic_info.horizontalHeader().setSectionResizeMode(QHeaderView.Interactive)
-            self.basic_info.setMinimumSize(550, 360)
+            self.basic_info.setMinimumSize(480, 240)
             self.hash_layout.addWidget(self.basic_info)
 
             self.virus_total_label = make_label("Virus Total Engine Results", 24)
@@ -1749,6 +1714,7 @@ class AppDemo(QMainWindow):
                     min-height: 30px;
                     min-width: 400px;
                     width: 200px;
+                    color: #87CEFA; 
                 }
             ''')
 

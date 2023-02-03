@@ -1,58 +1,28 @@
 import sys
-from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QPixmap, QMovie
-from PyQt5.QtWidgets import QApplication, QListWidget, QLabel, QVBoxLayout, QWidget
+from PyQt5.QtWidgets import QApplication, QMainWindow, QPushButton, QGridLayout, QWidget
 
 
-class ListBoxWidget(QListWidget):
-    def __init__(self, parent=None):
-        super().__init__(parent)
+class MyApp(QMainWindow):
+    def __init__(self):
+        super().__init__()
+        self.initUI()
 
-        # perform drag and drop
-        self.setAcceptDrops(True)
-        self.setGeometry(0, 0, 500, 500)
-        # self.move(300, 150)
+    def initUI(self):
+        # Create the central widget and layout
+        central_widget = QWidget(self)
+        self.setCentralWidget(central_widget)
+        grid_layout = QGridLayout(central_widget)
 
-        self.movie = QMovie("images/drag_and_drop.gif")
-        self.movie.start()
+        # Create the buttons and add them to the layout
+        for i in range(1, 20):
+            button = QPushButton(str(i), self)
+            grid_layout.addWidget(button, (i - 1) // 5, (i - 1) % 5)
 
-        self.gif_label = QLabel(self)
-        self.gif_label.setMovie(self.movie)
-        # self.gif_label.move(-100, -100)
-
-    def dragEnterEvent(self, event):
-        if event.mimeData().hasUrls():
-            event.accept()
-        else:
-            event.ignore()
-
-    def dragMoveEvent(self, event):
-        if event.mimeData().hasUrls():
-            event.setDropAction(Qt.CopyAction)
-            event.accept()
-        else:
-            event.ignore()
-
-    def dropEvent(self, event):
-        if event.mimeData().hasUrls():
-            event.setDropAction(Qt.CopyAction)
-            event.accept()
-            links = []
-
-            for url in event.mimeData().urls():
-                if url.isLocalFile():  # checking if url
-                    links.append(str(url.toLocalFile()))
-                else:  # meaning --> a website or other url
-                    links.append(str(url.toString()))
-
-            self.addItems(links)
-            self.movie.stop()  # Stop the movie
-        else:
-            event.ignore()
+        self.show()
 
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
-    list_box_widget = ListBoxWidget()
-    list_box_widget.show()
+    window = MyApp()
+    window.show()
     sys.exit(app.exec_())
