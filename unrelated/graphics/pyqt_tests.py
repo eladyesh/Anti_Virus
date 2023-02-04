@@ -499,6 +499,7 @@ class AppDemo(QMainWindow):
             self.start_dynamic.deleteLater()
             for widget in self.delete_funcs:
                 widget.deleteLater()
+            self.grid_button_layout.deleteLater()
             self.dynamic_layout.deleteLater()
 
     def main_menu_window(self):
@@ -1823,7 +1824,9 @@ class AppDemo(QMainWindow):
                 self.initUI()
 
             def initUI(self):
+
                 self.setWindowFlags(QtCore.Qt.FramelessWindowHint | QtCore.Qt.WindowStaysOnTopHint)
+
                 # self.setAttribute(QtCore.Qt.WA_TranslucentBackground)
                 self.new_func_list = [x for x in self.function_list if self.function in x]
                 print(self.new_func_list)
@@ -1872,10 +1875,97 @@ class AppDemo(QMainWindow):
                 central_widget = QWidget(self)
                 central_widget.setLayout(self.dynamic_analysis_layout)
                 self.setCentralWidget(central_widget)
+                self.resize(800, 600)
+                # self.setLayout(self.dynamic_analysis_layout)
 
-                close_button = QPushButton('X', self)
+                self.scroll = QScrollArea()  # Scroll Area which contains the widgets, set as the centralWidget
+                self.widget = QWidget()  # Widget that contains the collection of Vertical Box
+                self.scroll.setStyleSheet("""
+                QScrollArea {
+                  boarder-radius: 20px;
+                  background-color: black;
+                }
+
+                *, *::before, *::after{
+                boarder-radius:20px;
+                }
+
+                QScrollArea QScrollBar {
+                  /* Styles for all scrollbars */
+                  border-radius: 100px;
+                  background-color: #e6b3ff;
+                }
+
+                QScrollArea QScrollBar::handle {
+                  /* Styles for the handle (draggable part) of the scrollbar */
+                  background-color: #d99eff;
+                  border-radius: 20px;
+                }
+
+                QScrollArea QScrollBar::add-line,
+                QScrollArea QScrollBar::sub-line {
+                  /* Styles for the buttons on the scrollbar */
+                  width: 0;
+                  height: 0;
+                  border-color: transparent;
+                  background-color: transparent;
+                }
+
+                QScrollArea QScrollBar:vertical {
+                  /* Styles for vertical scrollbars */
+                  border-top-right-radius: 20px;
+                  border-bottom-right-radius: 20px;
+                }
+
+                QScrollArea QScrollBar:horizontal {
+                  /* Styles for horizontal scrollbars */
+                  border-top-left-radius: 20px;
+                  border-top-right-radius: 20px;
+                }
+
+                QScrollArea QScrollBar:left-arrow,
+                QScrollArea QScrollBar:right-arrow,
+                QScrollArea QScrollBar:up-arrow,
+                QScrollArea QScrollBar:down-arrow {
+                  /* Styles for the buttons on the scrollbar */
+                  border-radius: 20px;
+                  background-color: #e6b3ff;
+                }
+
+                QScrollArea QScrollBar:vertical:increment,
+                QScrollArea QScrollBar:vertical:decrement,
+                QScrollArea QScrollBar:horizontal:increment,
+                QScrollArea QScrollBar:horizontal:decrement {
+                  /* Styles for the buttons on the scrollbar */
+                  border-radius: 20px;
+                  background-color: #e6b3ff;
+                }
+
+                QScrollArea QScrollBar:vertical:increment:pressed,
+                QScrollArea QScrollBar:vertical:decrement:pressed,
+                QScrollArea QScrollBar:horizontal:increment:pressed,
+                QScrollArea QScrollBar:horizontal:decrement:pressed {
+                  /* Styles for the buttons on the scrollbar when pressed */
+                  border-radius: 20px;
+                  background-color: #b366ff;
+                }
+                """)
+
+                self.container = QGroupBox()
+                # self.widget.setLayout(self.page_layout)
+                self.container.setLayout(self.dynamic_analysis_layout)
+
+                # Scroll Area Properties
+                self.scroll.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOn)
+                self.scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+                self.scroll.setWidgetResizable(True)
+                self.scroll.setWidget(self.container)
+                self.setCentralWidget(self.scroll)
+
+                close_button = QPushButton('X', self.container)
                 close_button.setFixedSize(30, 30)
                 close_button.clicked.connect(self.close)
+
                 self.show()
 
             def mousePressEvent(self, event):
@@ -1901,8 +1991,20 @@ class AppDemo(QMainWindow):
             print("Could not find log")
             return
 
+        def on_button_clicked(winapi_function):
+            self.overlay = OverlayWindow(winapi_function, log_content.split("\n\n\n\n\n\n\n"))
+            return
+
         # Creating a light shade of purple color
         light_purple = QColor(255, 153, 255, 180)
+
+        self.grid_button_layout = QGridLayout()
+        self.winapi_functions = []
+        for function in log_content.split("\n\n\n\n\n\n\n"):
+            for line in [line for line in function.split("\n") if line != ""]:
+                func = line.replace("-", "").replace("intercepted call to ", "")
+                self.winapi_functions.append(func)
+                break
 
         self.delete_funcs = []
         suspect_functions = []
@@ -1925,62 +2027,94 @@ class AppDemo(QMainWindow):
                 func_header = lines[0].replace("-", "").replace("intercepted call to ", "")
                 identified_functions.append(func_header)
 
-            # problem with QFrame - TODO - better
-            frame_for_function = QFrame()
-            frame_for_function.setFrameShape(QFrame.Box)
-            frame_for_function.setStyleSheet("border: 4px solid purple; margin: 10px; border-radius: 25px;")
+            # Create a button for each function and add it to the grid layout
+            row = 0
+            column = 0
+            for i, winapi_function in enumerate(self.winapi_functions):
+                button = QPushButton(winapi_function)
+                button.clicked.connect(
+                    lambda checked, winapi_function=winapi_function: on_button_clicked(winapi_function))
+                button.setStyleSheet("""
+                    QPushButton {
+                        font-family: sans-serif;
+                        border-radius: 5px;
+                        font-size: 19px;
+                        padding: 15px;
+                        margin: 10px;
+                        color: #87CEFA;
+                        background-color: #333;
+                        border: 2px solid #444;
+                    }
+                    QPushButton:hover {
+                        background-color: #555;
+                    }
+                    QPushButton:pressed {
+                        background-color: #666;
+                    }
+                """)
+                self.grid_button_layout.addWidget(button, row, column)
+                column += 1
+                if column == 4:
+                    column = 0
+                    row += 1
 
-            # Get the width of the screen
-            screen_width = QMainWindow().width()
+                self.delete_funcs.append(button)
 
-            # Set the maximum width of the QFrame to the width of the screen
-            frame_for_function.setMaximumSize(screen_width + 390, 2147483647)
+            self.dynamic_layout.addLayout(self.grid_button_layout)
 
-            v_box_for_func = QVBoxLayout(frame_for_function)
-            v_box_for_func.setContentsMargins(0, 0, 0, 0)
+        #     # problem with QFrame - TODO - better
+        #     frame_for_function = QFrame()
+        #     frame_for_function.setFrameShape(QFrame.Box)
+        #     frame_for_function.setStyleSheet("border: 4px solid purple; margin: 10px; border-radius: 25px;")
+        #
+        #     # Get the width of the screen
+        #     screen_width = QMainWindow().width()
+        #
+        #     # Set the maximum width of the QFrame to the width of the screen
+        #     frame_for_function.setMaximumSize(screen_width + 390, 2147483647)
+        #
+        #     v_box_for_func = QVBoxLayout(frame_for_function)
+        #     v_box_for_func.setContentsMargins(0, 0, 0, 0)
+        #
+        #     func = 0
+        #     for line in [line for line in function.split("\n") if line != ""]:
+        #         if "-" in line:
+        #             line = line.replace("-", "").replace("intercepted call to ", "")
+        #
+        #         if "Done" in line:
+        #             continue
+        #
+        #         if func == 0:
+        #             func_head_label = QLabel(line)
+        #             func_head_label.setFont(QFont("Zapfino", 24))
+        #             func_head_label.setStyleSheet("color: {}; border: none;".format(light_purple.name()))
+        #             func_head_label.setFrameShape(QFrame.NoFrame)
+        #             v_box_for_func.addWidget(func_head_label)
+        #             self.delete_funcs.append(func_head_label)
+        #             func = 1
+        #             continue
+        #
+        #         func_label = QLabel(line)
+        #         func_label.setWordWrap(True)
+        #         func_label.setFont(QFont("Zapfino", 12))
+        #         func_label.setStyleSheet("color: {}; border: none;".format(light_purple.name()))
+        #         # func_label.setFrameShape(QFrame.NoFrame)
+        #         v_box_for_func.addWidget(func_label)
+        #         self.delete_funcs.append(func_label)
 
-            func = 0
-            for line in [line for line in function.split("\n") if line != ""]:
-                if "-" in line:
-                    line = line.replace("-", "").replace("intercepted call to ", "")
+        #     self.dynamic_layout.addWidget(frame_for_function)
+        #     self.delete_funcs.append(frame_for_function)
+        #     self.delete_funcs.append(v_box_for_func)
 
-                if "Done" in line:
-                    continue
-
-                if func == 0:
-                    func_head_label = QLabel(line)
-                    func_head_label.setFont(QFont("Zapfino", 24))
-                    func_head_label.setStyleSheet("color: {}; border: none;".format(light_purple.name()))
-                    func_head_label.setFrameShape(QFrame.NoFrame)
-                    v_box_for_func.addWidget(func_head_label)
-                    self.delete_funcs.append(func_head_label)
-                    func = 1
-                    continue
-
-                func_label = QLabel(line)
-                func_label.setWordWrap(True)
-                func_label.setFont(QFont("Zapfino", 12))
-                func_label.setStyleSheet("color: {}; border: none;".format(light_purple.name()))
-                # func_label.setFrameShape(QFrame.NoFrame)
-                v_box_for_func.addWidget(func_label)
-                self.delete_funcs.append(func_label)
-
-            self.dynamic_layout.addWidget(frame_for_function)
-            self.delete_funcs.append(frame_for_function)
-            self.delete_funcs.append(v_box_for_func)
-
-        self.overlay = OverlayWindow("CreateFileA", log_content.split("\n\n\n\n\n\n\n"))
+        # self.overlay = OverlayWindow("connect", log_content.split("\n\n\n\n\n\n\n"))
 
         # data base
         self.redis_virus.hset(self.md5_hash, "suspicious_!", pickle.dumps(suspect_functions))
         self.redis_virus.print_key(self.md5_hash, "suspicious_!", True)
-
         self.redis_virus.hset(self.md5_hash, "has_passed_cpu", pickle.dumps(has_passed_cpu_functions))
         self.redis_virus.print_key(self.md5_hash, "has_passed_cpu", True)
-
         self.redis_virus.hset(self.md5_hash, "identifies", pickle.dumps(identified_functions))
         self.redis_virus.print_key(self.md5_hash, "identifies", True)
-
 
 app = QApplication(sys.argv)
 app.setStyleSheet(qss)

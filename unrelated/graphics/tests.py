@@ -28,6 +28,7 @@ class WinAPIButtonWindow(QMainWindow):
         column = 0
         for i, winapi_function in enumerate(winapi_functions):
             button = QPushButton(winapi_function)
+            button.clicked.connect(lambda checked, winapi_function=winapi_function: self.on_button_clicked(winapi_function))
             button.setStyleSheet("""
                 QPushButton {
                     font-family: sans-serif;
@@ -51,6 +52,9 @@ class WinAPIButtonWindow(QMainWindow):
             if column == 4:
                 column = 0
                 row += 1
+
+    def on_button_clicked(self, winapi_function):
+        print(winapi_function)
 
 
 if __name__ == "__main__":
