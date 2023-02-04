@@ -313,16 +313,22 @@ class AppDemo(QMainWindow):
         self.main_menu_action = QAction(QIcon("images/main_menu.png"), "main_menu", self)
         self.main_menu_action.triggered.connect(lambda: self.main_menu_window())
 
-        self.file_analysis_action = QAction(QIcon("images/exe_analysis.png"), "file_analysis", self)
-        self.file_analysis_action.triggered.connect(lambda: self.show_loading_menu())
+        # self.file_analysis_action = QAction(QIcon("images/exe_analysis.png"), "file_analysis", self)
+        # self.file_analysis_action.triggered.connect(lambda: self.show_loading_menu())
 
-        self.directory_analysis = QAction(QIcon("images/directory_analysis.png"), "directory_analysis", self)
-        self.ip_analysis_action = QAction(QIcon("images/ip_analysis.png"), "ip_analysis", self)
+        self.directory_analysis = QAction(QIcon("images/directory_analysis.png"), "Scan Directory", self)
+        self.directory_analysis.triggered.connect(self.show_directory_analysis)
+
+        self.ip_analysis_action = QAction(QIcon("images/ip_analysis.png"), "Scan IP", self)
+        self.about_action = QAction(QIcon("images/info-button.png"), "Info", self)
+        self.settings_action = QAction(QIcon("images/settings.png"), "Change Settings", self)
 
         self.toolbar.addAction(self.main_menu_action)
-        self.toolbar.addAction(self.file_analysis_action)
+        # self.toolbar.addAction(self.file_analysis_action)
         self.toolbar.addAction(self.directory_analysis)
         self.toolbar.addAction(self.ip_analysis_action)
+        self.toolbar.addAction(self.about_action)
+        self.toolbar.addAction(self.settings_action)
 
         with open("css_files/toolbar.css") as f:
             self.toolbar.setStyleSheet(f.read())
@@ -436,7 +442,7 @@ class AppDemo(QMainWindow):
             self.index_table = self.page_layout.indexOf(self.table_and_strings_layout)
             self.page_layout.removeItem(self.page_layout.takeAt(self.index_table))
             self.virus_table.deleteLater()
-            self.list_strings_widget.deleteLater()
+            self.list_strings_widget.deleteLater() # TODO - change to red the suspicious strings
             self.strings_label.deleteLater()
             self.virus_table_label.deleteLater()
             self.static_button.setDisabled(False)
@@ -446,9 +452,7 @@ class AppDemo(QMainWindow):
             self.tree_imports.deleteLater()
 
             self.pe_tests_label.deleteLater()
-            self.frame_dll_test.deleteLater()
-            self.frame_pe_linker.deleteLater()
-            self.frame_pe_sections.deleteLater()
+            self.h_box_for_groupbox.deleteLater()
             self.table_and_strings_layout.deleteLater()
 
         if self.hash_visited:
@@ -501,6 +505,47 @@ class AppDemo(QMainWindow):
                 widget.deleteLater()
             self.grid_button_layout.deleteLater()
             self.dynamic_layout.deleteLater()
+
+    def show_directory_analysis(self):
+
+        self.clearLayout()
+        # TODO - fix and show without hash_analysis
+
+        self.show_label = 1
+        self.hash_layout = QVBoxLayout()
+        self.page_layout.addLayout(self.hash_layout)
+
+        self.scan_dir_label = make_label("Directory Analysis", 24)
+        self.hash_layout.addWidget(self.scan_dir_label)
+
+        # Set the style sheet
+        scan_dir_style_sheet = """
+        QPushButton {
+            font-size: 18pt;
+            font-weight: bold;
+            color: #fff;
+            background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
+                                        stop: 0 #9933ff, stop: 1 #6600cc);
+            border: 2px solid #6600cc;
+            border-radius: 10px;
+            padding: 10px;
+            min-width: 100px;
+            min-height: 50px;
+        }
+        QPushButton:hover {
+            background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
+                                        stop: 0 #b366ff, stop: 1 #8000ff);
+        }
+        QPushButton:pressed {
+            background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
+                                        stop: 0 #cc99ff, stop: 1 #9933ff);
+        }
+        """
+        self.scan_dir_button = QPushButton('Scan Dir for viruses')
+        self.scan_dir_button.setStyleSheet(scan_dir_style_sheet)
+        self.scan_dir_button.setMaximumSize(300, 50)
+        self.scan_dir_button.clicked.connect(self.scan_dir)
+        self.hash_layout.addWidget(self.scan_dir_button)
 
     def main_menu_window(self):
 
@@ -963,7 +1008,8 @@ class AppDemo(QMainWindow):
 
         # Create a list widget and add some items to it
         self.list_strings_widget = QListWidget()
-        self.list_strings_widget.setMinimumSize(550, 550)
+        self.list_strings_widget.setMinimumSize(450, 550)
+        self.list_strings_widget.setMaximumSize(450, 550)
         # self.list_strings_widget.itemEntered.connect(show_bubble)
 
         # YARA
@@ -980,7 +1026,7 @@ class AppDemo(QMainWindow):
             item = QListWidgetItem(str(dll))
             item.setToolTip(bubble_strings_dict[str(dll)])
             font = item.font()
-            font.setPointSize(16)
+            font.setPointSize(12)
             item.setFont(font)
             self.list_strings_widget.addItem(item)
             # self.list_strings_widget.setMouseTracking(True)
@@ -992,7 +1038,7 @@ class AppDemo(QMainWindow):
         for string in yara_strings[1]:
             item = QListWidgetItem(str(string.decode()))
             font = item.font()
-            font.setPointSize(16)
+            font.setPointSize(12)
             item.setFont(font)
             item.setToolTip(bubble_strings_dict[string.decode()])
             self.list_strings_widget.addItem(item)
@@ -1062,6 +1108,7 @@ class AppDemo(QMainWindow):
 
         self.packers_label = make_label("Packers And Protectors", 24)
         self.packers_widget = QListWidget()
+        self.packers_widget.setMaximumSize(400, 300)
         # self.packers_widget.itemEntered.connect(show_bubble)
 
         scrollBarPackers = QScrollBar()
@@ -1077,7 +1124,7 @@ class AppDemo(QMainWindow):
             item = QListWidgetItem(str(packer))
             item.setToolTip(bubble_strings_dict[str(packer)])
             font = item.font()
-            font.setPointSize(16)
+            font.setPointSize(12)
             item.setFont(font)
             self.packers_widget.addItem(item)
             # self.packers_widget.setMouseTracking(True)
@@ -1086,7 +1133,7 @@ class AppDemo(QMainWindow):
             # self.bubble = bubbleWidget(packer)
             # self.bubble.hide()
 
-        self.packers_widget.setMinimumSize(550, 200)
+        self.packers_widget.setMinimumSize(450, 200)
         self.packers_widget.setStyleSheet(self.list_widget_style_sheet)
         self.packers_widget.setVerticalScrollBar(scrollBarPackers)
         self.table_and_strings_layout.addWidget(self.packers_label)
@@ -1103,6 +1150,7 @@ class AppDemo(QMainWindow):
         self.list_index = dict({})
 
         self.tree_imports = QTreeView()
+        self.tree_imports.setMaximumSize(200, 500)
         self.tree_imports.setEditTriggers(QAbstractItemView.NoEditTriggers)
         self.tree_imports.setStyleSheet("""
                 QTreeView {
@@ -1168,7 +1216,7 @@ class AppDemo(QMainWindow):
         model = QStandardItemModel()
         model.appendRow(root)
         self.tree_imports.setModel(model)
-        self.tree_imports.setMinimumSize(700, 300)
+        self.tree_imports.setMinimumSize(350, 300)
         self.table_and_strings_layout.addWidget(self.tree_imports)
 
         # PE TESTS
@@ -1177,77 +1225,122 @@ class AppDemo(QMainWindow):
 
         self.page_layout.addLayout(self.table_and_strings_layout)
         self.static_visited = True
+        self.h_box_for_groupbox = QHBoxLayout()
 
         fractioned = check_for_fractioned_imports(dlls)
         self.redis_virus.hset(self.md5_hash, "fractioned_imports_test", pickle.dumps(fractioned))
         self.redis_virus.print_key(self.md5_hash, "fractioned_imports_test", True)
 
-        self.frame_dll_test = QFrame()
-        self.frame_dll_test.setFrameShape(QFrame.Box)
-        self.dll_test_h_box = QHBoxLayout(self.frame_dll_test)
-        self.dll_test_h_box.setContentsMargins(0, 0, 0, 0)
-        self.frame_dll_test.setStyleSheet("border: 2px solid purple;")
-        self.dll_test = make_label(f"PE was found to have {len(fractioned)} fractionated imports !", 16)
-        self.dll_test.setFont(QFont("DemiBold", 16))
-        self.dll_test.setStyleSheet("color: red; border: none;")
-        self.dll_test.setFrameShape(QFrame.NoFrame)
-
-        self.dll_test_list_widget = QListWidget()
-        for frac in fractioned:
-            self.dll_test_list_widget.addItem(str(frac))
-
-        self.dll_test_list_widget.setStyleSheet(self.list_widget_style_sheet)
-        self.dll_test_h_box.addWidget(self.dll_test)
-        self.dll_test_h_box.addWidget(self.dll_test_list_widget)
-        self.dll_test_h_box.setAlignment(Qt.AlignLeft)
-        self.dll_test_list_widget.setMaximumSize(250, 250)
-        self.dll_test_list_widget.setMinimumSize(250, 150)
-        # self.dll_test_h_box.setContentsMargins(0, 0, 405, 0)
-        self.table_and_strings_layout.addWidget(self.frame_dll_test)
+        self.fractioned = QGroupBox("Fractioned Imports")
+        self.fractioned.setMinimumSize(300, 200)
+        self.fractioned.setMaximumSize(400, 250)
+        self.v_box_for_fractioned = QVBoxLayout()
+        self.list_widget_for_fractioned = QListWidget()
+        self.list_widget_for_fractioned.setMaximumSize(300, 125)
+        self.list_widget_for_fractioned.setMinimumSize(300, 125)
+        self.list_widget_for_fractioned.addItems(["item1", "item2"])
+        self.v_box_for_fractioned.addWidget(self.list_widget_for_fractioned)
+        self.fractioned.setLayout(self.v_box_for_fractioned)
 
         # pe linker
         result = str(pe_scan.linker_test()).replace("result.", "")
         self.redis_virus.hset(self.md5_hash, "rick_optional_linker_test", pickle.dumps([result]))
         self.redis_virus.print_key(self.md5_hash, "rick_optional_linker_test", True)
 
-        self.frame_pe_linker = QFrame()
-        self.frame_pe_linker.setFrameShape(QFrame.StyledPanel)
-        self.frame_pe_linker_h_box = QHBoxLayout(self.frame_pe_linker)
-        self.frame_pe_linker.setStyleSheet("border: 2px solid purple;")
-
-        self.frame_pe_linker_label = make_label(f"PE Rich Linker and Optional Header Linker is - {result}", 16)
-        self.frame_pe_linker_label.setFont(QFont("DemiBold", 16))
-        self.frame_pe_linker_label.setStyleSheet("color: red; border: none;")
-        self.frame_pe_linker_h_box.addWidget(self.frame_pe_linker_label)
-        self.table_and_strings_layout.addWidget(self.frame_pe_linker)
+        self.pe_linker = QGroupBox("PE Linker")
+        self.pe_linker.setMaximumSize(300, 200)
+        self.v_box_for_pe_linker = QVBoxLayout()
+        self.label_for_pe_linker = QLabel(result)
+        if result != "Valid":
+            self.label_for_pe_linker.setStyleSheet("QLabel { color: red }")
+        self.v_box_for_pe_linker.addWidget(self.label_for_pe_linker)
+        self.pe_linker.setLayout(self.v_box_for_pe_linker)
 
         # pe scan sections
         sections = pe_scan.scan_sections()
         self.redis_virus.hset(self.md5_hash, "sections_test", pickle.dumps(sections))
         self.redis_virus.print_key(self.md5_hash, "sections_test", True)
 
-        self.frame_pe_sections = QFrame()
-        self.frame_pe_sections.setFrameShape(QFrame.StyledPanel)
-        self.frame_pe_sections_h_box = QHBoxLayout(self.frame_pe_sections)
-        self.frame_pe_sections.setStyleSheet("border: 2px solid purple;")
-        self.frame_pe_sections_label = make_label(f"PE scan with suspicious imports", 16)
-        self.frame_pe_sections_label.setFont(QFont("DemiBold", 16))
-        self.frame_pe_sections_label.setStyleSheet("color: red; border: none;")
+        self.suspicious_imports = QGroupBox("Suspicious Imports")
+        self.suspicious_imports.setMinimumSize(200, 200)
+        self.suspicious_imports.setMaximumSize(400, 250)
+        self.v_box_for_suspicious_imports = QVBoxLayout()
+        self.list_widget_for_suspicious_imports = QListWidget()
+        self.list_widget_for_suspicious_imports.setMaximumSize(300, 125)
+        self.list_widget_for_suspicious_imports.setMinimumSize(300, 125)
+        self.list_widget_for_suspicious_imports.addItems(sections)
+        self.v_box_for_suspicious_imports.addWidget(self.list_widget_for_suspicious_imports)
+        self.suspicious_imports.setLayout(self.v_box_for_suspicious_imports)
 
-        self.frame_pe_sections_list_widget = QListWidget()
-        for sec in sections:
-            self.frame_pe_sections_list_widget.addItem(str(sec))
+        groupbox_style_sheet = """
+                QGroupBox {
+                    background-color: #333;
+                    border: 1px solid #ccc;
+                    border-radius: 5px;
+                    outline: none;
+                    margin: 5px;
+                    color: #87CEFA; 
+                    font-size: 20px;
+                }
 
-        self.frame_pe_sections_list_widget.setStyleSheet(self.list_widget_style_sheet)
-        self.frame_pe_sections_h_box.addWidget(self.frame_pe_sections_label)
-        self.frame_pe_sections_h_box.addWidget(self.frame_pe_sections_list_widget)
-        self.frame_pe_sections_h_box.setAlignment(Qt.AlignLeft)
+                QGroupBox::title {
+                    subcontrol-origin: margin;
+                    margin-bottom: 90px;
+                    margin: 10px;
+                    subcontrol-position: top left;
+                    padding: 10px 20px;
+                    font-size: 15px;
+                    font-weight: 500;
+                    color: #87CEFA;
+                }
 
-        self.frame_pe_sections_list_widget.setMaximumSize(250, 250)
-        self.frame_pe_sections_list_widget.setMinimumSize(250, 150)
-        # self.dll_test_h_box.setContentsMargins(0, 0, 405, 0)
+                QLabel {
+                    color: #87CEFA; 
+                    font-size: 20px;
+                    font-weight: 500;
+                    justify-content: center;
+                    text-alignment: center;
+                    margin-left: 15px;
+                }
 
-        self.table_and_strings_layout.addWidget(self.frame_pe_sections)
+                QListWidget {
+                    background-color: #333;
+                    border: 1px solid #ccc;
+                    border-radius: 5px;
+                    margin-top: 10px;
+                    outline: none;
+                    margin: 20px;
+                    color: #87CEFA; 
+                    font-size: 16px;
+                    font-weight: 500;
+                }
+
+                QListWidget::item {
+                    border: none;
+                    color: red;
+                    padding: 5px;
+                    font-size: 16px;
+                    font-weight: 500; 
+                }
+
+                QListWidget::item:hover {
+                    background-color: #555;
+                }
+
+                QListWidget::item:selected {
+                    background-color: #777;
+                }
+            """
+
+        self.fractioned.setStyleSheet(groupbox_style_sheet)
+        self.suspicious_imports.setStyleSheet(groupbox_style_sheet)
+        self.pe_linker.setStyleSheet(groupbox_style_sheet)
+
+        self.h_box_for_groupbox.addWidget(self.fractioned)
+        self.h_box_for_groupbox.addWidget(self.suspicious_imports)
+        self.h_box_for_groupbox.addWidget(self.pe_linker)
+        #
+        self.table_and_strings_layout.addLayout(self.h_box_for_groupbox)
 
     def activate_vt_scan_dir(self):
 
@@ -1808,6 +1901,7 @@ class AppDemo(QMainWindow):
 
     def dynamic_analysis(self):
 
+        # TODO - think of the how to present each window of the function
         self.clearLayout()
         self.static_visited = False
         self.hash_visited = False
@@ -1828,7 +1922,12 @@ class AppDemo(QMainWindow):
                 self.setWindowFlags(QtCore.Qt.FramelessWindowHint | QtCore.Qt.WindowStaysOnTopHint)
 
                 # self.setAttribute(QtCore.Qt.WA_TranslucentBackground)
-                self.new_func_list = [x for x in self.function_list if self.function in x]
+                self.new_func_list = []
+                for func in self.function_list:
+                    for line in [line for line in func.split("\n") if line != ""]:
+                        if self.function == line.replace("-", "").replace("intercepted call to ", ""):
+                            self.new_func_list.append(func)
+                        break
                 print(self.new_func_list)
 
                 self.dynamic_analysis_layout = QVBoxLayout()
@@ -1979,6 +2078,8 @@ class AppDemo(QMainWindow):
                 self.move(x - x_w, y - y_w)
 
         self.start_dynamic = make_label("Function Analysis", 20)
+        self.start_dynamic.setText("Function Analysis  <img src='images/info-button.png' width='20' height='20'>")
+        self.start_dynamic.setToolTip("Function that are red colored are shown as an alert")
         self.dynamic_layout.addWidget(self.start_dynamic)
 
         if os.path.exists("LOG.txt"):
@@ -2030,7 +2131,14 @@ class AppDemo(QMainWindow):
             # Create a button for each function and add it to the grid layout
             row = 0
             column = 0
+            already_were_functions = {}
             for i, winapi_function in enumerate(self.winapi_functions):
+
+                if winapi_function not in already_were_functions.keys():
+                    already_were_functions[winapi_function] = 1
+                else:
+                    already_were_functions[winapi_function] += 1
+
                 button = QPushButton(winapi_function)
                 button.clicked.connect(
                     lambda checked, winapi_function=winapi_function: on_button_clicked(winapi_function))
@@ -2045,24 +2153,52 @@ class AppDemo(QMainWindow):
                         background-color: #333;
                         border: 2px solid #444;
                     }
+                    background-color: #333;
+                    border: 2px solid #444;
+                    }
                     QPushButton:hover {
                         background-color: #555;
                     }
                     QPushButton:pressed {
                         background-color: #666;
                     }
-                """)
-                self.grid_button_layout.addWidget(button, row, column)
-                column += 1
-                if column == 4:
-                    column = 0
-                    row += 1
+                    """)
+                if already_were_functions[winapi_function] == 1:
+
+                    if winapi_function in suspect_functions or winapi_function in has_passed_cpu_functions or winapi_function in identified_functions:
+                        button.setStyleSheet("""
+                            QPushButton {
+                                font-family: sans-serif;
+                                border-radius: 5px;
+                                font-size: 19px;
+                                padding: 15px;
+                                margin: 10px;
+                                color: red;
+                                background-color: #333;
+                                border: 2px solid #444;
+                            }
+                            background-color: #333;
+                            border: 2px solid #444;
+                            }
+                            QPushButton:hover {
+                                background-color: #555;
+                            }
+                            QPushButton:pressed {
+                                background-color: #666;
+                            }
+                            """)
+
+                    self.grid_button_layout.addWidget(button, row, column)
+                    column += 1
+                    if column == 4:
+                        column = 0
+                        row += 1
 
                 self.delete_funcs.append(button)
 
             self.dynamic_layout.addLayout(self.grid_button_layout)
 
-        #     # problem with QFrame - TODO - better
+        #     # problem with QFrame
         #     frame_for_function = QFrame()
         #     frame_for_function.setFrameShape(QFrame.Box)
         #     frame_for_function.setStyleSheet("border: 4px solid purple; margin: 10px; border-radius: 25px;")
@@ -2115,6 +2251,7 @@ class AppDemo(QMainWindow):
         self.redis_virus.print_key(self.md5_hash, "has_passed_cpu", True)
         self.redis_virus.hset(self.md5_hash, "identifies", pickle.dumps(identified_functions))
         self.redis_virus.print_key(self.md5_hash, "identifies", True)
+
 
 app = QApplication(sys.argv)
 app.setStyleSheet(qss)
