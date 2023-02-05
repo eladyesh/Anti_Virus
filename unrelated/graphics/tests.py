@@ -1,40 +1,35 @@
-import pydevd
-import ctypes
-import subprocess
+from PyQt5.QtWidgets import QListWidget, QListWidgetItem, QApplication, QWidget, QHBoxLayout, QLabel
+from PyQt5.QtGui import QColor, QPainter
+import sys
 
 
-def create_file_hook(file_name, desired_access, share_mode, security_attributes, creation_disposition,
-                     flags_and_attributes, template_file):
-    print("CreateFileA was called with the following parameters:")
-    print(f"  File name: {file_name.decode()}")
-    print(f"  Desired access: {desired_access}")
-    print(f"  Share mode: {share_mode}")
-    print(f"  Security attributes: {security_attributes}")
-    print(f"  Creation disposition: {creation_disposition}")
-    print(f"  Flags and attributes: {flags_and_attributes}")
-    print(f"  Template file: {template_file}")
+class CustomListWidgetItem(QListWidgetItem):
+    def __init__(self, text, color, parent=None):
+        super().__init__(parent)
+
+        self.text = text
+        self.color = color
+
+        layout = QHBoxLayout()
+        layout.addWidget(QLabel(text))
+        self.setLayout(layout)
+
+    def paintEvent(self, event):
+        painter = QPainter(self)
+        painter.setPen(QColor(self.color))
+        painter.drawText(event.rect(), self.text)
 
 
-def main():
-    # Start the debugger
-    pydevd.settrace('192.168.188.249', port=55555, stdoutToServer=True, stderrToServer=True)
+app = QApplication(sys.argv)
+list_widget = QListWidget()
 
-    # Load the winapi function from kernel32.dll
-    CreateFileA = ctypes.windll.kernel32.CreateFileA
+item1 = CustomListWidgetItem("Item 1", "red")
+item2 = CustomListWidgetItem("Item 2", "black")
+item3 = CustomListWidgetItem("Item 3", "red")
 
-    # Define the function signature for CreateFileA
-    CreateFileA.argtypes = [ctypes.c_char_p, ctypes.c_uint32, ctypes.c_uint32, ctypes.c_void_p, ctypes.c_uint32,
-                            ctypes.c_uint32, ctypes.c_void_p]
-    CreateFileA.restype = ctypes.c_void_p
+list_widget.addItem(item1)
+list_widget.addItem(item2)
+list_widget.addItem(item3)
 
-    # Register the hook function
-    hook = ctypes.WINFUNCTYPE(None, ctypes.c_char_p, ctypes.c_uint32, ctypes.c_uint32, ctypes.c_void_p, ctypes.c_uint32,
-                              ctypes.c_uint32, ctypes.c_void_p)(create_file_hook)
-    ctypes.windll.kernel32.SetWindowsHookExA(ctypes.c_int(0), hook, ctypes.windll.kernel32[0], 0)
-
-    # Run the virus.exe process
-    subprocess.run(["virus.exe"])
-
-
-if __name__ == "__main__":
-    main()
+list_widget.show()
+sys.exit(app.exec_())

@@ -183,7 +183,9 @@ bubble_strings_dict = {
                                                                          "c++ language version 8.0",
     "Microsoft_Visual_Cpp_80_Debug_": "A basic signature of exe written in c++ language version 8.0",
     "Microsoft_Visual_Cpp_80_Debug": "A basic signature of exe written in c++ language version 8.0 ",
-    "OpenProcess": "Opens an existing local process object."
+    "OpenProcess": "Opens an existing local process object.", "Microsoft_Visual_Cpp_80": "A basic signature of exe "
+                                                                                         "written in c++ language "
+                                                                                         "version 8.0 ",
 }
 
 
@@ -442,7 +444,7 @@ class AppDemo(QMainWindow):
             self.index_table = self.page_layout.indexOf(self.table_and_strings_layout)
             self.page_layout.removeItem(self.page_layout.takeAt(self.index_table))
             self.virus_table.deleteLater()
-            self.list_strings_widget.deleteLater() # TODO - change to red the suspicious strings
+            self.list_strings_widget.deleteLater()
             self.strings_label.deleteLater()
             self.virus_table_label.deleteLater()
             self.static_button.setDisabled(False)
@@ -453,6 +455,9 @@ class AppDemo(QMainWindow):
 
             self.pe_tests_label.deleteLater()
             self.h_box_for_groupbox.deleteLater()
+            self.pe_linker.deleteLater()
+            self.fractioned.deleteLater()
+            self.suspicious_imports.deleteLater()
             self.table_and_strings_layout.deleteLater()
 
         if self.hash_visited:
@@ -565,18 +570,18 @@ class AppDemo(QMainWindow):
                 border-radius: 5px;
                 outline: none;
                 margin: 5px;
-                color: #87CEFA; 
                 font-size: 20ע
             }
-
             QListWidget::item {
                 border: none;
                 padding: 10px;
                 font: 18px;
                 font-weight: 500;
-                color: #87CEFA; 
             }
-
+            QListWidget::item[role=highlight] {
+                color: red;
+            }
+            
             QListWidget::item:hover {
                 background-color: #555;
             }
@@ -1028,6 +1033,9 @@ class AppDemo(QMainWindow):
             font = item.font()
             font.setPointSize(12)
             item.setFont(font)
+            color = QColor()
+            color.setNamedColor("#87CEFA")
+            item.setForeground((QBrush(color)))
             self.list_strings_widget.addItem(item)
             # self.list_strings_widget.setMouseTracking(True)
             # self.list_strings_widget.itemEntered.connect(show_bubble)
@@ -1035,12 +1043,34 @@ class AppDemo(QMainWindow):
             # self.bubble = bubbleWidget(dll)
             # self.bubble.hide()
 
+        # check for injection strings
+        injection_funcs = []
+        registry_strings = []
+        if b'VirtualAllocEx' in yara_strings[1] and b'WriteProcessMemory' in yara_strings[1] and b'OpenProcess' in \
+                yara_strings[1] and b'CreateRemoteThread' in yara_strings[1]:
+            injection_funcs = [b'VirtualAllocEx', b'WriteProcessMemory', b'OpenProcess', b'CreateRemoteThread']
+
+        # check for registry suspicious keys
+        if b'SOFTWARE\\Policies\\Microsoft\\Windows Defender' in yara_strings[
+            1] and b'Software\\Microsoft\\Windows\\CurrentVersion\\Run' in yara_strings[1]:
+            registry_strings = [b'SOFTWARE\\Policies\\Microsoft\\Windows Defender',
+                                b'Software\\Microsoft\\Windows\\CurrentVersion\\Run']
+
         for string in yara_strings[1]:
+
             item = QListWidgetItem(str(string.decode()))
+            if string in injection_funcs or string in registry_strings:
+                item.setForeground(QBrush(QColor('red')))
+            else:
+                color = QColor()
+                color.setNamedColor("#87CEFA")
+                item.setForeground((QBrush(color)))
+
+            item.setToolTip(bubble_strings_dict[string.decode()])
             font = item.font()
             font.setPointSize(12)
             item.setFont(font)
-            item.setToolTip(bubble_strings_dict[string.decode()])
+
             self.list_strings_widget.addItem(item)
             # self.list_strings_widget.setMouseTracking(True)
             # self.list_strings_widget.itemEntered.connect(show_bubble)
@@ -1099,8 +1129,8 @@ class AppDemo(QMainWindow):
         """
 
         scrollBar.setStyleSheet(self.scrollBar_stylesheet)
-
         self.list_strings_widget.setStyleSheet(self.list_widget_style_sheet)
+
         self.strings_label = make_label("Suspicious Strings", 24)
         self.list_strings_widget.setVerticalScrollBar(scrollBar)
         self.table_and_strings_layout.addWidget(self.strings_label)

@@ -1,7 +1,7 @@
 Getting file info by ID: 5fffd3e69093dc32727214ba5c8f2af5
 
-malicious: 37
-undetected : 32
+malicious: 35
+undetected : 33
 
 ==================================================
 Lionic
@@ -10,6 +10,16 @@ category : malicious
 result : Riskware.Win32.Generic.1!c
 method : blacklist
 update : 20230204
+==================================================
+
+
+==================================================
+Elastic
+version : 4.0.77
+category : malicious
+result : malicious (high confidence)
+method : blacklist
+update : 20230203
 ==================================================
 
 
@@ -54,6 +64,16 @@ update : 20230204
 
 
 ==================================================
+VIPRE
+version : 6.0.0.35
+category : malicious
+result : Gen:Variant.Fugrafa.266878
+method : blacklist
+update : 20230204
+==================================================
+
+
+==================================================
 Sangfor
 version : 2.23.0.0
 category : malicious
@@ -80,16 +100,6 @@ category : malicious
 result : ML.Attribute.HighConfidence
 method : blacklist
 update : 20230204
-==================================================
-
-
-==================================================
-Elastic
-version : 4.0.77
-category : malicious
-result : malicious (high confidence)
-method : blacklist
-update : 20230203
 ==================================================
 
 
@@ -154,26 +164,6 @@ update : 20230204
 
 
 ==================================================
-F-Secure
-version : 18.10.1137.128
-category : malicious
-result : Heuristic.HEUR/AGEN.1226917
-method : blacklist
-update : 20230204
-==================================================
-
-
-==================================================
-VIPRE
-version : 6.0.0.35
-category : malicious
-result : Gen:Variant.Fugrafa.266878
-method : blacklist
-update : 20230204
-==================================================
-
-
-==================================================
 McAfee-GW-Edition
 version : v2019.1.2+3728
 category : malicious
@@ -184,22 +174,12 @@ update : 20230204
 
 
 ==================================================
-Sophos
-version : 2.1.2.0
+SentinelOne
+version : 23.1.0.5
 category : malicious
-result : Mal/Generic-R
+result : Static AI - Suspicious PE
 method : blacklist
-update : 20230204
-==================================================
-
-
-==================================================
-Ikarus
-version : 6.0.33.0
-category : malicious
-result : Trojan.Agent
-method : blacklist
-update : 20230204
+update : 20230111
 ==================================================
 
 
@@ -324,12 +304,12 @@ update : 20230204
 
 
 ==================================================
-SentinelOne
-version : 23.1.0.5
+Ikarus
+version : 6.0.33.0
 category : malicious
-result : Static AI - Suspicious PE
+result : Trojan.Agent
 method : blacklist
-update : 20230111
+update : 20230204
 ==================================================
 
 
