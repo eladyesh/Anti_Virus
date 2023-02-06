@@ -469,15 +469,7 @@ class AppDemo(QMainWindow):
 
             self.basic_info_label.deleteLater()
             self.basic_info.deleteLater()
-            self.scan_dir_label.deleteLater()
-            self.scan_dir_button.deleteLater()
-            if self.movie_label is not None:
-                self.movie_label.deleteLater()
-                self.show_label = 1
-                self.description_for_search.deleteLater()
-                self.movie_list.deleteLater()
-                self.suspicious_paths.deleteLater()
-                self.threadpool_vt.terminate()
+
             self.fuzzy_hash_label.deleteLater()
             self.fuzzy_hash_button.deleteLater()
             if self.delete_widgets is not None:
@@ -511,17 +503,32 @@ class AppDemo(QMainWindow):
             self.grid_button_layout.deleteLater()
             self.dynamic_layout.deleteLater()
 
+        if self.dir_visited:
+            self.scan_dir_label.deleteLater()
+            self.scan_dir_button.deleteLater()
+            if self.movie_label is not None:
+                self.movie_label.deleteLater()
+                self.show_label = 1
+                self.description_for_search.deleteLater()
+                self.movie_list.deleteLater()
+                self.suspicious_paths.deleteLater()
+                self.threadpool_vt.terminate()
+                self.dir_layout.deleteLater()
+
     def show_directory_analysis(self):
 
         self.clearLayout()
+        self.hash_visited = False
+        self.static_visited = False
+        self.dynamic_visited = False
         # TODO - fix and show without hash_analysis
 
         self.show_label = 1
-        self.hash_layout = QVBoxLayout()
-        self.page_layout.addLayout(self.hash_layout)
+        self.dir_layout = QVBoxLayout()
+        self.page_layout.addLayout(self.dir_layout)
 
         self.scan_dir_label = make_label("Directory Analysis", 24)
-        self.hash_layout.addWidget(self.scan_dir_label)
+        self.dir_layout.addWidget(self.scan_dir_label)
 
         # Set the style sheet
         scan_dir_style_sheet = """
@@ -550,7 +557,8 @@ class AppDemo(QMainWindow):
         self.scan_dir_button.setStyleSheet(scan_dir_style_sheet)
         self.scan_dir_button.setMaximumSize(300, 50)
         self.scan_dir_button.clicked.connect(self.scan_dir)
-        self.hash_layout.addWidget(self.scan_dir_button)
+        self.dir_layout.addWidget(self.scan_dir_button)
+        self.dir_visited = True
 
     def main_menu_window(self):
 
@@ -712,6 +720,7 @@ class AppDemo(QMainWindow):
         self.dynamic_visited = False
         self.static_visited = False
         self.hash_visited = False
+        self.dir_visited = False
 
         self.scroll = QScrollArea()  # Scroll Area which contains the widgets, set as the centralWidget
         self.widget = QWidget()  # Widget that contains the collection of Vertical Box
@@ -898,6 +907,7 @@ class AppDemo(QMainWindow):
         self.static_visited = True
         self.hash_visited = False
         self.dynamic_visited = False
+        self.dir_visited = False
 
         # self.page_layout.addLayout(self.btn_layout)
         self.static_button.setEnabled(False)
@@ -1465,7 +1475,7 @@ class AppDemo(QMainWindow):
         self.suspicious_paths.setVerticalScrollBar(scrollBarPaths)
         self.suspicious_paths.setMaximumSize(550, 350)
         self.movie_list.addWidget(self.suspicious_paths)
-        self.hash_layout.insertLayout(self.hash_layout.indexOf(self.description_for_search) + 1, self.movie_list)
+        self.dir_layout.insertLayout(self.dir_layout.indexOf(self.description_for_search) + 1, self.movie_list)
 
         self.threadpool_vt.run = self.activate_vt_scan_dir
         self.threadpool_vt.start()
@@ -1475,7 +1485,7 @@ class AppDemo(QMainWindow):
         if self.show_label == 1:
             self.description_for_search = make_label("Now, if a file was found malicious by more than 5 engines\n"
                                                      "it will be shown on the screen to your right", 15)
-            self.hash_layout.insertWidget(self.hash_layout.indexOf(self.scan_dir_button) + 1,
+            self.dir_layout.insertWidget(self.dir_layout.indexOf(self.scan_dir_button) + 1,
                                           self.description_for_search)
 
             # Create the QLabel
@@ -1654,6 +1664,7 @@ class AppDemo(QMainWindow):
         # self.show_loading_menu()
         self.static_visited = False
         self.dynamic_visited = False
+        self.dir_visited = False
 
         self.hash_button.setDisabled(True)
         self.hash_layout = QVBoxLayout()
@@ -1872,39 +1883,39 @@ class AppDemo(QMainWindow):
 
         self.page_layout.addLayout(self.hash_layout)
 
-        self.scan_dir_label = make_label("Directory Analysis", 24)
-        self.hash_layout.addWidget(self.scan_dir_label)
+        # self.scan_dir_label = make_label("Directory Analysis", 24)
+        # self.hash_layout.addWidget(self.scan_dir_label)
 
         # Set the style sheet
         scan_dir_style_sheet = """
-        QPushButton {
-            font-size: 18pt;
-            font-weight: bold;
-            color: #fff;
-            background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
-                                        stop: 0 #9933ff, stop: 1 #6600cc);
-            border: 2px solid #6600cc;
-            border-radius: 10px;
-            padding: 10px;
-            min-width: 100px;
-            min-height: 50px;
-        }
-        QPushButton:hover {
-            background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
-                                        stop: 0 #b366ff, stop: 1 #8000ff);
-        }
-        QPushButton:pressed {
-            background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
-                                        stop: 0 #cc99ff, stop: 1 #9933ff);
-        }
+            QPushButton {
+                background-color: #E7E7FA;
+                color: #000080;
+                border: 2px solid #9400D3;
+                font: bold 25px;
+                min-width: 80px;
+                margin: 5px;
+                margin-bottom: 10px;
+                padding: 10px;
+            }
+            
+            QPushButton:hover {
+                background-color: #D8BFD8;
+                color: #4B0082;
+            }
+            
+            QPushButton:pressed {
+                background-color: #DDA0DD;
+                color: #8B008B;
+            }
         """
-        self.scan_dir_button = QPushButton('Scan Dir for viruses')
-        self.scan_dir_button.setStyleSheet(scan_dir_style_sheet)
-        self.scan_dir_button.setMaximumSize(300, 50)
-        self.scan_dir_button.clicked.connect(self.scan_dir)
-
-        self.show_label = 1
-        self.hash_layout.addWidget(self.scan_dir_button)
+        # self.scan_dir_button = QPushButton('Scan Dir for viruses')
+        # self.scan_dir_button.setStyleSheet(scan_dir_style_sheet)
+        # self.scan_dir_button.setMaximumSize(300, 50)
+        # self.scan_dir_button.clicked.connect(self.scan_dir)
+#
+        # self.show_label = 1
+        # self.hash_layout.addWidget(self.scan_dir_button)
 
         self.fuzzy_hash_label = make_label("Fuzzy Hashing Analysis", 24)
         self.fuzzy_hash_button = QPushButton("Scan Virus With Fuzzy Hashing")
@@ -1936,6 +1947,7 @@ class AppDemo(QMainWindow):
         self.static_visited = False
         self.hash_visited = False
         self.dynamic_visited = True
+        self.dir_visited = False
         self.dynamic_layout = QVBoxLayout()
         self.page_layout.addLayout(self.dynamic_layout)
         self.md5_hash = str(md5("virus.exe"))
