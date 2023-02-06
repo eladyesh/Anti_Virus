@@ -23,6 +23,13 @@ from queue import Queue, Empty
 import types
 import functools
 import pickle
+import matplotlib
+
+matplotlib.use("Qt5Agg")
+from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
+import matplotlib.pyplot as plt
+import numpy as np
+import colorcet as cc
 
 PATH_TO_MOVE = os.getcwd()
 # print(PATH_TO_MOVE) # r"D:\\Cyber\\YB_CYBER\\project\\FinalProject\\poc_start\\poc_start\\unrelated\\graphics"
@@ -209,7 +216,6 @@ def make_label(text, font_size):
 
     return label
 
-
 class Worker(QRunnable):
     def __init__(self, fn, *args, **kwargs):
         super(Worker, self).__init__()
@@ -322,6 +328,8 @@ class AppDemo(QMainWindow):
         self.directory_analysis.triggered.connect(self.show_directory_analysis)
 
         self.ip_analysis_action = QAction(QIcon("images/ip_analysis.png"), "Scan IP", self)
+        self.ip_analysis_action.triggered.connect(self.show_ip_analysis)
+
         self.about_action = QAction(QIcon("images/info-button.png"), "Info", self)
         self.settings_action = QAction(QIcon("images/settings.png"), "Change Settings", self)
 
@@ -484,16 +492,6 @@ class AppDemo(QMainWindow):
                 self.thread3.terminate()
                 self.thread4.terminate()
 
-            self.ip_analysis_label.deleteLater()
-            self.ip_button.deleteLater()
-            if self.movie_label_ip is not None:
-                self.show_label_ip = 1
-                self.description_for_ip_analysis.deleteLater()
-                self.movie_list_ip.deleteLater()
-                self.suspicious_ip.deleteLater()
-                self.movie_label_ip.deleteLater()
-                self.ip_thread.terminate()
-
             self.hash_layout.deleteLater()
 
         if self.dynamic_visited:
@@ -501,6 +499,7 @@ class AppDemo(QMainWindow):
             for widget in self.delete_funcs:
                 widget.deleteLater()
             self.grid_button_layout.deleteLater()
+            self.graph_button.deleteLater()
             self.dynamic_layout.deleteLater()
 
         if self.dir_visited:
@@ -515,13 +514,73 @@ class AppDemo(QMainWindow):
                 self.threadpool_vt.terminate()
                 self.dir_layout.deleteLater()
 
+        if self.ip_visited:
+            self.ip_analysis_label.deleteLater()
+            self.ip_button.deleteLater()
+            if self.movie_label_ip is not None:
+                self.show_label_ip = 1
+                self.description_for_ip_analysis.deleteLater()
+                self.movie_list_ip.deleteLater()
+                self.suspicious_ip.deleteLater()
+                self.movie_label_ip.deleteLater()
+                self.ip_thread.terminate()
+
+            self.ip_layout.deleteLater()
+
+    def show_ip_analysis(self):
+
+        self.clearLayout()
+        self.dir_visited = False
+        self.static_visited = False
+        self.hash_visited = False
+        self.dynamic_visited = False
+        self.ip_visited = True
+
+        # Set the style sheet
+        scan_dir_style_sheet = """
+             QPushButton {
+                 background-color: #E7E7FA;
+                 color: #000080;
+                 border: 2px solid #9400D3;
+                 font: bold 25px;
+                 min-width: 80px;
+                 margin: 5px;
+                 margin-bottom: 10px;
+                 padding: 10px;
+             }
+
+             QPushButton:hover {
+                 background-color: #D8BFD8;
+                 color: #4B0082;
+             }
+
+             QPushButton:pressed {
+                 background-color: #DDA0DD;
+                 color: #8B008B;
+             }
+         """
+
+        # IP analysis
+        self.ip_layout = QVBoxLayout()
+        self.ip_analysis_label = make_label("IP Analysis", 24)
+        self.ip_layout.addWidget(self.ip_analysis_label)
+
+        self.ip_button = QPushButton("Scan network for suspicious used IP's")
+        self.ip_button.setStyleSheet(scan_dir_style_sheet)
+
+        self.show_analysis_label = 1
+        self.ip_button.clicked.connect(self.ip_analysis)
+        self.ip_button.setMaximumSize(550, 250)
+        self.ip_layout.addWidget(self.ip_button)
+        self.page_layout.addLayout(self.ip_layout)
+
     def show_directory_analysis(self):
 
         self.clearLayout()
         self.hash_visited = False
         self.static_visited = False
         self.dynamic_visited = False
-        # TODO - fix and show without hash_analysis
+        self.ip_visited = False
 
         self.show_label = 1
         self.dir_layout = QVBoxLayout()
@@ -532,30 +591,31 @@ class AppDemo(QMainWindow):
 
         # Set the style sheet
         scan_dir_style_sheet = """
-        QPushButton {
-            font-size: 18pt;
-            font-weight: bold;
-            color: #fff;
-            background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
-                                        stop: 0 #9933ff, stop: 1 #6600cc);
-            border: 2px solid #6600cc;
-            border-radius: 10px;
-            padding: 10px;
-            min-width: 100px;
-            min-height: 50px;
-        }
-        QPushButton:hover {
-            background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
-                                        stop: 0 #b366ff, stop: 1 #8000ff);
-        }
-        QPushButton:pressed {
-            background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
-                                        stop: 0 #cc99ff, stop: 1 #9933ff);
-        }
+            QPushButton {
+                background-color: #E7E7FA;
+                color: #000080;
+                border: 2px solid #9400D3;
+                font: bold 25px;
+                min-width: 80px;
+                margin: 5px;
+                margin-bottom: 10px;
+                padding: 10px;
+            }
+
+            QPushButton:hover {
+                background-color: #D8BFD8;
+                color: #4B0082;
+            }
+
+            QPushButton:pressed {
+                background-color: #DDA0DD;
+                color: #8B008B;
+            }
         """
         self.scan_dir_button = QPushButton('Scan Dir for viruses')
         self.scan_dir_button.setStyleSheet(scan_dir_style_sheet)
-        self.scan_dir_button.setMaximumSize(300, 50)
+        self.scan_dir_button.setMaximumSize(300, 100)
+        self.scan_dir_button.setMinimumSize(300, 100)
         self.scan_dir_button.clicked.connect(self.scan_dir)
         self.dir_layout.addWidget(self.scan_dir_button)
         self.dir_visited = True
@@ -721,6 +781,7 @@ class AppDemo(QMainWindow):
         self.static_visited = False
         self.hash_visited = False
         self.dir_visited = False
+        self.ip_visited = False
 
         self.scroll = QScrollArea()  # Scroll Area which contains the widgets, set as the centralWidget
         self.widget = QWidget()  # Widget that contains the collection of Vertical Box
@@ -908,6 +969,7 @@ class AppDemo(QMainWindow):
         self.hash_visited = False
         self.dynamic_visited = False
         self.dir_visited = False
+        self.ip_visited = False
 
         # self.page_layout.addLayout(self.btn_layout)
         self.static_button.setEnabled(False)
@@ -1174,7 +1236,30 @@ class AppDemo(QMainWindow):
             # self.bubble.hide()
 
         self.packers_widget.setMinimumSize(450, 200)
-        self.packers_widget.setStyleSheet(self.list_widget_style_sheet)
+        self.packers_widget.setStyleSheet("""
+            QListWidget {
+                background-color: #333;
+                border: 1px solid #ccc;
+                border-radius: 5px;
+                outline: none;
+                margin: 5px;
+                font-size: 20ע
+            }
+            QListWidget::item {
+                border: none;
+                padding: 10px;
+                font: 18px;
+                font-weight: 500;
+                color: #87CEFA;
+            }
+            QListWidget::item[role=highlight] {
+                color: red;
+            }
+            
+            QListWidget::item:hover {
+                background-color: #555;
+            }
+            """)
         self.packers_widget.setVerticalScrollBar(scrollBarPackers)
         self.table_and_strings_layout.addWidget(self.packers_label)
         self.table_and_strings_layout.addWidget(self.packers_widget)
@@ -1278,7 +1363,7 @@ class AppDemo(QMainWindow):
         self.list_widget_for_fractioned = QListWidget()
         self.list_widget_for_fractioned.setMaximumSize(300, 125)
         self.list_widget_for_fractioned.setMinimumSize(300, 125)
-        self.list_widget_for_fractioned.addItems(["item1", "item2"])
+        self.list_widget_for_fractioned.addItems(fractioned)
         self.v_box_for_fractioned.addWidget(self.list_widget_for_fractioned)
         self.fractioned.setLayout(self.v_box_for_fractioned)
 
@@ -1399,34 +1484,30 @@ class AppDemo(QMainWindow):
         self.show_movie()
 
         self.suspicious_paths = QListWidget()
-        list_widget_style_sheet = """
-             QListWidget {
-                 background-color: #f5f5f5;
-                 border: 1px solid #ccc;
-                 border-radius: 5px;
-                 outline: none;
-                 margin: 20px;
-                 font-size: 20px;
-             }
-
-             QListWidget::item {
-                 color: #444;
-                 border: none;
-                 padding: 10px;
-                 font-size: 18px;
-                 font-weight: 500;
-             }
-
-             QListWidget::item:hover {
-                 background-color: #eee;
-             }
-
-             QListWidget::item:selected {
-                 background-color: #333;
-                 color: #fff;
-             }
-         """
-        self.suspicious_paths.setStyleSheet(list_widget_style_sheet)
+        self.suspicious_paths.setStyleSheet("""
+            QListWidget {
+                background-color: #333;
+                border: 1px solid #ccc;
+                border-radius: 5px;
+                outline: none;
+                margin: 5px;
+                font-size: 20ע
+            }
+            QListWidget::item {
+                border: none;
+                padding: 10px;
+                font: 18px;
+                font-weight: 500;
+                color: #87CEFA;
+            }
+            QListWidget::item[role=highlight] {
+                color: red;
+            }
+            
+            QListWidget::item:hover {
+                background-color: #555;
+            }
+            """)
 
         scrollBarPaths = QScrollBar()
         scrollBarPaths.setOrientation(Qt.Vertical)
@@ -1486,7 +1567,7 @@ class AppDemo(QMainWindow):
             self.description_for_search = make_label("Now, if a file was found malicious by more than 5 engines\n"
                                                      "it will be shown on the screen to your right", 15)
             self.dir_layout.insertWidget(self.dir_layout.indexOf(self.scan_dir_button) + 1,
-                                          self.description_for_search)
+                                         self.description_for_search)
 
             # Create the QLabel
             self.movie_label = QLabel()
@@ -1575,7 +1656,8 @@ class AppDemo(QMainWindow):
 
         self.fuzzy_spin.addWidget(fuzzy_label)
         self.fuzzy_spin.addWidget(spin_box)
-        self.hash_layout.insertLayout(self.hash_layout.indexOf(self.ip_analysis_label), self.fuzzy_spin)
+        # self.hash_layout.insertLayout(self.hash_layout.indexOf(self.ip_analysis_label), self.fuzzy_spin)
+        self.hash_layout.addLayout(self.fuzzy_spin)
         self.delete_widgets = [spin_box, fuzzy_label]
 
         h1 = ppdeep.hash_from_file("virus.exe")
@@ -1633,7 +1715,7 @@ class AppDemo(QMainWindow):
                 "it will be shown on the list to your right\n"
                 "And you will be blocked from using it", 15)
 
-            self.hash_layout.addWidget(self.description_for_ip_analysis)
+            self.ip_layout.addWidget(self.description_for_ip_analysis)
 
             # Create the QLabel
             self.movie_label_ip = QLabel()
@@ -1652,11 +1734,39 @@ class AppDemo(QMainWindow):
             self.ip_thread.run = self.activate_vt_scan_ip
 
             self.suspicious_ip = QListWidget()
-            self.suspicious_ip.setStyleSheet(self.list_widget_style_sheet)
+            self.suspicious_ip.setStyleSheet("""
+            QListWidget {
+                background-color: #333;
+                border: 1px solid #ccc;
+                border-radius: 5px;
+                outline: none;
+                margin: 5px;
+                font-size: 20ע
+            }
+            QListWidget::item {
+                border: none;
+                padding: 10px;
+                font: 18px;
+                font-weight: 500;
+                color: #87CEFA;
+            }
+            QListWidget::item[role=highlight] {
+                color: red;
+            }
+            
+            QListWidget::item:hover {
+                background-color: #555;
+            }
+
+            QListWidget::item:selected {
+                background-color: #777;
+            }
+        """)
             self.suspicious_ip.setMaximumSize(350, 350)
             self.movie_list_ip.addWidget(self.suspicious_ip)
-            self.hash_layout.addLayout(self.movie_list_ip)
+            self.ip_layout.addLayout(self.movie_list_ip)
             self.ip_thread.start()
+            self.ip_visited = True
 
     def hash_analysis(self):
 
@@ -1665,6 +1775,7 @@ class AppDemo(QMainWindow):
         self.static_visited = False
         self.dynamic_visited = False
         self.dir_visited = False
+        self.ip_visited = False
 
         self.hash_button.setDisabled(True)
         self.hash_layout = QVBoxLayout()
@@ -1909,13 +2020,6 @@ class AppDemo(QMainWindow):
                 color: #8B008B;
             }
         """
-        # self.scan_dir_button = QPushButton('Scan Dir for viruses')
-        # self.scan_dir_button.setStyleSheet(scan_dir_style_sheet)
-        # self.scan_dir_button.setMaximumSize(300, 50)
-        # self.scan_dir_button.clicked.connect(self.scan_dir)
-#
-        # self.show_label = 1
-        # self.hash_layout.addWidget(self.scan_dir_button)
 
         self.fuzzy_hash_label = make_label("Fuzzy Hashing Analysis", 24)
         self.fuzzy_hash_button = QPushButton("Scan Virus With Fuzzy Hashing")
@@ -1925,18 +2029,6 @@ class AppDemo(QMainWindow):
         self.hash_layout.addWidget(self.fuzzy_hash_button)
 
         self.fuzzy_hash_button.clicked.connect(self.fuzzy_scanning)
-
-        # IP analysis
-        self.ip_analysis_label = make_label("IP Analysis", 24)
-        self.hash_layout.addWidget(self.ip_analysis_label)
-
-        self.ip_button = QPushButton("Scan network for suspicious used IP's")
-        self.ip_button.setStyleSheet(scan_dir_style_sheet)
-
-        self.show_analysis_label = 1
-        self.ip_button.clicked.connect(self.ip_analysis)
-        self.ip_button.setMaximumSize(550, 250)
-        self.hash_layout.addWidget(self.ip_button)
 
         self.hash_visited = True
 
@@ -1948,6 +2040,7 @@ class AppDemo(QMainWindow):
         self.hash_visited = False
         self.dynamic_visited = True
         self.dir_visited = False
+        self.ip_visited = False
         self.dynamic_layout = QVBoxLayout()
         self.page_layout.addLayout(self.dynamic_layout)
         self.md5_hash = str(md5("virus.exe"))
@@ -2294,6 +2387,227 @@ class AppDemo(QMainWindow):
         self.redis_virus.hset(self.md5_hash, "identifies", pickle.dumps(identified_functions))
         self.redis_virus.print_key(self.md5_hash, "identifies", True)
 
+        # Function Graph
+        self.logs = []
+
+        for function in log_content.split("\n\n\n\n\n\n\n"):
+            func = 0
+            for line in [line for line in function.split("\n") if line != ""]:
+                if func == 0:
+                    function_name = line.replace("-", "").replace("intercepted call to ", "")
+                    func = 1
+                if "[%]" in line:
+                    cpu = float(line.split(" ")[-1])
+                if "Time difference" in line:
+                    time_differece = float(line.split(" ")[-1])
+                if "The number of times" in line:
+                    num_of_calls = float(line.split(" ")[-1])
+
+            # params = ['Time Difference', 'CPU Usage', 'Number of Calls']
+            self.logs.append({"function": function_name, "values": [time_differece, cpu, num_of_calls]})
+
+        class OverlayWindow(QMainWindow):
+            def __init__(self, layout, data, purpose):
+                super().__init__()
+                self.layout = layout
+                self.data = data
+                self.purpose = purpose
+                self.initUI()
+
+            def initUI(self):
+
+                self.setWindowFlags(QtCore.Qt.FramelessWindowHint | QtCore.Qt.WindowStaysOnTopHint)
+
+                # self.setAttribute(QtCore.Qt.WA_TranslucentBackground)
+
+                if self.purpose == "graph":
+
+                    self.layout = QVBoxLayout()
+
+                    # graph it out
+                    self.figure = plt.figure()
+                    self.canvas = FigureCanvas(self.figure)
+                    self.layout.addWidget(self.canvas)
+
+                    params = ['Time Difference', 'CPU Usage', 'Number of Calls']
+                    values = []
+                    functions = []
+                    grouped_logs = {}
+
+                    for log in self.data:
+
+                        if log['function'] in grouped_logs:
+                            grouped_logs[log['function']]['values'] = [sum(x) for x in
+                                                                       zip(grouped_logs[log['function']]['values'],
+                                                                           log['values'])]
+                            grouped_logs[log['function']]['count'] += 1
+
+                        else:
+                            grouped_logs[log['function']] = {
+                                'function': log['function'],
+                                'values': log['values'],
+                                'count': 1
+                            }
+
+                    for key, value in grouped_logs.items():
+                        functions.append(value['function'])
+                        values.append([x / value['count'] for x in value['values']])
+                    self.figure.clear()
+                    legend_patches = []
+
+                    colors = [cc.rainbow[i * 15] for i in range(17)]
+
+                    for i in range(len(params)):
+                        ax = self.figure.add_subplot(1, 3, i + 1)
+                        bar_width = 0.05
+                        for j, value in enumerate(values):
+                            x = np.arange(1)
+                            bar = ax.bar(x + j * bar_width, value[i], bar_width, color=colors[j])
+                            if i == 0:
+                                legend_patches.append(bar[0])
+                        ax.set_xticks(x)
+                        ax.set_xticklabels([params[i]])
+
+                    self.figure.legend(handles=legend_patches, labels=functions, fontsize=10, ncol=1, loc='upper left',
+                                       bbox_to_anchor=(0, 1), frameon=False)
+                    self.canvas.draw()
+
+                central_widget = QWidget(self)
+                central_widget.setLayout(self.layout)
+                self.setCentralWidget(central_widget)
+                self.resize(1650, 800)
+                # self.setLayout(self.dynamic_analysis_layout)
+
+                self.scroll = QScrollArea()  # Scroll Area which contains the widgets, set as the centralWidget
+                self.widget = QWidget()  # Widget that contains the collection of Vertical Box
+                self.scroll.setStyleSheet("""
+                QScrollArea {
+                  boarder-radius: 20px;
+                  background-color: black;
+                }
+
+                *, *::before, *::after{
+                boarder-radius:20px;
+                }
+
+                QScrollArea QScrollBar {
+                  /* Styles for all scrollbars */
+                  border-radius: 100px;
+                  background-color: #e6b3ff;
+                }
+
+                QScrollArea QScrollBar::handle {
+                  /* Styles for the handle (draggable part) of the scrollbar */
+                  background-color: #d99eff;
+                  border-radius: 20px;
+                }
+
+                QScrollArea QScrollBar::add-line,
+                QScrollArea QScrollBar::sub-line {
+                  /* Styles for the buttons on the scrollbar */
+                  width: 0;
+                  height: 0;
+                  border-color: transparent;
+                  background-color: transparent;
+                }
+
+                QScrollArea QScrollBar:vertical {
+                  /* Styles for vertical scrollbars */
+                  border-top-right-radius: 20px;
+                  border-bottom-right-radius: 20px;
+                }
+
+                QScrollArea QScrollBar:horizontal {
+                  /* Styles for horizontal scrollbars */
+                  border-top-left-radius: 20px;
+                  border-top-right-radius: 20px;
+                }
+
+                QScrollArea QScrollBar:left-arrow,
+                QScrollArea QScrollBar:right-arrow,
+                QScrollArea QScrollBar:up-arrow,
+                QScrollArea QScrollBar:down-arrow {
+                  /* Styles for the buttons on the scrollbar */
+                  border-radius: 20px;
+                  background-color: #e6b3ff;
+                }
+
+                QScrollArea QScrollBar:vertical:increment,
+                QScrollArea QScrollBar:vertical:decrement,
+                QScrollArea QScrollBar:horizontal:increment,
+                QScrollArea QScrollBar:horizontal:decrement {
+                  /* Styles for the buttons on the scrollbar */
+                  border-radius: 20px;
+                  background-color: #e6b3ff;
+                }
+
+                QScrollArea QScrollBar:vertical:increment:pressed,
+                QScrollArea QScrollBar:vertical:decrement:pressed,
+                QScrollArea QScrollBar:horizontal:increment:pressed,
+                QScrollArea QScrollBar:horizontal:decrement:pressed {
+                  /* Styles for the buttons on the scrollbar when pressed */
+                  border-radius: 20px;
+                  background-color: #b366ff;
+                }
+                """)
+
+                self.container = QGroupBox()
+                # self.widget.setLayout(self.page_layout)
+                self.container.setLayout(self.layout)
+
+                # Scroll Area Properties
+                self.scroll.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOn)
+                self.scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+                self.scroll.setWidgetResizable(True)
+                self.scroll.setWidget(self.container)
+                self.setCentralWidget(self.scroll)
+
+                close_button = QPushButton('X', self.container)
+                close_button.setFixedSize(30, 30)
+                close_button.clicked.connect(self.close)
+
+                self.show()
+
+            def mousePressEvent(self, event):
+                self.offset = event.pos()
+
+            def mouseMoveEvent(self, event):
+                x = event.globalX()
+                y = event.globalY()
+                x_w = self.offset.x()
+                y_w = self.offset.y()
+                self.move(x - x_w, y - y_w)
+
+        self.graph_button = QPushButton("Press to see graph of functions")
+        self.graph_button.setMaximumSize(450, 70)
+
+        def send_to_graph():
+            self.overlay = OverlayWindow(self.dynamic_layout, self.logs, "graph")
+
+        self.graph_button.clicked.connect(lambda: send_to_graph())
+        self.graph_button.setStyleSheet("""
+             QPushButton {
+                 background-color: #E7E7FA;
+                 color: #000080;
+                 border: 2px solid #9400D3;
+                 font: bold 25px;
+                 min-width: 80px;
+                 margin: 5px;
+                 margin-bottom: 10px;
+                 padding: 10px;
+             }
+
+             QPushButton:hover {
+                 background-color: #D8BFD8;
+                 color: #4B0082;
+             }
+
+             QPushButton:pressed {
+                 background-color: #DDA0DD;
+                 color: #8B008B;
+             }
+         """)
+        self.dynamic_layout.addWidget(self.graph_button)
 
 app = QApplication(sys.argv)
 app.setStyleSheet(qss)
