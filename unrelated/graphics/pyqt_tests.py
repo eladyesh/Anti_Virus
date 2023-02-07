@@ -2063,53 +2063,131 @@ class AppDemo(QMainWindow):
                         if self.function == line.replace("-", "").replace("intercepted call to ", ""):
                             self.new_func_list.append(func)
                         break
-                print(self.new_func_list)
 
                 self.dynamic_analysis_layout = QVBoxLayout()
                 for function in self.new_func_list:
-                    frame_for_function = QFrame()
-                    frame_for_function.setFrameShape(QFrame.Box)
-                    frame_for_function.setStyleSheet("border: 4px solid purple; margin: 10px; border-radius: 25px;")
 
-                    # Get the width of the screen
-                    screen_width = QMainWindow().width()
+                    # frame_for_function = QFrame()
+                    # frame_for_function.setFrameShape(QFrame.Box)
+                    # frame_for_function.setStyleSheet("border: 4px solid purple; margin: 10px; border-radius: 25px;")
+                    #
+                    # # Get the width of the screen
+                    # screen_width = QMainWindow().width()
+                    #
+                    # # Set the maximum width of the QFrame to the width of the screen
+                    # frame_for_function.setMinimumSize(screen_width, 600)
+                    #
+                    # v_box_for_func = QVBoxLayout(frame_for_function)
+                    # v_box_for_func.setContentsMargins(0, 0, 0, 0)
+                    #
+                    # func = 0
+                    # for line in [line for line in function.split("\n") if line != ""]:
+                    #     if "-" in line:
+                    #         line = line.replace("-", "").replace("intercepted call to ", "")
+                    #
+                    #     if "Done" in line:
+                    #         continue
+                    #
+                    #     if func == 0:
+                    #         func_head_label = QLabel(line)
+                    #         func_head_label.setFont(QFont("Zapfino", 24))
+                    #         func_head_label.setStyleSheet("color: {}; border: none;".format(light_purple.name()))
+                    #         func_head_label.setFrameShape(QFrame.NoFrame)
+                    #         v_box_for_func.addWidget(func_head_label)
+                    #         func = 1
+                    #         continue
+                    #
+                    #     func_label = QLabel(line)
+                    #     func_label.setWordWrap(True)
+                    #     func_label.setFont(QFont("Zapfino", 12))
+                    #     func_label.setStyleSheet("color: {}; border: none;".format(light_purple.name()))
+                    #     # func_label.setFrameShape(QFrame.NoFrame)
+                    #     v_box_for_func.addWidget(func_label)
+                    #
+                    # self.dynamic_analysis_layout.addWidget(frame_for_function)
 
-                    # Set the maximum width of the QFrame to the width of the screen
-                    frame_for_function.setMinimumSize(screen_width, 600)
-
-                    v_box_for_func = QVBoxLayout(frame_for_function)
-                    v_box_for_func.setContentsMargins(0, 0, 0, 0)
-
+                    # Create the QTableView
+                    self.func_info = QTableView()
+                    data = []
+                    alerts = []
                     func = 0
                     for line in [line for line in function.split("\n") if line != ""]:
                         if "-" in line:
                             line = line.replace("-", "").replace("intercepted call to ", "")
 
-                        if "Done" in line:
+                        if "Done" in line or "Time difference" in line or "The number of times" in line or 'current cpu usage' in line:
+                            continue
+
+                        # alert
+                        if "!" in line and "EXE" in line or "Has passed" in line:
+                            alerts.append(line)
+                            print("alerts ========", alerts)
                             continue
 
                         if func == 0:
                             func_head_label = QLabel(line)
                             func_head_label.setFont(QFont("Zapfino", 24))
-                            func_head_label.setStyleSheet("color: {}; border: none;".format(light_purple.name()))
-                            func_head_label.setFrameShape(QFrame.NoFrame)
-                            v_box_for_func.addWidget(func_head_label)
+                            func_head_label.setStyleSheet("color: {}; border: none; margin:5px;".format(light_purple.name()))
+                            self.dynamic_analysis_layout.addWidget(func_head_label)
                             func = 1
                             continue
 
-                        func_label = QLabel(line)
-                        func_label.setWordWrap(True)
-                        func_label.setFont(QFont("Zapfino", 12))
-                        func_label.setStyleSheet("color: {}; border: none;".format(light_purple.name()))
-                        # func_label.setFrameShape(QFrame.NoFrame)
-                        v_box_for_func.addWidget(func_label)
+                        parts = line.rsplit(" ", 1)
+                        parts[0] = parts[0].replace("The", "").strip()
+                        data.append(parts)
 
-                    self.dynamic_analysis_layout.addWidget(frame_for_function)
+                    # Set the data
+                    model = TableModel(data)
+                    self.func_info.setModel(model)
+
+                    # Set the column widths
+                    self.func_info.setColumnWidth(0, 650)
+                    self.func_info.setColumnWidth(1, 300)
+
+                    # Set the row heights
+                    for row in range(model.rowCount()):
+                        self.func_info.setRowHeight(row, 35)
+
+                    # Set the style sheet and disable editing
+                    style_sheet = """
+                        QTableView {
+                            font-family: sans-serif;
+                            font-size: 18px;
+                            margin: 10px;
+                            color: #87CEFA;
+                            background-color: #333;
+                            border: 2px solid #444;
+                            gridline-color: #666;
+                        }
+                        QTableView::item {
+                            padding: 20px;
+                            margin: 20px;
+                            min-width: 100px;
+                            min-height: 20px;
+                            font-weight: bold;
+                        }
+                        QTableView::header {
+                            font-size: 24px;
+                            font-weight: bold;
+                            background-color: #444;
+                            border: 2px solid #555;
+                            min-height: 20px;
+                        }
+                    """
+
+                    self.func_info.setStyleSheet(style_sheet)
+                    self.func_info.setEditTriggers(QTableView.NoEditTriggers)
+
+                    # Allow the cells to be resized using the mouse
+                    self.func_info.horizontalHeader().setSectionsMovable(True)
+                    self.func_info.horizontalHeader().setSectionResizeMode(QHeaderView.Interactive)
+                    self.func_info.setMinimumSize(480, 240)
+                    self.dynamic_analysis_layout.addWidget(self.func_info)
 
                 central_widget = QWidget(self)
                 central_widget.setLayout(self.dynamic_analysis_layout)
                 self.setCentralWidget(central_widget)
-                self.resize(800, 600)
+                self.resize(1100, 500)
                 # self.setLayout(self.dynamic_analysis_layout)
 
                 self.scroll = QScrollArea()  # Scroll Area which contains the widgets, set as the centralWidget
@@ -2406,7 +2484,7 @@ class AppDemo(QMainWindow):
             # params = ['Time Difference', 'CPU Usage', 'Number of Calls']
             self.logs.append({"function": function_name, "values": [time_differece, cpu, num_of_calls]})
 
-        class OverlayWindow(QMainWindow):
+        class OverlayWindow_Graph(QMainWindow):
             def __init__(self, layout, data, purpose):
                 super().__init__()
                 self.layout = layout
@@ -2462,7 +2540,7 @@ class AppDemo(QMainWindow):
                         bar_width = 0.05
                         for j, value in enumerate(values):
                             x = np.arange(1)
-                            bar = ax.bar(x + j * bar_width, value[i], bar_width, color=colors[j])
+                            bar = ax.bar(x + j * bar_width + j * bar_width * 0.2, value[i], bar_width, color=colors[j], edgecolor='black')
                             if i == 0:
                                 legend_patches.append(bar[0])
                         ax.set_xticks(x)
@@ -2582,7 +2660,7 @@ class AppDemo(QMainWindow):
         self.graph_button.setMaximumSize(450, 70)
 
         def send_to_graph():
-            self.overlay = OverlayWindow(self.dynamic_layout, self.logs, "graph")
+            self.overlay = OverlayWindow_Graph(self.dynamic_layout, self.logs, "graph")
 
         self.graph_button.clicked.connect(lambda: send_to_graph())
         self.graph_button.setStyleSheet("""
@@ -2592,6 +2670,7 @@ class AppDemo(QMainWindow):
                  border: 2px solid #9400D3;
                  font: bold 25px;
                  min-width: 80px;
+                 margin-top: 20px;
                  margin: 5px;
                  margin-bottom: 10px;
                  padding: 10px;

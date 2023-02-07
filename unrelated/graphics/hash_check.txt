@@ -1,7 +1,7 @@
 Getting file info by ID: 5fffd3e69093dc32727214ba5c8f2af5
 
-malicious: 38
-undetected : 32
+malicious: 36
+undetected : 34
 
 ==================================================
 Lionic
@@ -9,7 +9,7 @@ version : 7.5
 category : malicious
 result : Riskware.Win32.Generic.1!c
 method : blacklist
-update : 20230206
+update : 20230207
 ==================================================
 
 
@@ -29,7 +29,7 @@ version : 14.0.409.0
 category : malicious
 result : Gen:Variant.Fugrafa.266878
 method : blacklist
-update : 20230206
+update : 20230207
 ==================================================
 
 
@@ -39,25 +39,35 @@ version : 35.24.1.0
 category : malicious
 result : Generic.mg.5fffd3e69093dc32
 method : blacklist
-update : 20230206
+update : 20230207
 ==================================================
 
 
 ==================================================
-McAfee
-version : 6.0.6.653
+ALYac
+version : 1.1.3.1
 category : malicious
-result : Artemis!5FFFD3E69093
+result : Gen:Variant.Fugrafa.266878
 method : blacklist
-update : 20230206
+update : 20230207
 ==================================================
 
 
 ==================================================
-Malwarebytes
-version : 4.4.4.52
+Cylance
+version : 2.3.1.101
 category : malicious
-result : Malware.AI.4196690213
+result : Unsafe
+method : blacklist
+update : 20230207
+==================================================
+
+
+==================================================
+VIPRE
+version : 6.0.0.35
+category : malicious
+result : Gen:Variant.Fugrafa.266878
 method : blacklist
 update : 20230206
 ==================================================
@@ -79,7 +89,7 @@ version : 2022.0.0.18
 category : malicious
 result : Trojan.Fugrafa.D4127E
 method : blacklist
-update : 20230206
+update : 20230207
 ==================================================
 
 
@@ -89,7 +99,7 @@ version : 6.5.1.2
 category : malicious
 result : W32/Tedy.H.gen!Eldorado
 method : blacklist
-update : 20230206
+update : 20230207
 ==================================================
 
 
@@ -99,17 +109,17 @@ version : 1.19.0.0
 category : malicious
 result : ML.Attribute.HighConfidence
 method : blacklist
-update : 20230205
+update : 20230207
 ==================================================
 
 
 ==================================================
 APEX
-version : 6.384
+version : 6.385
 category : malicious
 result : Malicious
 method : blacklist
-update : 20230204
+update : 20230207
 ==================================================
 
 
@@ -119,7 +129,7 @@ version : 0.9.0.1003
 category : malicious
 result : generic.ml
 method : blacklist
-update : 20230206
+update : 20230207
 ==================================================
 
 
@@ -129,7 +139,7 @@ version : 4.0.0.27
 category : malicious
 result : Malicious (score: 100)
 method : blacklist
-update : 20230206
+update : 20230207
 ==================================================
 
 
@@ -139,7 +149,7 @@ version : 7.2
 category : malicious
 result : Gen:Variant.Fugrafa.266878
 method : blacklist
-update : 20230206
+update : 20230207
 ==================================================
 
 
@@ -149,7 +159,17 @@ version : 22.11.7701.0
 category : malicious
 result : Win32:Malware-gen
 method : blacklist
-update : 20230206
+update : 20230207
+==================================================
+
+
+==================================================
+Rising
+version : 25.0.0.27
+category : malicious
+result : Trojan.Generic@AI.86 (RDML:RmnTNCv0jtvsFgof+9OZPQ)
+method : blacklist
+update : 20230207
 ==================================================
 
 
@@ -159,27 +179,7 @@ version : 2022.6.0.32461
 category : malicious
 result : Gen:Variant.Fugrafa.266878 (B)
 method : blacklist
-update : 20230206
-==================================================
-
-
-==================================================
-F-Secure
-version : 18.10.1137.128
-category : malicious
-result : Heuristic.HEUR/AGEN.1226917
-method : blacklist
-update : 20230206
-==================================================
-
-
-==================================================
-VIPRE
-version : 6.0.0.35
-category : malicious
-result : Gen:Variant.Fugrafa.266878
-method : blacklist
-update : 20230205
+update : 20230207
 ==================================================
 
 
@@ -189,17 +189,7 @@ version : v2019.1.2+3728
 category : malicious
 result : BehavesLike.Win32.BadFile.ct
 method : blacklist
-update : 20230206
-==================================================
-
-
-==================================================
-Sophos
-version : 2.1.2.0
-category : malicious
-result : Mal/Generic-R
-method : blacklist
-update : 20230205
+update : 20230207
 ==================================================
 
 
@@ -219,7 +209,7 @@ version : 8.3.3.16
 category : malicious
 result : HEUR/AGEN.1226917
 method : blacklist
-update : 20230206
+update : 20230207
 ==================================================
 
 
@@ -229,7 +219,7 @@ version : 3.0
 category : malicious
 result : Trojan/Win32.Wacatac
 method : blacklist
-update : 20230206
+update : 20230207
 ==================================================
 
 
@@ -239,7 +229,7 @@ version : 1.0.108.174
 category : malicious
 result : Ransom.Win32.Wacatac.oa!s2
 method : blacklist
-update : 20230206
+update : 20230207
 ==================================================
 
 
@@ -249,27 +239,27 @@ version : 1.1.19900.2
 category : malicious
 result : Trojan:Win32/Wacatac.B!ml
 method : blacklist
-update : 20230206
+update : 20230207
 ==================================================
 
 
 ==================================================
 GData
-version : A:25.35196B:27.30540
+version : A:25.35205B:27.30548
 category : malicious
 result : Gen:Variant.Fugrafa.266878
 method : blacklist
-update : 20230206
+update : 20230207
 ==================================================
 
 
 ==================================================
 Google
-version : 1675677639
+version : 1675764091
 category : malicious
 result : Detected
 method : blacklist
-update : 20230206
+update : 20230207
 ==================================================
 
 
@@ -284,12 +274,12 @@ update : 20221114
 
 
 ==================================================
-ALYac
-version : 1.1.3.1
+McAfee
+version : 6.0.6.653
 category : malicious
-result : Gen:Variant.Fugrafa.266878
+result : Artemis!5FFFD3E69093
 method : blacklist
-update : 20230206
+update : 20230207
 ==================================================
 
 
@@ -299,17 +289,17 @@ version : 2023.1.4.1
 category : malicious
 result : malware (ai score=80)
 method : blacklist
-update : 20230206
+update : 20230207
 ==================================================
 
 
 ==================================================
-Cylance
-version : 2.3.1.101
+Malwarebytes
+version : 4.4.4.52
 category : malicious
-result : Unsafe
+result : Malware.AI.4196690213
 method : blacklist
-update : 20230206
+update : 20230207
 ==================================================
 
 
@@ -319,17 +309,7 @@ version : 10.0.0.1040
 category : malicious
 result : TROJ_GEN.R002H0CK222
 method : blacklist
-update : 20230206
-==================================================
-
-
-==================================================
-Rising
-version : 25.0.0.27
-category : malicious
-result : Trojan.Generic@AI.95 (RDML:RmnTNCv0jtvsFgof+9OZPQ)
-method : blacklist
-update : 20230206
+update : 20230207
 ==================================================
 
 
@@ -339,7 +319,7 @@ version : 6.0.33.0
 category : malicious
 result : Trojan.Agent
 method : blacklist
-update : 20230206
+update : 20230207
 ==================================================
 
 
@@ -349,7 +329,7 @@ version : 1.0.0.1
 category : malicious
 result : Trojan.Malware.196653410.susgen
 method : blacklist
-update : 20230204
+update : 20230207
 ==================================================
 
 
@@ -359,7 +339,7 @@ version : 6.4.258.0
 category : malicious
 result : W32/PossibleThreat
 method : blacklist
-update : 20230206
+update : 20230207
 ==================================================
 
 
@@ -369,7 +349,7 @@ version : 22.11.7701.0
 category : malicious
 result : Win32:Malware-gen
 method : blacklist
-update : 20230206
+update : 20230207
 ==================================================
 
 
@@ -379,7 +359,7 @@ version : 4.6.4.2
 category : malicious
 result : Trj/Chgt.AD
 method : blacklist
-update : 20230205
+update : 20230206
 ==================================================
 
 
