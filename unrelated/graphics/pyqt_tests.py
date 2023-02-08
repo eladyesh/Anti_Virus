@@ -882,16 +882,28 @@ class AppDemo(QMainWindow):
         self.hash_button.clicked.connect(lambda: [self.hash_analysis()])
         self.dynamic_button.clicked.connect(lambda: [self.dynamic_analysis()])
 
+    def python_analysis(self):
+        # TODO - start thinking of python graphics
+        print("python file")
+
     def getSelectedItem(self):
         print("got here")
         item = QListWidgetItem(self.listbox_view.item(0))
         path = item.text()
 
         # TODO - take care of not exe
-        if Packers.programming_language(path) == "py":  # TODO - send to python check
-            pass
-        elif Packers.programming_language(path) is not True:  # TODO - take care of errors
-            pass
+        if Packers.programming_language(path) == "py":  # a python file
+            self.python_analysis()
+            return
+        elif Packers.programming_language(path) is not True:  # either not exe, or not written in the languages
+            msg = QMessageBox()
+            msg.setIcon(QMessageBox.Warning)
+            msg.setText("This file isn't in EXE format, please be aware of our rules and terms")
+            msg.setWindowTitle("Warning")
+            msg.setStandardButtons(QMessageBox.Ok | QMessageBox.Cancel)
+            result = msg.exec_()
+            return
+            # sys.exit(1)
 
         bytes = b""
 
@@ -2034,7 +2046,6 @@ class AppDemo(QMainWindow):
 
     def dynamic_analysis(self):
 
-        # TODO - think of the how to present each window of the function
         self.clearLayout()
         self.static_visited = False
         self.hash_visited = False
@@ -2058,6 +2069,10 @@ class AppDemo(QMainWindow):
 
                 # self.setAttribute(QtCore.Qt.WA_TranslucentBackground)
                 self.new_func_list = []
+                calls = {1: "First call", 2: "Second call", 3: "Third call", 4: "4th call", 5: "5th call",
+                         6: "6th call", 7: "7th call", 8: "8th call", 9: "9th call", 10: "10th call", 11: "11th call",
+                         12: "12th call", 13: "13th call", 14: "14th call", 15: "15th call", 16: "16th call",
+                         17: "17th call", 18: "18th call", 19: "19th call", 20: "20th call"}
                 for func in self.function_list:
                     for line in [line for line in func.split("\n") if line != ""]:
                         if self.function == line.replace("-", "").replace("intercepted call to ", ""):
@@ -2065,6 +2080,8 @@ class AppDemo(QMainWindow):
                         break
 
                 self.dynamic_analysis_layout = QVBoxLayout()
+                show_func_once = 1
+                func_index = 2
                 for function in self.new_func_list:
 
                     # frame_for_function = QFrame()
@@ -2121,20 +2138,36 @@ class AppDemo(QMainWindow):
                         # alert
                         if "!" in line and "EXE" in line or "Has passed" in line:
                             alerts.append(line)
-                            print("alerts ========", alerts)
                             continue
 
                         if func == 0:
-                            func_head_label = QLabel(line)
-                            func_head_label.setFont(QFont("Zapfino", 24))
-                            func_head_label.setStyleSheet("color: {}; border: none; margin:5px;".format(light_purple.name()))
-                            self.dynamic_analysis_layout.addWidget(func_head_label)
-                            func = 1
-                            continue
+                            if show_func_once == 1:
+                                func_head_label = QLabel(line)
+                                func_head_label.setFont(QFont("Zapfino", 24))
+                                func_head_label.setStyleSheet("color: #87CEFA; border: none; margin:5px;")
+                                self.dynamic_analysis_layout.addWidget(func_head_label)
+                                func = 1
+                                show_func_once = 0
+                                continue
+                            else:
+                                func_head_label = QLabel(calls[func_index])
+                                func_index += 1
+
+                                func_head_label.setFont(QFont("Zapfino", 24))
+                                func_head_label.setStyleSheet("color: #87CEFA; border: none; margin:5px;")
+                                self.dynamic_analysis_layout.addWidget(func_head_label)
+                                func = 1
+                                continue
+
 
                         parts = line.rsplit(" ", 1)
                         parts[0] = parts[0].replace("The", "").strip()
                         data.append(parts)
+
+                    for alert in alerts:
+                        label_alert = QLabel(alert)
+                        label_alert.setStyleSheet("QLabel {color: red; margin: 10px; font: bold 18px;}")
+                        self.dynamic_analysis_layout.addWidget(label_alert)
 
                     # Set the data
                     model = TableModel(data)
@@ -2181,7 +2214,8 @@ class AppDemo(QMainWindow):
                     # Allow the cells to be resized using the mouse
                     self.func_info.horizontalHeader().setSectionsMovable(True)
                     self.func_info.horizontalHeader().setSectionResizeMode(QHeaderView.Interactive)
-                    self.func_info.setMinimumSize(480, 240)
+                    # self.func_info.setMaximumSize(480, 240)
+                    self.func_info.setMinimumSize(len(data) * 8, len(data[0]) * 88)
                     self.dynamic_analysis_layout.addWidget(self.func_info)
 
                 central_widget = QWidget(self)

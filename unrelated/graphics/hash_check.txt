@@ -1,6 +1,6 @@
 Getting file info by ID: 5fffd3e69093dc32727214ba5c8f2af5
 
-malicious: 36
+malicious: 37
 undetected : 34
 
 ==================================================
@@ -8,6 +8,16 @@ Lionic
 version : 7.5
 category : malicious
 result : Riskware.Win32.Generic.1!c
+method : blacklist
+update : 20230207
+==================================================
+
+
+==================================================
+AVG
+version : 22.11.7701.0
+category : malicious
+result : Win32:Malware-gen
 method : blacklist
 update : 20230207
 ==================================================
@@ -69,7 +79,7 @@ version : 6.0.0.35
 category : malicious
 result : Gen:Variant.Fugrafa.266878
 method : blacklist
-update : 20230206
+update : 20230207
 ==================================================
 
 
@@ -84,12 +94,12 @@ update : 20230206
 
 
 ==================================================
-Arcabit
-version : 2022.0.0.18
+CrowdStrike
+version : 1.0
 category : malicious
-result : Trojan.Fugrafa.D4127E
+result : win/malicious_confidence_90% (W)
 method : blacklist
-update : 20230207
+update : 20220812
 ==================================================
 
 
@@ -108,6 +118,16 @@ Symantec
 version : 1.19.0.0
 category : malicious
 result : ML.Attribute.HighConfidence
+method : blacklist
+update : 20230207
+==================================================
+
+
+==================================================
+Cynet
+version : 4.0.0.27
+category : malicious
+result : Malicious (score: 100)
 method : blacklist
 update : 20230207
 ==================================================
@@ -134,16 +154,6 @@ update : 20230207
 
 
 ==================================================
-Cynet
-version : 4.0.0.27
-category : malicious
-result : Malicious (score: 100)
-method : blacklist
-update : 20230207
-==================================================
-
-
-==================================================
 BitDefender
 version : 7.2
 category : malicious
@@ -158,16 +168,6 @@ Avast
 version : 22.11.7701.0
 category : malicious
 result : Win32:Malware-gen
-method : blacklist
-update : 20230207
-==================================================
-
-
-==================================================
-Rising
-version : 25.0.0.27
-category : malicious
-result : Trojan.Generic@AI.86 (RDML:RmnTNCv0jtvsFgof+9OZPQ)
 method : blacklist
 update : 20230207
 ==================================================
@@ -194,12 +194,22 @@ update : 20230207
 
 
 ==================================================
-SentinelOne
-version : 23.1.0.5
+Ikarus
+version : 6.0.33.0
 category : malicious
-result : Static AI - Suspicious PE
+result : Trojan.Agent
 method : blacklist
-update : 20230111
+update : 20230207
+==================================================
+
+
+==================================================
+GData
+version : A:25.35207B:27.30550
+category : malicious
+result : Gen:Variant.Fugrafa.266878
+method : blacklist
+update : 20230207
 ==================================================
 
 
@@ -208,6 +218,16 @@ Avira
 version : 8.3.3.16
 category : malicious
 result : HEUR/AGEN.1226917
+method : blacklist
+update : 20230207
+==================================================
+
+
+==================================================
+MAX
+version : 2023.1.4.1
+category : malicious
+result : malware (ai score=80)
 method : blacklist
 update : 20230207
 ==================================================
@@ -225,9 +245,19 @@ update : 20230207
 
 ==================================================
 Gridinsoft
-version : 1.0.108.174
+version : 1.0.109.174
 category : malicious
 result : Ransom.Win32.Wacatac.oa!s2
+method : blacklist
+update : 20230207
+==================================================
+
+
+==================================================
+Arcabit
+version : 2022.0.0.18
+category : malicious
+result : Trojan.Fugrafa.D4127E
 method : blacklist
 update : 20230207
 ==================================================
@@ -244,18 +274,8 @@ update : 20230207
 
 
 ==================================================
-GData
-version : A:25.35205B:27.30548
-category : malicious
-result : Gen:Variant.Fugrafa.266878
-method : blacklist
-update : 20230207
-==================================================
-
-
-==================================================
 Google
-version : 1675764091
+version : 1675792872
 category : malicious
 result : Detected
 method : blacklist
@@ -284,16 +304,6 @@ update : 20230207
 
 
 ==================================================
-MAX
-version : 2023.1.4.1
-category : malicious
-result : malware (ai score=80)
-method : blacklist
-update : 20230207
-==================================================
-
-
-==================================================
 Malwarebytes
 version : 4.4.4.52
 category : malicious
@@ -314,12 +324,22 @@ update : 20230207
 
 
 ==================================================
-Ikarus
-version : 6.0.33.0
+Rising
+version : 25.0.0.27
 category : malicious
-result : Trojan.Agent
+result : Trojan.Generic@AI.86 (RDML:RmnTNCv0jtvsFgof+9OZPQ)
 method : blacklist
 update : 20230207
+==================================================
+
+
+==================================================
+SentinelOne
+version : 23.1.0.5
+category : malicious
+result : Static AI - Suspicious PE
+method : blacklist
+update : 20230111
 ==================================================
 
 
@@ -344,22 +364,12 @@ update : 20230207
 
 
 ==================================================
-AVG
-version : 22.11.7701.0
-category : malicious
-result : Win32:Malware-gen
-method : blacklist
-update : 20230207
-==================================================
-
-
-==================================================
 Panda
 version : 4.6.4.2
 category : malicious
 result : Trj/Chgt.AD
 method : blacklist
-update : 20230206
+update : 20230207
 ==================================================
 
 
