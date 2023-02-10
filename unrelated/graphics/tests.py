@@ -1,16 +1,26 @@
 import sys
-from PyQt5 import QtWidgets, QtGui
+import os
+from PyQt5.QtWidgets import QApplication, QMainWindow, QProgressBar
+import time
 
-app = QtWidgets.QApplication(sys.argv)
+class ProgressBarWindow(QMainWindow):
+    def _init_(self):
+        super()._init_()
 
-progress = QtWidgets.QProgressBar()
-progress.setRange(0, 100)
-progress.setValue(50)
+        self.progress = QProgressBar(self)
+        self.progress.setGeometry(30, 40, 200, 25)
 
-palette = progress.palette()
-palette.setColor(QtGui.QPalette.Highlight, QtGui.QColor(124,252,0))
-progress.setPalette(palette)
+        self.setCentralWidget(self.progress)
 
-progress.show()
+    def scanDirectory(self, path):
+        files = os.listdir(path)
+        num_files = len(files)
+        for i, file in enumerate(files):
+            time.sleep()
+            self.progress.setValue((i+1)/num_files * 100)
 
+app = QApplication(sys.argv)
+window = ProgressBarWindow()
+window.show()
+window.scanDirectory("")
 sys.exit(app.exec_())

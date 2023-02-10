@@ -216,6 +216,7 @@ def make_label(text, font_size):
 
     return label
 
+
 class Worker(QRunnable):
     def __init__(self, fn, *args, **kwargs):
         super(Worker, self).__init__()
@@ -522,6 +523,8 @@ class AppDemo(QMainWindow):
             if self.movie_label_ip is not None:
                 self.show_label_ip = 1
                 self.description_for_ip_analysis.deleteLater()
+                self.progress_bar_ip.deleteLater()
+                self.description_progress_ip.deleteLater()
                 self.movie_list_ip.deleteLater()
                 self.suspicious_ip.deleteLater()
                 self.movie_label_ip.deleteLater()
@@ -1371,9 +1374,20 @@ class AppDemo(QMainWindow):
         self.redis_virus.print_key(self.md5_hash, "fractioned_imports_test", True)
 
         self.fractioned = QGroupBox("Fractioned Imports")
+        title = QLabel("Fractioned Imports  <img src='images/info-32.png' width='20' height='20'>")
+        title.setStyleSheet(
+            "QLabel {margin: 0px; margin-left: 5px;}")
+        title.setToolTip("Another virus-typical behaviour is the introduction fractionated imports.\n Generally all "
+                         "imports are placed in one section, but if they are spread over different sections, "
+                         "they are called fractionated. \nSome viruses add imports deliberately to make sure they can "
+                         "use certain system APIs. \nThe fractioning is an unintended side-effect from placing the "
+                         "imports at a virus-convenient location that is usually not near the imports of the original "
+                         "file.")
+        self.fractioned.setTitle("")
         self.fractioned.setMinimumSize(300, 200)
         self.fractioned.setMaximumSize(400, 250)
         self.v_box_for_fractioned = QVBoxLayout()
+        self.v_box_for_fractioned.addWidget(title)
         self.list_widget_for_fractioned = QListWidget()
         self.list_widget_for_fractioned.setMaximumSize(300, 125)
         self.list_widget_for_fractioned.setMinimumSize(300, 125)
@@ -1387,11 +1401,25 @@ class AppDemo(QMainWindow):
         self.redis_virus.print_key(self.md5_hash, "rick_optional_linker_test", True)
 
         self.pe_linker = QGroupBox("PE Linker")
+        title_linker = QLabel("PE Linker  <img src='images/info-32.png' width='20' height='20'>")
+        title_linker.setStyleSheet(
+            "QLabel {margin: 0px; margin-left: 0px; margin-bottom: 30px; }")
+        title_linker.setToolTip("""Checks that the Rich and PE header linker versions do not conflict. Certain Rich Header ProdIDs correspond to
+linker versions Although they are undocumented, we have used prior research as well as our own to determine
+many of them There are likely more linker version ProdIDs that we have not identified If the linker versions
+conflict, this function returns INVALID
+This indicates that the Rich header or PE header has been modified
+If the Rich Header is present, a linker mismatch between the Rich Header linker and Optional Header linker
+version indicates manipulation of the headers. Since the Rich Header is a means to attribute samples to
+threat actors, malware authors might get the idea to swap the DOS Stub and Rich Header with those of other
+threat actor's samples""")
+        self.pe_linker.setTitle("")
         self.pe_linker.setMaximumSize(300, 200)
         self.v_box_for_pe_linker = QVBoxLayout()
+        self.v_box_for_pe_linker.addWidget(title_linker)
         self.label_for_pe_linker = QLabel(result)
         if result != "Valid":
-            self.label_for_pe_linker.setStyleSheet("QLabel { color: red }")
+            self.label_for_pe_linker.setStyleSheet("QLabel { color: red; margin-bottom: 30px; margin-top:0px;}")
         self.v_box_for_pe_linker.addWidget(self.label_for_pe_linker)
         self.pe_linker.setLayout(self.v_box_for_pe_linker)
 
@@ -1401,9 +1429,20 @@ class AppDemo(QMainWindow):
         self.redis_virus.print_key(self.md5_hash, "sections_test", True)
 
         self.suspicious_imports = QGroupBox("Suspicious Imports")
+        title = QLabel("Suspicious Imports  <img src='images/info-32.png' width='20' height='20'>")
+        title.setStyleSheet(
+            "QLabel { margin-top: 10px; margin-left: 5px; margin-bottom: 10px;}")
+        title.setToolTip("""Patches in the Section Table
+A prominent red flag for non-packed files is the presence of write and execute characteristics in a section
+Most of the time write and execute characteristics do not appear together in a section in non-packed files,
+whereas it is rather typical for packed files.
+The presence of both means the code itself can be changed dynamically
+        """)
+        self.suspicious_imports.setTitle("")
         self.suspicious_imports.setMinimumSize(200, 200)
         self.suspicious_imports.setMaximumSize(400, 250)
         self.v_box_for_suspicious_imports = QVBoxLayout()
+        self.v_box_for_suspicious_imports.addWidget(title)
         self.list_widget_for_suspicious_imports = QListWidget()
         self.list_widget_for_suspicious_imports.setMaximumSize(300, 125)
         self.list_widget_for_suspicious_imports.setMinimumSize(300, 125)
@@ -1446,12 +1485,13 @@ class AppDemo(QMainWindow):
                     background-color: #333;
                     border: 1px solid #ccc;
                     border-radius: 5px;
-                    margin-top: 10px;
                     outline: none;
-                    margin: 20px;
+                    margin: 10px;
                     color: #87CEFA; 
                     font-size: 16px;
                     font-weight: 500;
+                    margin-bottom: 40px;
+                    margin-top: 5px;
                 }
 
                 QListWidget::item {
@@ -1483,12 +1523,12 @@ class AppDemo(QMainWindow):
 
     def activate_vt_scan_dir(self):
 
-        for path in VTScan.scan_directory(self.dir):
+        for path in VTScan.scan_directory(self.dir, self.progress_bar_dir):
             self.suspicious_paths.addItem(str(path))
 
     def activate_vt_scan_ip(self):
 
-        for ip in VTScan.scan_for_suspicious_cache():
+        for ip in VTScan.scan_for_suspicious_cache(self.progress_bar_ip):
             self.suspicious_ip.addItem(str(ip))
 
     def scan_dir(self):
@@ -1579,13 +1619,14 @@ class AppDemo(QMainWindow):
 
         if self.show_label == 1:
             self.description_progress = QHBoxLayout()
-            self.description_for_search = make_label("Now, if a file was found malicious by more than 5 engines\n"
+            self.description_for_search = make_label("If a file was found malicious by more than 5 engines\n"
                                                      "it will be shown on the screen to your right", 15)
 
             self.progress_bar_dir = QProgressBar()
             self.progress_bar_dir.setRange(0, 100)
-            self.progress_bar_dir.setValue(50)
-            self.progress_bar_dir.setMaximumSize(250, 10)
+            self.progress_bar_dir.setMaximumSize(350, 20)
+            self.progress_bar_dir.setMinimumSize(300, 20)
+            self.progress_bar_dir.setStyleSheet("QProgressBar { font: bold 18px; } ")
 
             palette = self.progress_bar_dir.palette()
             palette.setColor(QtGui.QPalette.Highlight, QtGui.QColor(124, 252, 0))
@@ -1737,12 +1778,27 @@ class AppDemo(QMainWindow):
     def ip_analysis(self):
 
         if self.show_analysis_label == 1:
+            self.description_progress_ip = QHBoxLayout()
+
+            self.progress_bar_ip = QProgressBar()
+            self.progress_bar_ip = QProgressBar()
+            self.progress_bar_ip.setRange(0, 100)
+            self.progress_bar_ip.setMaximumSize(350, 20)
+            self.progress_bar_ip.setMinimumSize(300, 20)
+            self.progress_bar_ip.setStyleSheet("QProgressBar { font: bold 18px; } ")
+
+            palette = self.progress_bar_ip.palette()
+            palette.setColor(QtGui.QPalette.Highlight, QtGui.QColor(124, 252, 0))
+            self.progress_bar_ip.setPalette(palette)
+
             self.description_for_ip_analysis = make_label(
                 "Now, if a website was found malicious by more than 5 engines\n"
                 "it will be shown on the list to your right\n"
                 "And you will be blocked from using it", 15)
 
-            self.ip_layout.addWidget(self.description_for_ip_analysis)
+            self.description_progress_ip.addWidget(self.description_for_ip_analysis)
+            self.description_progress_ip.addWidget(self.progress_bar_ip)
+            self.ip_layout.addLayout(self.description_progress_ip)
 
             # Create the QLabel
             self.movie_label_ip = QLabel()
@@ -2590,7 +2646,8 @@ class AppDemo(QMainWindow):
                         bar_width = 0.05
                         for j, value in enumerate(values):
                             x = np.arange(1)
-                            bar = ax.bar(x + j * bar_width + j * bar_width * 0.2, value[i], bar_width, color=colors[j], edgecolor='black')
+                            bar = ax.bar(x + j * bar_width + j * bar_width * 0.2, value[i], bar_width, color=colors[j],
+                                         edgecolor='black')
                             if i == 0:
                                 legend_patches.append(bar[0])
                         ax.set_xticks(x)
@@ -2737,6 +2794,7 @@ class AppDemo(QMainWindow):
              }
          """)
         self.dynamic_layout.addWidget(self.graph_button)
+
 
 app = QApplication(sys.argv)
 app.setStyleSheet(qss)
