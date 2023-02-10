@@ -2,7 +2,7 @@ import sys, os
 from PyQt5.QtWidgets import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
-from PyQt5 import QtCore
+from PyQt5 import QtCore, QtGui
 from PyQt5.QtCore import Qt, QUrl, pyqtSlot, QRunnable, QThreadPool, QVariant, QAbstractTableModel, QRectF
 import PyQt5.QtGui
 from PyQt5.QtCore import QObject, QThread, pyqtSignal
@@ -509,6 +509,8 @@ class AppDemo(QMainWindow):
                 self.movie_label.deleteLater()
                 self.show_label = 1
                 self.description_for_search.deleteLater()
+                self.progress_bar_dir.deleteLater()
+                self.description_progress.deleteLater()
                 self.movie_list.deleteLater()
                 self.suspicious_paths.deleteLater()
                 self.threadpool_vt.terminate()
@@ -1568,7 +1570,7 @@ class AppDemo(QMainWindow):
         self.suspicious_paths.setVerticalScrollBar(scrollBarPaths)
         self.suspicious_paths.setMaximumSize(550, 350)
         self.movie_list.addWidget(self.suspicious_paths)
-        self.dir_layout.insertLayout(self.dir_layout.indexOf(self.description_for_search) + 1, self.movie_list)
+        self.dir_layout.insertLayout(self.dir_layout.indexOf(self.description_progress) + 1, self.movie_list)
 
         self.threadpool_vt.run = self.activate_vt_scan_dir
         self.threadpool_vt.start()
@@ -1576,10 +1578,23 @@ class AppDemo(QMainWindow):
     def show_movie(self):
 
         if self.show_label == 1:
+            self.description_progress = QHBoxLayout()
             self.description_for_search = make_label("Now, if a file was found malicious by more than 5 engines\n"
                                                      "it will be shown on the screen to your right", 15)
-            self.dir_layout.insertWidget(self.dir_layout.indexOf(self.scan_dir_button) + 1,
-                                         self.description_for_search)
+
+            self.progress_bar_dir = QProgressBar()
+            self.progress_bar_dir.setRange(0, 100)
+            self.progress_bar_dir.setValue(50)
+            self.progress_bar_dir.setMaximumSize(250, 10)
+
+            palette = self.progress_bar_dir.palette()
+            palette.setColor(QtGui.QPalette.Highlight, QtGui.QColor(124, 252, 0))
+            self.progress_bar_dir.setPalette(palette)
+
+            self.description_progress.addWidget(self.description_for_search)
+            self.description_progress.addWidget(self.progress_bar_dir)
+            self.dir_layout.insertLayout(self.dir_layout.indexOf(self.scan_dir_button) + 1,
+                                         self.description_progress)
 
             # Create the QLabel
             self.movie_label = QLabel()
@@ -2144,7 +2159,7 @@ class AppDemo(QMainWindow):
                             if show_func_once == 1:
                                 func_head_label = QLabel(line)
                                 func_head_label.setFont(QFont("Zapfino", 24))
-                                func_head_label.setStyleSheet("color: #87CEFA; border: none; margin:5px;")
+                                func_head_label.setStyleSheet("color: #1E90FF; border: none; margin:5px;")
                                 self.dynamic_analysis_layout.addWidget(func_head_label)
                                 func = 1
                                 show_func_once = 0
@@ -2153,12 +2168,11 @@ class AppDemo(QMainWindow):
                                 func_head_label = QLabel(calls[func_index])
                                 func_index += 1
 
-                                func_head_label.setFont(QFont("Zapfino", 24))
+                                func_head_label.setFont(QFont("Zapfino", 16))
                                 func_head_label.setStyleSheet("color: #87CEFA; border: none; margin:5px;")
                                 self.dynamic_analysis_layout.addWidget(func_head_label)
                                 func = 1
                                 continue
-
 
                         parts = line.rsplit(" ", 1)
                         parts[0] = parts[0].replace("The", "").strip()
@@ -2215,7 +2229,9 @@ class AppDemo(QMainWindow):
                     self.func_info.horizontalHeader().setSectionsMovable(True)
                     self.func_info.horizontalHeader().setSectionResizeMode(QHeaderView.Interactive)
                     # self.func_info.setMaximumSize(480, 240)
-                    self.func_info.setMinimumSize(len(data) * 8, len(data[0]) * 88)
+                    self.func_info.resizeColumnsToContents()
+                    self.func_info.resizeRowsToContents()
+                    self.func_info.setMinimumSize(0, self.func_info.sizeHint().height() * len(data[0]))
                     self.dynamic_analysis_layout.addWidget(self.func_info)
 
                 central_widget = QWidget(self)
