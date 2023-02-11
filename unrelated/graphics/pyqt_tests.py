@@ -2430,138 +2430,210 @@ The presence of both means the code itself can be changed dynamically
         suspect_functions = []
         identified_functions = []
         has_passed_cpu_functions = []
-        for function in log_content.split("\n\n\n\n\n\n\n"):
+
+        self.tree_functions = QTreeWidget()
+        self.tree_functions.setMinimumSize(500, 500)
+        self.tree_functions.setStyleSheet("""
+                    QTreeView {
+                        font-family: sans-serif;
+                        font-size: 14px;
+                        color: #87CEFA;
+                        background-color: #333;
+                        border: 2px solid #444;
+                        gridline-color: #666;
+                        margin-top: 10px;
+                        margin-bottom: 10px;
+                    }
+
+                    QTreeView::branch:has-children:!has-siblings:closed,
+                    QTreeView::branch:closed:has-children:has-siblings {
+                        border-image: none;
+                        color: #87CEFA;
+                    }
+
+                    QTreeView::branch:has-children:!has-siblings:open,
+                    QTreeView::branch:open:has-children:has-siblings  {
+                        border-image: none;
+                        color: #87CEFA;
+                    }
+
+                    QTreeView::branch:selected {
+                        color: white;
+                    }
+
+                    QTreeView::indicator {
+                        color: #87CEFA;
+                    }
+
+                    QTreeView::item {
+                        padding: 5px;
+                        margin: 1px;
+                    }
+
+                    QTreeView::item:hover {
+                        background-color: #555;
+                    }
+
+                    QTreeView::item:selected {
+                        background-color: #777;
+                    }
+                    QTableWidget::item:selected:active {
+                        background-color: #999;
+                    }
+                    QTableWidget::item:selected:!active {
+                        background-color: #bbb;
+                    }
+
+                """)
+
+        self.tree_functions.setHeaderLabel("Logged Functions")
+        self.data_for_function = dict({}) # index, data
+
+        def handle_item_click(item):
+            if item.childCount() == 0 and not item.parent():
+                func_data = self.data_for_function[self.tree_functions.indexOfTopLevelItem(item)]
+
+                alerts = []
+                data = []
+                for line in [line for line in func_data.split("\n") if line != ""]:
+
+                    if "-" in line:
+
+                        line = line.replace("-", "")
+                        if "IDENTIFIED" in line:
+                            alerts.append(line)
+
+                        continue
+
+                    if "Done" in line or "Time difference" in line or "The number of times" in line or 'current cpu usage' in line:
+                        continue
+
+                    # alert
+                    if "!" in line and "EXE" in line or "Has passed" in line:
+                        alerts.append(line)
+                        continue
+
+                    data.append(line)
+
+                for alert in alerts:
+
+                    info_item = QTreeWidgetItem(item, [alert])
+                    red = QBrush(Qt.red)
+
+                    info_item.setForeground(0, red)
+
+                    # Add similar conditions for other functions
+                    item.addChild(info_item)
+
+                for line in data:
+
+                    info_item = QTreeWidgetItem(item, [line])
+
+                    # Add similar conditions for other functions
+                    item.addChild(info_item)
+
+        self.tree_functions.itemClicked.connect(handle_item_click)
+
+        for index, function in enumerate(log_content.split("\n\n\n\n\n\n\n")):
+
+            lines = [line for line in function.split("\n") if line != ""]
+            func_header = lines[0].replace("-", "").replace("intercepted call to ", "")
+            item = QTreeWidgetItem(self.tree_functions, [func_header])
+            self.data_for_function[index] = function
 
             suspicious_marks, has_passed_cpu = function.count("suspicious"), function.count("Has passed permitted cpu")
             if suspicious_marks > 0:
                 lines = [line for line in function.split("\n") if line != ""]
                 func_header = lines[0].replace("-", "").replace("intercepted call to ", "")
+
+                red = QBrush(Qt.red)
+                item.setForeground(0, red)
+
                 suspect_functions.append(func_header)
 
             if has_passed_cpu > 0:
                 lines = [line for line in function.split("\n") if line != ""]
                 func_header = lines[0].replace("-", "").replace("intercepted call to ", "")
                 has_passed_cpu_functions.append(func_header)
+
             if "IDENTIFIED" in function:
                 lines = [line for line in function.split("\n") if line != ""]
                 func_header = lines[0].replace("-", "").replace("intercepted call to ", "")
                 identified_functions.append(func_header)
 
+                red = QBrush(Qt.red)
+                item.setForeground(0, red)
+
             # Create a button for each function and add it to the grid layout
-            row = 0
-            column = 0
-            already_were_functions = {}
-            for i, winapi_function in enumerate(self.winapi_functions):
+            #row = 0
+            #column = 0
+            #already_were_functions = {}
+            #for i, winapi_function in enumerate(self.winapi_functions):
 
-                if winapi_function not in already_were_functions.keys():
-                    already_were_functions[winapi_function] = 1
-                else:
-                    already_were_functions[winapi_function] += 1
+            #    if winapi_function not in already_were_functions.keys():
+            #        already_were_functions[winapi_function] = 1
+            #    else:
+            #        already_were_functions[winapi_function] += 1
 
-                button = QPushButton(winapi_function)
-                button.clicked.connect(
-                    lambda checked, winapi_function=winapi_function: on_button_clicked(winapi_function))
-                button.setStyleSheet("""
-                    QPushButton {
-                        font-family: sans-serif;
-                        border-radius: 5px;
-                        font-size: 19px;
-                        padding: 15px;
-                        margin: 10px;
-                        color: #87CEFA;
-                        background-color: #333;
-                        border: 2px solid #444;
-                    }
-                    background-color: #333;
-                    border: 2px solid #444;
-                    }
-                    QPushButton:hover {
-                        background-color: #555;
-                    }
-                    QPushButton:pressed {
-                        background-color: #666;
-                    }
-                    """)
-                if already_were_functions[winapi_function] == 1:
+            #    button = QPushButton(winapi_function)
+            #    button.clicked.connect(
+            #        lambda checked, winapi_function=winapi_function: on_button_clicked(winapi_function))
+            #    button.setStyleSheet("""
+            #        QPushButton {
+            #            font-family: sans-serif;
+            #            border-radius: 5px;
+            #            font-size: 19px;
+            #            padding: 15px;
+            #            margin: 10px;
+            #            color: #87CEFA;
+            #            background-color: #333;
+            #            border: 2px solid #444;
+            #        }
+            #        background-color: #333;
+            #        border: 2px solid #444;
+            #        }
+            #        QPushButton:hover {
+            #            background-color: #555;
+            #        }
+            #        QPushButton:pressed {
+            #            background-color: #666;
+            #        }
+            #        """)
+            #    if already_were_functions[winapi_function] == 1:
 
-                    if winapi_function in suspect_functions or winapi_function in has_passed_cpu_functions or winapi_function in identified_functions:
-                        button.setStyleSheet("""
-                            QPushButton {
-                                font-family: sans-serif;
-                                border-radius: 5px;
-                                font-size: 19px;
-                                padding: 15px;
-                                margin: 10px;
-                                color: red;
-                                background-color: #333;
-                                border: 2px solid #444;
-                            }
-                            background-color: #333;
-                            border: 2px solid #444;
-                            }
-                            QPushButton:hover {
-                                background-color: #555;
-                            }
-                            QPushButton:pressed {
-                                background-color: #666;
-                            }
-                            """)
+            #        if winapi_function in suspect_functions or winapi_function in has_passed_cpu_functions or winapi_function in identified_functions:
+            #            button.setStyleSheet("""
+            #                QPushButton {
+            #                    font-family: sans-serif;
+            #                    border-radius: 5px;
+            #                    font-size: 19px;
+            #                    padding: 15px;
+            #                    margin: 10px;
+            #                    color: red;
+            #                    background-color: #333;
+            #                    border: 2px solid #444;
+            #                }
+            #                background-color: #333;
+            #                border: 2px solid #444;
+            #                }
+            #                QPushButton:hover {
+            #                    background-color: #555;
+            #                }
+            #                QPushButton:pressed {
+            #                    background-color: #666;
+            #                }
+            #                """)
 
-                    self.grid_button_layout.addWidget(button, row, column)
-                    column += 1
-                    if column == 4:
-                        column = 0
-                        row += 1
+            #        self.grid_button_layout.addWidget(button, row, column)
+            #        column += 1
+            #        if column == 4:
+            #            column = 0
+            #            row += 1
 
-                self.delete_funcs.append(button)
+            #    self.delete_funcs.append(button)
 
-            self.dynamic_layout.addLayout(self.grid_button_layout)
-
-        #     # problem with QFrame
-        #     frame_for_function = QFrame()
-        #     frame_for_function.setFrameShape(QFrame.Box)
-        #     frame_for_function.setStyleSheet("border: 4px solid purple; margin: 10px; border-radius: 25px;")
-        #
-        #     # Get the width of the screen
-        #     screen_width = QMainWindow().width()
-        #
-        #     # Set the maximum width of the QFrame to the width of the screen
-        #     frame_for_function.setMaximumSize(screen_width + 390, 2147483647)
-        #
-        #     v_box_for_func = QVBoxLayout(frame_for_function)
-        #     v_box_for_func.setContentsMargins(0, 0, 0, 0)
-        #
-        #     func = 0
-        #     for line in [line for line in function.split("\n") if line != ""]:
-        #         if "-" in line:
-        #             line = line.replace("-", "").replace("intercepted call to ", "")
-        #
-        #         if "Done" in line:
-        #             continue
-        #
-        #         if func == 0:
-        #             func_head_label = QLabel(line)
-        #             func_head_label.setFont(QFont("Zapfino", 24))
-        #             func_head_label.setStyleSheet("color: {}; border: none;".format(light_purple.name()))
-        #             func_head_label.setFrameShape(QFrame.NoFrame)
-        #             v_box_for_func.addWidget(func_head_label)
-        #             self.delete_funcs.append(func_head_label)
-        #             func = 1
-        #             continue
-        #
-        #         func_label = QLabel(line)
-        #         func_label.setWordWrap(True)
-        #         func_label.setFont(QFont("Zapfino", 12))
-        #         func_label.setStyleSheet("color: {}; border: none;".format(light_purple.name()))
-        #         # func_label.setFrameShape(QFrame.NoFrame)
-        #         v_box_for_func.addWidget(func_label)
-        #         self.delete_funcs.append(func_label)
-
-        #     self.dynamic_layout.addWidget(frame_for_function)
-        #     self.delete_funcs.append(frame_for_function)
-        #     self.delete_funcs.append(v_box_for_func)
-
-        # self.overlay = OverlayWindow("connect", log_content.split("\n\n\n\n\n\n\n"))
+            #self.dynamic_layout.addLayout(self.grid_button_layout)
+            self.dynamic_layout.addWidget(self.tree_functions)
 
         # data base
         self.redis_virus.hset(self.md5_hash, "suspicious_!", pickle.dumps(suspect_functions))
