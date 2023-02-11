@@ -497,9 +497,10 @@ class AppDemo(QMainWindow):
 
         if self.dynamic_visited:
             self.start_dynamic.deleteLater()
+            self.tree_functions.deleteLater()
             for widget in self.delete_funcs:
                 widget.deleteLater()
-            self.grid_button_layout.deleteLater()
+            # self.grid_button_layout.deleteLater()
             self.graph_button.deleteLater()
             self.dynamic_layout.deleteLater()
 
@@ -1528,8 +1529,11 @@ The presence of both means the code itself can be changed dynamically
 
     def activate_vt_scan_ip(self):
 
+        self.suspicious_ip.setDisabled(True)
         for ip in VTScan.scan_for_suspicious_cache(self.progress_bar_ip):
-            self.suspicious_ip.addItem(str(ip))
+            item = QListWidgetItem(str(ip))
+            item.setFlags(item.flags() & ~Qt.ItemIsSelectable)
+            self.suspicious_ip.addItem(item)
 
     def scan_dir(self):
 
