@@ -15,6 +15,7 @@ from poc_start.unrelated.Yara.ya_ra import YaraChecks
 from poc_start.unrelated.fuzzy_hashing.ssdeep_check import *
 from poc_start.unrelated.virus_db.redis_virus import Redis
 from poc_start.unrelated.pe_scan.language import Packers
+from poc_start.unrelated.graphics.terms_and_services import TermsAndServicesDialog, terms_and_service
 from poc_start.unrelated.python_exe.virus_scan import PythonVirus
 from threading import Thread
 from multiprocessing import Process
@@ -332,6 +333,8 @@ class AppDemo(QMainWindow):
         self.ip_analysis_action.triggered.connect(self.show_ip_analysis)
 
         self.about_action = QAction(QIcon("images/info-button.png"), "Info", self)
+        self.about_action.triggered.connect(lambda: terms_and_service(False))
+
         self.settings_action = QAction(QIcon("images/settings.png"), "Change Settings", self)
 
         self.toolbar.addAction(self.main_menu_action)
@@ -889,27 +892,21 @@ class AppDemo(QMainWindow):
         self.dynamic_button.clicked.connect(lambda: [self.dynamic_analysis()])
 
     def python_analysis(self):
-        # TODO - start thinking of python graphics
-        print("python file")
+        self.clearLayout()
+        self.dynamic_visited = False
+        self.static_visited = False
+        self.ip_visited = False
+        self.hash_visited = False
+        self.dir_visited = False
+        self.pv = PythonVirus("virus.exe")
+        self.pv.log_for_winapi(self.pv.find_ctypes_calls())
+
+        # TODO - present the python nicely, probably in a QTreeWidget
 
     def getSelectedItem(self):
         print("got here")
         item = QListWidgetItem(self.listbox_view.item(0))
         path = item.text()
-
-        # TODO - take care of not exe
-        if Packers.programming_language(path) == "py":  # a python file
-            self.python_analysis()
-            return
-        elif Packers.programming_language(path) is not True:  # either not exe, or not written in the languages
-            msg = QMessageBox()
-            msg.setIcon(QMessageBox.Warning)
-            msg.setText("This file isn't in EXE format, please be aware of our rules and terms")
-            msg.setWindowTitle("Warning")
-            msg.setStandardButtons(QMessageBox.Ok | QMessageBox.Cancel)
-            result = msg.exec_()
-            return
-            # sys.exit(1)
 
         bytes = b""
 
@@ -936,6 +933,21 @@ class AppDemo(QMainWindow):
         # print(pickle.loads(self.redis_virus.hgetall(self.md5_hash)[b"num_of_rules"]))
         # self.redis_virus.print_all()
         # print(int(self.redis_virus.hgetall('5fffd3e69093dc32727214ba5c8f2af5')[b'num_of_rules'].decode()) * 5)
+
+        if Packers.programming_language(path) == "py":  # a python file
+            self.py_thread = QThread()
+            self.py_thread.run = self.python_analysis
+            self.py_thread.start()
+            return
+
+        if Packers.programming_language(path) is not True:  # either not exe, or not written in the languages
+            msg = QMessageBox()
+            msg.setIcon(QMessageBox.Warning)
+            msg.setText("This file isn't in EXE format, please be aware of our rules and terms")
+            msg.setWindowTitle("Warning")
+            msg.setStandardButtons(QMessageBox.Ok | QMessageBox.Cancel)
+            result = msg.exec_()
+            return
 
         while not os.path.exists(r"E:\Cyber\YB_CYBER\project\FinalProject\poc_start\poc_start\unrelated\graphics"
                                  r"\virus.exe"):
@@ -2491,7 +2503,7 @@ The presence of both means the code itself can be changed dynamically
                 """)
 
         self.tree_functions.setHeaderLabel("Logged Functions")
-        self.data_for_function = dict({}) # index, data
+        self.data_for_function = dict({})  # index, data
 
         def handle_item_click(item):
             if item.childCount() == 0 and not item.parent():
@@ -2520,7 +2532,6 @@ The presence of both means the code itself can be changed dynamically
                     data.append(line)
 
                 for alert in alerts:
-
                     info_item = QTreeWidgetItem(item, [alert])
                     red = QBrush(Qt.red)
 
@@ -2530,7 +2541,6 @@ The presence of both means the code itself can be changed dynamically
                     item.addChild(info_item)
 
                 for line in data:
-
                     info_item = QTreeWidgetItem(item, [line])
 
                     # Add similar conditions for other functions
@@ -2569,10 +2579,10 @@ The presence of both means the code itself can be changed dynamically
                 item.setForeground(0, red)
 
             # Create a button for each function and add it to the grid layout
-            #row = 0
-            #column = 0
-            #already_were_functions = {}
-            #for i, winapi_function in enumerate(self.winapi_functions):
+            # row = 0
+            # column = 0
+            # already_were_functions = {}
+            # for i, winapi_function in enumerate(self.winapi_functions):
 
             #    if winapi_function not in already_were_functions.keys():
             #        already_were_functions[winapi_function] = 1
@@ -2636,7 +2646,7 @@ The presence of both means the code itself can be changed dynamically
 
             #    self.delete_funcs.append(button)
 
-            #self.dynamic_layout.addLayout(self.grid_button_layout)
+            # self.dynamic_layout.addLayout(self.grid_button_layout)
             self.dynamic_layout.addWidget(self.tree_functions)
 
         # data base

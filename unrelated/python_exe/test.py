@@ -2,7 +2,6 @@ import ctypes
 import os
 import platform
 import binascii
-import pydumpck
 
 data = binascii.unhexlify("b80a000000c3")
 

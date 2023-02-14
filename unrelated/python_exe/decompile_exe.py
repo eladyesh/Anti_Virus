@@ -35,7 +35,13 @@ def decompyle(path):
     for filename in os.listdir(output_file_path):
         if ".pyc.cdc.py" in filename and "struct" not in filename.split(".")[0] and "pyi" not in filename.split(".")[0]:
             file_path = os.path.join(output_file_path, filename)
-            shutil.move(file_path, os.getcwd())
+            shutil.move(os.path.abspath(file_path), os.getcwd() + "\\" + filename)
+
+            # if os.path.exists(output_file_path):
+            #     os.remove(output_file_path)
+            # if os.path.exists("log.log"):
+            #     os.remove("log.log")
+
             break
 
 

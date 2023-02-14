@@ -8,6 +8,7 @@ from bs4 import BeautifulSoup
 from poc_start.unrelated.python_exe.decompile_exe import *
 import threading
 import psutil
+from googlesearch import search
 from ast import For, Tuple, List
 import pydumpck
 
@@ -40,7 +41,7 @@ class PythonVirus:
                 break
 
         # Load the source code of the Python file
-        with open(self.file, "r") as f:
+        with open(os.path.abspath(self.file), "r") as f:
             self.source = f.read()
 
         # Parse the source code
@@ -128,11 +129,14 @@ class PythonVirus:
             return winapi_calls
 
         winapi_functions = []
-        for file in os.listdir(os.path.abspath("winapi_funcs")):
-            with open("winapi_funcs" + "\\" + file, "r") as f:
-                for line in f:
-                    name = line.strip()
-                    winapi_functions.append(name)
+        for file in os.listdir(os.path.abspath("winapi_funcs").replace("graphics", "python_exe")):
+            with open(os.path.abspath("winapi_funcs").replace("graphics", "python_exe") + "\\" + file, "r") as f:
+                try:
+                    for line in f:
+                        name = line.strip()
+                        winapi_functions.append(name)
+                except UnicodeError:
+                    continue
         # print(winapi_functions)
 
         # code_path = "D:\\Cyber\\YB_CYBER\\project\\FinalProject\\poc_start\\poc_start\\unrelated\\python_exe\\test.py"
@@ -231,7 +235,7 @@ class PythonVirus:
         pattern = re.compile(r"(\w+)\s*=\s*ctypes\.windll\.(\w+)\.(\w+)\((.*)\)|ctypes\.windll\.(\w+)\.(\w+)\((.*)\)")
 
         functions_dict = {}
-        with open("log.txt", "a") as file:
+        with open(os.getcwd() + "\\log_python.txt", "a") as file:
             for match in pattern.finditer(calls):
                 if match.group(1) is None:
                     variable_name = ""
@@ -286,7 +290,7 @@ class PythonVirus:
             # Use regular expression to match the function names, parameters, and result
             pattern = re.compile(r"(\w+)\s*=\s*winsock\.(\w+)\((.*)\)|winsock\.(\w+)\((.*)\)")
 
-            with open("log.txt", "a") as file:
+            with open(os.path.join(os.getcwd(), "log_python.txt"), "a") as file:
                 for match in pattern.finditer(calls):
                     variable_name = match.group(1) if match.group(1) else None
                     function_name = match.group(2) if match.group(2) else match.group(4)
@@ -299,7 +303,7 @@ class PythonVirus:
                     file.write(f"Parameters: {parameters}\n")
                     file.write("\n")
 
-                print(functions_dict)
+                print(functions_dict, os.path.abspath("log_python.txt"))
 
                 if 'socket' in functions_dict.keys() and 'connect' in functions_dict.keys() and 'getaddrinfo' in functions_dict.keys():
                     file.write("==============PORT SCANNING==============\n")
