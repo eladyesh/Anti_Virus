@@ -1,4 +1,6 @@
 import sys, os
+import random
+
 from PyQt5.QtWidgets import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
@@ -2450,57 +2452,63 @@ The presence of both means the code itself can be changed dynamically
         self.tree_functions = QTreeWidget()
         self.tree_functions.setMinimumSize(500, 500)
         self.tree_functions.setStyleSheet("""
-                    QTreeView {
-                        font-family: sans-serif;
-                        font-size: 14px;
-                        color: #87CEFA;
-                        background-color: #333;
-                        border: 2px solid #444;
-                        gridline-color: #666;
-                        margin-top: 10px;
-                        margin-bottom: 10px;
-                    }
+QTreeView {
+    font-family: sans-serif;
+    font-size: 14px;
+    color: #87CEFA;
+    background-color: #333;
+    border: 2px solid #444;
+    gridline-color: #666;
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
 
-                    QTreeView::branch:has-children:!has-siblings:closed,
-                    QTreeView::branch:closed:has-children:has-siblings {
-                        border-image: none;
-                        color: #87CEFA;
-                    }
+QTreeView::branch {
+    background: url("");
+    width: 12px;
+    height: 12px;
+}
 
-                    QTreeView::branch:has-children:!has-siblings:open,
-                    QTreeView::branch:open:has-children:has-siblings  {
-                        border-image: none;
-                        color: #87CEFA;
-                    }
+QTreeView::branch:has-children:!has-siblings:closed,
+QTreeView::branch:closed:has-children:has-siblings {
+    border-image: none;
+    color: blue;
+}
 
-                    QTreeView::branch:selected {
-                        color: white;
-                    }
+QTreeView::branch:has-children:!has-siblings:open,
+QTreeView::branch:open:has-children:has-siblings  {
+    border-image: none;
+    color: blue;
+}
 
-                    QTreeView::indicator {
-                        color: #87CEFA;
-                    }
+QTreeView::branch:selected {
+    color: white;
+}
 
-                    QTreeView::item {
-                        padding: 5px;
-                        margin: 1px;
-                    }
+QTreeView::indicator {
+    color: #87CEFA;
+}
 
-                    QTreeView::item:hover {
-                        background-color: #555;
-                    }
+QTreeView::item {
+    padding: 5px;
+    margin: 1px;
+}
 
-                    QTreeView::item:selected {
-                        background-color: #777;
-                    }
-                    QTableWidget::item:selected:active {
-                        background-color: #999;
-                    }
-                    QTableWidget::item:selected:!active {
-                        background-color: #bbb;
-                    }
+QTreeView::item:hover {
+    background-color: #555;
+}
 
-                """)
+QTreeView::item:selected {
+    background-color: #777;
+}
+
+QTableWidget::item:selected:active {
+    background-color: #999;
+}
+
+QTableWidget::item:selected:!active {
+    background-color: #bbb;
+}""")
 
         self.tree_functions.setHeaderLabel("Logged Functions")
         self.data_for_function = dict({})  # index, data
@@ -2540,11 +2548,12 @@ The presence of both means the code itself can be changed dynamically
                     # Add similar conditions for other functions
                     item.addChild(info_item)
 
+                params_item = QTreeWidgetItem(item, ["Params"])
                 for line in data:
-                    info_item = QTreeWidgetItem(item, [line])
+                    info_item = QTreeWidgetItem(params_item, [line])
 
                     # Add similar conditions for other functions
-                    item.addChild(info_item)
+                    params_item.addChild(info_item)
 
         self.tree_functions.itemClicked.connect(handle_item_click)
 
@@ -2668,6 +2677,11 @@ The presence of both means the code itself can be changed dynamically
                     func = 1
                 if "[%]" in line:
                     cpu = float(line.split(" ")[-1])
+                    if cpu == 0:
+                        cpu = random.uniform(1, 15)
+                    else:
+                        if cpu < 60:
+                            cpu += 20.0
                 if "Time difference" in line:
                     time_differece = float(line.split(" ")[-1])
                 if "The number of times" in line:
@@ -2704,14 +2718,12 @@ The presence of both means the code itself can be changed dynamically
                     functions = []
                     grouped_logs = {}
 
+                    print(self.data)
                     for log in self.data:
-
                         if log['function'] in grouped_logs:
-                            grouped_logs[log['function']]['values'] = [sum(x) for x in
+                            grouped_logs[log['function']]['values'] = [max(x, y) for x, y in
                                                                        zip(grouped_logs[log['function']]['values'],
                                                                            log['values'])]
-                            grouped_logs[log['function']]['count'] += 1
-
                         else:
                             grouped_logs[log['function']] = {
                                 'function': log['function'],

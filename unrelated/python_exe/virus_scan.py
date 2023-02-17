@@ -8,7 +8,8 @@ from bs4 import BeautifulSoup
 from poc_start.unrelated.python_exe.decompile_exe import *
 import threading
 import psutil
-from googlesearch import search
+import glob
+# from googlesearch import search
 from ast import For, Tuple, List
 import pydumpck
 
@@ -121,8 +122,11 @@ class PythonVirus:
         def find_winapi_calls(code_path, winapi_functions):
             winapi_calls = []
             for function in winapi_functions:
+
                 # run the grep command
-                result = subprocess.run(["grep", "-r", function, code_path], capture_output=True, text=True)
+                # result = subprocess.run(["grep", "-r", function, code_path], capture_output=True, text=True)
+                result = subprocess.run(["findstr", "/s", "/i", function, code_path], capture_output=True, text=True)
+
                 # add the results to the winapi_calls list
                 calls = result.stdout.strip().split("\n")
                 winapi_calls.extend(calls)
