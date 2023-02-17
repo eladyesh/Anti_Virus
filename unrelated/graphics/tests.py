@@ -1,12 +1,20 @@
-import yara
+import time
 
-rule = yara.compile(source=rule_text)
+from PyQt5.QtCore import QUrl
+from PyQt5.QtGui import QMovie
+from PyQt5.QtWidgets import QApplication, QLabel
 
-executable_file = "virus.exe"
+app = QApplication([])
+label = QLabel()
+movie = QMovie("file_scan.gif")
+label.setMovie(movie)
+label.show()
+movie.start()
 
-matches = rule.match(executable_file)
+# Wait for a few seconds
+time.sleep(5)
 
-for match in matches:
-    param = match.meta["param"]
-    value = match.meta["value"]
-    print(f"Matched 'open' call with parameter '{param}': {value}")
+# Stop the movie
+movie.stop()
+
+app.exec_()

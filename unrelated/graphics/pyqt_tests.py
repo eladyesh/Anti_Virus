@@ -1310,55 +1310,65 @@ class AppDemo(QMainWindow):
         self.tree_imports.setMaximumSize(200, 500)
         self.tree_imports.setEditTriggers(QAbstractItemView.NoEditTriggers)
         self.tree_imports.setStyleSheet("""
-                QTreeView {
-                    font-family: sans-serif;
-                    font-size: 14px;
-                    color: #87CEFA;
-                    background-color: #333;
-                    border: 2px solid #444;
-                    gridline-color: #666;
-                }
-                
-                QTreeView::branch:has-children:!has-siblings:closed,
-                QTreeView::branch:closed:has-children:has-siblings {
-                    border-image: none;
-                    color: #87CEFA;
-                }
-                
-                QTreeView::branch:has-children:!has-siblings:open,
-                QTreeView::branch:open:has-children:has-siblings  {
-                    border-image: none;
-                    color: #87CEFA;
-                }
-                
-                QTreeView::branch:selected {
-                    color: white;
-                }
-                
-                QTreeView::indicator {
-                    color: #87CEFA;
-                }
-                
-                QTreeView::item {
-                    padding: 5px;
-                    margin: 1px;
-                }
-                
-                QTreeView::item:hover {
-                    background-color: #555;
-                }
-                
-                QTreeView::item:selected {
-                    background-color: #777;
-                }
-                QTableWidget::item:selected:active {
-                    background-color: #999;
-                }
-                QTableWidget::item:selected:!active {
-                    background-color: #bbb;
-                }
-            
-            """)
+        QTreeView {
+            font-family: sans-serif;
+            font-size: 14px;
+            color: #87CEFA;
+            background-color: #333;
+            border: 2px solid #444;
+            gridline-color: #666;
+            margin-top: 10px;
+            margin-bottom: 10px;
+        }
+        
+        QTreeView::branch:has-siblings:!adjoins-item {
+            border-image: url(images/vline.png) 0;
+        }
+        
+        QTreeView::branch:has-siblings:adjoins-item {
+            border-image: url(images/branch-more.png) 0;
+        }
+        
+        QTreeView::branch:!has-children:!has-siblings:adjoins-item {
+            border-image: url(images/branch-end.png) 0;
+        }
+        
+        QTreeView::branch:has-children:!has-siblings:closed,
+        QTreeView::branch:closed:has-children:has-siblings {
+                border-image: none;
+                image: url(images/branch-closed.png);
+        }
+        
+        QTreeView::branch:open:has-children:!has-siblings,
+        QTreeView::branch:open:has-children:has-siblings  {
+                border-image: none;
+                image: url(images/branch-open.png);
+        }
+        
+        QTreeView::branch:selected {
+            color: white;
+        }
+        
+        QTreeView::item {
+            padding: 5px;
+            margin: 1px;
+        }
+        
+        QTreeView::item:hover {
+            background-color: #555;
+        }
+        
+        QTreeView::item:selected {
+            background-color: #777;
+        }
+        
+        QTableWidget::item:selected:active {
+            background-color: #999;
+        }
+        
+        QTableWidget::item:selected:!active {
+            background-color: #red;
+        }""")
 
         root = QStandardItem("See Imports")
         for library, imps in dlls.items():
@@ -1539,12 +1549,22 @@ The presence of both means the code itself can be changed dynamically
     def activate_vt_scan_dir(self):
 
         for path in VTScan.scan_directory(self.dir, self.progress_bar_dir):
+            if path == "stop":
+                self.movie_dir.stop()
+                self.description_for_search.setText("All Done !!")
+                break
             self.suspicious_paths.addItem(str(path))
 
     def activate_vt_scan_ip(self):
 
         self.suspicious_ip.setDisabled(True)
         for ip in VTScan.scan_for_suspicious_cache(self.progress_bar_ip):
+
+            if ip == "stop":
+                self.movie_ip.stop()
+                self.description_for_ip_analysis.setText("All Done !!")
+                break
+
             item = QListWidgetItem(str(ip))
             item.setFlags(item.flags() & ~Qt.ItemIsSelectable)
             self.suspicious_ip.addItem(item)
@@ -1660,11 +1680,11 @@ The presence of both means the code itself can be changed dynamically
             self.movie_list = QHBoxLayout()
 
             # Set the GIF image as the QLabel's movie
-            movie = QMovie('file_scan.gif')
-            self.movie_label.setMovie(movie)
+            self.movie_dir = QMovie('file_scan.gif')
+            self.movie_label.setMovie(self.movie_dir)
 
             # Start the movie
-            movie.start()
+            self.movie_dir.start()
             self.movie_list.addWidget(self.movie_label)
             self.show_label = 0
 
@@ -1810,7 +1830,7 @@ The presence of both means the code itself can be changed dynamically
             self.progress_bar_ip.setPalette(palette)
 
             self.description_for_ip_analysis = make_label(
-                "Now, if a website was found malicious by more than 5 engines\n"
+                "If a website was found malicious by more than 5 engines\n"
                 "it will be shown on the list to your right\n"
                 "And you will be blocked from using it", 15)
 
@@ -1823,11 +1843,11 @@ The presence of both means the code itself can be changed dynamically
             self.movie_list_ip = QHBoxLayout()
 
             # Set the GIF image as the QLabel's movie
-            movie = QMovie('file_scan.gif')
-            self.movie_label_ip.setMovie(movie)
+            self.movie_ip = QMovie('file_scan.gif')
+            self.movie_label_ip.setMovie(self.movie_ip)
 
             # Start the movie
-            movie.start()
+            self.movie_ip.start()
             self.movie_list_ip.addWidget(self.movie_label_ip)
             self.show_analysis_label = 0
 
@@ -2452,63 +2472,65 @@ The presence of both means the code itself can be changed dynamically
         self.tree_functions = QTreeWidget()
         self.tree_functions.setMinimumSize(500, 500)
         self.tree_functions.setStyleSheet("""
-QTreeView {
-    font-family: sans-serif;
-    font-size: 14px;
-    color: #87CEFA;
-    background-color: #333;
-    border: 2px solid #444;
-    gridline-color: #666;
-    margin-top: 10px;
-    margin-bottom: 10px;
-}
-
-QTreeView::branch {
-    background: url("");
-    width: 12px;
-    height: 12px;
-}
-
-QTreeView::branch:has-children:!has-siblings:closed,
-QTreeView::branch:closed:has-children:has-siblings {
-    border-image: none;
-    color: blue;
-}
-
-QTreeView::branch:has-children:!has-siblings:open,
-QTreeView::branch:open:has-children:has-siblings  {
-    border-image: none;
-    color: blue;
-}
-
-QTreeView::branch:selected {
-    color: white;
-}
-
-QTreeView::indicator {
-    color: #87CEFA;
-}
-
-QTreeView::item {
-    padding: 5px;
-    margin: 1px;
-}
-
-QTreeView::item:hover {
-    background-color: #555;
-}
-
-QTreeView::item:selected {
-    background-color: #777;
-}
-
-QTableWidget::item:selected:active {
-    background-color: #999;
-}
-
-QTableWidget::item:selected:!active {
-    background-color: #bbb;
-}""")
+        QTreeView {
+            font-family: sans-serif;
+            font-size: 14px;
+            color: #87CEFA;
+            background-color: #333;
+            border: 2px solid #444;
+            gridline-color: #666;
+            margin-top: 10px;
+            margin-bottom: 10px;
+        }
+        
+        QTreeView::branch:has-siblings:!adjoins-item {
+            border-image: url(images/vline.png) 0;
+        }
+        
+        QTreeView::branch:has-siblings:adjoins-item {
+            border-image: url(images/branch-more.png) 0;
+        }
+        
+        QTreeView::branch:!has-children:!has-siblings:adjoins-item {
+            border-image: url(images/branch-end.png) 0;
+        }
+        
+        QTreeView::branch:has-children:!has-siblings:closed,
+        QTreeView::branch:closed:has-children:has-siblings {
+                border-image: none;
+                image: url(images/branch-closed.png);
+        }
+        
+        QTreeView::branch:open:has-children:!has-siblings,
+        QTreeView::branch:open:has-children:has-siblings  {
+                border-image: none;
+                image: url(images/branch-open.png);
+        }
+        
+        QTreeView::branch:selected {
+            color: white;
+        }
+        
+        QTreeView::item {
+            padding: 5px;
+            margin: 1px;
+        }
+        
+        QTreeView::item:hover {
+            background-color: #555;
+        }
+        
+        QTreeView::item:selected {
+            background-color: #777;
+        }
+        
+        QTableWidget::item:selected:active {
+            background-color: #999;
+        }
+        
+        QTableWidget::item:selected:!active {
+            background-color: #red;
+        }""")
 
         self.tree_functions.setHeaderLabel("Logged Functions")
         self.data_for_function = dict({})  # index, data
