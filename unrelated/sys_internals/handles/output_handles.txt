@@ -1,0 +1,77 @@
+    4: File  (---)   \Device\ConDrv\Reference
+    8: Event         
+    C: Event         
+   10: WaitCompletionPacket 
+   14: IoCompletion  
+   18: TpWorkerFactory 
+   1C: IRTimer       
+   20: WaitCompletionPacket 
+   24: IRTimer       
+   28: WaitCompletionPacket 
+   2C: EtwRegistration 
+   30: EtwRegistration 
+   34: EtwRegistration 
+   38: Event         
+   3C: Event         
+   40: Directory     \KnownDlls
+   44: File  (RW-)   C:\Windows
+   48: Event         
+   4C: Directory     \KnownDlls32
+   50: File  (---)   \Device\ConDrv\Input
+   54: File  (---)   \Device\ConDrv\Output
+   58: File  (---)   \Device\ConDrv\Output
+   5C: Event         
+   60: WaitCompletionPacket 
+   64: IoCompletion  
+   68: TpWorkerFactory 
+   6C: IRTimer       
+   70: WaitCompletionPacket 
+   74: IRTimer       
+   78: WaitCompletionPacket 
+   7C: EtwRegistration 
+   80: EtwRegistration 
+   84: EtwRegistration 
+   88: Event         
+   8C: Event         
+   90: Directory     \KnownDlls32
+   94: File  (RW-)   C:\Users\user\Downloads\handles
+   98: File  (---)   \Device\ConDrv\Connect
+   9C: EtwRegistration 
+   A0: ALPC Port     
+   A4: Mutant        \Sessions\1\BaseNamedObjects\SM0:14220:168:WilStaging_02
+   A8: Directory     \Sessions\1\BaseNamedObjects
+   AC: Semaphore     \Sessions\1\BaseNamedObjects\SM0:14220:168:WilStaging_02_p0
+   B0: EtwRegistration 
+   B4: EtwRegistration 
+   B8: EtwRegistration 
+   BC: IoCompletion  
+   C0: TpWorkerFactory 
+   C4: IRTimer       
+   C8: WaitCompletionPacket 
+   CC: IRTimer       
+   D0: WaitCompletionPacket 
+   D4: Key           HKLM\SYSTEM\ControlSet001\Control\Nls\Sorting\Versions
+   D8: EtwRegistration 
+   DC: EtwRegistration 
+   E0: Key           HKLM\SYSTEM\ControlSet001\Control\Session Manager
+   E4: EtwRegistration 
+   E8: EtwRegistration 
+   EC: EtwRegistration 
+   F0: EtwRegistration 
+   F4: EtwRegistration 
+   F8: EtwRegistration 
+   FC: Event         
+  100: WaitCompletionPacket 
+  104: Key           HKLM
+  108: Key           HKCU
+  10C: Key           HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Run
+  110: EtwRegistration 
+  114: Thread        virus.exe(14220): 17772
+  118: Event         
+  11C: Key           HKLM\SYSTEM\ControlSet001\Services\WinSock2\Parameters\Protocol_Catalog9
+  120: Event         
+  124: Key           HKLM\SYSTEM\ControlSet001\Services\WinSock2\Parameters\NameSpace_Catalog5
+  128: Event         
+  12C: File  (---)   \Device\Afd
+  130: File  (---)   \Device\Afd
+  134: File  (---)   \Device\Afd

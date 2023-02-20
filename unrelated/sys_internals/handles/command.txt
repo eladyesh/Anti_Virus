@@ -1,0 +1,2 @@
+# run as admin
+handle.exe -a -p <process_id> > output_handles.exe

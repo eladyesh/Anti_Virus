@@ -4,7 +4,6 @@ rule create_file
         description = "Detects a create call"
         author = "Elad Yesh"
     strings:
-        // $filename = "MyTest.txt"
         $file_create_call = "File"
         $create_call = "Create"
 
@@ -18,11 +17,14 @@ rule write_to_file
         description = "Detects a write call"
         author = "Elad Yesh"
     strings:
+        // $file_create_call = "File"
         $add_text = "AddText"
+        $fs_string = "fs.Write"
+
         // $subset_of_characters = "\r\n\r\nThe following is a subset of characters:\r\n"
 
     condition:
-        $add_text // $subset_of_characters
+        any of ($*) // $subset_of_characters
 }
 
 rule read_file
