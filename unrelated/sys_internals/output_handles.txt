@@ -1,0 +1,90 @@
+
+Nthandle v5.0 - Handle viewer
+Copyright (C) 1997-2022 Mark Russinovich
+Sysinternals - www.sysinternals.com
+
+    4: File          \Device\ConDrv
+    8: File          
+    C: File          
+   10: File          
+   14: Event         
+   18: Event         
+   1C: WaitCompletionPacket 
+   20: IoCompletion  
+   24: TpWorkerFactory 
+   28: IRTimer       
+   2C: WaitCompletionPacket 
+   30: IRTimer       
+   34: WaitCompletionPacket 
+   38: <Unknown type> 
+   3C: <Unknown type> 
+   40: <Unknown type> 
+   44: Event         
+   48: Event         
+   4C: Directory     \KnownDlls
+   50: File          C:\Windows
+   54: Event         
+   58: Directory     \KnownDlls32
+   5C: Event         
+   60: WaitCompletionPacket 
+   64: IoCompletion  
+   68: TpWorkerFactory 
+   6C: IRTimer       
+   70: WaitCompletionPacket 
+   74: IRTimer       
+   78: WaitCompletionPacket 
+   7C: <Unknown type> 
+   80: <Unknown type> 
+   84: <Unknown type> 
+   88: Event         
+   8C: Event         
+   90: Directory     \KnownDlls32
+   94: File          \Device\HarddiskVolume6\Cyber\YB_CYBER\project\FinalProject\poc_start\poc_start\unrelated\sys_internals
+   98: File          \Device\ConDrv
+   9C: <Unknown type> 
+   A0: ALPC Port     
+   A4: Mutant        \Sessions\2\BaseNamedObjects\SM0:11224:168:WilStaging_02
+   A8: Directory     \Sessions\2\BaseNamedObjects
+   AC: Semaphore     \Sessions\2\BaseNamedObjects\SM0:11224:168:WilStaging_02_p0
+   B0: <Unknown type> 
+   B4: <Unknown type> 
+   B8: <Unknown type> 
+   BC: <Unknown type> 
+   C0: <Unknown type> 
+   C4: <Unknown type> 
+   C8: <Unknown type> 
+   CC: <Unknown type> 
+   D0: <Unknown type> 
+   D4: Key           HKLM\SYSTEM\ControlSet001\Control\Nls\CustomLocale
+   D8: <Unknown type> 
+   DC: IoCompletion  
+   E0: TpWorkerFactory 
+   E4: IRTimer       
+   E8: WaitCompletionPacket 
+   EC: IRTimer       
+   F0: WaitCompletionPacket 
+   F4: Key           HKLM\SYSTEM\ControlSet001\Control\Nls\Sorting\Versions
+   F8: <Unknown type> 
+   FC: WaitCompletionPacket 
+  100: Key           HKLM\SYSTEM\ControlSet001\Control\Session Manager
+  104: <Unknown type> 
+  108: Event         
+  10C: <Unknown type> 
+  110: <Unknown type> 
+  114: <Unknown type> 
+  118: <Unknown type> 
+  11C: <Unknown type> 
+  120: <Unknown type> 
+  124: Key           HKLM
+  128: Key           HKCU
+  12C: Key           HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Run
+  130: Thread        virus.exe(11224): 19264
+  134: Event         
+  138: Key           HKLM\SYSTEM\ControlSet001\Services\WinSock2\Parameters\Protocol_Catalog9
+  13C: Event         
+  140: Key           HKLM\SYSTEM\ControlSet001\Services\WinSock2\Parameters\NameSpace_Catalog5
+  144: <Unknown type> 
+  148: Event         
+  14C: File          \Device\Afd
+  150: File          \Device\Afd
+  154: File          \Device\Afd
