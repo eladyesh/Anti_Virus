@@ -8,7 +8,7 @@ The requested access to the file or device is 1073741824
 The requested sharing mode of the file or device is 0
 An action to take on a file or device that exists or does not exist is CREATE_NEW
 The Flags and Attributes that user is trying for the file are NORMAL
-Time difference since attachment of hooks in [s] is 2.013119900
+Time difference since attachment of hooks in [s] is 1.970647900
 The current cpu usage percantage [%] is 0
 The number of times user is trying to create a file is 1
 
@@ -27,7 +27,7 @@ The requested access to the file or device is 1073741824
 The requested sharing mode of the file or device is 0
 An action to take on a file or device that exists or does not exist is CREATE_NEW
 The Flags and Attributes that user is trying for the file are NORMAL
-Time difference since attachment of hooks in [s] is 2.016615100
+Time difference since attachment of hooks in [s] is 1.974783500
 The current cpu usage percantage [%] is 0
 The number of times user is trying to create a file is 2
 
@@ -46,7 +46,7 @@ The name of the registry subkey to be opened is SOFTWARE\Policies\Microsoft\Wind
 The option to apply when opening the key is 0
 A mask that specifies the desired access rights to the key to be opened is KEY_ALL_ACCESS
 EXE is trying to access a suspicious registry key!
-Time difference since attachment of hooks in [s] is 2.019250400
+Time difference since attachment of hooks in [s] is 1.979026600
 The current cpu usage percantage [%] is 0
 The number of times user is trying to open a registry key is 1
 
@@ -60,12 +60,13 @@ The number of times user is trying to open a registry key is 1
 ----------intercepted call to RegSetValueExA----------
 
 
-The key opened is 00000000
+The key opened is 0000013C
 The name of the value to be set is DisableAntiSpyware
 The type of data set is REG_DWORD
 The data to be stored is 
-Time difference since attachment of hooks in [s] is 2.021264700
-The current cpu usage percantage [%] is 0
+Time difference since attachment of hooks in [s] is 1.981200400
+Has passed permitted cpu
+The current cpu usage percantage [%] is 51.7216
 The number of times user is trying to set a registry key is 1
 
 ----------Done intercepting call to RegSetValueExA----------
@@ -78,11 +79,11 @@ The number of times user is trying to set a registry key is 1
 ----------intercepted call to RegCreateKeyExA----------
 
 
-The key opened is 00000000
+The key opened is 0000013C
 The name of a subkey that this function opens or createsReal-Time Protection
 This key is not volatile
 A mask that specifies the desired access rights to the key to be opened is KEY_ALL_ACCESS
-Time difference since attachment of hooks in [s] is 2.023059900
+Time difference since attachment of hooks in [s] is 1.983351000
 The current cpu usage percantage [%] is 0
 The number of times user is trying to create a registry key is 1
 
@@ -101,9 +102,8 @@ The name of the registry subkey to be opened is Software\Microsoft\Windows\Curre
 The option to apply when opening the key is 0
 A mask that specifies the desired access rights to the key to be opened is KEY_ALL_ACCESS
 EXE is trying to access a suspicious registry key!
-Time difference since attachment of hooks in [s] is 2.025218800
-Has passed permitted cpu
-The current cpu usage percantage [%] is 65.5961
+Time difference since attachment of hooks in [s] is 1.985616200
+The current cpu usage percantage [%] is 0
 The number of times user is trying to open a registry key is 2
 
 ----------Done intercepting call to RegOpenKeyExA----------
@@ -120,9 +120,9 @@ The key opened is 80000002
 The name of a subkey that this function opens or creates is SOFTWARE\Microsoft\Windows NT\CurrentVersion
 The name of the Registry Value Name this function is trying to reach is SystemRoot
 The specified flags for this questions is RRF_RT_ANY
-Time difference since attachment of hooks in [s] is 2.027549900
+Time difference since attachment of hooks in [s] is 1.988101800
 The current cpu usage percantage [%] is 0
-The Registry Value Data this function was trying to get to is C:\WINDOWS
+The Registry Value Data this function was trying to get to is C:\Windows
 The number of times user is trying to get a registry value is 1
 
 ----------Done intercepting call to RegGetValueA----------
@@ -137,7 +137,7 @@ The number of times user is trying to get a registry value is 1
 
 The address family specification is (IPv4) address family - AF_INET
 The type specification for the new socket is TCP SOCK_STREAM
-Time difference since attachment of hooks in [s] is 2.032633000
+Time difference since attachment of hooks in [s] is 1.991856100
 The current cpu usage percantage [%] is 0
 The number of times user is trying to create a socket is 1
 
@@ -154,7 +154,7 @@ The number of times user is trying to create a socket is 1
 EXE is trying to connect through a suspicious port!
 The address socket is trying to connect to is 142.250.186.68
 The port socket is using to connect is 80
-Time difference since attachment of hooks in [s] is 2.036900800
+Time difference since attachment of hooks in [s] is 1.996649700
 The current cpu usage percantage [%] is 0
 The number of times user is trying to connect to another socket is 1
 
@@ -170,8 +170,9 @@ The number of times user is trying to connect to another socket is 1
 
 The address family specification is (IPv4) address family - AF_INET
 The type specification for the new socket is TCP SOCK_STREAM
-Time difference since attachment of hooks in [s] is 2.049219600
-The current cpu usage percantage [%] is 0
+Time difference since attachment of hooks in [s] is 2.001158200
+Has passed permitted cpu
+The current cpu usage percantage [%] is 48.4848
 The number of times user is trying to create a socket is 2
 
 ----------Done intercepting call to socket----------
@@ -186,7 +187,7 @@ The number of times user is trying to create a socket is 2
 
 The address socket is trying to connect to is 142.250.186.68
 The port socket is using to connect is 81
-Time difference since attachment of hooks in [s] is 2.051128300
+Time difference since attachment of hooks in [s] is 2.003423000
 The current cpu usage percantage [%] is 0
 The number of times user is trying to connect to another socket is 2
 
@@ -202,7 +203,7 @@ The number of times user is trying to connect to another socket is 2
 
 The address family specification is (IPv4) address family - AF_INET
 The type specification for the new socket is TCP SOCK_STREAM
-Time difference since attachment of hooks in [s] is 2.062974300
+Time difference since attachment of hooks in [s] is 2.3055539300
 The current cpu usage percantage [%] is 0
 The number of times user is trying to create a socket is 3
 
@@ -221,8 +222,9 @@ The port socket is using to connect is 82
 
 ----------IDENTIFIED PORT SCANNING----------
 
-Time difference since attachment of hooks in [s] is 2.064972700
-The current cpu usage percantage [%] is 0
+Time difference since attachment of hooks in [s] is 2.3066918100
+Has passed permitted cpu
+The current cpu usage percantage [%] is 49.7193
 The number of times user is trying to connect to another socket is 3
 
 ----------Done intercepting call to connect----------
@@ -237,7 +239,7 @@ The number of times user is trying to connect to another socket is 3
 
 The address family specification is (IPv4) address family - AF_INET
 The type specification for the new socket is TCP SOCK_STREAM
-Time difference since attachment of hooks in [s] is 2.076344100
+Time difference since attachment of hooks in [s] is 4.4116767200
 The current cpu usage percantage [%] is 0
 The number of times user is trying to create a socket is 4
 
@@ -254,7 +256,7 @@ The number of times user is trying to create a socket is 4
 EXE is trying to connect through a suspicious port!
 The address socket is trying to connect to is 142.250.186.68
 The port socket is using to connect is 80
-Time difference since attachment of hooks in [s] is 2.078022300
+Time difference since attachment of hooks in [s] is 4.4120060700
 The current cpu usage percantage [%] is 0
 The number of times user is trying to connect to another socket is 4
 
@@ -272,7 +274,7 @@ The buffer wanted to be send is GET / HTTP/1.1
 
 
 The length of the buffer is 18
-Time difference since attachment of hooks in [s] is 2.090017800
+Time difference since attachment of hooks in [s] is 4.4127677700
 The current cpu usage percantage [%] is 0
 The number of times user is trying to send message via socket is 1
 
@@ -288,30 +290,27 @@ The number of times user is trying to send message via socket is 1
 
 The buffer socket recieved is 
 
-HTTP/1.1 200 OK
-Date: Thu, 16 Feb 2023 18:27:14 GMT
-Expires: -1
-Cache-Control: private, max-age=0
-Content-Type: text/html; charset=ISO-8859-1
-P3P: CP="This is not a P3P policy! See g.co/p3phelp for more info."
+HTTP/1.1 301 Moved Permanently
+Via: 1.1 192.168.50.253 (McAfee Web Gateway 9.2.13.37696)
+Date: Thu, 16 Feb 2023 11:10:35 GMT
 Server: gws
-X-XSS-Protection: 0
+Expires: Sat, 18 Mar 2023 11:10:35 GMT
+X-Cache: HIT from 192.168.50.253
+Location: http://www.google.com/
+Connection: Keep-Alive
+Content-Type: text/html; charset=UTF-8
+Cache-Control: public, max-age=2592000
+Content-Length: 219
 X-Frame-Options: SAMEORIGIN
-Set-Cookie: 1P_JAR=2023-02-16-18; expires=Sat, 18-Mar-2023 18:27:14 GMT; path=/; domain=.google.com; Secure
-Set-Cookie: AEC=ARSKqsKNwaCdyAHQ_bYr_QTHeZIrWZrAbL_TpLtEUKo_jTlxYALdurEgHw; expires=Tue, 15-Aug-2023 18:27:14 GMT; path=/; domain=.google.com; Secure; HttpOnly; SameSite=lax
-Set-Cookie: NID=511=puYPyGND7u-qaZOOShOl2ucusVnuxqXCXaQdmqDqWPKrKNMyh8P755GK7qjJKcCCIvCMopOvO15v1cv7OufKZs_9BkeanrReOo7fWS5nSG-8BZDxRbrJF_aJTK1o8RegLNCYU_FutfIoF5z0FkFfB6c4x8dMSOU1bEOQXtHfDxg; expires=Fri, 18-Aug-2023 18:27:14 GMT; path=/; domain=.google.com; HttpOnly
-Accept-Ranges: none
-Vary: Accept-Encoding
-Transfer-Encoding: chunked
-
-5357
-<!doctype html><html dir="rtl" itemscope="" itemtype="http://schema.org/WebPage" lang="iw"><head><meta content="text/html; charset=UTF-8" http-equiv="Content-Type"><meta content="/images/branding/googleg/1x/googleg_standard_color_128dp.png" itemprop="image"><title>Google</title><script nonce="n8FL6emQAulKpiz5hnECmg">(function(){window.google={kEI:'gnXuY_CxDfimkdUP5JO-yAs',kEXPI:'0,1359409,6059,206,4804,2316,383,246,5,1129120,1197729,380762,16114,28684,22431,1361,12318,17581,4998,13227,3848,36218,3819,1279,2891,1103,2823,213,8221,57185,1654,1851,15756,3,346,230,6460,148,13975,4,1528,2302,42127,13660,4437,9358,7428,5815,2542,4094,17,7579,1,14263,24779,2,3110,2,14022,25739,5679,1020,31122,4569,6252,23422,1254,5835,14967,4333,13,7471,445,2,2,1,24626,2006,8155,7381,3,1,15965,874,14671,4962,7,1922,5784,3995,19130,2261,1517,13246,6305,19772,426,20137,14,82,518,4128,15560,1622,1778,669,1556,2752,8048,1642,2775,2426,721,1021,2327,3847,568,988,2266,764,427,5201,483,1410,20,3,867,136,24,2525,4720,1804,5918,435,1200,676,442,708,1088,5,270,172,1207,108,96,465,119,323,125,852,354,1281
+X-XSS-Protection: 0
 
 
 
-The length of the buffer is 2000
-Time difference since attachment of hooks in [s] is 2.303432600
-The current cpu usage percantage [%] is 0
+
+
+The length of the buffer is 426
+Time difference since attachment of hooks in [s] is 4.4248963100
+The current cpu usage percantage [%] is 6.20411
 The number of times user is trying to receive a buffer is 1
 
 ----------Done intercepting call to recv----------
@@ -325,7 +324,7 @@ The number of times user is trying to receive a buffer is 1
 
 
 The path to the file that is to be deleted is E:\Cyber\YB_CYBER\project\FinalProject\De_Bug\De_Bug\hello.txt
-Time difference since attachment of hooks in [s] is 2.303773600
+Time difference since attachment of hooks in [s] is 4.4251171900
 The number of times user is trying to delete a file is 1
 The current cpu usage percantage [%] is 0
 
@@ -339,10 +338,10 @@ The current cpu usage percantage [%] is 0
 ----------intercepted call to WriteFileEx----------
 
 
-The handle to this file is 014D2400
+The handle to this file is 0074E100
 The buffer being written to the file is Hello World!
 The size of the buffer is 12
-Time difference since attachment of hooks in [s] is 2.304127200
+Time difference since attachment of hooks in [s] is 4.4254920600
 The current cpu usage percantage [%] is 0
 The number of times user is trying to write to a file is 1
 
@@ -356,10 +355,10 @@ The number of times user is trying to write to a file is 1
 ----------intercepted call to WriteFile----------
 
 
-The handle to this file is 014D2400
+The handle to this file is 0074E100
 The buffer being written to the file is Hello World!
 The size of the buffer is 12
-Time difference since attachment of hooks in [s] is 2.304458000
+Time difference since attachment of hooks in [s] is 4.4256764800
 The current cpu usage percantage [%] is 0
 The number of times user is trying to write to a file is 1
 
@@ -375,10 +374,11 @@ The number of times user is trying to write to a file is 1
 
 The permissions to this process is PROCESS_ALL_ACCESS
 processes created by this process will inherit the handle - 0
-The process id is 17244
+The process id is 2400
 Function is trying to open process mspaint.exe
-Time difference since attachment of hooks in [s] is 2.316953900
-The current cpu usage percantage [%] is 10.88
+Time difference since attachment of hooks in [s] is 4.4265047600
+Has passed permitted cpu
+The current cpu usage percantage [%] is 53.4938
 The number of times user is trying to open a process is 1
 
 ----------Done intercepting call to OpenProcess----------
@@ -391,12 +391,12 @@ The number of times user is trying to open a process is 1
 ----------intercepted call to VirtualAllocEx----------
 
 
-The handle to the process is 00000178
+The handle to the process is 0000017C
 The pointer that specifies a desired starting address for the region of pages that function wants to allocate is 00000000
 Size of allocation is 67
 The type of allocation is memory committing and reserving
 The memory protection for the region of pages to be allocated is PAGE_EXECUTE_READWRITE
-Time difference since attachment of hooks in [s] is 2.317397900
+Time difference since attachment of hooks in [s] is 4.4268539600
 The current cpu usage percantage [%] is 0
 The number of times user is trying to allocate memory is 1
 
@@ -410,14 +410,14 @@ The number of times user is trying to allocate memory is 1
 ----------intercepted call to CreateRemoteThread----------
 
 
-A handle to the process in which the thread is to be created is 00000178
+A handle to the process in which the thread is to be created is 0000017C
 The initial size of the stack, in bytes is 0
-A pointer to a variable to be passed to the thread function is 00D50000
+A pointer to a variable to be passed to the thread function is 001C0000
 Thread runs immediately after creation
 
 ----------IDENTIFIED INJECTION into process mspaint.exe----------
 
-Time difference since attachment of hooks in [s] is 2.317848200
+Time difference since attachment of hooks in [s] is 4.4270832700
 The current cpu usage percantage [%] is 0
 The number of times user is trying to create a remote thread is 1
 
@@ -425,5 +425,16 @@ The number of times user is trying to create a remote thread is 1
 
 
 
+
+
+
+----------intercepted call to WriteProcessMemory----------
+
+
+A pointer to the base address in the specified process to which data is written is 001B0000
+A pointer to the buffer that contains data to be written in the address space of the specified process is E:\Cyber\YB_CYBER\project\FinalProject\ExeFiles\ExeFiles\evil.dll
+The number of bytes to be written to the specified process is 67
+
+----------Done intercepting call to WriteProcessMemory----------
 
 

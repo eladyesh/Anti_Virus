@@ -942,14 +942,14 @@ class AppDemo(QMainWindow):
             self.py_thread.start()
             return
 
-        if Packers.programming_language(path) is not True:  # either not exe, or not written in the languages
-            msg = QMessageBox()
-            msg.setIcon(QMessageBox.Warning)
-            msg.setText("This file isn't in EXE format, please be aware of our rules and terms")
-            msg.setWindowTitle("Warning")
-            msg.setStandardButtons(QMessageBox.Ok | QMessageBox.Cancel)
-            result = msg.exec_()
-            return
+        # if Packers.programming_language(path) is not True:  # either not exe, or not written in the languages
+        #     msg = QMessageBox()
+        #     msg.setIcon(QMessageBox.Warning)
+        #     msg.setText("This file isn't in EXE format, please be aware of our rules and terms")
+        #     msg.setWindowTitle("Warning")
+        #     msg.setStandardButtons(QMessageBox.Ok | QMessageBox.Cancel)
+        #     result = msg.exec_()
+        #     return
 
         while not os.path.exists(r"E:\Cyber\YB_CYBER\project\FinalProject\poc_start\poc_start\unrelated\graphics"
                                  r"\virus.exe"):
