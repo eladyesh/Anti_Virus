@@ -19,6 +19,7 @@ from poc_start.unrelated.virus_db.redis_virus import Redis
 from poc_start.unrelated.pe_scan.language import Packers
 from poc_start.unrelated.graphics.terms_and_services import TermsAndServicesDialog, terms_and_service
 from poc_start.unrelated.python_exe.virus_scan import PythonVirus
+from poc_start.unrelated.sys_internals.extract import SysInternals
 from threading import Thread
 from multiprocessing import Process
 from http.server import HTTPServer, BaseHTTPRequestHandler
@@ -27,6 +28,8 @@ import types
 import functools
 import pickle
 import matplotlib
+from qtwidgets import Toggle, AnimatedToggle
+
 
 matplotlib.use("Qt5Agg")
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
@@ -338,6 +341,7 @@ class AppDemo(QMainWindow):
         self.about_action.triggered.connect(lambda: terms_and_service(False))
 
         self.settings_action = QAction(QIcon("images/settings.png"), "Change Settings", self)
+        self.settings_action.triggered.connect(lambda: self.show_settings())
 
         self.toolbar.addAction(self.main_menu_action)
         # self.toolbar.addAction(self.file_analysis_action)
@@ -352,6 +356,34 @@ class AppDemo(QMainWindow):
         self.addToolBar(Qt.LeftToolBarArea, self.toolbar)
 
         self.main_menu_window()
+
+    def show_settings(self):
+
+        self.clearLayout()
+        self.dynamic_visited = False
+        self.static_visited = False
+        self.ip_visited = False
+        self.hash_visited = False
+        self.dir_visited = False
+
+        self.settings_layout = QVBoxLayout()
+        self.page_layout.addLayout(self.settings_layout)
+
+        self.vt_toggel = AnimatedToggle(
+            checked_color="green",
+            pulse_checked_color="red"
+        )
+        self.vt_toggel.setMaximumSize(150, 50)
+        self.vt_message = QLabel("Do you want to activate Virus Total search?")
+        self.vt_message.setFont(QFont("Zapfino", 16))
+        self.vt_hbox = QHBoxLayout()
+        self.vt_hbox.addWidget(self.vt_message)
+        self.vt_hbox.addWidget(self.vt_toggel)
+
+        self.settings_layout.addLayout(self.vt_hbox)
+        self.settings_visited = True
+
+        # TODO - complete settings, and python
 
     def run_func_in_thread(self, func_to_run):
 
@@ -538,6 +570,14 @@ class AppDemo(QMainWindow):
 
             self.ip_layout.deleteLater()
 
+
+        if self.settings_visited:
+            self.vt_toggel.deleteLater()
+            self.vt_message.deleteLater()
+            self.vt_hbox.deleteLater()
+            self.settings_layout.deleteLater()
+
+
     def show_ip_analysis(self):
 
         self.clearLayout()
@@ -546,6 +586,7 @@ class AppDemo(QMainWindow):
         self.hash_visited = False
         self.dynamic_visited = False
         self.ip_visited = True
+        self.settings_visited = False
 
         # Set the style sheet
         scan_dir_style_sheet = """
@@ -592,6 +633,7 @@ class AppDemo(QMainWindow):
         self.static_visited = False
         self.dynamic_visited = False
         self.ip_visited = False
+        self.settings_visited = False
 
         self.show_label = 1
         self.dir_layout = QVBoxLayout()
@@ -793,6 +835,7 @@ class AppDemo(QMainWindow):
         self.hash_visited = False
         self.dir_visited = False
         self.ip_visited = False
+        self.settings_visited = False
 
         self.scroll = QScrollArea()  # Scroll Area which contains the widgets, set as the centralWidget
         self.widget = QWidget()  # Widget that contains the collection of Vertical Box
@@ -900,6 +943,7 @@ class AppDemo(QMainWindow):
         self.ip_visited = False
         self.hash_visited = False
         self.dir_visited = False
+        self.settings_visited = False
         self.pv = PythonVirus("virus.exe")
         self.pv.log_for_winapi(self.pv.find_ctypes_calls())
 
@@ -997,11 +1041,13 @@ class AppDemo(QMainWindow):
 
         # self.show_loading_menu()
         self.clearLayout()
+
         self.static_visited = True
         self.hash_visited = False
         self.dynamic_visited = False
         self.dir_visited = False
         self.ip_visited = False
+        self.settings_visited = False
 
         # self.page_layout.addLayout(self.btn_layout)
         self.static_button.setEnabled(False)
@@ -1897,6 +1943,7 @@ The presence of both means the code itself can be changed dynamically
         self.dynamic_visited = False
         self.dir_visited = False
         self.ip_visited = False
+        self.settings_visited = False
 
         self.hash_button.setDisabled(True)
         self.hash_layout = QVBoxLayout()
@@ -2161,6 +2208,7 @@ The presence of both means the code itself can be changed dynamically
         self.dynamic_visited = True
         self.dir_visited = False
         self.ip_visited = False
+        self.settings_visited = False
         self.dynamic_layout = QVBoxLayout()
         self.page_layout.addLayout(self.dynamic_layout)
         self.md5_hash = str(md5("virus.exe"))
