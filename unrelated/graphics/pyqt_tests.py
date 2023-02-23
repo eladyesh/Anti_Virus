@@ -373,12 +373,24 @@ class AppDemo(QMainWindow):
             checked_color="green",
             pulse_checked_color="red"
         )
-        self.vt_toggel.setMaximumSize(150, 50)
+        self.vt_toggel.setMaximumSize(250, 50)
         self.vt_message = QLabel("Do you want to activate Virus Total search?")
         self.vt_message.setFont(QFont("Zapfino", 16))
         self.vt_hbox = QHBoxLayout()
         self.vt_hbox.addWidget(self.vt_message)
         self.vt_hbox.addWidget(self.vt_toggel)
+
+        self.data_base_toggle = AnimatedToggle(
+            checked_color="green",
+            pulse_checked_color="red"
+        )
+        self.data_base_toggle.setMaximumSize(250, 50)
+        self.data_base_message = QLabel("Do you want your suspicious file to be saved in our data base?")
+        self.data_base_message.setFont(QFont("Zapfino", 16))
+        self.data_base_hbox = QHBoxLayout()
+        self.data_base_hbox.addWidget(self.data_base_message)
+        self.data_base_hbox.addWidget(self.data_base_toggle)
+        self.settings_layout.addLayout(self.data_base_hbox)
 
         self.settings_layout.addLayout(self.vt_hbox)
         self.settings_visited = True
@@ -575,6 +587,10 @@ class AppDemo(QMainWindow):
             self.vt_toggel.deleteLater()
             self.vt_message.deleteLater()
             self.vt_hbox.deleteLater()
+            self.data_base_toggle.deleteLater()
+            self.data_base_message.deleteLater()
+            self.data_base_hbox.deleteLater()
+
             self.settings_layout.deleteLater()
 
 
