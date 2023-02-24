@@ -1,21 +1,26 @@
-import socket
+class Meta(type):
 
-# Create a TCP socket
-sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    def __new__(self, class_name, bases, attrs):
 
-# Allow the socket to reuse the local address
-sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        a = {}
+        print(attrs)
+        for name, val, in attrs.items():
+            if name.startswith("__"):
+                a[name] = val
+            else:
+                a[name.upper()] = val
 
-# Bind the socket to a local address
-sock.bind(("localhost", 1234))
+        print(a)
 
-# Listen for incoming connections
-sock.listen(5)
+        return type(class_name, bases, a)
 
-print("Server listening on", sock.getsockname())
 
-# Accept incoming connections and handle them
-while True:
-    conn, addr = sock.accept()
-    print("Incoming connection from", addr)
-    conn.close()
+class Dog(metaclass=Meta):
+    x = 5
+    y = 3
+
+    def hello(self):
+        print("hi")
+
+d = Dog()
+

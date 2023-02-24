@@ -552,6 +552,7 @@ class AppDemo(QMainWindow):
                 widget.deleteLater()
             # self.grid_button_layout.deleteLater()
             self.graph_button.deleteLater()
+            self.handle_label.deleteLater()
             self.dynamic_layout.deleteLater()
 
         if self.dir_visited:
@@ -1052,6 +1053,61 @@ class AppDemo(QMainWindow):
         worker = Worker(self.activate_vm)
         self.threadpool_vm.start(self.activate_vm)
 
+    def create_scroll_bar(self):
+
+        scrollBar = QScrollBar()
+        scrollBar.setOrientation(Qt.Vertical)
+        scrollBar.setMinimum(0)
+        scrollBar.setMaximum(100)
+        scrollBar.setSingleStep(1)
+        scrollBar.setPageStep(10)
+        scrollBar.setValue(50)
+
+        # Customize the appearance of the scroll bar
+
+        self.scrollBar_stylesheet = """
+                    QScrollBar:vertical {
+                        border: none;
+                        background: #eee;
+                        width: 15px;
+                        margin: 0px 0px 0px 0px;
+                    }
+
+                    QScrollBar::handle:vertical {
+                        background: #ccc;
+                        min-height: 20px;
+                        border-radius: 5px;
+                    }
+
+                    QScrollBar::add-line:vertical {
+                        background: none;
+                        height: 0px;
+                        subcontrol-position: bottom;
+                        subcontrol-origin: margin;
+                    }
+
+                    QScrollBar::sub-line:vertical {
+                        background: none;
+                        height: 0px;
+                        subcontrol-position: top;
+                        subcontrol-origin: margin;
+                    }
+
+                    QScrollBar::up-arrow:vertical, QScrollBar::down-arrow:vertical {
+                        border: none;
+                        width: 0px;
+                        height: 0px;
+                        background: none;
+                    }
+
+                    QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {
+                        background: none;
+                    }
+                """
+
+        scrollBar.setStyleSheet(self.scrollBar_stylesheet)
+        return scrollBar
+
     def static_analysis(self):
 
         # self.show_loading_menu()
@@ -1311,19 +1367,23 @@ class AppDemo(QMainWindow):
 
         s = SysInternals()
         self.sys_internals_strings_list = QListWidget()
+        self.sys_internals_strings_list.setVerticalScrollBar(self.create_scroll_bar())
+        self.sys_internals_strings_list.setHorizontalScrollBar(self.create_scroll_bar())
         self.sys_internals_strings_list.setMaximumSize(475, 550)
         self.sys_internals_strings_list.setMinimumSize(475, 550)
         self.sys_internals_strings_list.setStyleSheet(self.list_widget_style_sheet)
+
         for string in s.run_strings():
 
-            item = QListWidgetItem(str(string))
-            font = item.font()
-            font.setPointSize(12)
-            item.setFont(font)
-            color = QColor()
-            color.setNamedColor("#87CEFA")
-            item.setForeground((QBrush(color)))
-            self.sys_internals_strings_list.addItem(item)
+            if string != "":
+                item = QListWidgetItem(str(string))
+                font = item.font()
+                font.setPointSize(12)
+                item.setFont(font)
+                color = QColor()
+                color.setNamedColor("#87CEFA")
+                item.setForeground((QBrush(color)))
+                self.sys_internals_strings_list.addItem(item)
 
         self.sys_internals_strings_box = QVBoxLayout()
         self.sys_internals_strings_box.addWidget(self.sys_internals_strings_label)
@@ -3009,6 +3069,9 @@ The presence of both means the code itself can be changed dynamically
              }
          """)
         self.dynamic_layout.addWidget(self.graph_button)
+
+        self.handle_label = make_label("Sys Internals Handle Analysis", 24)
+        self.dynamic_layout.addWidget(self.handle_label)
 
 
 app = QApplication(sys.argv)
