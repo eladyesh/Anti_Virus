@@ -1,42 +1,21 @@
-import os
+import socket
 
-import PyQt5
-from PyQt5 import QtWidgets
-from qtwidgets import Toggle, AnimatedToggle
+# Create a TCP socket
+sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
+# Allow the socket to reuse the local address
+sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 
-class Window(QtWidgets.QMainWindow):
+# Bind the socket to a local address
+sock.bind(("localhost", 1234))
 
-    def __init__(self):
-        super().__init__()
+# Listen for incoming connections
+sock.listen(5)
 
-        toggle_1 = Toggle()
-        toggle_2 = AnimatedToggle(
-            checked_color="#FFB000",
-            pulse_checked_color="#44FFB000"
-        )
+print("Server listening on", sock.getsockname())
 
-        hbox_1 = QtWidgets.QHBoxLayout()
-        label_1 = QtWidgets.QLabel("Toggle 1")
-        hbox_1.addWidget(label_1)
-        hbox_1.addWidget(toggle_1)
-
-        hbox_2 = QtWidgets.QHBoxLayout()
-        label_2 = QtWidgets.QLabel("Toggle 2")
-        hbox_2.addWidget(label_2)
-        hbox_2.addWidget(toggle_2)
-
-        container = QtWidgets.QWidget()
-        layout = QtWidgets.QVBoxLayout()
-        layout.addLayout(hbox_1)
-        layout.addLayout(hbox_2)
-        container.setLayout(layout)
-
-        self.setCentralWidget(container)
-
-
-app = QtWidgets.QApplication([])
-w = Window()
-w.show()
-print(os.getcwd())
-app.exec_()
+# Accept incoming connections and handle them
+while True:
+    conn, addr = sock.accept()
+    print("Incoming connection from", addr)
+    conn.close()

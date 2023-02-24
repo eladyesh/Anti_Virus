@@ -30,7 +30,6 @@ import pickle
 import matplotlib
 from qtwidgets import Toggle, AnimatedToggle
 
-
 matplotlib.use("Qt5Agg")
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 import matplotlib.pyplot as plt
@@ -503,6 +502,8 @@ class AppDemo(QMainWindow):
             self.page_layout.removeItem(self.page_layout.takeAt(self.index_table))
             self.virus_table.deleteLater()
             self.list_strings_widget.deleteLater()
+            self.sys_internals_strings_list.deleteLater()
+            self.sys_internals_strings_label.deleteLater()
             self.strings_label.deleteLater()
             self.virus_table_label.deleteLater()
             self.static_button.setDisabled(False)
@@ -582,7 +583,6 @@ class AppDemo(QMainWindow):
 
             self.ip_layout.deleteLater()
 
-
         if self.settings_visited:
             self.vt_toggel.deleteLater()
             self.vt_message.deleteLater()
@@ -592,7 +592,6 @@ class AppDemo(QMainWindow):
             self.data_base_hbox.deleteLater()
 
             self.settings_layout.deleteLater()
-
 
     def show_ip_analysis(self):
 
@@ -1179,8 +1178,8 @@ class AppDemo(QMainWindow):
 
         # Create a list widget and add some items to it
         self.list_strings_widget = QListWidget()
-        self.list_strings_widget.setMinimumSize(450, 550)
         self.list_strings_widget.setMaximumSize(450, 550)
+        self.list_strings_widget.setMinimumSize(450, 550)
         # self.list_strings_widget.itemEntered.connect(show_bubble)
 
         # YARA
@@ -1299,8 +1298,40 @@ class AppDemo(QMainWindow):
 
         self.strings_label = make_label("Suspicious Strings", 24)
         self.list_strings_widget.setVerticalScrollBar(scrollBar)
-        self.table_and_strings_layout.addWidget(self.strings_label)
-        self.table_and_strings_layout.addWidget(self.list_strings_widget)
+        self.reg_strings_box = QVBoxLayout()
+        self.reg_strings_box.addWidget(self.strings_label)
+        self.reg_strings_box.addWidget(self.list_strings_widget)
+        # self.table_and_strings_layout.addWidget(self.strings_label)
+        # self.table_and_strings_layout.addWidget(self.list_strings_widget)
+
+        # sys internals
+        self.strings_box = QHBoxLayout()
+
+        self.sys_internals_strings_label = make_label("Additional Strings", 24)
+
+        s = SysInternals()
+        self.sys_internals_strings_list = QListWidget()
+        self.sys_internals_strings_list.setMaximumSize(475, 550)
+        self.sys_internals_strings_list.setMinimumSize(475, 550)
+        self.sys_internals_strings_list.setStyleSheet(self.list_widget_style_sheet)
+        for string in s.run_strings():
+
+            item = QListWidgetItem(str(string))
+            font = item.font()
+            font.setPointSize(12)
+            item.setFont(font)
+            color = QColor()
+            color.setNamedColor("#87CEFA")
+            item.setForeground((QBrush(color)))
+            self.sys_internals_strings_list.addItem(item)
+
+        self.sys_internals_strings_box = QVBoxLayout()
+        self.sys_internals_strings_box.addWidget(self.sys_internals_strings_label)
+        self.sys_internals_strings_box.addWidget(self.sys_internals_strings_list)
+
+        self.strings_box.addLayout(self.reg_strings_box)
+        self.strings_box.addLayout(self.sys_internals_strings_box)
+        self.table_and_strings_layout.addLayout(self.strings_box)
 
         self.packers_label = make_label("Packers And Protectors", 24)
         self.packers_widget = QListWidget()
