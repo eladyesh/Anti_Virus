@@ -1567,6 +1567,7 @@ class AppDemo(QMainWindow):
         self.v_box_for_fractioned = QVBoxLayout()
         self.v_box_for_fractioned.addWidget(title)
         self.list_widget_for_fractioned = QListWidget()
+        self.list_widget_for_fractioned.setVerticalScrollBar(self.create_scroll_bar())
         self.list_widget_for_fractioned.setMaximumSize(300, 125)
         self.list_widget_for_fractioned.setMinimumSize(300, 125)
         self.list_widget_for_fractioned.addItems(fractioned)
@@ -1622,6 +1623,7 @@ The presence of both means the code itself can be changed dynamically
         self.v_box_for_suspicious_imports = QVBoxLayout()
         self.v_box_for_suspicious_imports.addWidget(title)
         self.list_widget_for_suspicious_imports = QListWidget()
+        self.list_widget_for_suspicious_imports.setVerticalScrollBar(self.create_scroll_bar())
         self.list_widget_for_suspicious_imports.setMaximumSize(300, 125)
         self.list_widget_for_suspicious_imports.setMinimumSize(300, 125)
         self.list_widget_for_suspicious_imports.addItems(sections)
@@ -1710,7 +1712,7 @@ The presence of both means the code itself can be changed dynamically
 
     def activate_vt_scan_ip(self):
 
-        self.suspicious_ip.setDisabled(True)
+        # self.suspicious_ip.setDisabled(True)
         for ip in VTScan.scan_for_suspicious_cache(self.progress_bar_ip):
 
             if ip == "stop":
@@ -1719,7 +1721,7 @@ The presence of both means the code itself can be changed dynamically
                 break
 
             item = QListWidgetItem(str(ip))
-            item.setFlags(item.flags() & ~Qt.ItemIsSelectable)
+            # item.setFlags(item.flags() & ~Qt.ItemIsSelectable)
             self.suspicious_ip.addItem(item)
 
     def scan_dir(self):
@@ -1729,6 +1731,7 @@ The presence of both means the code itself can be changed dynamically
         self.show_movie()
 
         self.suspicious_paths = QListWidget()
+        self.suspicious_paths.setVerticalScrollBar(self.create_scroll_bar())
         self.suspicious_paths.setStyleSheet("""
             QListWidget {
                 background-color: #333;
@@ -2008,6 +2011,7 @@ The presence of both means the code itself can be changed dynamically
             self.ip_thread.run = self.activate_vt_scan_ip
 
             self.suspicious_ip = QListWidget()
+            self.suspicious_ip.setVerticalScrollBar(self.create_scroll_bar())
             self.suspicious_ip.setStyleSheet("""
             QListWidget {
                 background-color: #333;
@@ -3073,6 +3077,9 @@ The presence of both means the code itself can be changed dynamically
         self.handle_label = make_label("Sys Internals Handle Analysis", 24)
         self.dynamic_layout.addWidget(self.handle_label)
 
+        # TODO - complete handle in class
+        # TODO - complete database
+        # TODO- complete clock with data base
 
 app = QApplication(sys.argv)
 app.setStyleSheet(qss)
