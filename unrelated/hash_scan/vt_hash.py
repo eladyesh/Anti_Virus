@@ -12,9 +12,13 @@ import pydivert
 import re
 from http.server import HTTPServer, BaseHTTPRequestHandler
 import socket
+import sys
+import ctypes
+import platform
+
+from PyQt5.QtCore import QThread
 
 ip_for_server = socket.gethostbyname_ex(socket.gethostname())[-1][0]
-
 
 class RequestHandler(BaseHTTPRequestHandler):
     def do_GET(self):
@@ -138,6 +142,28 @@ class VTScan:
         }
         self.f = open("hash_check.txt", "w")
 
+    @staticmethod
+    def admin() -> "Admin Bool":
+        """Requests UAC Admin on Windows with a prompt"""
+        if platform.system() == "Windows":
+            ctypes.windll.shell32.ShellExecuteW(
+                None,
+                'runas',
+                sys.executable,
+                ' '.join(sys.argv),
+                None,
+                None
+            )
+
+            try:
+                return ctypes.windll.shell32.IsUserAnAdmin()
+
+            except:
+                return False
+
+        else:
+            raise OSError("admin() only works for windows.")
+
     def upload(self, malware_path):
         """
         function uploads suspicious file into malware_path
@@ -222,8 +248,9 @@ class VTScan:
             sys.exit(1)
 
     @staticmethod
-    def scan_for_suspicious_cache():
+    def scan_for_suspicious_cache(progress_bar_ip):
         print("got here")
+        threads = []
         headers = {
             "x_apikey": VT_API_KEY,  # api key
             "User-Agent": "vtscan v.1.0",
@@ -240,20 +267,29 @@ class VTScan:
                 ip_match.append(ip_pattern.search(line)[0])
 
         ip_match.remove("127.0.0.1")
-
         url_to_vt = "https://www.virustotal.com/api/v3/urls/"
 
-        for ip in ip_match:
+        len_ip = len(ip_match)
+        for i, ip in enumerate(ip_match):
             url_to_check = base64.urlsafe_b64encode(ip.encode()).decode().strip("=")
             res = requests.get(url_to_vt + url_to_check, headers=headers)
             if res.status_code == 200:
                 result = res.json()
                 print(result["data"]["attributes"]["last_analysis_stats"])
                 # print(result["data"]["attributes"]["last_analysis_results"]) --> engines
-                if result["data"]["attributes"]["last_analysis_stats"]["malicious"] > 0:
+                if result["data"]["attributes"]["last_analysis_stats"]["malicious"] > 5:
                     block_ip.append(ip)
                     yield ip
 
+            try:
+                progress_bar_ip.setValue(int((i + 1) / len_ip * 100))
+                if int((i + 1) / len_ip * 100) == 100:
+                    yield "stop"
+            except Exception as e:
+                print(e)
+                continue
+
+        elevate = VTScan.admin()
         server_thread = threading.Thread(target=start_server)
         server_thread.start()
 
@@ -279,7 +315,7 @@ class VTScan:
                 w.send(packet)
 
     @staticmethod
-    def scan_directory(path):
+    def scan_directory(path, progress_bar):
         print("Got here")
         headers = {
             "x_apikey": VT_API_KEY,  # api key
@@ -288,7 +324,8 @@ class VTScan:
             # the client can accept a response which has been compressed using the DEFLATE algorithm
         }
 
-        for filename in os.scandir(path):
+        num_files = len(os.listdir(path))
+        for i, filename in enumerate(list(os.scandir(path))):
             if filename.is_file():
 
                 upload_url = VT_API_URL + "files"
@@ -339,6 +376,10 @@ class VTScan:
 
                 else:
                     print("Could not upload successfully")
+
+                progress_bar.setValue(int((i + 1) / num_files * 100))
+                if int((i + 1) / num_files * 100) == 100:
+                    yield "stop"
 
     def info(self, file_hash):
         """
@@ -417,6 +458,6 @@ if __name__ == "__main__":
     md5_hash = md5("nop.exe")
     vtscan = VTScan()
     vtscan.info(md5_hash)
-    # vtscan.analyse()
-    # VTScan.scan_for_suspicious_cache()
+    vtscan.analyse()
+    # VTScan.scan_for_suspicious_cache(5)
     # VTScan.scan_directory("D:\Cyber\Sockets")
