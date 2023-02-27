@@ -1717,8 +1717,9 @@ The presence of both means the code itself can be changed dynamically
 
     def activate_vt_scan_ip(self):
 
-        # self.suspicious_ip.setDisabled(True)
-        for block_ip in VTScan.scan_for_suspicious_cache(self.progress_bar_ip):
+        mutex = threading.Semaphore(1)
+
+        for block_ip in VTScan.scan_for_suspicious_cache(self.progress_bar_ip, mutex):
 
             if block_ip == "stop":
                 self.movie_ip.stop()
@@ -1726,14 +1727,12 @@ The presence of both means the code itself can be changed dynamically
                 continue
 
             if isinstance(block_ip, list):
-
                 result = subprocess.run(['python', 'use_for_block.py'] + block_ip, capture_output=True, text=True)
                 continue
 
             item = QListWidgetItem(str(block_ip))
             # item.setFlags(item.flags() & ~Qt.ItemIsSelectable)
             self.suspicious_ip.addItem(item)
-
 
     def scan_dir(self):
 
