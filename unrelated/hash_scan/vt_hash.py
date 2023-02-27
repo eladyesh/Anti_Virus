@@ -1,8 +1,11 @@
+import ctypes
 import os
 import sys
 import threading
 import time
 import json
+import pyuac
+from pyuac import main_requires_admin
 import requests
 import argparse
 import hashlib
@@ -12,13 +15,23 @@ import pydivert
 import re
 from http.server import HTTPServer, BaseHTTPRequestHandler
 import socket
-import sys
-import ctypes
-import platform
+from functools import wraps
 
 from PyQt5.QtCore import QThread
 
 ip_for_server = socket.gethostbyname_ex(socket.gethostname())[-1][0]
+
+def run_as_admin(func):
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        if not pyuac.isUserAdmin():
+            print("Re-launching as admin!")
+            pyuac.runAsAdmin()
+        else:
+            func(*args, **kwargs)  # Already an admin here.
+
+    return wrapper
+
 
 class RequestHandler(BaseHTTPRequestHandler):
     def do_GET(self):
@@ -142,28 +155,6 @@ class VTScan:
         }
         self.f = open("hash_check.txt", "w")
 
-    @staticmethod
-    def admin() -> "Admin Bool":
-        """Requests UAC Admin on Windows with a prompt"""
-        if platform.system() == "Windows":
-            ctypes.windll.shell32.ShellExecuteW(
-                None,
-                'runas',
-                sys.executable,
-                ' '.join(sys.argv),
-                None,
-                None
-            )
-
-            try:
-                return ctypes.windll.shell32.IsUserAnAdmin()
-
-            except:
-                return False
-
-        else:
-            raise OSError("admin() only works for windows.")
-
     def upload(self, malware_path):
         """
         function uploads suspicious file into malware_path
@@ -277,7 +268,7 @@ class VTScan:
                 result = res.json()
                 print(result["data"]["attributes"]["last_analysis_stats"])
                 # print(result["data"]["attributes"]["last_analysis_results"]) --> engines
-                if result["data"]["attributes"]["last_analysis_stats"]["malicious"] > 5:
+                if result["data"]["attributes"]["last_analysis_stats"]["malicious"] > 0:
                     block_ip.append(ip)
                     yield ip
 
@@ -285,34 +276,11 @@ class VTScan:
                 progress_bar_ip.setValue(int((i + 1) / len_ip * 100))
                 if int((i + 1) / len_ip * 100) == 100:
                     yield "stop"
-            except Exception as e:
-                print(e)
+            except:
+                print("Something with the touches")
                 continue
 
-        elevate = VTScan.admin()
-        server_thread = threading.Thread(target=start_server)
-        server_thread.start()
-
-        with pydivert.WinDivert() as w:
-            for packet in w:
-                if packet.dst_addr in block_ip:
-                    print("got here to block ip")
-                    ip = packet.dst_addr
-                    # print("packet dst in block ip ", packet.src_port, packet.dst_port, packet.src_addr, packet.dst_addr,packet.direction)
-                    # print(f"got here out {packet.is_outbound}")
-                    packet.dst_addr = ip_for_server
-                    packet.dst_port = 8080
-                    packet.direction = 0
-                    # print("packet modified ", packet.src_port, packet.dst_port, packet.src_addr, packet.dst_addr, packet.direction)
-                if packet.src_addr == ip_for_server and packet.src_port == 8080:
-                    # print("packet src http ", packet.src_port, packet.dst_port, packet.src_addr, packet.dst_addr,
-                    #       packet.direction)
-                    packet.src_addr = ip
-                    packet.src_port = 80
-                    packet.direction = 1
-                    # print("packet modified ", packet.src_port, packet.dst_port, packet.src_addr, packet.dst_addr,
-                    #       packet.direction)
-                w.send(packet)
+        yield block_ip
 
     @staticmethod
     def scan_directory(path, progress_bar):
@@ -455,9 +423,9 @@ if __name__ == "__main__":
     # args = vars(parser.parse_args())
 
     # running scan on suspicious file
-    md5_hash = md5("nop.exe")
-    vtscan = VTScan()
-    vtscan.info(md5_hash)
-    vtscan.analyse()
-    # VTScan.scan_for_suspicious_cache(5)
+    # md5_hash = md5("nop.exe")
+    # vtscan = VTScan()
+    # vtscan.info(md5_hash)
+    # vtscan.analyse()
+    VTScan.scan_for_suspicious_cache(5)
     # VTScan.scan_directory("D:\Cyber\Sockets")

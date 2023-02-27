@@ -1,6 +1,11 @@
 import sys, os
 import random
-
+import threading
+import socket
+import pydivert
+import pyuac
+from pydivert import WinDivert
+from pyuac import main_requires_admin
 from PyQt5.QtWidgets import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
@@ -10,7 +15,7 @@ import PyQt5.QtGui
 from PyQt5.QtCore import QObject, QThread, pyqtSignal
 import shutil
 from poc_start.send_to_vm.sender import Sender
-from poc_start.unrelated.hash_scan.vt_hash import VTScan, md5, check_hash, sha_256
+from poc_start.unrelated.hash_scan.vt_hash import VTScan, md5, check_hash, sha_256, start_server, RequestHandler, HTTPServer, BaseHTTPRequestHandler
 from poc_start.unrelated.pe_scan.entropy import *
 from poc_start.unrelated.pe_scan.pe_tests import *
 from poc_start.unrelated.Yara.ya_ra import YaraChecks
@@ -718,7 +723,7 @@ class AppDemo(QMainWindow):
             QListWidget::item[role=highlight] {
                 color: red;
             }
-            
+
             QListWidget::item:hover {
                 background-color: #555;
             }
@@ -1440,7 +1445,7 @@ class AppDemo(QMainWindow):
             QListWidget::item[role=highlight] {
                 color: red;
             }
-            
+
             QListWidget::item:hover {
                 background-color: #555;
             }
@@ -1473,52 +1478,52 @@ class AppDemo(QMainWindow):
             margin-top: 10px;
             margin-bottom: 10px;
         }
-        
+
         QTreeView::branch:has-siblings:!adjoins-item {
             border-image: url(images/vline.png) 0;
         }
-        
+
         QTreeView::branch:has-siblings:adjoins-item {
             border-image: url(images/branch-more.png) 0;
         }
-        
+
         QTreeView::branch:!has-children:!has-siblings:adjoins-item {
             border-image: url(images/branch-end.png) 0;
         }
-        
+
         QTreeView::branch:has-children:!has-siblings:closed,
         QTreeView::branch:closed:has-children:has-siblings {
                 border-image: none;
                 image: url(images/branch-closed.png);
         }
-        
+
         QTreeView::branch:open:has-children:!has-siblings,
         QTreeView::branch:open:has-children:has-siblings  {
                 border-image: none;
                 image: url(images/branch-open.png);
         }
-        
+
         QTreeView::branch:selected {
             color: white;
         }
-        
+
         QTreeView::item {
             padding: 5px;
             margin: 1px;
         }
-        
+
         QTreeView::item:hover {
             background-color: #555;
         }
-        
+
         QTreeView::item:selected {
             background-color: #777;
         }
-        
+
         QTableWidget::item:selected:active {
             background-color: #999;
         }
-        
+
         QTableWidget::item:selected:!active {
             background-color: #red;
         }""")
@@ -1713,16 +1718,22 @@ The presence of both means the code itself can be changed dynamically
     def activate_vt_scan_ip(self):
 
         # self.suspicious_ip.setDisabled(True)
-        for ip in VTScan.scan_for_suspicious_cache(self.progress_bar_ip):
+        for block_ip in VTScan.scan_for_suspicious_cache(self.progress_bar_ip):
 
-            if ip == "stop":
+            if block_ip == "stop":
                 self.movie_ip.stop()
                 self.description_for_ip_analysis.setText("All Done !!")
-                break
+                continue
 
-            item = QListWidgetItem(str(ip))
+            if isinstance(block_ip, list):
+
+                result = subprocess.run(['python', 'use_for_block.py'] + block_ip, capture_output=True, text=True)
+                continue
+
+            item = QListWidgetItem(str(block_ip))
             # item.setFlags(item.flags() & ~Qt.ItemIsSelectable)
             self.suspicious_ip.addItem(item)
+
 
     def scan_dir(self):
 
@@ -1751,7 +1762,7 @@ The presence of both means the code itself can be changed dynamically
             QListWidget::item[role=highlight] {
                 color: red;
             }
-            
+
             QListWidget::item:hover {
                 background-color: #555;
             }
@@ -2031,7 +2042,7 @@ The presence of both means the code itself can be changed dynamically
             QListWidget::item[role=highlight] {
                 color: red;
             }
-            
+
             QListWidget::item:hover {
                 background-color: #555;
             }
@@ -2140,6 +2151,7 @@ The presence of both means the code itself can be changed dynamically
 
             self.virus_total_label = make_label("Virus Total Engine Results", 24)
             self.hash_layout.addWidget(self.virus_total_label)
+            self.engine_tree.setVerticalScrollBar(self.create_scroll_bar())
 
             # Add a top-level item for each engine
             for engine in engines:
@@ -2288,12 +2300,12 @@ The presence of both means the code itself can be changed dynamically
                 margin-bottom: 10px;
                 padding: 10px;
             }
-            
+
             QPushButton:hover {
                 background-color: #D8BFD8;
                 color: #4B0082;
             }
-            
+
             QPushButton:pressed {
                 background-color: #DDA0DD;
                 color: #8B008B;
@@ -2641,52 +2653,52 @@ The presence of both means the code itself can be changed dynamically
             margin-top: 10px;
             margin-bottom: 10px;
         }
-        
+
         QTreeView::branch:has-siblings:!adjoins-item {
             border-image: url(images/vline.png) 0;
         }
-        
+
         QTreeView::branch:has-siblings:adjoins-item {
             border-image: url(images/branch-more.png) 0;
         }
-        
+
         QTreeView::branch:!has-children:!has-siblings:adjoins-item {
             border-image: url(images/branch-end.png) 0;
         }
-        
+
         QTreeView::branch:has-children:!has-siblings:closed,
         QTreeView::branch:closed:has-children:has-siblings {
                 border-image: none;
                 image: url(images/branch-closed.png);
         }
-        
+
         QTreeView::branch:open:has-children:!has-siblings,
         QTreeView::branch:open:has-children:has-siblings  {
                 border-image: none;
                 image: url(images/branch-open.png);
         }
-        
+
         QTreeView::branch:selected {
             color: white;
         }
-        
+
         QTreeView::item {
             padding: 5px;
             margin: 1px;
         }
-        
+
         QTreeView::item:hover {
             background-color: #555;
         }
-        
+
         QTreeView::item:selected {
             background-color: #777;
         }
-        
+
         QTableWidget::item:selected:active {
             background-color: #999;
         }
-        
+
         QTableWidget::item:selected:!active {
             background-color: #red;
         }""")
@@ -3081,9 +3093,12 @@ The presence of both means the code itself can be changed dynamically
         # TODO - complete database
         # TODO- complete clock with data base
 
-app = QApplication(sys.argv)
-app.setStyleSheet(qss)
-demo = AppDemo()
-demo.show()
 
-sys.exit(app.exec())
+if __name__ == "__main__":
+
+    app = QApplication(sys.argv)
+    app.setStyleSheet(qss)
+    demo = AppDemo()
+    demo.show()
+
+    sys.exit(app.exec())
