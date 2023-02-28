@@ -1,7 +1,4 @@
 import os
-
-import pefile
-import peid
 import subprocess
 import psutil
 import threading
@@ -32,7 +29,6 @@ def get_pid(process_name):
 
 @dataclass
 class SysInternals:
-
     handle_path: str = os.getcwd()[:os.getcwd().rfind("\\") + 1] + "sys_internals" + "\\handle.exe"
     strings_path: str = os.getcwd()[:os.getcwd().rfind("\\") + 1] + "sys_internals" + "\\strings.exe"
 
@@ -50,13 +46,14 @@ class SysInternals:
         pid = get_pid("virus.exe")
         print(pid)
 
-        with open("output_handles.txt", "w") as f:
+        with open(r"Z:\E\Cyber\YB_CYBER\project\FinalProject\poc_start\poc_start\unrelated\sys_internals\output_handles.txt", "w") as f:
             f.write("")
 
         while process.poll() is None:
             # os.system(f"handle.exe -a -p {pid} > output.txt")
-            handle = run_command(f"{SysInternals.handle_path} -a -p {pid}")[0]
-            with open("output_handles.txt", "w") as f:
+            new_path = SysInternals.handle_path.replace(r"sys_internals", r"poc_start\unrelated\sys_internals")
+            handle = run_command(f"{new_path} -a -p {pid}")[0]
+            with open(r"Z:\E\Cyber\YB_CYBER\project\FinalProject\poc_start\poc_start\unrelated\sys_internals\output_handles.txt", "w") as f:
                 f.write(handle)
                 logging.info('Checking handles...')
             time.sleep(0.01)
@@ -77,10 +74,12 @@ class SysInternals:
             res.append(string)
         return res
 
+
 if __name__ == "__main__":
     pass
     s = SysInternals()
-    print(s.run_strings())
+    # print(s.run_strings())
+    s.run_handle()
     # handle = run_command(f"handle.exe -a -p {pid}")[0]
     # for line in handle.split("\n"):
     #     print(line)

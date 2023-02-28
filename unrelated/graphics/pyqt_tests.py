@@ -1727,7 +1727,11 @@ The presence of both means the code itself can be changed dynamically
                 continue
 
             if isinstance(block_ip, list):
+                print("got here ", block_ip)
                 result = subprocess.run(['python', 'use_for_block.py'] + block_ip, capture_output=True, text=True)
+                continue
+
+            if block_ip == "1.0.0.127":
                 continue
 
             item = QListWidgetItem(str(block_ip))
@@ -3089,6 +3093,9 @@ The presence of both means the code itself can be changed dynamically
         self.dynamic_layout.addWidget(self.handle_label)
 
         # TODO - complete handle in class
+        handle_data = open(os.path.abspath("output_handles.txt").replace("graphics", "sys_internals")).read()
+        print(handle_data)
+
         # TODO - complete database
         # TODO- complete clock with data base
 
