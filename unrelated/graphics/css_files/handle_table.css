@@ -1,0 +1,45 @@
+QTableWidget {
+    font-family: sans-serif;
+    font-size: 18px;
+    color: #87CEFA;
+    background-color: #333;
+    border: 2px solid #444;
+    gridline-color: #666;
+}
+
+QTableWidget::item {
+    padding: 20px;
+    margin: 20px;
+    min-width: 100px;
+    min-height: 20px;
+    font-weight: bold;
+}
+
+QTableWidget::item:selected {
+    background-color: #777;
+}
+
+QTableWidget::header {
+    font-size: 24px;
+    font-weight: bold;
+    background-color: #444;
+    border-bottom: 2px solid #555;
+    min-height: 40px;
+    color: #fff;
+}
+
+QTableWidget::horizontalHeader {
+    border-right: 2px solid #555;
+}
+
+QTableWidget::verticalHeader {
+    border-bottom: 2px solid #555;
+    color: #fff;
+    background-color: #555;
+}
+
+QTableWidget::corner {
+    border-right: 2px solid #555;
+    border-bottom: 2px solid #555;
+    background-color: #555;
+}

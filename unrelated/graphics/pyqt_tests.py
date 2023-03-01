@@ -14,6 +14,7 @@ from PyQt5.QtCore import Qt, QUrl, pyqtSlot, QRunnable, QThreadPool, QVariant, Q
 import PyQt5.QtGui
 from PyQt5.QtCore import QObject, QThread, pyqtSignal
 import shutil
+from poc_start.unrelated.graphics.helpful_widgets import DialWatch, EventViewer
 from poc_start.send_to_vm.sender import Sender
 from poc_start.unrelated.hash_scan.vt_hash import VTScan, md5, check_hash, sha_256, start_server, RequestHandler, HTTPServer, BaseHTTPRequestHandler
 from poc_start.unrelated.pe_scan.entropy import *
@@ -359,7 +360,21 @@ class AppDemo(QMainWindow):
 
         self.addToolBar(Qt.LeftToolBarArea, self.toolbar)
 
+        self.dial = DialWatch()
+        self.update_dial_position()
+
+        # Connect the resizeEvent to the update_label_position method
+        self.resizeEvent = self.update_dial_position
+
         self.main_menu_window()
+
+    def update_dial_position(self, event=None):
+
+        # Calculate the new position of the label widget based on the size of the window
+        label_width = self.dial.sizeHint().width()
+        window_width = self.width()
+        x = window_width - label_width
+        self.dial.move(x - 20, 20)
 
     def show_settings(self):
 
@@ -377,7 +392,7 @@ class AppDemo(QMainWindow):
             checked_color="green",
             pulse_checked_color="red"
         )
-        self.vt_toggel.setMaximumSize(250, 50)
+        self.vt_toggel.setMaximumSize(100, 50)
         self.vt_message = QLabel("Do you want to activate Virus Total search?")
         self.vt_message.setFont(QFont("Zapfino", 16))
         self.vt_hbox = QHBoxLayout()
@@ -388,7 +403,7 @@ class AppDemo(QMainWindow):
             checked_color="green",
             pulse_checked_color="red"
         )
-        self.data_base_toggle.setMaximumSize(250, 50)
+        self.data_base_toggle.setMaximumSize(100, 50)
         self.data_base_message = QLabel("Do you want your suspicious file to be saved in our data base?")
         self.data_base_message.setFont(QFont("Zapfino", 16))
         self.data_base_hbox = QHBoxLayout()
@@ -558,6 +573,7 @@ class AppDemo(QMainWindow):
             # self.grid_button_layout.deleteLater()
             self.graph_button.deleteLater()
             self.handle_label.deleteLater()
+            self.events_table.deleteLater()
             self.dynamic_layout.deleteLater()
 
         if self.dir_visited:
@@ -3092,9 +3108,11 @@ The presence of both means the code itself can be changed dynamically
         self.handle_label = make_label("Sys Internals Handle Analysis", 24)
         self.dynamic_layout.addWidget(self.handle_label)
 
-        # TODO - complete handle in class
-        handle_data = open(os.path.abspath("output_handles.txt").replace("graphics", "sys_internals")).read()
-        print(handle_data)
+        events = EventViewer()
+        events.handle_table()
+        self.events_table = events.table
+        self.events_table.setMinimumSize(450, 450)
+        self.dynamic_layout.addWidget(self.events_table)
 
         # TODO - complete database
         # TODO- complete clock with data base
