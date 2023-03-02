@@ -360,12 +360,6 @@ class AppDemo(QMainWindow):
 
         self.addToolBar(Qt.LeftToolBarArea, self.toolbar)
 
-        self.dial = DialWatch()
-        self.update_dial_position()
-
-        # Connect the resizeEvent to the update_label_position method
-        self.resizeEvent = self.update_dial_position
-
         self.main_menu_window()
 
     def update_dial_position(self, event=None):
@@ -801,8 +795,15 @@ class AppDemo(QMainWindow):
             "background-color: #DDA0DD; color: #8B008B;}")
 
         self.l1 = make_label("YESH SCANNER", 28)
-        self.l1.setAlignment(Qt.AlignCenter)
-        self.l1.setStyleSheet("QLabel { font: bold; margin-bottom: 0px; padding: 10px;} ")
+        self.h_box_for_l1_and_dial = QHBoxLayout()
+        # self.h_box_for_l1_and_dial.setAlignment(Qt.AlignCenter)
+        self.h_box_for_l1_and_dial.addWidget(self.l1)
+
+        self.dial_instance = DialWatch()
+        self.dial = self.dial_instance.get_dial()
+        self.h_box_for_l1_and_dial.addWidget(self.dial, alignment=Qt.AlignRight)
+
+        self.l1.setStyleSheet("QLabel { font: bold; margin-bottom: 0px; padding: 10px; margin-left:325px;} ")
 
         self.start_label_explantion = QLabel("Analyse suspicious files to detect malware\n"
                                              "Automatic, Fast, User Friendly\n")
@@ -855,7 +856,7 @@ class AppDemo(QMainWindow):
         self.btn_layout.setAlignment(Qt.AlignCenter)
 
         self.page_layout.setAlignment(Qt.AlignCenter)
-        self.page_layout.addWidget(self.l1)
+        self.page_layout.addLayout(self.h_box_for_l1_and_dial)
         self.page_layout.addWidget(self.start_label_explantion)
         self.page_layout.addLayout(self.btn_layout)
         # self.page_layout.addWidget(self.drag_and_drop_gif)

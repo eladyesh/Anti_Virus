@@ -16,10 +16,13 @@ class DialWatch(QWidget):
         self.dial = QDial()
         self.dial.setRange(0, 99)
         self.dial.setFixedSize(100, 100)
-        self.dial.setStyleSheet("background-color: red; border-radius: 25px")
+        self.dial.setStyleSheet("background-color: red; border-radius: 25px; margin-left: 20px;")
         self.dial.setNotchesVisible(True)
         self.dial.notchSize = 20
         self.dial.valueChanged.connect(self.onDialChanged)
+
+    def get_dial(self):
+        return self.dial
 
     def onDialChanged(self, value):
         print(f"Current value: {value + 1}%")

@@ -1,35 +1,41 @@
 import sys
-from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QApplication, QWidget, QLabel
+from PyQt5.QtWidgets import QApplication, QWidget, QHBoxLayout, QLabel
 
-
-class MyWindow(QWidget):
+class MyWidget(QWidget):
     def __init__(self):
         super().__init__()
 
-        # Create a label widget to add to the top-right corner
-        self.label = QLabel("Hello World!", self)
+        # create the labels
+        label_center = QLabel("Center")
+        label_right = QLabel("Right")
 
-        # Set the background color of the widget
-        self.setStyleSheet("background-color: white;")
+        # create the horizontal layout
+        hbox = QHBoxLayout(self)
 
-        # Set the initial position of the label widget
-        self.update_label_position()
+        # add a stretchable space before the center label to push it to the center
+        hbox.addStretch(1)
 
-        # Connect the resizeEvent to the update_label_position method
-        self.resizeEvent = self.update_label_position
+        # add the center label to the layout without stretch
+        hbox.addWidget(label_center, 0)
 
-    def update_label_position(self, event=None):
-        # Calculate the new position of the label widget based on the size of the window
-        label_width = self.label.sizeHint().width()
-        window_width = self.width()
-        x = window_width - label_width
-        self.label.move(x - 20, 20)
+        # add the right label to the layout without stretch
+        hbox.addWidget(label_right, 0)
+
+        # set a final stretchable space after the right label to push them to the left
+        hbox.addStretch(1)
+
+        # set the layout margin to 35px
+        hbox.setContentsMargins(35, 0, 35, 0)
+
+        # set a margin-left of 35px for the right label
+        label_right.setStyleSheet("margin-left: 500px;")
+
+        # set the layout for the widget
+        self.setLayout(hbox)
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     app = QApplication(sys.argv)
-    window = MyWindow()
-    window.setGeometry(100, 100, 400, 300)
-    window.show()
+    widget = MyWidget()
+    widget.show()
     sys.exit(app.exec_())
