@@ -14,6 +14,7 @@ from PyQt5.QtCore import Qt, QUrl, pyqtSlot, QRunnable, QThreadPool, QVariant, Q
 import PyQt5.QtGui
 from PyQt5.QtCore import QObject, QThread, pyqtSignal
 import shutil
+from poc_start.unrelated.graphics.quarantine import Quarantine
 from poc_start.unrelated.graphics.helpful_widgets import DialWatch, EventViewer
 from poc_start.send_to_vm.sender import Sender
 from poc_start.unrelated.hash_scan.vt_hash import VTScan, md5, check_hash, sha_256, start_server, RequestHandler, HTTPServer, BaseHTTPRequestHandler
@@ -2077,6 +2078,10 @@ The presence of both means the code itself can be changed dynamically
             self.ip_thread.start()
             self.ip_visited = True
 
+    def quarantine(self):
+
+        q = Quarantine()
+
     def hash_analysis(self):
 
         self.clearLayout()
@@ -3117,6 +3122,7 @@ The presence of both means the code itself can be changed dynamically
 
         # TODO - complete database
         # TODO- complete clock with data base
+        # TODO- complete quarantine
 
 
 if __name__ == "__main__":

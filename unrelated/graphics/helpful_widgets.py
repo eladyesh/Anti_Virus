@@ -16,19 +16,37 @@ class DialWatch(QWidget):
         self.dial = QDial()
         self.dial.setRange(0, 99)
         self.dial.setFixedSize(100, 100)
-        self.dial.setStyleSheet("background-color: red; border-radius: 25px; margin-left: 20px;")
+        self.dial.setStyleSheet("border-radius: 25px; margin-left: 20px;")
         self.dial.setNotchesVisible(True)
         self.dial.notchSize = 20
         self.dial.valueChanged.connect(self.onDialChanged)
+
+        self.setDialColor(0)
 
     def get_dial(self):
         return self.dial
 
     def onDialChanged(self, value):
+        percentage = value + 1
         print(f"Current value: {value + 1}%")
+        self.setDialColor(percentage)
 
     def setDialPercentage(self, percentage):
         self.dial.setValue(percentage - 1)
+        self.setDialColor(percentage)
+
+    def setDialColor(self, percentage):
+        # Calculate the color based on the percentage
+        red = int(255 * percentage / 100)
+        green = int(255 * (100 - percentage) / 100)
+        blue = 0
+
+        # Create a new palette with the calculated color
+        palette = QPalette()
+        palette.setColor(QPalette.Button, QColor(red, green, blue))
+
+        # Set the new palette to the dial widget
+        self.dial.setPalette(palette)
 
 
 class EventViewer():
