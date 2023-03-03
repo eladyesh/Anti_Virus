@@ -1727,11 +1727,15 @@ The presence of both means the code itself can be changed dynamically
     def activate_vt_scan_dir(self):
 
         for path in VTScan.scan_directory(self.dir, self.progress_bar_dir):
-            if path == "stop":
-                self.movie_dir.stop()
-                self.description_for_search.setText("All Done !!")
-                break
-            self.suspicious_paths.addItem(str(path))
+            try:
+                if path == "stop":
+                    self.movie_dir.stop()
+                    self.description_for_search.setText("All Done !!")
+                    break
+                self.suspicious_paths.addItem(str(path))
+            except SystemExit as e:
+                if e.code == -1073741819:
+                    print("got this system exit")
 
     def activate_vt_scan_ip(self):
 
