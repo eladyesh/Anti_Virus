@@ -1207,6 +1207,7 @@ class AppDemo(QMainWindow):
         if len(self.redis_entropy) >= 1:
             self.dial_instance.setDialPercentage(percentage + int(len(self.redis_entropy)))
         self.dial_instance.setDialPercentage(percentage + int(reg_entropy))
+        self.dial = self.dial_instance.get_dial()
 
         self.table_and_strings_layout = QVBoxLayout()
 
@@ -1585,7 +1586,10 @@ class AppDemo(QMainWindow):
 
         fractioned = check_for_fractioned_imports(dlls)
         self.redis_virus.hset(self.md5_hash, "fractioned_imports_test", pickle.dumps(fractioned))
-        self.redis_virus.print_key(self.md5_hash, "fractioned_imports_test", True)
+        self.redis_fractioned = self.redis_virus.get_key(self.md5_hash, "fractioned_imports_test", True)
+        percentage = self.dial_instance.get_percentage()
+        self.dial_instance.setDialPercentage(percentage + int(len(fractioned) * 3))
+        self.dial = self.dial_instance.get_dial()
 
         self.fractioned = QGroupBox("Fractioned Imports")
         title = QLabel("Fractioned Imports  <img src='images/info-32.png' width='20' height='20'>")
@@ -1613,7 +1617,11 @@ class AppDemo(QMainWindow):
         # pe linker
         result = str(pe_scan.linker_test()).replace("result.", "")
         self.redis_virus.hset(self.md5_hash, "rick_optional_linker_test", pickle.dumps([result]))
-        self.redis_virus.print_key(self.md5_hash, "rick_optional_linker_test", True)
+        self.redis_invalid = self.redis_virus.get_key(self.md5_hash, "rick_optional_linker_test", True)
+        if self.redis_invalid == ['INVALID']:
+            percentage = self.dial_instance.get_percentage()
+            self.dial_instance.setDialPercentage(percentage + 5)
+            self.dial = self.dial_instance.get_dial()
 
         self.pe_linker = QGroupBox("PE Linker")
         title_linker = QLabel("PE Linker  <img src='images/info-32.png' width='20' height='20'>")
@@ -1641,7 +1649,10 @@ threat actor's samples""")
         # pe scan sections
         sections = pe_scan.scan_sections()
         self.redis_virus.hset(self.md5_hash, "sections_test", pickle.dumps(sections))
-        self.redis_virus.print_key(self.md5_hash, "sections_test", True)
+        self.redis_sections = self.redis_virus.get_key(self.md5_hash, "sections_test", True)
+        percentage = self.dial_instance.get_percentage()
+        self.dial_instance.setDialPercentage(percentage + int(len(self.redis_sections) * 0.5))
+        self.dial = self.dial_instance.get_dial()
 
         self.suspicious_imports = QGroupBox("Suspicious Imports")
         title = QLabel("Suspicious Imports  <img src='images/info-32.png' width='20' height='20'>")
@@ -2097,7 +2108,8 @@ The presence of both means the code itself can be changed dynamically
 
     def quarantine(self):
 
-        q = Quarantine()
+        password_to_lock = "1233"
+        new_file_path = Quarantine.quarantine_file("virus.exe", "QURANTINE", password_to_lock)
 
     def hash_analysis(self):
 
@@ -2124,7 +2136,10 @@ The presence of both means the code itself can be changed dynamically
         engines, malicious, undetected = vtscan.info(md5_hash)
 
         self.redis_virus.hset(self.md5_hash, "num_of_engines", malicious)
-        self.redis_virus.print_key(self.md5_hash, "num_of_engines", False)
+        self.redis_engines = self.redis_virus.get_key(self.md5_hash, "num_of_engines", False)
+        percentage = self.dial_instance.get_percentage()
+        self.dial_instance.setDialPercentage(percentage + int(int(self.redis_engines) / 3))
+        self.dial = self.dial_instance.get_dial()
 
         if engines == 0 and malicious == 0 and undetected == 0:
             show_tree = False
@@ -2895,11 +2910,22 @@ The presence of both means the code itself can be changed dynamically
 
         # data base
         self.redis_virus.hset(self.md5_hash, "suspicious_!", pickle.dumps(suspect_functions))
-        self.redis_virus.print_key(self.md5_hash, "suspicious_!", True)
+        self.redis_suspicious = self.redis_virus.get_key(self.md5_hash, "suspicious_!", True)
+        percentage = self.dial_instance.get_percentage()
+        self.dial_instance.setDialPercentage(percentage + len(self.redis_suspicious))
+        self.dial = self.dial_instance.get_dial()
+
         self.redis_virus.hset(self.md5_hash, "has_passed_cpu", pickle.dumps(has_passed_cpu_functions))
-        self.redis_virus.print_key(self.md5_hash, "has_passed_cpu", True)
+        self.redis_cpu = self.redis_virus.get_key(self.md5_hash, "has_passed_cpu", True)
+        percentage = self.dial_instance.get_percentage()
+        self.dial_instance.setDialPercentage(percentage + len(self.redis_cpu))
+        self.dial = self.dial_instance.get_dial()
+
         self.redis_virus.hset(self.md5_hash, "identifies", pickle.dumps(identified_functions))
-        self.redis_virus.print_key(self.md5_hash, "identifies", True)
+        self.redis_identifies = self.redis_virus.get_key(self.md5_hash, "identifies", True)
+        percentage = self.dial_instance.get_percentage()
+        self.dial_instance.setDialPercentage(percentage + len(self.redis_identifies))
+        self.dial = self.dial_instance.get_dial()
 
         # Function Graph
         self.logs = []
@@ -3140,6 +3166,8 @@ The presence of both means the code itself can be changed dynamically
         # TODO - complete database
         # TODO- complete clock with data base
         # TODO- complete quarantine
+        # TODO - complete python analysis - and then I am pretty much done
+        # TODO - if wanna - go over log
 
 
 if __name__ == "__main__":
