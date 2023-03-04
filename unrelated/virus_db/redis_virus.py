@@ -62,6 +62,20 @@ class Redis:
         else:
             print(self.redis.hgetall(key)[k.encode()])
 
+    def get_key(self, key, k, pick):
+        if pick:
+            return pickle.loads(self.redis.hgetall(key)[k.encode()])
+        else:
+            return self.redis.hgetall(key)[k.encode()]
+
+    def get_key_type(self, key, k, pick):
+        if pick:
+            return type(pickle.loads(self.redis.hgetall(key)[k.encode()]))
+        else:
+            return type(self.redis.hgetall(key)[k.encode()])
+
+
+
     def hset(self, key, k, v):
         self.redis.hset(key, k, v)
 

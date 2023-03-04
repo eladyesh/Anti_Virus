@@ -17,7 +17,8 @@ import shutil
 from poc_start.unrelated.graphics.quarantine import Quarantine
 from poc_start.unrelated.graphics.helpful_widgets import DialWatch, EventViewer
 from poc_start.send_to_vm.sender import Sender
-from poc_start.unrelated.hash_scan.vt_hash import VTScan, md5, check_hash, sha_256, start_server, RequestHandler, HTTPServer, BaseHTTPRequestHandler
+from poc_start.unrelated.hash_scan.vt_hash import VTScan, md5, check_hash, sha_256, start_server, RequestHandler, \
+    HTTPServer, BaseHTTPRequestHandler
 from poc_start.unrelated.pe_scan.entropy import *
 from poc_start.unrelated.pe_scan.pe_tests import *
 from poc_start.unrelated.Yara.ya_ra import YaraChecks
@@ -715,6 +716,7 @@ class AppDemo(QMainWindow):
         self.thread1, self.thread2, self.thread3, self.thread4 = None, None, None, None
 
         self.redis_virus = Redis()
+        self.redis_virus.print_all()
 
         self.list_widget_style_sheet = """
             QListWidget {
@@ -1199,7 +1201,12 @@ class AppDemo(QMainWindow):
         self.md5_hash = str(md5("virus.exe"))
         entropy_of_virus_vs_reg = entropy_vs_normal("virus.exe")
         self.redis_virus.hset(self.md5_hash, "entropy_vs_normal", pickle.dumps(entropy_of_virus_vs_reg))
-        self.redis_virus.print_key(self.md5_hash, "entropy_vs_normal", True)
+        self.redis_entropy = self.redis_virus.get_key(self.md5_hash, "entropy_vs_normal", True)
+        reg_entropy = self.redis_entropy.pop()
+        percentage = self.dial_instance.get_percentage()
+        if len(self.redis_entropy) >= 1:
+            self.dial_instance.setDialPercentage(percentage + int(len(self.redis_entropy)))
+        self.dial_instance.setDialPercentage(percentage + int(reg_entropy))
 
         self.table_and_strings_layout = QVBoxLayout()
 
@@ -1266,10 +1273,16 @@ class AppDemo(QMainWindow):
         yara_packers = YaraChecks.check_for_packer("virus.exe")
 
         self.redis_virus.hset(self.md5_hash, "rules", pickle.dumps([match.rule for match in yara_strings[2]]))
-        self.redis_virus.print_key(self.md5_hash, "rules", True)
+        self.redis_rules = self.redis_virus.get_key(self.md5_hash, "rules", True)
+        percentage = self.dial_instance.get_percentage()
+        self.dial_instance.setDialPercentage(percentage + len(self.redis_rules) * 5)
+        self.dial = self.dial_instance.get_dial()
 
         self.redis_virus.hset(self.md5_hash, "packers", pickle.dumps([match.rule for match in yara_packers]))
-        self.redis_virus.print_key(self.md5_hash, "packers", True)
+        self.redis_packers = self.redis_virus.get_key(self.md5_hash, "packers", True)
+        percentage = self.dial_instance.get_percentage()
+        self.dial_instance.setDialPercentage(percentage + int(len(self.redis_packers) * 0.5))
+        self.dial = self.dial_instance.get_dial()
 
         for dll in yara_strings[0]:
             item = QListWidgetItem(str(dll))
@@ -3130,7 +3143,6 @@ The presence of both means the code itself can be changed dynamically
 
 
 if __name__ == "__main__":
-
     app = QApplication(sys.argv)
     app.setStyleSheet(qss)
     demo = AppDemo()

@@ -35,6 +35,9 @@ class DialWatch(QWidget):
         self.dial.setValue(percentage - 1)
         self.setDialColor(percentage)
 
+    def get_percentage(self):
+        return self.dial.value() + 1
+
     def setDialColor(self, percentage):
         # Calculate the color based on the percentage
         red = int(255 * percentage / 100)
