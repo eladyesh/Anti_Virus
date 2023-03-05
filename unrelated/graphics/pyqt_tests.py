@@ -276,7 +276,7 @@ class ListBoxWidget(QListWidget):
         self.gif_label.setMovie(self.movie)
         self.gif_label.setFixedSize(350, 200)
         # self.gif_label.move(int((self.rect().width() - self.gif_label.width()) / 2), int((self.rect().height() - self.gif_label.height()) / 2))
-        self.gif_label.move(int(self.width() / 1.8), -int(self.height() / 4.5))
+        self.gif_label.move(int(self.width() / 1.8), -int(self.height() / 4.8))
         self.movie.start()
 
         # self.move(QApplication.desktop().screen().rect().center()- self.rect().center())
@@ -363,7 +363,7 @@ class AppDemo(QMainWindow):
         self.addToolBar(Qt.LeftToolBarArea, self.toolbar)
 
         # for database
-        self.run_for_start = 1
+        self.run_for_start = False
         self.run_for_entropy = 1
         self.run_for_rules = 1
         self.run_for_packers = 1
@@ -818,12 +818,13 @@ class AppDemo(QMainWindow):
         self.dial_instance = DialWatch()
         self.dial = self.dial_instance.get_dial()
         self.h_box_for_l1_and_dial.addWidget(self.dial, alignment=Qt.AlignRight)
-        
+
         # setting after moving to home screen
         if os.path.exists("virus.exe"):
             if self.redis_virus.exists(str(md5("virus.exe"))):
                 self.dial_instance.setDialPercentage(int(self.redis_virus.get_key(str(md5("virus.exe")), "final_assesment", False)))
                 self.dial = str(md5("virus.exe"))
+                self.run_for_start = True
 
         self.l1.setStyleSheet("QLabel { font: bold; margin-bottom: 0px; padding: 10px; margin-left:325px;} ")
 
@@ -1223,7 +1224,7 @@ class AppDemo(QMainWindow):
         self.redis_entropy = self.redis_virus.get_key(self.md5_hash, "entropy_vs_normal", True)
         reg_entropy = self.redis_entropy.pop()
         percentage = self.dial_instance.get_percentage()
-        if self.run_for_entropy == 1:
+        if self.run_for_entropy == 1 and not self.run_for_start:
             if len(self.redis_entropy) >= 1:
                 self.dial_instance.setDialPercentage(percentage + int(len(self.redis_entropy)))
             self.dial_instance.setDialPercentage(percentage + int(reg_entropy))
@@ -1295,7 +1296,7 @@ class AppDemo(QMainWindow):
         yara_strings = YaraChecks.check_for_strings("virus.exe")
         yara_packers = YaraChecks.check_for_packer("virus.exe")
 
-        if self.run_for_rules == 1:
+        if self.run_for_rules == 1 and not self.run_for_start:
             self.redis_virus.hset(self.md5_hash, "rules", pickle.dumps([match.rule for match in yara_strings[2]]))
             self.redis_rules = self.redis_virus.get_key(self.md5_hash, "rules", True)
             percentage = self.dial_instance.get_percentage()
@@ -1304,7 +1305,7 @@ class AppDemo(QMainWindow):
             self.redis_virus.hset(self.md5_hash, "final_assesment", percentage + len(self.redis_rules) * 5)
             self.run_for_rules = 0
 
-        if self.run_for_packers == 1:
+        if self.run_for_packers == 1 and not self.run_for_start:
             self.redis_virus.hset(self.md5_hash, "packers", pickle.dumps([match.rule for match in yara_packers]))
             self.redis_packers = self.redis_virus.get_key(self.md5_hash, "packers", True)
             percentage = self.dial_instance.get_percentage()
@@ -1615,7 +1616,7 @@ class AppDemo(QMainWindow):
         fractioned = check_for_fractioned_imports(dlls)
         self.redis_virus.hset(self.md5_hash, "fractioned_imports_test", pickle.dumps(fractioned))
 
-        if self.run_for_fractioned == 1:
+        if self.run_for_fractioned == 1 and not self.run_for_start:
             self.redis_fractioned = self.redis_virus.get_key(self.md5_hash, "fractioned_imports_test", True)
             percentage = self.dial_instance.get_percentage()
             self.dial_instance.setDialPercentage(percentage + int(len(fractioned) * 3))
@@ -1651,7 +1652,7 @@ class AppDemo(QMainWindow):
         self.redis_virus.hset(self.md5_hash, "rick_optional_linker_test", pickle.dumps([result]))
         self.redis_invalid = self.redis_virus.get_key(self.md5_hash, "rick_optional_linker_test", True)
         if self.redis_invalid == ['INVALID']:
-            if self.run_for_linker == 1:
+            if self.run_for_linker == 1 and not self.run_for_start:
                 percentage = self.dial_instance.get_percentage()
                 self.dial_instance.setDialPercentage(percentage + 5)
                 self.dial = self.dial_instance.get_dial()
@@ -1683,7 +1684,7 @@ threat actor's samples""")
 
         # pe scan sections
         sections = pe_scan.scan_sections()
-        if self.run_for_sections == 1:
+        if self.run_for_sections == 1 and not self.run_for_start:
             self.redis_virus.hset(self.md5_hash, "sections_test", pickle.dumps(sections))
             self.redis_sections = self.redis_virus.get_key(self.md5_hash, "sections_test", True)
             percentage = self.dial_instance.get_percentage()
@@ -2173,7 +2174,7 @@ The presence of both means the code itself can be changed dynamically
         show_tree = True
         engines, malicious, undetected = vtscan.info(md5_hash)
 
-        if self.run_for_engines == 1:
+        if self.run_for_engines == 1 and not self.run_for_start:
             self.redis_virus.hset(self.md5_hash, "num_of_engines", malicious)
             self.redis_engines = self.redis_virus.get_key(self.md5_hash, "num_of_engines", False)
             percentage = self.dial_instance.get_percentage()
@@ -2950,7 +2951,7 @@ The presence of both means the code itself can be changed dynamically
             self.dynamic_layout.addWidget(self.tree_functions)
 
         # data base
-        if self.run_for_suspicious == 1:
+        if self.run_for_suspicious == 1 and not self.run_for_start:
             self.redis_virus.hset(self.md5_hash, "suspicious_!", pickle.dumps(suspect_functions))
             self.redis_suspicious = self.redis_virus.get_key(self.md5_hash, "suspicious_!", True)
             percentage = self.dial_instance.get_percentage()
@@ -2959,7 +2960,7 @@ The presence of both means the code itself can be changed dynamically
             self.redis_virus.hset(self.md5_hash, "final_assesment", percentage + len(self.redis_suspicious))
             self.run_for_suspicious = 0
 
-        if self.run_for_cpu == 1:
+        if self.run_for_cpu == 1 and not self.run_for_start:
             self.redis_virus.hset(self.md5_hash, "has_passed_cpu", pickle.dumps(has_passed_cpu_functions))
             self.redis_cpu = self.redis_virus.get_key(self.md5_hash, "has_passed_cpu", True)
             percentage = self.dial_instance.get_percentage()
@@ -2968,7 +2969,7 @@ The presence of both means the code itself can be changed dynamically
             self.redis_virus.hset(self.md5_hash, "final_assesment", percentage + len(self.redis_cpu))
             self.run_for_cpu = 0
 
-        if self.run_for_identifies == 1:
+        if self.run_for_identifies == 1 and not self.run_for_start:
             self.redis_virus.hset(self.md5_hash, "identifies", pickle.dumps(identified_functions))
             self.redis_identifies = self.redis_virus.get_key(self.md5_hash, "identifies", True)
             percentage = self.dial_instance.get_percentage()
