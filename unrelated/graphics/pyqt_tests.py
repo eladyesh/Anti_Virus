@@ -362,6 +362,19 @@ class AppDemo(QMainWindow):
 
         self.addToolBar(Qt.LeftToolBarArea, self.toolbar)
 
+        # for database
+        self.run_for_start = 1
+        self.run_for_entropy = 1
+        self.run_for_rules = 1
+        self.run_for_packers = 1
+        self.run_for_fractioned = 1
+        self.run_for_sections = 1
+        self.run_for_linker = 1
+        self.run_for_engines = 1
+        self.run_for_suspicious = 1
+        self.run_for_cpu = 1
+        self.run_for_identifies = 1
+
         self.main_menu_window()
 
     def update_dial_position(self, event=None):
@@ -805,6 +818,12 @@ class AppDemo(QMainWindow):
         self.dial_instance = DialWatch()
         self.dial = self.dial_instance.get_dial()
         self.h_box_for_l1_and_dial.addWidget(self.dial, alignment=Qt.AlignRight)
+        
+        # setting after moving to home screen
+        if os.path.exists("virus.exe"):
+            if self.redis_virus.exists(str(md5("virus.exe"))):
+                self.dial_instance.setDialPercentage(int(self.redis_virus.get_key(str(md5("virus.exe")), "final_assesment", False)))
+                self.dial = str(md5("virus.exe"))
 
         self.l1.setStyleSheet("QLabel { font: bold; margin-bottom: 0px; padding: 10px; margin-left:325px;} ")
 
@@ -1204,10 +1223,13 @@ class AppDemo(QMainWindow):
         self.redis_entropy = self.redis_virus.get_key(self.md5_hash, "entropy_vs_normal", True)
         reg_entropy = self.redis_entropy.pop()
         percentage = self.dial_instance.get_percentage()
-        if len(self.redis_entropy) >= 1:
-            self.dial_instance.setDialPercentage(percentage + int(len(self.redis_entropy)))
-        self.dial_instance.setDialPercentage(percentage + int(reg_entropy))
-        self.dial = self.dial_instance.get_dial()
+        if self.run_for_entropy == 1:
+            if len(self.redis_entropy) >= 1:
+                self.dial_instance.setDialPercentage(percentage + int(len(self.redis_entropy)))
+            self.dial_instance.setDialPercentage(percentage + int(reg_entropy))
+            self.redis_virus.hset(self.md5_hash, "final_assesment", percentage + int(reg_entropy))
+            self.dial = self.dial_instance.get_dial()
+            self.run_for_entropy = 0
 
         self.table_and_strings_layout = QVBoxLayout()
 
@@ -1273,17 +1295,23 @@ class AppDemo(QMainWindow):
         yara_strings = YaraChecks.check_for_strings("virus.exe")
         yara_packers = YaraChecks.check_for_packer("virus.exe")
 
-        self.redis_virus.hset(self.md5_hash, "rules", pickle.dumps([match.rule for match in yara_strings[2]]))
-        self.redis_rules = self.redis_virus.get_key(self.md5_hash, "rules", True)
-        percentage = self.dial_instance.get_percentage()
-        self.dial_instance.setDialPercentage(percentage + len(self.redis_rules) * 5)
-        self.dial = self.dial_instance.get_dial()
+        if self.run_for_rules == 1:
+            self.redis_virus.hset(self.md5_hash, "rules", pickle.dumps([match.rule for match in yara_strings[2]]))
+            self.redis_rules = self.redis_virus.get_key(self.md5_hash, "rules", True)
+            percentage = self.dial_instance.get_percentage()
+            self.dial_instance.setDialPercentage(percentage + len(self.redis_rules) * 5)
+            self.dial = self.dial_instance.get_dial()
+            self.redis_virus.hset(self.md5_hash, "final_assesment", percentage + len(self.redis_rules) * 5)
+            self.run_for_rules = 0
 
-        self.redis_virus.hset(self.md5_hash, "packers", pickle.dumps([match.rule for match in yara_packers]))
-        self.redis_packers = self.redis_virus.get_key(self.md5_hash, "packers", True)
-        percentage = self.dial_instance.get_percentage()
-        self.dial_instance.setDialPercentage(percentage + int(len(self.redis_packers) * 0.5))
-        self.dial = self.dial_instance.get_dial()
+        if self.run_for_packers == 1:
+            self.redis_virus.hset(self.md5_hash, "packers", pickle.dumps([match.rule for match in yara_packers]))
+            self.redis_packers = self.redis_virus.get_key(self.md5_hash, "packers", True)
+            percentage = self.dial_instance.get_percentage()
+            self.dial_instance.setDialPercentage(percentage + int(len(self.redis_packers) * 0.5))
+            self.dial = self.dial_instance.get_dial()
+            self.redis_virus.hset(self.md5_hash, "final_assesment", percentage + int(len(self.redis_packers) * 0.5))
+            self.run_for_packers = 0
 
         for dll in yara_strings[0]:
             item = QListWidgetItem(str(dll))
@@ -1586,10 +1614,14 @@ class AppDemo(QMainWindow):
 
         fractioned = check_for_fractioned_imports(dlls)
         self.redis_virus.hset(self.md5_hash, "fractioned_imports_test", pickle.dumps(fractioned))
-        self.redis_fractioned = self.redis_virus.get_key(self.md5_hash, "fractioned_imports_test", True)
-        percentage = self.dial_instance.get_percentage()
-        self.dial_instance.setDialPercentage(percentage + int(len(fractioned) * 3))
-        self.dial = self.dial_instance.get_dial()
+
+        if self.run_for_fractioned == 1:
+            self.redis_fractioned = self.redis_virus.get_key(self.md5_hash, "fractioned_imports_test", True)
+            percentage = self.dial_instance.get_percentage()
+            self.dial_instance.setDialPercentage(percentage + int(len(fractioned) * 3))
+            self.dial = self.dial_instance.get_dial()
+            self.redis_virus.hset(self.md5_hash, "final_assesment", percentage + int(len(fractioned) * 3))
+            self.run_for_fractioned = 0
 
         self.fractioned = QGroupBox("Fractioned Imports")
         title = QLabel("Fractioned Imports  <img src='images/info-32.png' width='20' height='20'>")
@@ -1619,9 +1651,12 @@ class AppDemo(QMainWindow):
         self.redis_virus.hset(self.md5_hash, "rick_optional_linker_test", pickle.dumps([result]))
         self.redis_invalid = self.redis_virus.get_key(self.md5_hash, "rick_optional_linker_test", True)
         if self.redis_invalid == ['INVALID']:
-            percentage = self.dial_instance.get_percentage()
-            self.dial_instance.setDialPercentage(percentage + 5)
-            self.dial = self.dial_instance.get_dial()
+            if self.run_for_linker == 1:
+                percentage = self.dial_instance.get_percentage()
+                self.dial_instance.setDialPercentage(percentage + 5)
+                self.dial = self.dial_instance.get_dial()
+                self.redis_virus.hset(self.md5_hash, "final_assesment", percentage + 5)
+                self.run_for_linker = 0
 
         self.pe_linker = QGroupBox("PE Linker")
         title_linker = QLabel("PE Linker  <img src='images/info-32.png' width='20' height='20'>")
@@ -1648,11 +1683,14 @@ threat actor's samples""")
 
         # pe scan sections
         sections = pe_scan.scan_sections()
-        self.redis_virus.hset(self.md5_hash, "sections_test", pickle.dumps(sections))
-        self.redis_sections = self.redis_virus.get_key(self.md5_hash, "sections_test", True)
-        percentage = self.dial_instance.get_percentage()
-        self.dial_instance.setDialPercentage(percentage + int(len(self.redis_sections) * 0.5))
-        self.dial = self.dial_instance.get_dial()
+        if self.run_for_sections == 1:
+            self.redis_virus.hset(self.md5_hash, "sections_test", pickle.dumps(sections))
+            self.redis_sections = self.redis_virus.get_key(self.md5_hash, "sections_test", True)
+            percentage = self.dial_instance.get_percentage()
+            self.dial_instance.setDialPercentage(percentage + int(len(self.redis_sections) * 0.5))
+            self.dial = self.dial_instance.get_dial()
+            self.redis_virus.hset(self.md5_hash, "final_assesment", percentage + int(len(self.redis_sections) * 0.5))
+            self.run_for_sections = 0
 
         self.suspicious_imports = QGroupBox("Suspicious Imports")
         title = QLabel("Suspicious Imports  <img src='images/info-32.png' width='20' height='20'>")
@@ -2135,11 +2173,14 @@ The presence of both means the code itself can be changed dynamically
         show_tree = True
         engines, malicious, undetected = vtscan.info(md5_hash)
 
-        self.redis_virus.hset(self.md5_hash, "num_of_engines", malicious)
-        self.redis_engines = self.redis_virus.get_key(self.md5_hash, "num_of_engines", False)
-        percentage = self.dial_instance.get_percentage()
-        self.dial_instance.setDialPercentage(percentage + int(int(self.redis_engines) / 3))
-        self.dial = self.dial_instance.get_dial()
+        if self.run_for_engines == 1:
+            self.redis_virus.hset(self.md5_hash, "num_of_engines", malicious)
+            self.redis_engines = self.redis_virus.get_key(self.md5_hash, "num_of_engines", False)
+            percentage = self.dial_instance.get_percentage()
+            self.dial_instance.setDialPercentage(percentage + int(int(self.redis_engines) / 3))
+            self.dial = self.dial_instance.get_dial()
+            self.redis_virus.hset(self.md5_hash, "final_assesment", percentage + int(int(self.redis_engines) / 3))
+            self.run_for_engines = 0
 
         if engines == 0 and malicious == 0 and undetected == 0:
             show_tree = False
@@ -2909,23 +2950,32 @@ The presence of both means the code itself can be changed dynamically
             self.dynamic_layout.addWidget(self.tree_functions)
 
         # data base
-        self.redis_virus.hset(self.md5_hash, "suspicious_!", pickle.dumps(suspect_functions))
-        self.redis_suspicious = self.redis_virus.get_key(self.md5_hash, "suspicious_!", True)
-        percentage = self.dial_instance.get_percentage()
-        self.dial_instance.setDialPercentage(percentage + len(self.redis_suspicious))
-        self.dial = self.dial_instance.get_dial()
+        if self.run_for_suspicious == 1:
+            self.redis_virus.hset(self.md5_hash, "suspicious_!", pickle.dumps(suspect_functions))
+            self.redis_suspicious = self.redis_virus.get_key(self.md5_hash, "suspicious_!", True)
+            percentage = self.dial_instance.get_percentage()
+            self.dial_instance.setDialPercentage(percentage + len(self.redis_suspicious))
+            self.dial = self.dial_instance.get_dial()
+            self.redis_virus.hset(self.md5_hash, "final_assesment", percentage + len(self.redis_suspicious))
+            self.run_for_suspicious = 0
 
-        self.redis_virus.hset(self.md5_hash, "has_passed_cpu", pickle.dumps(has_passed_cpu_functions))
-        self.redis_cpu = self.redis_virus.get_key(self.md5_hash, "has_passed_cpu", True)
-        percentage = self.dial_instance.get_percentage()
-        self.dial_instance.setDialPercentage(percentage + len(self.redis_cpu))
-        self.dial = self.dial_instance.get_dial()
+        if self.run_for_cpu == 1:
+            self.redis_virus.hset(self.md5_hash, "has_passed_cpu", pickle.dumps(has_passed_cpu_functions))
+            self.redis_cpu = self.redis_virus.get_key(self.md5_hash, "has_passed_cpu", True)
+            percentage = self.dial_instance.get_percentage()
+            self.dial_instance.setDialPercentage(percentage + len(self.redis_cpu))
+            self.dial = self.dial_instance.get_dial()
+            self.redis_virus.hset(self.md5_hash, "final_assesment", percentage + len(self.redis_cpu))
+            self.run_for_cpu = 0
 
-        self.redis_virus.hset(self.md5_hash, "identifies", pickle.dumps(identified_functions))
-        self.redis_identifies = self.redis_virus.get_key(self.md5_hash, "identifies", True)
-        percentage = self.dial_instance.get_percentage()
-        self.dial_instance.setDialPercentage(percentage + len(self.redis_identifies))
-        self.dial = self.dial_instance.get_dial()
+        if self.run_for_identifies == 1:
+            self.redis_virus.hset(self.md5_hash, "identifies", pickle.dumps(identified_functions))
+            self.redis_identifies = self.redis_virus.get_key(self.md5_hash, "identifies", True)
+            percentage = self.dial_instance.get_percentage()
+            self.dial_instance.setDialPercentage(percentage + len(self.redis_identifies))
+            self.dial = self.dial_instance.get_dial()
+            self.redis_virus.hset(self.md5_hash, "final_assesment", percentage + len(self.redis_identifies))
+            self.run_for_identifies = 0
 
         # Function Graph
         self.logs = []
@@ -3163,7 +3213,7 @@ The presence of both means the code itself can be changed dynamically
         self.events_table.setMinimumSize(450, 450)
         self.dynamic_layout.addWidget(self.events_table)
 
-        # TODO - complete database
+        # TODO - complete database, I don't know how to do fuzzy_found.
         # TODO- complete clock with data base
         # TODO- complete quarantine
         # TODO - complete python analysis - and then I am pretty much done
