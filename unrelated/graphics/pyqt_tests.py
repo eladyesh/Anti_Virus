@@ -998,6 +998,7 @@ class AppDemo(QMainWindow):
         self.dynamic_button.clicked.connect(lambda: [self.dynamic_analysis()])
 
     def python_analysis(self):
+
         self.clearLayout()
         self.dynamic_visited = False
         self.static_visited = False
@@ -1005,8 +1006,12 @@ class AppDemo(QMainWindow):
         self.hash_visited = False
         self.dir_visited = False
         self.settings_visited = False
+
         self.pv = PythonVirus("virus.exe")
         self.pv.log_for_winapi(self.pv.find_ctypes_calls())
+        with open("log_python.txt", "r") as f:
+            python_data = f.read()
+            print(python_data)
 
         # TODO - present the python nicely, probably in a QTreeWidget
 
