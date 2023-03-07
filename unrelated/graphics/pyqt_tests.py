@@ -206,6 +206,9 @@ bubble_strings_dict = {
     "OpenProcess": "Opens an existing local process object.", "Microsoft_Visual_Cpp_80": "A basic signature of exe "
                                                                                          "written in c++ language "
                                                                                          "version 8.0 ",
+    "Microsoft_Visual_Cpp_80_DLL": "The Microsoft Visual C++ 80 DLL (also known as MSVCR80.dll) is a Dynamic Link "
+                                   "Library file that contains a collection of pre-written code and data that can be "
+                                   "used by multiple programs at the same time. "
 }
 
 
@@ -389,6 +392,7 @@ class AppDemo(QMainWindow):
 
         self.clearLayout()
         self.dynamic_visited = False
+        self.python_visited = False
         self.static_visited = False
         self.ip_visited = False
         self.hash_visited = False
@@ -624,6 +628,11 @@ class AppDemo(QMainWindow):
 
             self.settings_layout.deleteLater()
 
+        if self.python_visited:
+            self.python_label.deleteLater()
+            self.tree_py.deleteLater()
+            self.python_layout.deleteLater()
+
     def show_ip_analysis(self):
 
         self.clearLayout()
@@ -631,6 +640,7 @@ class AppDemo(QMainWindow):
         self.static_visited = False
         self.hash_visited = False
         self.dynamic_visited = False
+        self.python_visited = False
         self.ip_visited = True
         self.settings_visited = False
 
@@ -678,6 +688,7 @@ class AppDemo(QMainWindow):
         self.hash_visited = False
         self.static_visited = False
         self.dynamic_visited = False
+        self.python_visited = False
         self.ip_visited = False
         self.settings_visited = False
 
@@ -822,7 +833,8 @@ class AppDemo(QMainWindow):
         # setting after moving to home screen
         if os.path.exists("virus.exe"):
             if self.redis_virus.exists(str(md5("virus.exe"))):
-                self.dial_instance.setDialPercentage(int(self.redis_virus.get_key(str(md5("virus.exe")), "final_assesment", False)))
+                self.dial_instance.setDialPercentage(
+                    int(self.redis_virus.get_key(str(md5("virus.exe")), "final_assesment", False)))
                 self.dial = str(md5("virus.exe"))
                 self.run_for_start = True
 
@@ -892,6 +904,7 @@ class AppDemo(QMainWindow):
         self.page_layout.setContentsMargins(80, 20, 80, 20)
 
         self.dynamic_visited = False
+        self.python_visited = False
         self.static_visited = False
         self.hash_visited = False
         self.dir_visited = False
@@ -1006,12 +1019,155 @@ class AppDemo(QMainWindow):
         self.hash_visited = False
         self.dir_visited = False
         self.settings_visited = False
+        self.python_visited = True
+
+        self.python_layout = QVBoxLayout()
+        self.page_layout.addLayout(self.python_layout)
+        self.python_label = make_label("Python Static Analysis", 24)
+        self.python_layout.addWidget(self.python_label)
 
         self.pv = PythonVirus("virus.exe")
         self.pv.log_for_winapi(self.pv.find_ctypes_calls())
         with open("log_python.txt", "r") as f:
             python_data = f.read()
+            python_data = python_data.split("\n\n")
             print(python_data)
+
+            self.tree_py = QTreeWidget()
+            self.tree_py.setMinimumSize(500, 500)
+            self.tree_py.setStyleSheet("""
+                    QTreeView {
+                        font-family: sans-serif;
+                        font-size: 14px;
+                        color: #87CEFA;
+                        background-color: #333;
+                        border: 2px solid #444;
+                        gridline-color: #666;
+                        margin-top: 10px;
+                        margin-bottom: 10px;
+                    }
+    
+                    QTreeView::branch:has-siblings:!adjoins-item {
+                        border-image: url(images/vline.png) 0;
+                    }
+    
+                    QTreeView::branch:has-siblings:adjoins-item {
+                        border-image: url(images/branch-more.png) 0;
+                    }
+    
+                    QTreeView::branch:!has-children:!has-siblings:adjoins-item {
+                        border-image: url(images/branch-end.png) 0;
+                    }
+    
+                    QTreeView::branch:has-children:!has-siblings:closed,
+                    QTreeView::branch:closed:has-children:has-siblings {
+                            border-image: none;
+                            image: url(images/branch-closed.png);
+                    }
+    
+                    QTreeView::branch:open:has-children:!has-siblings,
+                    QTreeView::branch:open:has-children:has-siblings  {
+                            border-image: none;
+                            image: url(images/branch-open.png);
+                    }
+    
+                    QTreeView::branch:selected {
+                        color: white;
+                    }
+    
+                    QTreeView::item {
+                        padding: 5px;
+                        margin: 1px;
+                    }
+    
+                    QTreeView::item:hover {
+                        background-color: #555;
+                    }
+    
+                    QTreeView::item:selected {
+                        background-color: #777;
+                    }
+    
+                    QTableWidget::item:selected:active {
+                        background-color: #999;
+                    }
+    
+                    QTableWidget::item:selected:!active {
+                        background-color: #red;
+                    }""")
+
+            self.tree_py.setHeaderLabel("Logged Functions")
+
+            for func in python_data:
+
+                # function name
+                lines = func.split("\n")
+                for i, line in enumerate(lines):
+                    if line.startswith("Function name: "):
+                        function_name = line.split(": ")[1]
+                        item = QTreeWidgetItem(self.tree_py, [function_name])
+                        del lines[i]
+                        break
+
+                lines = "\n".join(lines)
+                for line in lines.split("\n"):
+                    child_item = QTreeWidgetItem([line])
+                    item.addChild(child_item)
+
+            for func in python_data:
+
+                if "==============REGISTRY CHANGE==============" in func:
+                    for i, line in enumerate(func.split("\n")):
+
+                        # first line
+                        if i == 0:
+                            item = QTreeWidgetItem(self.tree_py, ["REGISTRY CHANGE"])
+                            item.setForeground(0, QBrush(QColor("red")))
+                            continue
+
+                        # last line
+                        if "REGISTRY CHANGE" in line:
+                            continue
+
+                        child_item = QTreeWidgetItem([line])
+                        child_item.setForeground(0, QBrush(QColor("red")))
+                        item.addChild(child_item)
+
+                if "==============INJECTION==============" in func:
+                    for i, line in enumerate(func.split("\n")):
+
+                        # first line
+                        if i == 0:
+                            item = QTreeWidgetItem(self.tree_py, ["INJECTION"])
+                            item.setForeground(0, QBrush(QColor("red")))
+                            continue
+
+                        # last line
+                        if "INJECTION" in line:
+                            continue
+
+                        child_item = QTreeWidgetItem([line])
+                        child_item.setForeground(0, QBrush(QColor("red")))
+                        item.addChild(child_item)
+
+                if "==============PORT SCANNING==============" in func:
+                    for i, line in enumerate(func.split("\n")):
+
+                        # first line
+                        if i == 0:
+                            item = QTreeWidgetItem(self.tree_py, ["PORT SCANNING"])
+                            item.setForeground(0, QBrush(QColor("darkorange")))
+                            continue
+
+                        # last line
+                        if "PORT SCANNING" in line:
+                            continue
+
+                        child_item = QTreeWidgetItem([line])
+                        child_item.setForeground(0, QBrush(QColor("darkorange")))
+                        item.addChild(child_item)
+
+            self.python_layout.addWidget(self.tree_py)
 
         # TODO - present the python nicely, probably in a QTreeWidget
 
@@ -1047,9 +1203,11 @@ class AppDemo(QMainWindow):
         # print(int(self.redis_virus.hgetall('5fffd3e69093dc32727214ba5c8f2af5')[b'num_of_rules'].decode()) * 5)
 
         if Packers.programming_language(path) == "py":  # a python file
-            self.py_thread = QThread()
-            self.py_thread.run = self.python_analysis
-            self.py_thread.start()
+            # self.py_thread = QThread()
+            # self.py_thread.run = self.python_analysis
+            # self.py_thread.start()
+            # todo - take care of thread
+            self.python_analysis()
             return
 
         # if Packers.programming_language(path) is not True:  # either not exe, or not written in the languages
@@ -1169,6 +1327,7 @@ class AppDemo(QMainWindow):
         self.dir_visited = False
         self.ip_visited = False
         self.settings_visited = False
+        self.python_visited = False
 
         # self.page_layout.addLayout(self.btn_layout)
         self.static_button.setEnabled(False)
@@ -2164,6 +2323,7 @@ The presence of both means the code itself can be changed dynamically
         self.dir_visited = False
         self.ip_visited = False
         self.settings_visited = False
+        self.python_visited = False
 
         self.hash_button.setDisabled(True)
         self.hash_layout = QVBoxLayout()
@@ -2433,6 +2593,7 @@ The presence of both means the code itself can be changed dynamically
         self.static_visited = False
         self.hash_visited = False
         self.dynamic_visited = True
+        self.python_visited = False
         self.dir_visited = False
         self.ip_visited = False
         self.settings_visited = False
