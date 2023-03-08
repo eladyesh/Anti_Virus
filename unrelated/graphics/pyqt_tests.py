@@ -1234,7 +1234,6 @@ class AppDemo(QMainWindow):
         # print(int(self.redis_virus.hgetall('5fffd3e69093dc32727214ba5c8f2af5')[b'num_of_rules'].decode()) * 5)
 
         if Packers.programming_language(path) == "py":  # a python file
-
             # self.py_thread = QThread()
             # self.py_thread.run = self.python_analysis
             # self.py_thread.start()

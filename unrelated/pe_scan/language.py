@@ -1,3 +1,5 @@
+import os
+
 import pefile
 import peid
 import subprocess
@@ -26,6 +28,9 @@ class Packers:
 
         if path.endswith(py_signature):
             return True
+
+        if os.path.getsize(path) / 1024 > 6000:
+            return "py"
 
         packers = []
         a = run_command("peid " + path)[0]
