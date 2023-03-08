@@ -10,7 +10,8 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 from PyQt5 import QtCore, QtGui
-from PyQt5.QtCore import Qt, QUrl, pyqtSlot, QRunnable, QThreadPool, QVariant, QAbstractTableModel, QRectF
+from PyQt5.QtCore import Qt, QUrl, pyqtSlot, QRunnable, QThreadPool, QVariant, QAbstractTableModel, QRectF, QTimer, \
+    QEventLoop
 import PyQt5.QtGui
 from PyQt5.QtCore import QObject, QThread, pyqtSignal
 import shutil
@@ -323,6 +324,9 @@ class ListBoxWidget(QListWidget):
 
 class AppDemo(QMainWindow):
 
+    # define static variables
+    run_for_python_analysis = False
+
     def __init__(self):
         super().__init__()
 
@@ -490,6 +494,32 @@ class AppDemo(QMainWindow):
                 close_button = QPushButton('X', self)
                 close_button.setFixedSize(30, 30)
                 close_button.clicked.connect(self.close)
+
+                def create_file():
+                    self.pv = PythonVirus("virus.exe")
+                    self.pv.log_for_winapi(self.pv.find_ctypes_calls())
+
+                # Start a new thread to check for the file
+                def check_file():
+                    while not os.path.exists("log_python.txt"):
+                        print("checking python file")
+
+                        # Process events to keep the window responsive
+                        qApp.processEvents()
+
+                    AppDemo.run_for_python_analysis = True
+                    loop.quit()  # Quit the event loop
+                    self.close()
+
+                thread_create = threading.Thread(target=create_file)
+                thread_create.start()
+
+                thread_check = threading.Thread(target=check_file)
+                thread_check.start()
+
+                # Create and start the event loop
+                loop = QEventLoop()
+                loop.exec_()
 
             def mousePressEvent(self, event):
                 self.offset = event.pos()
@@ -1028,6 +1058,7 @@ class AppDemo(QMainWindow):
 
         self.pv = PythonVirus("virus.exe")
         self.pv.log_for_winapi(self.pv.find_ctypes_calls())
+
         with open("log_python.txt", "r") as f:
             python_data = f.read()
             python_data = python_data.split("\n\n")
@@ -1169,7 +1200,7 @@ class AppDemo(QMainWindow):
 
             self.python_layout.addWidget(self.tree_py)
 
-        # TODO - present the python nicely, probably in a QTreeWidget
+        # TODO - solve the thread, what about keylogger?
 
     def getSelectedItem(self):
         print("got here")
@@ -1203,10 +1234,11 @@ class AppDemo(QMainWindow):
         # print(int(self.redis_virus.hgetall('5fffd3e69093dc32727214ba5c8f2af5')[b'num_of_rules'].decode()) * 5)
 
         if Packers.programming_language(path) == "py":  # a python file
+
             # self.py_thread = QThread()
             # self.py_thread.run = self.python_analysis
             # self.py_thread.start()
-            # todo - take care of thread
+            # self.show_loading_menu()
             self.python_analysis()
             return
 

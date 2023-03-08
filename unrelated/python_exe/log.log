@@ -2607,3 +2607,21 @@ on exec_pycdc:output_3520723\PYZ-00.pyz_extract\gzip.pyc.structed.pyc :__init__.
 2023-02-17 13:24:23,265 [*] 
 progress_check completed :__init__.py:102-10  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\py_package\package_struct\__init__.py on(__init__.progress_check) at 3580@MainThread  
 2023-02-17 13:24:23,266 [+] completed,cost 27831ms with result:63 arch file(s) handled. :__init__.py:120-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\py_common_dump\__init__.py on(__init__.statistics_status) at 3580@MainThread  
+2023-03-08 21:39:25,923 [+] pydumpck is a multi-threads tool for decompile exe,elf,pyz,pyc packed by python which is base on pycdc and uncompyle6.sometimes its py-file result not exactly right ,maybe could use uncompyle6.
+--------------------
+pydumpck initilizing with 1.15.14 :pyinstaller_dump.py:115-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyinstaller_dump.py on(pyinstaller_dump.run) at 20156@MainThread  
+2023-03-08 21:39:25,926 [*] plugins loaded with ['pycdc'] :__init__.py:107-10  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\py_common_dump\__init__.py on(__init__.load_plugins) at 20156@MainThread  
+2023-03-08 21:39:25,926 [*] target file input:D:\Cyber\YB_CYBER\project\FinalProject\poc_start\poc_start\unrelated\python_exe\virus_keylogger.exe
+to:output_8301216 :__init__.py:142-10  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\py_common_dump\__init__.py on(__init__.main) at 20156@MainThread  
+2023-03-08 21:39:25,926 [*] start dump target file. :__init__.py:153-10  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\py_common_dump\__init__.py on(__init__.main) at 20156@MainThread  
+2023-03-08 21:39:25,926 [-] is an invalid file name! D:\Cyber\YB_CYBER\project\FinalProject\poc_start\poc_start\unrelated\python_exe\virus_keylogger.exe :__init__.py:61-40  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\py_common_dump\__init__.py on(__init__.handle_nofile) at 20156@MainThread  
+2023-03-08 21:39:25,926 [+] completed,cost 0ms with result:-1 :__init__.py:120-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\py_common_dump\__init__.py on(__init__.statistics_status) at 20156@MainThread  
+2023-03-08 21:39:52,486 [+] pydumpck is a multi-threads tool for decompile exe,elf,pyz,pyc packed by python which is base on pycdc and uncompyle6.sometimes its py-file result not exactly right ,maybe could use uncompyle6.
+--------------------
+pydumpck initilizing with 1.15.14 :pyinstaller_dump.py:115-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\pyinstaller_dump.py on(pyinstaller_dump.run) at 1696@MainThread  
+2023-03-08 21:39:52,497 [*] plugins loaded with ['pycdc'] :__init__.py:107-10  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\py_common_dump\__init__.py on(__init__.load_plugins) at 1696@MainThread  
+2023-03-08 21:39:52,497 [*] target file input:D:\Cyber\YB_CYBER\project\FinalProject\poc_start\poc_start\unrelated\python_exe\virus_keylogger.exe
+to:output_2449888 :__init__.py:142-10  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\py_common_dump\__init__.py on(__init__.main) at 1696@MainThread  
+2023-03-08 21:39:52,497 [*] start dump target file. :__init__.py:153-10  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\py_common_dump\__init__.py on(__init__.main) at 1696@MainThread  
+2023-03-08 21:39:52,497 [-] is an invalid file name! D:\Cyber\YB_CYBER\project\FinalProject\poc_start\poc_start\unrelated\python_exe\virus_keylogger.exe :__init__.py:61-40  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\py_common_dump\__init__.py on(__init__.handle_nofile) at 1696@MainThread  
+2023-03-08 21:39:52,498 [+] completed,cost 1ms with result:-1 :__init__.py:120-20  C:\Users\user\AppData\Local\Programs\Python\Python39\lib\site-packages\pydumpck\py_common_dump\__init__.py on(__init__.statistics_status) at 1696@MainThread  

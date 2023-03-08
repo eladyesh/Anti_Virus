@@ -122,7 +122,6 @@ class PythonVirus:
         def find_winapi_calls(code_path, winapi_functions):
             winapi_calls = []
             for function in winapi_functions:
-
                 # run the grep command
                 # result = subprocess.run(["grep", "-r", function, code_path], capture_output=True, text=True)
                 result = subprocess.run(["findstr", "/s", "/i", function, code_path], capture_output=True, text=True)
@@ -330,85 +329,84 @@ class PythonVirus:
                     file.write(f"Trying to set key to {exe}\n")
                     file.write("==============REGISTRY CHANGE==============\n\n")
 
+    def check_for_keylogger(self):
+        self.keylogger_detected = 0
+        self.suspicious_imoprts_for_keylogger = ['PIL', 'requests', 'cryptography.fernet', 'sounddevice', 'scipy.io'
+                                                                                                          '.wavfile',
+                                                 'pynput.keyboard', 'win32clipboard',
+                                                 'platform', 'socket', 'smtplib', 'email', 'email.mime.base',
+                                                 'email.mime.text', 'email.mime.multipart']
 
-def check_for_keylogger(self):
-    self.keylogger_detected = 0
-    self.suspicious_imoprts_for_keylogger = ['PIL', 'requests', 'cryptography.fernet', 'sounddevice', 'scipy.io'
-                                                                                                      '.wavfile',
-                                             'pynput.keyboard', 'win32clipboard',
-                                             'platform', 'socket', 'smtplib', 'email', 'email.mime.base',
-                                             'email.mime.text', 'email.mime.multipart']
+        self.suspicious_funcs = ['MIMEMultipart', 'getpass.getuser', 'time.time', 's.starttls', 'socket.gethostname',
+                                 'attachment.read',
+                                 'Listener', 'listener.join', 'screenshot', 'win32clipboard.OpenClipboard',
+                                 'win32clipboard.GetClipboardData',
+                                 'win32clipboard.CloseClipboard', 'platform.processor', 'platform.system', 'platform'
+                                                                                                           '.version',
+                                 'platform.machine',
+                                 'send_mail', 'Fernet', 'ImageGrab.grab', 'smtplib.SMTP', 'MIMEText']
 
-    self.suspicious_funcs = ['MIMEMultipart', 'getpass.getuser', 'time.time', 's.starttls', 'socket.gethostname',
-                             'attachment.read',
-                             'Listener', 'listener.join', 'screenshot', 'win32clipboard.OpenClipboard',
-                             'win32clipboard.GetClipboardData',
-                             'win32clipboard.CloseClipboard', 'platform.processor', 'platform.system', 'platform'
-                                                                                                       '.version',
-                             'platform.machine',
-                             'send_mail', 'Fernet', 'ImageGrab.grab', 'smtplib.SMTP', 'MIMEText']
+        self.suspicious_functions_and_params = {'MIMEBase': ['application', 'octet-stream'],
+                                                'open': ['attachment', 'rb'],
+                                                'socket.gethostbyname': 'hostname'}
 
-    self.suspicious_functions_and_params = {'MIMEBase': ['application', 'octet-stream'],
-                                            'open': ['attachment', 'rb'],
-                                            'socket.gethostbyname': 'hostname'}
+        self.suspicious_regex_patterns = [re.compile(r'(\w+)\.starttls'), re.compile(r'(\w+)\.set_payload'),
+                                          re.compile(r'(\w+)\.encrypt'), re.compile(r'(\w+)\.login'),
+                                          re.compile(r'(\w+)\.rec'),
+                                          re.compile(r'(\w+)\.wait'), re.compile(r'(\w+)\.encode_base64'),
+                                          re.compile(r'(\w+)\.add_header')]
 
-    self.suspicious_regex_patterns = [re.compile(r'(\w+)\.starttls'), re.compile(r'(\w+)\.set_payload'),
-                                      re.compile(r'(\w+)\.encrypt'), re.compile(r'(\w+)\.login'),
-                                      re.compile(r'(\w+)\.rec'),
-                                      re.compile(r'(\w+)\.wait'), re.compile(r'(\w+)\.encode_base64'),
-                                      re.compile(r'(\w+)\.add_header')]
+        self.suspicious_params = ['Keys', 'keys', 'space', 'Key', 'key', 'k']
 
-    self.suspicious_params = ['Keys', 'keys', 'space', 'Key', 'key', 'k']
+        # imports
+        self.imp_counter = 0
+        for imp in self.get_imports():
+            if imp in self.suspicious_imoprts_for_keylogger:
+                self.imp_counter += 1
 
-    # imports
-    self.imp_counter = 0
-    for imp in self.get_imports():
-        if imp in self.suspicious_imoprts_for_keylogger:
-            self.imp_counter += 1
+        # Find the Call node that represents the open function
+        for node in ast.walk(self.tree):
 
-    # Find the Call node that represents the open function
-    for node in ast.walk(self.tree):
+            if isinstance(node, ast.Call):
+                if isinstance(node.func, ast.Name):
+                    func_name = node.func.id
+                elif isinstance(node.func, ast.Attribute):
+                    # func_name = node.func.attr
+                    try:
+                        func_name = f"{node.func.value.id}.{node.func.attr}"
+                    except AttributeError:
+                        print('attribute error')
 
-        if isinstance(node, ast.Call):
-            if isinstance(node.func, ast.Name):
-                func_name = node.func.id
-            elif isinstance(node.func, ast.Attribute):
-                # func_name = node.func.attr
-                try:
-                    func_name = f"{node.func.value.id}.{node.func.attr}"
-                except AttributeError:
-                    print('attribute error')
+                # Extract the arguments passed to the function
+                args = [arg.id if isinstance(arg, ast.Name) else arg.s if isinstance(arg, ast.Str) else None for arg in
+                        node.args]
 
-            # Extract the arguments passed to the function
-            args = [arg.id if isinstance(arg, ast.Name) else arg.s if isinstance(arg, ast.Str) else None for arg in
-                    node.args]
+                # Print the function name and arguments
+                print(f"Function '{func_name}' called with arguments {args}")
 
-            # Print the function name and arguments
-            print(f"Function '{func_name}' called with arguments {args}")
-
-            # if func_name == "open":
-            #     # The first argument of the open function is the file name
-            #     file_name = node.args[0]
-            #     print(f"File name: {file_name.s}")
-            #
-            #     # The second argument of the open function is the mode
-            #     mode = node.args[1]
-            #     print(f"Mode: {mode.s}")
-            #
-            # if func_name == "write":
-            #     # The first argument of the write function is the string to be written
-            #
-            #     string_to_write = node.args[0]
-            #
-            #     print(f"String to write: {string_to_write.s}")
+                # if func_name == "open":
+                #     # The first argument of the open function is the file name
+                #     file_name = node.args[0]
+                #     print(f"File name: {file_name.s}")
+                #
+                #     # The second argument of the open function is the mode
+                #     mode = node.args[1]
+                #     print(f"Mode: {mode.s}")
+                #
+                # if func_name == "write":
+                #     # The first argument of the write function is the string to be written
+                #
+                #     string_to_write = node.args[0]
+                #
+                #     print(f"String to write: {string_to_write.s}")
 
 
 if __name__ == "__main__":
-    pv = PythonVirus("virus.exe")
+    pv = PythonVirus("virus_keylogger.exe")
     # print(pv.get_imports())
-    # pv.check_for_keylogger()
+    pv.check_for_keylogger()
     # print(pv.find_ctypes_calls())
-    pv.log_for_winapi(pv.find_ctypes_calls())
+    # pv.log_for_winapi(pv.find_ctypes_calls())
     # pv.crawl_for_winapi()
     # print(PythonVirus.scrape_for_info("CreateFileA"))
     # PythonVirus.make_function_dict()
