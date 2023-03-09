@@ -19,6 +19,8 @@
 #include <winsock.h>
 #include <chrono>
 #include <tlhelp32.h>
+#include <cmath>
+#include <limits>
 using std::ostringstream;
 using std::ends;
 #pragma comment(lib,"ws2_32.lib")
@@ -294,7 +296,15 @@ void LOG(const char* message, T parameter) {
     ostringstream oss;
     ostringstream oss2;
     oss << parameter << ends;
-    WriteFile(hFile, oss.str().c_str(), strlen(oss.str().c_str()), NULL, nullptr);
+
+    // cpu
+    std::string param = oss.str().c_str();
+    if (param == std::string("-nan(ind)")) {
+        WriteFile(hFile, "0", strlen("0"), NULL, nullptr);
+    }
+    else {
+        WriteFile(hFile, oss.str().c_str(), strlen(oss.str().c_str()), NULL, nullptr);
+    }
     WriteFile(hFile, "\n", strlen("\n"), NULL, nullptr);
     SetInlineHook("WriteFile", "kernel32.dll", "WriteFileHook", writeFileIndex);
 
@@ -341,10 +351,11 @@ struct REGISTRY_HOOKING {
         LOG("Time difference since attachment of hooks in [s] is ", time_difference);
 
         double cpuUsage = getCurrentValue();
-        if (maxCpu < cpuUsage) maxCpu = cpuUsage;
-        while (maxCpu > 100.0) maxCpu -= 100.0;
-        if (maxCpu > cpuPermitted) LOG("Has passed permitted cpu", "");
-        LOG("The current cpu usage percantage [%] is ", maxCpu);
+        if (cpuUsage == -std::nan("ind")) cpuUsage = 0;
+        if (cpuUsage < cpuUsage) cpuUsage = cpuUsage;
+        while (cpuUsage > 100.0) cpuUsage -= 70.0;
+        if (cpuUsage > cpuPermitted) LOG("Has passed permitted cpu", "");
+        LOG("The current cpu usage percantage [%] is ", cpuUsage);
 
         LOG("The number of times user is trying to open a registry key is ", fnCounter[suspicious_functions[index]]);
         LOG("\n----------Done intercepting call to RegOpenKeyExA----------\n\n\n\n\n", "");
@@ -375,11 +386,13 @@ struct REGISTRY_HOOKING {
         time_difference.insert(1, ".");
 
         LOG("Time difference since attachment of hooks in [s] is ", time_difference);
+
         double cpuUsage = getCurrentValue();
-        if (maxCpu < cpuUsage) maxCpu = cpuUsage;
-        while (maxCpu > 100.0) maxCpu -= 100.0;
-        if (maxCpu > cpuPermitted) LOG("Has passed permitted cpu", "");
-        LOG("The current cpu usage percantage [%] is ", maxCpu);
+        if (cpuUsage == -std::nan("ind")) cpuUsage = 0;
+        if (cpuUsage < cpuUsage) cpuUsage = cpuUsage;
+        while (cpuUsage > 100.0) cpuUsage -= 70.0;
+        if (cpuUsage > cpuPermitted) LOG("Has passed permitted cpu", "");
+        LOG("The current cpu usage percantage [%] is ", cpuUsage);
 
         LOG("The number of times user is trying to set a registry key is ", fnCounter[suspicious_functions[index]]);
         LOG("\n----------Done intercepting call to RegSetValueExA----------\n\n\n\n\n", "");
@@ -411,10 +424,11 @@ struct REGISTRY_HOOKING {
 
         LOG("Time difference since attachment of hooks in [s] is ", time_difference);
         double cpuUsage = getCurrentValue();
-        if (maxCpu < cpuUsage) maxCpu = cpuUsage;
-        while (maxCpu > 100.0) maxCpu -= 100.0;
-        if (maxCpu > cpuPermitted) LOG("Has passed permitted cpu", "");
-        LOG("The current cpu usage percantage [%] is ", maxCpu);
+        if (cpuUsage == -std::nan("ind")) cpuUsage = 0;
+        if (cpuUsage < cpuUsage) cpuUsage = cpuUsage;
+        while (cpuUsage > 100.0) cpuUsage -= 70.0;
+        if (cpuUsage > cpuPermitted) LOG("Has passed permitted cpu", "");
+        LOG("The current cpu usage percantage [%] is ", cpuUsage);
 
         LOG("The number of times user is trying to create a registry key is ", fnCounter[suspicious_functions[index]]);
         LOG("\n----------Done intercepting call to RegCreateKeyExA----------\n\n\n\n\n", "");
@@ -451,10 +465,11 @@ struct REGISTRY_HOOKING {
 
         LOG("Time difference since attachment of hooks in [s] is ", time_difference);
         double cpuUsage = getCurrentValue();
-        if (maxCpu < cpuUsage) maxCpu = cpuUsage;
-        while (maxCpu > 100.0) maxCpu -= 100.0;
-        if (maxCpu > cpuPermitted) LOG("Has passed permitted cpu", "");
-        LOG("The current cpu usage percantage [%] is ", maxCpu);
+        if (cpuUsage == -std::nan("ind")) cpuUsage = 0;
+        if (cpuUsage < cpuUsage) cpuUsage = cpuUsage;
+        while (cpuUsage > 100.0) cpuUsage -= 70.0;
+        if (cpuUsage > cpuPermitted) LOG("Has passed permitted cpu", "");
+        LOG("The current cpu usage percantage [%] is ", cpuUsage);
 
         LOG("The Registry Value Data this function was trying to get to is ", value);
 
@@ -496,10 +511,11 @@ struct SOCKET_HOOKING {
 
         LOG("Time difference since attachment of hooks in [s] is ", time_difference);
         double cpuUsage = getCurrentValue();
-        if (maxCpu < cpuUsage) maxCpu = cpuUsage;
-        while (maxCpu > 100.0) maxCpu -= 100.0;
-        if (maxCpu > cpuPermitted) LOG("Has passed permitted cpu", "");
-        LOG("The current cpu usage percantage [%] is ", maxCpu);
+        if (cpuUsage == -std::nan("ind")) cpuUsage = 0;
+        if (cpuUsage < cpuUsage) cpuUsage = cpuUsage;
+        while (cpuUsage > 100.0) cpuUsage -= 70.0;
+        if (cpuUsage > cpuPermitted) LOG("Has passed permitted cpu", "");
+        LOG("The current cpu usage percantage [%] is ", cpuUsage);
 
         LOG("The number of times user is trying to create a socket is ", fnCounter[suspicious_functions[index]]);
         LOG("\n----------Done intercepting call to socket----------\n\n\n\n\n", "");
@@ -550,11 +566,13 @@ struct SOCKET_HOOKING {
         time_difference.insert(1, ".");
 
         LOG("Time difference since attachment of hooks in [s] is ", time_difference);
+
         double cpuUsage = getCurrentValue();
-        if (maxCpu < cpuUsage) maxCpu = cpuUsage;
-        while (maxCpu > 100.0) maxCpu -= 100.0;
-        if (maxCpu > cpuPermitted) LOG("Has passed permitted cpu", "");
-        LOG("The current cpu usage percantage [%] is ", maxCpu);
+        if (cpuUsage == -std::nan("ind")) cpuUsage = 0;
+        if (cpuUsage < cpuUsage) cpuUsage = cpuUsage;
+        while (cpuUsage > 100.0) cpuUsage -= 70.0;
+        if (cpuUsage > cpuPermitted) LOG("Has passed permitted cpu", "");
+        LOG("The current cpu usage percantage [%] is ", cpuUsage);
 
         LOG("The number of times user is trying to connect to another socket is ", fnCounter[suspicious_functions[index]]);
         LOG("\n----------Done intercepting call to connect----------\n\n\n\n\n", "");
@@ -582,10 +600,11 @@ struct SOCKET_HOOKING {
 
         LOG("Time difference since attachment of hooks in [s] is ", time_difference);
         double cpuUsage = getCurrentValue();
-        if (maxCpu < cpuUsage) maxCpu = cpuUsage;
-        while (maxCpu > 100.0) maxCpu -= 100.0;
-        if (maxCpu > cpuPermitted) LOG("Has passed permitted cpu", "");
-        LOG("The current cpu usage percantage [%] is ", maxCpu);
+        if (cpuUsage == -std::nan("ind")) cpuUsage = 0;
+        if (cpuUsage < cpuUsage) cpuUsage = cpuUsage;
+        while (cpuUsage > 100.0) cpuUsage -= 70.0;
+        if (cpuUsage > cpuPermitted) LOG("Has passed permitted cpu", "");
+        LOG("The current cpu usage percantage [%] is ", cpuUsage);
 
         LOG("The number of times user is trying to send message via socket is ", fnCounter[suspicious_functions[index]]);
         LOG("\n----------Done intercepting call to send----------\n\n\n\n\n", "");
@@ -617,10 +636,11 @@ struct SOCKET_HOOKING {
 
         LOG("Time difference since attachment of hooks in [s] is ", time_difference);
         double cpuUsage = getCurrentValue();
-        if (maxCpu < cpuUsage) maxCpu = cpuUsage;
-        while (maxCpu > 100.0) maxCpu -= 100.0;
-        if (maxCpu > cpuPermitted) LOG("Has passed permitted cpu", "");
-        LOG("The current cpu usage percantage [%] is ", maxCpu);
+        if (cpuUsage == -std::nan("ind")) cpuUsage = 0;
+        if (cpuUsage < cpuUsage) cpuUsage = cpuUsage;
+        while (cpuUsage > 100.0) cpuUsage -= 70.0;
+        if (cpuUsage > cpuPermitted) LOG("Has passed permitted cpu", "");
+        LOG("The current cpu usage percantage [%] is ", cpuUsage);
 
         ++fnCounter[suspicious_functions[index]];
         LOG("The number of times user is trying to receive a buffer is ", fnCounter[suspicious_functions[index]]);
@@ -677,10 +697,11 @@ struct FILE_HOOKING {
 
         LOG("Time difference since attachment of hooks in [s] is ", time_difference);
         double cpuUsage = getCurrentValue();
-        if (maxCpu < cpuUsage) maxCpu = cpuUsage;
-        while (maxCpu > 100.0) maxCpu -= 100.0;
-        if (maxCpu > cpuPermitted) LOG("Has passed permitted cpu", "");
-        LOG("The current cpu usage percantage [%] is ", maxCpu);
+        if (cpuUsage == -std::nan("ind")) cpuUsage = 0;
+        if (cpuUsage < cpuUsage) cpuUsage = cpuUsage;
+        while (cpuUsage > 100.0) cpuUsage -= 70.0;
+        if (cpuUsage > cpuPermitted) LOG("Has passed permitted cpu", "");
+        LOG("The current cpu usage percantage [%] is ", cpuUsage);
 
         LOG("The number of times user is trying to create a file is ", fnCounter[suspicious_functions[index]]);
         LOG("\n----------Done intercepting call to CreateFileA----------\n\n\n\n\n", "");
@@ -707,10 +728,11 @@ struct FILE_HOOKING {
 
         LOG("The number of times user is trying to delete a file is ", fnCounter[suspicious_functions[index]]);
         double cpuUsage = getCurrentValue();
-        if (maxCpu < cpuUsage) maxCpu = cpuUsage;
-        while (maxCpu > 100.0) maxCpu -= 100.0;
-        if (maxCpu > cpuPermitted) LOG("Has passed permitted cpu", "");
-        LOG("The current cpu usage percantage [%] is ", maxCpu);
+        if (cpuUsage == -std::nan("ind")) cpuUsage = 0;
+        if (cpuUsage < cpuUsage) cpuUsage = cpuUsage;
+        while (cpuUsage > 100.0) cpuUsage -= 70.0;
+        if (cpuUsage > cpuPermitted) LOG("Has passed permitted cpu", "");
+        LOG("The current cpu usage percantage [%] is ", cpuUsage);
         LOG("\n----------Done intercepting call to DeleteFileA----------\n\n\n\n\n", "");
 
         WriteProcessMemory(GetCurrentProcess(), (LPVOID)addresses[index], original[index], 6, NULL);
@@ -736,10 +758,11 @@ struct FILE_HOOKING {
 
         LOG("Time difference since attachment of hooks in [s] is ", time_difference);
         double cpuUsage = getCurrentValue();
-        if (maxCpu < cpuUsage) maxCpu = cpuUsage;
-        while (maxCpu > 100.0) maxCpu -= 100.0;
-        if (maxCpu > cpuPermitted) LOG("Has passed permitted cpu", "");
-        LOG("The current cpu usage percantage [%] is ", maxCpu);
+        if (cpuUsage == -std::nan("ind")) cpuUsage = 0;
+        if (cpuUsage < cpuUsage) cpuUsage = cpuUsage;
+        while (cpuUsage > 100.0) cpuUsage -= 70.0;
+        if (cpuUsage > cpuPermitted) LOG("Has passed permitted cpu", "");
+        LOG("The current cpu usage percantage [%] is ", cpuUsage);
 
         LOG("The number of times user is trying to write to a file is ", fnCounter[suspicious_functions[index]]);
         LOG("\n----------Done intercepting call to WriteFileEx----------\n\n\n\n\n", "");
@@ -775,11 +798,11 @@ struct FILE_HOOKING {
         LOG("Time difference since attachment of hooks in [s] is ", time_difference);
 
         double cpuUsage = getCurrentValue();
-        if (maxCpu < cpuUsage) maxCpu = cpuUsage;
-        while (maxCpu > 100.0) maxCpu -= 100.0;
-        if (maxCpu > cpuPermitted) LOG("Has passed permitted cpu", "");
-
-        LOG("The current cpu usage percantage [%] is ", maxCpu);
+        if (cpuUsage == -std::nan("ind")) cpuUsage = 0;
+        if (cpuUsage < cpuUsage) cpuUsage = cpuUsage;
+        while (cpuUsage > 100.0) cpuUsage -= 70.0;
+        if (cpuUsage > cpuPermitted) LOG("Has passed permitted cpu", "");
+        LOG("The current cpu usage percantage [%] is ", cpuUsage);
         LOG("The number of times user is trying to write to a file is ", fnCounter[suspicious_functions[index]]);
 
         LOG("\n----------Done intercepting call to WriteFile----------\n\n\n\n\n", "");
@@ -820,10 +843,11 @@ struct INJECT_HOOKING {
 
         LOG("Time difference since attachment of hooks in [s] is ", time_difference);
         double cpuUsage = getCurrentValue();
-        if (maxCpu < cpuUsage) maxCpu = cpuUsage;
-        while (maxCpu > 100.0) maxCpu -= 100.0;
-        if (maxCpu > cpuPermitted) LOG("Has passed permitted cpu", "");
-        LOG("The current cpu usage percantage [%] is ", maxCpu);
+        if (cpuUsage == -std::nan("ind")) cpuUsage = 0;
+        if (cpuUsage < cpuUsage) cpuUsage = cpuUsage;
+        while (cpuUsage > 100.0) cpuUsage -= 70.0;
+        if (cpuUsage > cpuPermitted) LOG("Has passed permitted cpu", "");
+        LOG("The current cpu usage percantage [%] is ", cpuUsage);
 
         LOG("The number of times user is trying to allocate memory is ", fnCounter[suspicious_functions[index]]);
         LOG("\n----------Done intercepting call to VirtualAlloc----------\n\n\n\n\n", "");
@@ -857,10 +881,11 @@ struct INJECT_HOOKING {
 
         LOG("Time difference since attachment of hooks in [s] is ", time_difference);
         double cpuUsage = getCurrentValue();
-        if (maxCpu < cpuUsage) maxCpu = cpuUsage;
-        while (maxCpu > 100.0) maxCpu -= 100.0;
-        if (maxCpu > cpuPermitted) LOG("Has passed permitted cpu", "");
-        LOG("The current cpu usage percantage [%] is ", maxCpu);
+        if (cpuUsage == -std::nan("ind")) cpuUsage = 0;
+        if (cpuUsage < cpuUsage) cpuUsage = cpuUsage;
+        while (cpuUsage > 100.0) cpuUsage -= 70.0;
+        if (cpuUsage > cpuPermitted) LOG("Has passed permitted cpu", "");
+        LOG("The current cpu usage percantage [%] is ", cpuUsage);
 
         LOG("The number of times user is trying to create a thread is ", fnCounter[suspicious_functions[index]]);
         LOG("\n----------Done intercepting call to CreateThread----------\n\n\n\n\n", "");
@@ -901,10 +926,11 @@ struct INJECT_HOOKING {
         LOG("Time difference since attachment of hooks in [s] is ", time_difference);
 
         double cpuUsage = getCurrentValue();
-        if (maxCpu < cpuUsage) maxCpu = cpuUsage;
-        while (maxCpu > 100.0) maxCpu -= 100.0;
-        if (maxCpu > cpuPermitted) LOG("Has passed permitted cpu", "");
-        LOG("The current cpu usage percantage [%] is ", maxCpu);
+        if (cpuUsage == -std::nan("ind")) cpuUsage = 0;
+        if (cpuUsage < cpuUsage) cpuUsage = cpuUsage;
+        while (cpuUsage > 100.0) cpuUsage -= 70.0;
+        if (cpuUsage > cpuPermitted) LOG("Has passed permitted cpu", "");
+        LOG("The current cpu usage percantage [%] is ", cpuUsage);
 
         LOG("The number of times user is trying to open a process is ", fnCounter[suspicious_functions[index]]);
         LOG("\n----------Done intercepting call to OpenProcess----------\n\n\n\n\n", "");
@@ -942,10 +968,11 @@ struct INJECT_HOOKING {
         LOG("Time difference since attachment of hooks in [s] is ", time_difference);
 
         double cpuUsage = getCurrentValue();
-        if (maxCpu < cpuUsage) maxCpu = cpuUsage;
-        while (maxCpu > 100.0) maxCpu -= 100.0;
-        if (maxCpu > cpuPermitted) LOG("Has passed permitted cpu", "");
-        LOG("The current cpu usage percantage [%] is ", maxCpu);
+        if (cpuUsage == -std::nan("ind")) cpuUsage = 0;
+        if (cpuUsage < cpuUsage) cpuUsage = cpuUsage;
+        while (cpuUsage > 100.0) cpuUsage -= 70.0;
+        if (cpuUsage > cpuPermitted) LOG("Has passed permitted cpu", "");
+        LOG("The current cpu usage percantage [%] is ", cpuUsage);
 
         LOG("The number of times user is trying to allocate memory is ", fnCounter[suspicious_functions[index]]);
         LOG("\n----------Done intercepting call to VirtualAllocEx----------\n\n\n\n\n", "");
@@ -985,10 +1012,11 @@ struct INJECT_HOOKING {
         LOG("Time difference since attachment of hooks in [s] is ", time_difference);
 
         double cpuUsage = getCurrentValue();
-        if (maxCpu < cpuUsage) maxCpu = cpuUsage;
-        while (maxCpu > 100.0) maxCpu -= 100.0;
-        if (maxCpu > cpuPermitted) LOG("Has passed permitted cpu", "");
-        LOG("The current cpu usage percantage [%] is ", maxCpu);
+        if (cpuUsage == -std::nan("ind")) cpuUsage = 0;
+        if (cpuUsage < cpuUsage) cpuUsage = cpuUsage;
+        while (cpuUsage > 100.0) cpuUsage -= 70.0;
+        if (cpuUsage > cpuPermitted) LOG("Has passed permitted cpu", "");
+        LOG("The current cpu usage percantage [%] is ", cpuUsage);
 
         LOG("The number of times user is trying to create a remote thread is ", fnCounter[suspicious_functions[index]]);
         LOG("\n----------Done intercepting call to CreateRemoteThread----------\n\n\n\n\n", "");
@@ -1015,10 +1043,11 @@ struct INJECT_HOOKING {
         LOG("Time difference since attachment of hooks in [s] is ", time_difference);
 
         double cpuUsage = getCurrentValue();
-        if (maxCpu < cpuUsage) maxCpu = cpuUsage;
-        while (maxCpu > 100.0) maxCpu -= 100.0;
-        if (maxCpu > cpuPermitted) LOG("Has passed permitted cpu", "");
-        LOG("The current cpu usage percantage [%] is ", maxCpu);
+        if (cpuUsage == -std::nan("ind")) cpuUsage = 0;
+        if (cpuUsage < cpuUsage) cpuUsage = cpuUsage;
+        while (cpuUsage > 100.0) cpuUsage -= 70.0;
+        if (cpuUsage > cpuPermitted) LOG("Has passed permitted cpu", "");
+        LOG("The current cpu usage percantage [%] is ", cpuUsage);
 
         LOG("The number of times user is trying to close a handle is ", fnCounter[suspicious_functions[index]]);
         LOG("\n----------Done intercepting call to CloseHandle----------\n\n\n\n\n", "");
@@ -1072,10 +1101,11 @@ struct KeyBoard_HOOKING
         LOG("Time difference since attachment of hooks in [s] is ", time_difference);
 
         double cpuUsage = getCurrentValue();
-        if (maxCpu < cpuUsage) maxCpu = cpuUsage;
-        while (maxCpu > 100.0) maxCpu -= 100.0;
-        if (maxCpu > cpuPermitted) LOG("Has passed permitted cpu", "");
-        LOG("The current cpu usage percantage [%] is ", maxCpu);
+        if (cpuUsage == -std::nan("ind")) cpuUsage = 0;
+        if (cpuUsage < cpuUsage) cpuUsage = cpuUsage;
+        while (cpuUsage > 100.0) cpuUsage -= 70.0;
+        if (cpuUsage > cpuPermitted) LOG("Has passed permitted cpu", "");
+        LOG("The current cpu usage percantage [%] is ", cpuUsage);
 
         LOG("\n----------Done intercepting call to SetWindowsHookExA----------\n\n", "");
 
@@ -1102,10 +1132,11 @@ struct KeyBoard_HOOKING
         LOG("Time difference since attachment of hooks in [s] is ", time_difference);
 
         double cpuUsage = getCurrentValue();
-        if (maxCpu < cpuUsage) maxCpu = cpuUsage;
-        while (maxCpu > 100.0) maxCpu -= 100.0;
-        if (maxCpu > cpuPermitted) LOG("Has passed permitted cpu", "");
-        LOG("The current cpu usage percantage [%] is ", maxCpu);
+        if (cpuUsage == -std::nan("ind")) cpuUsage = 0;
+        if (cpuUsage < cpuUsage) cpuUsage = cpuUsage;
+        while (cpuUsage > 100.0) cpuUsage -= 70.0;
+        if (cpuUsage > cpuPermitted) LOG("Has passed permitted cpu", "");
+        LOG("The current cpu usage percantage [%] is ", cpuUsage);
 
         LOG("\n----------Done intercepting call to GetKeyboardState----------\n\n", "");
 
@@ -1142,10 +1173,11 @@ struct KeyBoard_HOOKING
         LOG("Time difference since attachment of hooks in [s] is ", time_difference);
 
         double cpuUsage = getCurrentValue();
-        if (maxCpu < cpuUsage) maxCpu = cpuUsage;
-        while (maxCpu > 100.0) maxCpu -= 100.0;
-        if (maxCpu > cpuPermitted) LOG("Has passed permitted cpu", "");
-        LOG("The current cpu usage percantage [%] is ", maxCpu);
+        if (cpuUsage == -std::nan("ind")) cpuUsage = 0;
+        if (cpuUsage < cpuUsage) cpuUsage = cpuUsage;
+        while (cpuUsage > 100.0) cpuUsage -= 70.0;
+        if (cpuUsage > cpuPermitted) LOG("Has passed permitted cpu", "");
+        LOG("The current cpu usage percantage [%] is ", cpuUsage);
 
         LOG("\n----------Done intercepting call to SetFilePointer----------\n\n", "");
 
