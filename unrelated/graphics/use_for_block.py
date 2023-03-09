@@ -20,7 +20,7 @@ import logging
 # Configure the logger
 logging.basicConfig(level=logging.INFO)
 
-ip_for_server = socket.gethostbyname_ex(socket.gethostname())[-1][0]
+ip_for_server = socket.gethostbyname_ex(socket.gethostname())[-1][-1]
 
 
 class RequestHandler(BaseHTTPRequestHandler):
@@ -51,6 +51,7 @@ def start_server():
 
 @main_requires_admin
 def main():
+
     # Define color codes
     BLUE = 9
     GREEN = 10

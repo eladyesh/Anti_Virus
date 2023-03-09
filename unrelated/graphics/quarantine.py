@@ -8,6 +8,7 @@ import ctypes
 
 FILE_ATTRIBUTE_HIDDEN = 0x02
 
+
 class Quarantine:
 
     @staticmethod

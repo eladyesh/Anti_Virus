@@ -16,7 +16,7 @@ import PyQt5.QtGui
 from PyQt5.QtCore import QObject, QThread, pyqtSignal
 import shutil
 from poc_start.unrelated.graphics.quarantine import Quarantine
-from poc_start.unrelated.graphics.helpful_widgets import DialWatch, EventViewer
+from poc_start.unrelated.graphics.helpful_widgets import DialWatch, EventViewer, show_loading_menu
 from poc_start.send_to_vm.sender import Sender
 from poc_start.unrelated.hash_scan.vt_hash import VTScan, md5, check_hash, sha_256, start_server, RequestHandler, \
     HTTPServer, BaseHTTPRequestHandler
@@ -323,7 +323,6 @@ class ListBoxWidget(QListWidget):
 
 
 class AppDemo(QMainWindow):
-
     # define static variables
     run_for_python_analysis = False
 
@@ -438,101 +437,6 @@ class AppDemo(QMainWindow):
         self.thread = QThread()
         self.thread.run = func_to_run
         return self.thread
-
-    def show_loading_menu(self):
-
-        # self.clearLayout()
-
-        class GifThread(QThread):
-            def __init__(self, label, movie):
-                QThread.__init__(self)
-                self.label = label
-                self.movie = movie
-
-            def run(self):
-                self.movie.start()
-
-        class OverlayWindow(QMainWindow):
-            def __init__(self):
-                super().__init__()
-                self.initUI()
-
-            def initUI(self):
-                self.setWindowFlags(QtCore.Qt.FramelessWindowHint | QtCore.Qt.WindowStaysOnTopHint)
-                # self.setAttribute(QtCore.Qt.WA_TranslucentBackground)
-
-                # Create the label for the gif
-
-                self.label_load = QLabel()
-                movie = QMovie("loading.gif")
-                self.label_load.setMovie(movie)
-
-                # Create the label for the text
-                self.text_label = QLabel("Loading your data...")
-                self.label_load.setAlignment(QtCore.Qt.AlignCenter)
-
-                # Style the text label
-                font = QFont()
-                font.setFamily("Zapfino")
-                font.setPointSize(20)
-                font.setBold(True)
-                self.text_label.setFont(font)
-                self.text_label.setStyleSheet("color: #0096FF;")
-                self.text_label.setAlignment(QtCore.Qt.AlignCenter)
-
-                # Create the main layout
-                self.layout_load = QVBoxLayout()
-                self.layout_load.addWidget(self.label_load, 0, QtCore.Qt.AlignCenter)
-                self.layout_load.addWidget(self.text_label, 0, QtCore.Qt.AlignBottom)
-
-                loading_thread = GifThread(self.label_load, movie)
-                loading_thread.run()
-                central_widget = QWidget(self)
-                central_widget.setLayout(self.layout_load)
-                self.setCentralWidget(central_widget)
-
-                close_button = QPushButton('X', self)
-                close_button.setFixedSize(30, 30)
-                close_button.clicked.connect(self.close)
-
-                def create_file():
-                    self.pv = PythonVirus("virus.exe")
-                    self.pv.log_for_winapi(self.pv.find_ctypes_calls())
-
-                # Start a new thread to check for the file
-                def check_file():
-                    while not os.path.exists("log_python.txt"):
-                        print("checking python file")
-
-                        # Process events to keep the window responsive
-                        qApp.processEvents()
-
-                    AppDemo.run_for_python_analysis = True
-                    loop.quit()  # Quit the event loop
-                    self.close()
-
-                thread_create = threading.Thread(target=create_file)
-                thread_create.start()
-
-                thread_check = threading.Thread(target=check_file)
-                thread_check.start()
-
-                # Create and start the event loop
-                loop = QEventLoop()
-                loop.exec_()
-
-            def mousePressEvent(self, event):
-                self.offset = event.pos()
-
-            def mouseMoveEvent(self, event):
-                x = event.globalX()
-                y = event.globalY()
-                x_w = self.offset.x()
-                y_w = self.offset.y()
-                self.move(x - x_w, y - y_w)
-
-        self.overlay = OverlayWindow()
-        self.overlay.show()
 
     def clearLayout(self):
 
@@ -1056,8 +960,8 @@ class AppDemo(QMainWindow):
         self.python_label = make_label("Python Static Analysis", 24)
         self.python_layout.addWidget(self.python_label)
 
-        self.pv = PythonVirus("virus.exe")
-        self.pv.log_for_winapi(self.pv.find_ctypes_calls())
+        # self.pv = PythonVirus("virus.exe")
+        # self.pv.log_for_winapi(self.pv.find_ctypes_calls())
 
         with open("log_python.txt", "r") as f:
             python_data = f.read()
@@ -1077,52 +981,52 @@ class AppDemo(QMainWindow):
                         margin-top: 10px;
                         margin-bottom: 10px;
                     }
-    
+
                     QTreeView::branch:has-siblings:!adjoins-item {
                         border-image: url(images/vline.png) 0;
                     }
-    
+
                     QTreeView::branch:has-siblings:adjoins-item {
                         border-image: url(images/branch-more.png) 0;
                     }
-    
+
                     QTreeView::branch:!has-children:!has-siblings:adjoins-item {
                         border-image: url(images/branch-end.png) 0;
                     }
-    
+
                     QTreeView::branch:has-children:!has-siblings:closed,
                     QTreeView::branch:closed:has-children:has-siblings {
                             border-image: none;
                             image: url(images/branch-closed.png);
                     }
-    
+
                     QTreeView::branch:open:has-children:!has-siblings,
                     QTreeView::branch:open:has-children:has-siblings  {
                             border-image: none;
                             image: url(images/branch-open.png);
                     }
-    
+
                     QTreeView::branch:selected {
                         color: white;
                     }
-    
+
                     QTreeView::item {
                         padding: 5px;
                         margin: 1px;
                     }
-    
+
                     QTreeView::item:hover {
                         background-color: #555;
                     }
-    
+
                     QTreeView::item:selected {
                         background-color: #777;
                     }
-    
+
                     QTableWidget::item:selected:active {
                         background-color: #999;
                     }
-    
+
                     QTableWidget::item:selected:!active {
                         background-color: #red;
                     }""")
@@ -1134,6 +1038,7 @@ class AppDemo(QMainWindow):
                 # function name
                 lines = func.split("\n")
                 for i, line in enumerate(lines):
+
                     if line.startswith("Function name: "):
                         function_name = line.split(": ")[1]
                         item = QTreeWidgetItem(self.tree_py, [function_name])
@@ -1142,6 +1047,10 @@ class AppDemo(QMainWindow):
 
                 lines = "\n".join(lines)
                 for line in lines.split("\n"):
+
+                    if "=" in line or "Trying" in line:
+                        continue
+
                     child_item = QTreeWidgetItem([line])
                     item.addChild(child_item)
 
@@ -1238,6 +1147,31 @@ class AppDemo(QMainWindow):
             # self.py_thread.run = self.python_analysis
             # self.py_thread.start()
             # self.show_loading_menu()
+
+            class VirusThread(QThread):
+
+                overlay = show_loading_menu()
+                overlay.show()
+                finished_signal = pyqtSignal()
+
+                def run(self):
+
+                    self.pv = PythonVirus("virus.exe")
+                    self.pv.log_for_winapi(self.pv.find_ctypes_calls())
+
+                    # signal the main thread that the task is finished
+                    self.finished_signal.emit()
+
+            # create an instance of VirusThread and start it
+            virus_thread = VirusThread()
+            virus_thread.start()
+
+            # create a QEventLoop to wait until the task is finished
+            loop = QEventLoop()
+            virus_thread.finished_signal.connect(loop.quit)
+            loop.exec_()
+
+            VirusThread.overlay.close()
             self.python_analysis()
             return
 
@@ -1999,7 +1933,7 @@ The presence of both means the code itself can be changed dynamically
 
         mutex = threading.Semaphore(1)
 
-        for block_ip in VTScan.scan_for_suspicious_cache(self.progress_bar_ip, mutex):
+        for block_ip in VTScan.scan_for_suspicious_cache(self.progress_bar_ip):
 
             if block_ip == "stop":
                 self.movie_ip.stop()

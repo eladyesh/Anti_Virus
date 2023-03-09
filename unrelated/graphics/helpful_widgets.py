@@ -5,6 +5,76 @@ from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 
 
+def show_loading_menu():
+    # self.clearLayout()
+
+    class GifThread(QThread):
+        def __init__(self, label, movie):
+            QThread.__init__(self)
+            self.label = label
+            self.movie = movie
+
+        def run(self):
+            self.movie.start()
+
+    class OverlayWindow(QMainWindow):
+        def __init__(self):
+            super().__init__()
+            self.initUI()
+
+        def initUI(self):
+            self.setWindowFlags(Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint)
+            # self.setAttribute(QtCore.Qt.WA_TranslucentBackground)
+
+            # Create the label for the gif
+
+            self.label_load = QLabel()
+            movie = QMovie("loading.gif")
+            self.label_load.setMovie(movie)
+
+            # Create the label for the text
+            self.text_label = QLabel("Loading your data...")
+            self.label_load.setAlignment(Qt.AlignCenter)
+
+            # Style the text label
+            font = QFont()
+            font.setFamily("Zapfino")
+            font.setPointSize(20)
+            font.setBold(True)
+            self.text_label.setFont(font)
+            self.text_label.setStyleSheet("color: #0096FF;")
+            self.text_label.setAlignment(Qt.AlignCenter)
+
+            # Create the main layout
+            self.layout_load = QVBoxLayout()
+            self.layout_load.addWidget(self.label_load, 0, Qt.AlignCenter)
+            self.layout_load.addWidget(self.text_label, 0, Qt.AlignBottom)
+
+            loading_thread = GifThread(self.label_load, movie)
+            loading_thread.run()
+            central_widget = QWidget(self)
+            central_widget.setLayout(self.layout_load)
+            self.setCentralWidget(central_widget)
+
+            close_button = QPushButton('X', self)
+            close_button.setFixedSize(30, 30)
+            close_button.clicked.connect(self.close)
+
+        def mousePressEvent(self, event):
+            self.offset = event.pos()
+
+        def mouseMoveEvent(self, event):
+            x = event.globalX()
+            y = event.globalY()
+            x_w = self.offset.x()
+            y_w = self.offset.y()
+            self.move(x - x_w, y - y_w)
+
+    overlay = OverlayWindow()
+    print("got to overlay")
+    return overlay
+
+
 class DialWatch(QWidget):
     def __init__(self):
         super().__init__()
