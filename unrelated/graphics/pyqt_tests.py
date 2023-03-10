@@ -1118,11 +1118,14 @@ class AppDemo(QMainWindow):
 
         bytes = b""
 
-        with open(path, "rb") as f:
-            bytes += f.read()
-        shutil.move(str(path), PATH_TO_MOVE + "\\virus.exe")
-        with open(path, "wb") as f:
-            f.write(bytes)
+        try:
+            with open(path, "rb") as f:
+                bytes += f.read()
+            shutil.move(str(path), PATH_TO_MOVE + "\\virus.exe")
+            with open(path, "wb") as f:
+                f.write(bytes)
+        except Exception as e:
+            print(e)
 
         self.md5_hash = str(md5("virus.exe"))
         if not self.redis_virus.exists(self.md5_hash):
@@ -1157,7 +1160,20 @@ class AppDemo(QMainWindow):
                 def run(self):
 
                     self.pv = PythonVirus("virus.exe")
-                    self.pv.log_for_winapi(self.pv.find_ctypes_calls())
+                    # self.pv.log_for_winapi(self.pv.find_ctypes_calls())
+
+                    self.keylogger_suspect = self.pv.check_for_keylogger()
+                    self.keylogger_suspect_imports = self.keylogger_suspect[0]
+                    self.keylogger_suspect_funcs = self.keylogger_suspect[1]
+                    self.keylogger_suspect_funcs_and_params = self.keylogger_suspect[2]
+                    self.keylogger_suspect_patterns = self.keylogger_suspect[3]
+                    self.keylogger_suspect_params = self.keylogger_suspect[4]
+
+                    print("imports ", self.keylogger_suspect_imports)
+                    print("funcs ", self.keylogger_suspect_funcs)
+                    print("funcs and params ", self.keylogger_suspect_funcs_and_params)
+                    print("patterns ", self.keylogger_suspect_patterns)
+                    print(self.keylogger_suspect_params)
 
                     # signal the main thread that the task is finished
                     self.finished_signal.emit()
@@ -1171,7 +1187,9 @@ class AppDemo(QMainWindow):
             virus_thread.finished_signal.connect(loop.quit)
             loop.exec_()
 
+
             VirusThread.overlay.close()
+            return
             self.python_analysis()
             return
 

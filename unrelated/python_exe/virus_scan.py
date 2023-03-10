@@ -407,16 +407,18 @@ class PythonVirus:
                     if arg in self.suspicious_params:
                         self.suspicious_params_found.append(arg)
 
-        print("imports ", self.suspect_imports_found)
-        print("funcs ", self.suspicious_funcs_found)
-        print("funcs and params ", self.suspicious_functions_and_params_found)
-        print("patterns ", self.suspicious_regex_patterns_found)
-        print("params ", self.suspicious_params_found)
+        return (self.suspect_imports_found,
+                self.suspicious_funcs_found,
+                self.suspicious_functions_and_params_found,
+                self.suspicious_regex_patterns_found,
+                self.suspicious_params_found)
+
 
 if __name__ == "__main__":
-    pv = PythonVirus("keylogger.exe")
+    pass
+    # pv = PythonVirus("keylogger.exe")
     # print(pv.get_imports())
-    pv.check_for_keylogger()
+    # pv.check_for_keylogger()
     # print(pv.find_ctypes_calls())
     # pv.log_for_winapi(pv.find_ctypes_calls())
     # pv.crawl_for_winapi()
