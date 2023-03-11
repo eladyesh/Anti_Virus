@@ -81,7 +81,6 @@ class DialWatch(QWidget):
         self.initUI()
 
     def initUI(self):
-
         # Create a dial widget
         self.dial = QDial()
         self.dial.setRange(0, 99)

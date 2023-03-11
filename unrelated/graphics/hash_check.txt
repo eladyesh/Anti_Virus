@@ -1,7 +1,7 @@
 Getting file info by ID: 5fffd3e69093dc32727214ba5c8f2af5
 
-malicious: 35
-undetected : 34
+malicious: 36
+undetected : 32
 
 ==================================================
 Lionic
@@ -9,97 +9,7 @@ version : 7.5
 category : malicious
 result : Riskware.Win32.Generic.1!c
 method : blacklist
-update : 20230309
-==================================================
-
-
-==================================================
-MicroWorld-eScan
-version : 14.0.409.0
-category : malicious
-result : Gen:Variant.Fugrafa.266878
-method : blacklist
-update : 20230309
-==================================================
-
-
-==================================================
-FireEye
-version : 35.24.1.0
-category : malicious
-result : Generic.mg.5fffd3e69093dc32
-method : blacklist
-update : 20230309
-==================================================
-
-
-==================================================
-ALYac
-version : 1.1.3.1
-category : malicious
-result : Gen:Variant.Fugrafa.266878
-method : blacklist
-update : 20230309
-==================================================
-
-
-==================================================
-Cylance
-version : 2.0.0.0
-category : malicious
-result : unsafe
-method : blacklist
-update : 20230302
-==================================================
-
-
-==================================================
-VIPRE
-version : 6.0.0.35
-category : malicious
-result : Gen:Variant.Fugrafa.266878
-method : blacklist
-update : 20230307
-==================================================
-
-
-==================================================
-Sangfor
-version : 2.23.0.0
-category : malicious
-result : Suspicious.Win32.Save.a
-method : blacklist
-update : 20230309
-==================================================
-
-
-==================================================
-CrowdStrike
-version : 1.0
-category : malicious
-result : win/malicious_confidence_90% (W)
-method : blacklist
-update : 20220812
-==================================================
-
-
-==================================================
-Cyren
-version : 6.5.1.2
-category : malicious
-result : W32/Tedy.H.gen!Eldorado
-method : blacklist
-update : 20230309
-==================================================
-
-
-==================================================
-Symantec
-version : 1.19.0.0
-category : malicious
-result : ML.Attribute.HighConfidence
-method : blacklist
-update : 20230309
+update : 20230310
 ==================================================
 
 
@@ -114,162 +24,22 @@ update : 20230302
 
 
 ==================================================
-APEX
-version : 6.395
-category : malicious
-result : Malicious
-method : blacklist
-update : 20230307
-==================================================
-
-
-==================================================
-Paloalto
-version : 0.9.0.1003
-category : malicious
-result : generic.ml
-method : blacklist
-update : 20230309
-==================================================
-
-
-==================================================
-BitDefender
-version : 7.2
-category : malicious
-result : Gen:Variant.Fugrafa.266878
-method : blacklist
-update : 20230309
-==================================================
-
-
-==================================================
-Avast
-version : 22.11.7701.0
-category : malicious
-result : Win32:Malware-gen
-method : blacklist
-update : 20230309
-==================================================
-
-
-==================================================
-Rising
-version : 25.0.0.27
-category : malicious
-result : Trojan.Generic@AI.90 (RDML:RmnTNCv0jtvsFgof+9OZPQ)
-method : blacklist
-update : 20230309
-==================================================
-
-
-==================================================
-McAfee-GW-Edition
-version : v2021.2.0+4045
-category : malicious
-result : BehavesLike.Win32.BadFile.ct
-method : blacklist
-update : 20230309
-==================================================
-
-
-==================================================
-Emsisoft
-version : 2022.6.0.32461
-category : malicious
-result : Gen:Variant.Fugrafa.266878 (B)
-method : blacklist
-update : 20230309
-==================================================
-
-
-==================================================
-Ikarus
-version : 6.0.33.0
-category : malicious
-result : Trojan.Agent
-method : blacklist
-update : 20230309
-==================================================
-
-
-==================================================
-GData
-version : A:25.35412B:27.30899
-category : malicious
-result : Gen:Variant.Fugrafa.266878
-method : blacklist
-update : 20230309
-==================================================
-
-
-==================================================
-Google
-version : 1678359642
-category : malicious
-result : Detected
-method : blacklist
-update : 20230309
-==================================================
-
-
-==================================================
-Avira
-version : 8.3.3.16
-category : malicious
-result : HEUR/AGEN.1226917
-method : blacklist
-update : 20230309
-==================================================
-
-
-==================================================
-Antiy-AVL
-version : 3.0
-category : malicious
-result : Trojan/Win32.Wacatac
-method : blacklist
-update : 20230309
-==================================================
-
-
-==================================================
-Gridinsoft
-version : 1.0.110.174
-category : malicious
-result : Ransom.Win32.Wacatac.oa!s2
-method : blacklist
-update : 20230309
-==================================================
-
-
-==================================================
-Arcabit
-version : 2022.0.0.18
-category : malicious
-result : Trojan.Fugrafa.D4127E
-method : blacklist
-update : 20230309
-==================================================
-
-
-==================================================
 Cynet
 version : 4.0.0.27
 category : malicious
 result : Malicious (score: 100)
 method : blacklist
-update : 20230309
+update : 20230310
 ==================================================
 
 
 ==================================================
-Acronis
-version : 1.2.0.114
+FireEye
+version : 35.24.1.0
 category : malicious
-result : suspicious
+result : Generic.mg.5fffd3e69093dc32
 method : blacklist
-update : 20230219
+update : 20230310
 ==================================================
 
 
@@ -279,17 +49,7 @@ version : 6.0.6.653
 category : malicious
 result : Artemis!5FFFD3E69093
 method : blacklist
-update : 20230309
-==================================================
-
-
-==================================================
-MAX
-version : 2023.1.4.1
-category : malicious
-result : malware (ai score=80)
-method : blacklist
-update : 20230309
+update : 20230310
 ==================================================
 
 
@@ -299,17 +59,107 @@ version : 4.4.4.52
 category : malicious
 result : Malware.AI.4196690213
 method : blacklist
-update : 20230309
+update : 20230310
 ==================================================
 
 
 ==================================================
-TrendMicro-HouseCall
-version : 10.0.0.1040
+VIPRE
+version : 6.0.0.35
 category : malicious
-result : TROJ_GEN.R002H0CK222
+result : Gen:Variant.Fugrafa.266878
+method : blacklist
+update : 20230310
+==================================================
+
+
+==================================================
+Sangfor
+version : 2.23.0.0
+category : malicious
+result : Suspicious.Win32.Save.a
 method : blacklist
 update : 20230309
+==================================================
+
+
+==================================================
+Cyren
+version : 6.5.1.2
+category : malicious
+result : W32/Tedy.H.gen!Eldorado
+method : blacklist
+update : 20230310
+==================================================
+
+
+==================================================
+Symantec
+version : 1.19.0.0
+category : malicious
+result : ML.Attribute.HighConfidence
+method : blacklist
+update : 20230310
+==================================================
+
+
+==================================================
+APEX
+version : 6.396
+category : malicious
+result : Malicious
+method : blacklist
+update : 20230310
+==================================================
+
+
+==================================================
+Paloalto
+version : 0.9.0.1003
+category : malicious
+result : generic.ml
+method : blacklist
+update : 20230311
+==================================================
+
+
+==================================================
+BitDefender
+version : 7.2
+category : malicious
+result : Gen:Variant.Fugrafa.266878
+method : blacklist
+update : 20230310
+==================================================
+
+
+==================================================
+MicroWorld-eScan
+version : 14.0.409.0
+category : malicious
+result : Gen:Variant.Fugrafa.266878
+method : blacklist
+update : 20230310
+==================================================
+
+
+==================================================
+McAfee-GW-Edition
+version : v2021.2.0+4045
+category : malicious
+result : BehavesLike.Win32.BadFile.ct
+method : blacklist
+update : 20230310
+==================================================
+
+
+==================================================
+Emsisoft
+version : 2022.6.0.32461
+category : malicious
+result : Gen:Variant.Fugrafa.266878 (B)
+method : blacklist
+update : 20230310
 ==================================================
 
 
@@ -324,22 +174,112 @@ update : 20230216
 
 
 ==================================================
-Fortinet
-version : 6.4.258.0
+GData
+version : A:25.35423B:27.30917
 category : malicious
-result : W32/PossibleThreat
+result : Gen:Variant.Fugrafa.266878
 method : blacklist
-update : 20230309
+update : 20230310
 ==================================================
 
 
 ==================================================
-AVG
-version : 22.11.7701.0
+Avira
+version : 8.3.3.16
 category : malicious
-result : Win32:Malware-gen
+result : HEUR/AGEN.1226917
 method : blacklist
-update : 20230309
+update : 20230310
+==================================================
+
+
+==================================================
+Antiy-AVL
+version : 3.0
+category : malicious
+result : Trojan/Win32.Wacatac
+method : blacklist
+update : 20230310
+==================================================
+
+
+==================================================
+Gridinsoft
+version : 1.0.110.174
+category : malicious
+result : Ransom.Win32.Wacatac.oa!s2
+method : blacklist
+update : 20230310
+==================================================
+
+
+==================================================
+Arcabit
+version : 2022.0.0.18
+category : malicious
+result : Trojan.Fugrafa.D4127E
+method : blacklist
+update : 20230310
+==================================================
+
+
+==================================================
+Microsoft
+version : 1.1.20000.2
+category : malicious
+result : Trojan:Win32/Wacatac.B!ml
+method : blacklist
+update : 20230310
+==================================================
+
+
+==================================================
+Google
+version : 1678489263
+category : malicious
+result : Detected
+method : blacklist
+update : 20230311
+==================================================
+
+
+==================================================
+Acronis
+version : 1.2.0.114
+category : malicious
+result : suspicious
+method : blacklist
+update : 20230219
+==================================================
+
+
+==================================================
+ALYac
+version : 1.1.3.1
+category : malicious
+result : Gen:Variant.Fugrafa.266878
+method : blacklist
+update : 20230310
+==================================================
+
+
+==================================================
+MAX
+version : 2023.1.4.1
+category : malicious
+result : malware (ai score=80)
+method : blacklist
+update : 20230311
+==================================================
+
+
+==================================================
+Cylance
+version : 2.0.0.0
+category : malicious
+result : unsafe
+method : blacklist
+update : 20230302
 ==================================================
 
 
@@ -349,7 +289,77 @@ version : 4.6.4.2
 category : malicious
 result : Trj/Chgt.AD
 method : blacklist
-update : 20230308
+update : 20230310
+==================================================
+
+
+==================================================
+TrendMicro-HouseCall
+version : 10.0.0.1040
+category : malicious
+result : TROJ_GEN.R002H0CK222
+method : blacklist
+update : 20230310
+==================================================
+
+
+==================================================
+Rising
+version : 25.0.0.27
+category : malicious
+result : Trojan.Generic@AI.90 (RDML:RmnTNCv0jtvsFgof+9OZPQ)
+method : blacklist
+update : 20230310
+==================================================
+
+
+==================================================
+Ikarus
+version : 6.0.33.0
+category : malicious
+result : Trojan.Agent
+method : blacklist
+update : 20230310
+==================================================
+
+
+==================================================
+MaxSecure
+version : 1.0.0.1
+category : malicious
+result : Trojan.Malware.196653410.susgen
+method : blacklist
+update : 20230310
+==================================================
+
+
+==================================================
+Fortinet
+version : 6.4.258.0
+category : malicious
+result : W32/PossibleThreat
+method : blacklist
+update : 20230310
+==================================================
+
+
+==================================================
+AVG
+version : 22.11.7701.0
+category : malicious
+result : Win32:Malware-gen
+method : blacklist
+update : 20230310
+==================================================
+
+
+==================================================
+Avast
+version : 22.11.7701.0
+category : malicious
+result : Win32:Malware-gen
+method : blacklist
+update : 20230310
 ==================================================
 
 

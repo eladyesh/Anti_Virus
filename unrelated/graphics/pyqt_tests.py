@@ -324,7 +324,12 @@ class ListBoxWidget(QListWidget):
 
 class AppDemo(QMainWindow):
     # define static variables
-    run_for_python_analysis = False
+    keylogger_found = False
+    keylogger_suspect_imports = []
+    keylogger_suspect_funcs = []
+    keylogger_suspect_funcs_and_params = {}
+    keylogger_suspect_patterns = []
+    keylogger_suspect_params = []
 
     def __init__(self):
         super().__init__()
@@ -564,7 +569,16 @@ class AppDemo(QMainWindow):
 
         if self.python_visited:
             self.python_label.deleteLater()
-            self.tree_py.deleteLater()
+            if True: # AppDemo.keylogger_found
+                self.keylogger_v_box_imports.deleteLater()
+                self.keylogger_v_box_funcs.deleteLater()
+                self.keylogger_v_box_funcs_params.deleteLater()
+                self.first_line_of_lists.deleteLater()
+                self.keylogger_v_box_params.deleteLater()
+                self.keylogger_v_box_patterns.deleteLater()
+                self.second_line_of_lists.deleteLater()
+            else:
+                self.tree_py.deleteLater()
             self.python_layout.deleteLater()
 
     def show_ip_analysis(self):
@@ -962,150 +976,264 @@ class AppDemo(QMainWindow):
 
         # self.pv = PythonVirus("virus.exe")
         # self.pv.log_for_winapi(self.pv.find_ctypes_calls())
+        if False: # AppDemo.keylogger_found # todo, find out how to know whether it's keylogger or not
 
-        with open("log_python.txt", "r") as f:
-            python_data = f.read()
-            python_data = python_data.split("\n\n")
-            print(python_data)
+            # todo - this will longer than I thought
+            keylogger_style_sheet = """
+            QListWidget {
+                background-color: #333;
+                border: 1px solid #ccc;
+                border-radius: 5px;
+                outline: none;
+                margin: 7px;
+                font-size: 20ע
+            }
+            QListWidget::item {
+                border: none;
+                padding: 10px;
+                font: 18px;
+                font-weight: 500;
+                color: red;
+            }
+            QListWidget::item[role=highlight] {
+                color: red;
+            }
 
-            self.tree_py = QTreeWidget()
-            self.tree_py.setMinimumSize(500, 500)
-            self.tree_py.setStyleSheet("""
-                    QTreeView {
-                        font-family: sans-serif;
-                        font-size: 14px;
-                        color: #87CEFA;
-                        background-color: #333;
-                        border: 2px solid #444;
-                        gridline-color: #666;
-                        margin-top: 10px;
-                        margin-bottom: 10px;
-                    }
+            QListWidget::item:hover {
+                background-color: #555;
+            }
+            """
 
-                    QTreeView::branch:has-siblings:!adjoins-item {
-                        border-image: url(images/vline.png) 0;
-                    }
+            # AppDemo.keylogger_suspect_imports = self.keylogger_suspect[0]
+            # AppDemo.keylogger_suspect_funcs = self.keylogger_suspect[1]
+            # AppDemo.keylogger_suspect_funcs_and_params = self.keylogger_suspect[2]
+            # AppDemo.keylogger_suspect_patterns = self.keylogger_suspect[3]
+            # AppDemo.keylogger_suspect_params = self.keylogger_suspect[4]
 
-                    QTreeView::branch:has-siblings:adjoins-item {
-                        border-image: url(images/branch-more.png) 0;
-                    }
+            self.keylogger_imports = QListWidget()
+            for imp in AppDemo.keylogger_suspect_imports:
+                item = QListWidgetItem(imp)
+                font = item.font()
+                font.setPointSize(12)
+                item.setFont(font)
+                self.keylogger_imports.addItem(item)
 
-                    QTreeView::branch:!has-children:!has-siblings:adjoins-item {
-                        border-image: url(images/branch-end.png) 0;
-                    }
+            self.keylogger_imports.setStyleSheet(keylogger_style_sheet)
+            self.keylogger_imports.setMaximumSize(275, 250)
+            self.keylogger_imports.setMinimumSize(275, 250)
+            self.keylogger_imports.setVerticalScrollBar(self.create_scroll_bar())
 
-                    QTreeView::branch:has-children:!has-siblings:closed,
-                    QTreeView::branch:closed:has-children:has-siblings {
-                            border-image: none;
-                            image: url(images/branch-closed.png);
-                    }
+            self.keylogger_funcs = QListWidget()
+            for func in AppDemo.keylogger_suspect_funcs:
+                item = QListWidgetItem(func)
+                font = item.font()
+                font.setPointSize(12)
+                item.setFont(font)
+                self.keylogger_funcs.addItem(item)
 
-                    QTreeView::branch:open:has-children:!has-siblings,
-                    QTreeView::branch:open:has-children:has-siblings  {
-                            border-image: none;
-                            image: url(images/branch-open.png);
-                    }
+            self.keylogger_funcs.setStyleSheet(keylogger_style_sheet)
+            self.keylogger_funcs.setMaximumSize(275, 250)
+            self.keylogger_funcs.setMinimumSize(275, 250)
+            self.keylogger_funcs.setVerticalScrollBar(self.create_scroll_bar())
 
-                    QTreeView::branch:selected {
-                        color: white;
-                    }
+            self.keylogger_funcs_params = QListWidget()
+            for func, param in AppDemo.keylogger_suspect_funcs_and_params.items():
+                args = ', '.join(map(repr, AppDemo.keylogger_suspect_funcs_and_params[func]))
+                function_call = f"{func}({args})"
+                item = QListWidgetItem(function_call)
+                font = item.font()
+                font.setPointSize(12)
+                item.setFont(font)
+                self.keylogger_funcs_params.addItem(item)
 
-                    QTreeView::item {
-                        padding: 5px;
-                        margin: 1px;
-                    }
+            self.keylogger_funcs_params.setStyleSheet(keylogger_style_sheet)
+            self.keylogger_funcs_params.setMaximumSize(315, 250)
+            self.keylogger_funcs_params.setMinimumSize(275, 250)
+            self.keylogger_funcs_params.setVerticalScrollBar(self.create_scroll_bar())
 
-                    QTreeView::item:hover {
-                        background-color: #555;
-                    }
+            self.keylogger_patterns = QListWidget()
+            for pattern in AppDemo.keylogger_suspect_patterns:
+                item = QListWidgetItem(pattern)
+                font = item.font()
+                font.setPointSize(12)
+                item.setFont(font)
+                self.keylogger_patterns.addItem(item)
 
-                    QTreeView::item:selected {
-                        background-color: #777;
-                    }
+            self.keylogger_patterns.setStyleSheet(keylogger_style_sheet)
+            self.keylogger_patterns.setMaximumSize(275, 250)
+            self.keylogger_patterns.setMinimumSize(275, 250)
+            self.keylogger_patterns.setVerticalScrollBar(self.create_scroll_bar())
 
-                    QTableWidget::item:selected:active {
-                        background-color: #999;
-                    }
+            self.keylogger_params = QListWidget()
+            for param in AppDemo.keylogger_suspect_params:
+                item = QListWidgetItem(param)
+                font = item.font()
+                font.setPointSize(12)
+                item.setFont(font)
+                self.keylogger_patterns.addItem(item)
 
-                    QTableWidget::item:selected:!active {
-                        background-color: #red;
-                    }""")
+            self.keylogger_params.setStyleSheet(keylogger_style_sheet)
+            self.keylogger_params.setMaximumSize(275, 250)
+            self.keylogger_params.setMinimumSize(275, 250)
+            self.keylogger_params.setVerticalScrollBar(self.create_scroll_bar())
 
-            self.tree_py.setHeaderLabel("Logged Functions")
+            self.first_line_of_lists = QHBoxLayout()
+            self.keylogger_v_box_imports = QVBoxLayout()
+            self.keylogger_imports_label = make_label("Keylogger Imports", 19)
+            self.keylogger_v_box_imports.addWidget(self.keylogger_imports_label)
+            self.keylogger_v_box_imports.addWidget(self.keylogger_imports)
+            self.first_line_of_lists.addLayout(self.keylogger_v_box_imports)
 
-            for func in python_data:
+            self.keylogger_v_box_funcs = QVBoxLayout()
+            self.keylogger_funcs_label = make_label("Keylogger Funcs", 19)
+            self.keylogger_v_box_funcs.addWidget(self.keylogger_funcs_label)
+            self.keylogger_v_box_funcs.addWidget(self.keylogger_funcs)
+            self.first_line_of_lists.addLayout(self.keylogger_v_box_funcs)
 
-                # function name
-                lines = func.split("\n")
-                for i, line in enumerate(lines):
+            self.keylogger_v_box_funcs_params = QVBoxLayout()
+            self.keylogger_funcs_params_label = make_label("Keylogger Funcs-Params", 19)
+            self.keylogger_v_box_funcs_params.addWidget(self.keylogger_funcs_params_label)
+            self.keylogger_v_box_funcs_params.addWidget(self.keylogger_funcs_params)
+            self.first_line_of_lists.addLayout(self.keylogger_v_box_funcs_params)
+            self.python_layout.addLayout(self.first_line_of_lists)
 
-                    if line.startswith("Function name: "):
-                        function_name = line.split(": ")[1]
-                        item = QTreeWidgetItem(self.tree_py, [function_name])
-                        del lines[i]
-                        break
+            self.second_line_of_lists = QHBoxLayout()
+            self.keylogger_v_box_patterns = QVBoxLayout()
+            self.keylogger_patterns_label = make_label("Keylogger Patterns", 19)
+            self.keylogger_v_box_patterns.addWidget(self.keylogger_patterns_label)
+            self.keylogger_v_box_patterns.addWidget(self.keylogger_patterns)
+            self.second_line_of_lists.addLayout(self.keylogger_v_box_patterns)
 
-                lines = "\n".join(lines)
-                for line in lines.split("\n"):
+            self.keylogger_v_box_params = QVBoxLayout()
+            self.keylogger_params_label = make_label("Keylogger Params", 19)
+            self.keylogger_v_box_params.addWidget(self.keylogger_params_label)
+            self.keylogger_v_box_params.addWidget(self.keylogger_params)
+            self.second_line_of_lists.addLayout(self.keylogger_v_box_params)
+            self.python_layout.addLayout(self.second_line_of_lists)
 
-                    if "=" in line or "Trying" in line:
-                        continue
-
-                    child_item = QTreeWidgetItem([line])
-                    item.addChild(child_item)
-
-            for func in python_data:
-
-                if "==============REGISTRY CHANGE==============" in func:
-                    for i, line in enumerate(func.split("\n")):
-
-                        # first line
-                        if i == 0:
-                            item = QTreeWidgetItem(self.tree_py, ["REGISTRY CHANGE"])
-                            item.setForeground(0, QBrush(QColor("red")))
+        else:
+            with open("log_python.txt", "r") as f:
+                python_data = f.read()
+                python_data = python_data.split("\n\n")
+                print(python_data)
+                self.tree_py = QTreeWidget()
+                self.tree_py.setMinimumSize(500, 500)
+                self.tree_py.setStyleSheet("""
+                        QTreeView {
+                            font-family: sans-serif;
+                            font-size: 14px;
+                            color: #87CEFA;
+                            background-color: #333;
+                            border: 2px solid #444;
+                            gridline-color: #666;
+                            margin-top: 10px;
+                            margin-bottom: 10px;
+                        }
+    
+                        QTreeView::branch:has-siblings:!adjoins-item {
+                            border-image: url(images/vline.png) 0;
+                        }
+    
+                        QTreeView::branch:has-siblings:adjoins-item {
+                            border-image: url(images/branch-more.png) 0;
+                        }
+    
+                        QTreeView::branch:!has-children:!has-siblings:adjoins-item {
+                            border-image: url(images/branch-end.png) 0;
+                        }
+    
+                        QTreeView::branch:has-children:!has-siblings:closed,
+                        QTreeView::branch:closed:has-children:has-siblings {
+                                border-image: none;
+                                image: url(images/branch-closed.png);
+                        }
+    
+                        QTreeView::branch:open:has-children:!has-siblings,
+                        QTreeView::branch:open:has-children:has-siblings  {
+                                border-image: none;
+                                image: url(images/branch-open.png);
+                        }
+    
+                        QTreeView::branch:selected {
+                            color: white;
+                        }
+    
+                        QTreeView::item {
+                            padding: 5px;
+                            margin: 1px;
+                        }
+    
+                        QTreeView::item:hover {
+                            background-color: #555;
+                        }
+    
+                        QTreeView::item:selected {
+                            background-color: #777;
+                        }
+    
+                        QTableWidget::item:selected:active {
+                            background-color: #999;
+                        }
+    
+                        QTableWidget::item:selected:!active {
+                            background-color: #red;
+                        }""")
+                self.tree_py.setHeaderLabel("Logged Functions")
+                for func in python_data:
+                    # function name
+                    lines = func.split("\n")
+                    for i, line in enumerate(lines):
+                        if line.startswith("Function name: "):
+                            function_name = line.split(": ")[1]
+                            item = QTreeWidgetItem(self.tree_py, [function_name])
+                            del lines[i]
+                            break
+                    lines = "\n".join(lines)
+                    for line in lines.split("\n"):
+                        if "=" in line or "Trying" in line:
                             continue
-
-                        # last line
-                        if "REGISTRY CHANGE" in line:
-                            continue
-
                         child_item = QTreeWidgetItem([line])
-                        child_item.setForeground(0, QBrush(QColor("red")))
                         item.addChild(child_item)
-
-                if "==============INJECTION==============" in func:
-                    for i, line in enumerate(func.split("\n")):
-
-                        # first line
-                        if i == 0:
-                            item = QTreeWidgetItem(self.tree_py, ["INJECTION"])
-                            item.setForeground(0, QBrush(QColor("red")))
-                            continue
-
-                        # last line
-                        if "INJECTION" in line:
-                            continue
-
-                        child_item = QTreeWidgetItem([line])
-                        child_item.setForeground(0, QBrush(QColor("red")))
-                        item.addChild(child_item)
-
-                if "==============PORT SCANNING==============" in func:
-                    for i, line in enumerate(func.split("\n")):
-
-                        # first line
-                        if i == 0:
-                            item = QTreeWidgetItem(self.tree_py, ["PORT SCANNING"])
-                            item.setForeground(0, QBrush(QColor("darkorange")))
-                            continue
-
-                        # last line
-                        if "PORT SCANNING" in line:
-                            continue
-
-                        child_item = QTreeWidgetItem([line])
-                        child_item.setForeground(0, QBrush(QColor("darkorange")))
-                        item.addChild(child_item)
+                for func in python_data:
+                    if "==============REGISTRY CHANGE==============" in func:
+                        for i, line in enumerate(func.split("\n")):
+                            # first line
+                            if i == 0:
+                                item = QTreeWidgetItem(self.tree_py, ["REGISTRY CHANGE"])
+                                item.setForeground(0, QBrush(QColor("red")))
+                                continue
+                            # last line
+                            if "REGISTRY CHANGE" in line:
+                                continue
+                            child_item = QTreeWidgetItem([line])
+                            child_item.setForeground(0, QBrush(QColor("red")))
+                            item.addChild(child_item)
+                    if "==============INJECTION==============" in func:
+                        for i, line in enumerate(func.split("\n")):
+                            # first line
+                            if i == 0:
+                                item = QTreeWidgetItem(self.tree_py, ["INJECTION"])
+                                item.setForeground(0, QBrush(QColor("red")))
+                                continue
+                            # last line
+                            if "INJECTION" in line:
+                                continue
+                            child_item = QTreeWidgetItem([line])
+                            child_item.setForeground(0, QBrush(QColor("red")))
+                            item.addChild(child_item)
+                    if "==============PORT SCANNING==============" in func:
+                        for i, line in enumerate(func.split("\n")):
+                            # first line
+                            if i == 0:
+                                item = QTreeWidgetItem(self.tree_py, ["PORT SCANNING"])
+                                item.setForeground(0, QBrush(QColor("darkorange")))
+                                continue
+                            # last line
+                            if "PORT SCANNING" in line:
+                                continue
+                            child_item = QTreeWidgetItem([line])
+                            child_item.setForeground(0, QBrush(QColor("darkorange")))
+                            item.addChild(child_item)
 
             self.python_layout.addWidget(self.tree_py)
 
@@ -1160,20 +1288,17 @@ class AppDemo(QMainWindow):
                 def run(self):
 
                     self.pv = PythonVirus("virus.exe")
-                    # self.pv.log_for_winapi(self.pv.find_ctypes_calls())
+                    self.pv.log_for_winapi(self.pv.find_ctypes_calls())
 
-                    self.keylogger_suspect = self.pv.check_for_keylogger()
-                    self.keylogger_suspect_imports = self.keylogger_suspect[0]
-                    self.keylogger_suspect_funcs = self.keylogger_suspect[1]
-                    self.keylogger_suspect_funcs_and_params = self.keylogger_suspect[2]
-                    self.keylogger_suspect_patterns = self.keylogger_suspect[3]
-                    self.keylogger_suspect_params = self.keylogger_suspect[4]
-
-                    print("imports ", self.keylogger_suspect_imports)
-                    print("funcs ", self.keylogger_suspect_funcs)
-                    print("funcs and params ", self.keylogger_suspect_funcs_and_params)
-                    print("patterns ", self.keylogger_suspect_patterns)
-                    print(self.keylogger_suspect_params)
+                    # self.keylogger_suspect = self.pv.check_for_keylogger()
+                    # AppDemo.keylogger_suspect_imports = self.keylogger_suspect[0]
+                    # AppDemo.keylogger_suspect_funcs = self.keylogger_suspect[1]
+                    # AppDemo.keylogger_suspect_funcs_and_params = self.keylogger_suspect[2]
+                    # AppDemo.keylogger_suspect_patterns = self.keylogger_suspect[3]
+                    # AppDemo.keylogger_suspect_params = self.keylogger_suspect[4]
+#
+                    # if len(AppDemo.keylogger_suspect_imports) > 2 and len(AppDemo.keylogger_suspect_funcs) > 2 and len(AppDemo.keylogger_suspect_funcs_and_params.keys()) > 1 and len(AppDemo.keylogger_suspect_patterns) > 2:
+                    #     AppDemo.keylogger_found = True
 
                     # signal the main thread that the task is finished
                     self.finished_signal.emit()
@@ -1187,9 +1312,7 @@ class AppDemo(QMainWindow):
             virus_thread.finished_signal.connect(loop.quit)
             loop.exec_()
 
-
             VirusThread.overlay.close()
-            return
             self.python_analysis()
             return
 
