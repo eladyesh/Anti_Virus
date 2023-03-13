@@ -338,6 +338,9 @@ class AppDemo(QMainWindow):
         self.setWindowTitle("AntiVirus")
         self.setWindowIcon(QIcon("images/virus.png"))
 
+        self.activate_virus_total = False
+        self.keep_in_data_base = False
+
         # toolbar
         self.toolbar = QToolBar()
         self.toolbar.setMovable(False)
