@@ -423,22 +423,55 @@ class AppDemo(QMainWindow):
         self.vt_hbox.addWidget(self.vt_message)
         self.vt_hbox.addWidget(self.vt_toggel)
 
-        self.data_base_toggle = AnimatedToggle(
+        self.quarantine_toggle = AnimatedToggle(
             checked_color="green",
             pulse_checked_color="red"
         )
-        self.data_base_toggle.setMaximumSize(100, 50)
-        self.data_base_message = QLabel("Do you want your suspicious file to be saved in our data base?")
-        self.data_base_message.setFont(QFont("Zapfino", 16))
-        self.data_base_hbox = QHBoxLayout()
-        self.data_base_hbox.addWidget(self.data_base_message)
-        self.data_base_hbox.addWidget(self.data_base_toggle)
-        self.settings_layout.addLayout(self.data_base_hbox)
+        self.quarantine_toggle.setMaximumSize(100, 50)
+        self.quarantine_message = QLabel("Do you want your suspicious file to be quarantined if found malicious?")
+        self.quarantine_message.setFont(QFont("Zapfino", 16))
+        self.quarantine_hbox = QHBoxLayout()
+        self.quarantine_hbox.addWidget(self.quarantine_message)
+        self.quarantine_hbox.addWidget(self.quarantine_toggle)
+        self.settings_layout.addLayout(self.quarantine_hbox)
+
+        self.apply_for_settings = QPushButton("Apply")
+        self.apply_for_settings.setMaximumSize(250, 78)
+        self.apply_for_settings.setMinimumSize(250, 78)
+        self.apply_for_settings.setStyleSheet("""
+             QPushButton {
+                 background-color: #E7E7FA;
+                 color: #000080;
+                 border: 2px solid #9400D3;
+                 font: bold 25px;
+                 min-width: 80px;
+                 margin: 5px;
+                 margin-bottom: 10px;
+                 padding: 10px;
+             }
+
+             QPushButton:hover {
+                 background-color: #D8BFD8;
+                 color: #4B0082;
+             }
+
+             QPushButton:pressed {
+                 background-color: #DDA0DD;
+                 color: #8B008B;
+             }
+         """)
+        self.apply_for_settings.clicked.connect(self.func_for_settings)
+
 
         self.settings_layout.addLayout(self.vt_hbox)
+        self.settings_layout.addWidget(self.apply_for_settings)
         self.settings_visited = True
 
-        # TODO - complete settings, and python
+    def func_for_settings(self):
+        if self.vt_toggel.isChecked():
+            print("activate virus total is checked")
+        if self.quarantine_toggle.isChecked():
+            print("Quarantining")
 
     def run_func_in_thread(self, func_to_run):
 
@@ -564,9 +597,10 @@ class AppDemo(QMainWindow):
             self.vt_toggel.deleteLater()
             self.vt_message.deleteLater()
             self.vt_hbox.deleteLater()
-            self.data_base_toggle.deleteLater()
-            self.data_base_message.deleteLater()
-            self.data_base_hbox.deleteLater()
+            self.quarantine_toggle.deleteLater()
+            self.quarantine_message.deleteLater()
+            self.quarantine_hbox.deleteLater()
+            self.apply_for_settings.deleteLater()
 
             self.settings_layout.deleteLater()
 
@@ -1239,8 +1273,6 @@ class AppDemo(QMainWindow):
                             item.addChild(child_item)
 
             self.python_layout.addWidget(self.tree_py)
-
-        # TODO - solve the thread, what about keylogger?
 
     def getSelectedItem(self):
         print("got here")
@@ -3489,8 +3521,6 @@ The presence of both means the code itself can be changed dynamically
         self.events_table.setMinimumSize(450, 450)
         self.dynamic_layout.addWidget(self.events_table)
 
-        # TODO - complete database, I don't know how to do fuzzy_found.
-        # TODO- complete clock with data base
         # TODO- complete quarantine
         # TODO - complete python analysis - and then I am pretty much done
         # TODO - if wanna - go over log
