@@ -4,6 +4,46 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 
+class StatusBar:
+
+    def __init__(self):
+        self.statusBar = QStatusBar()
+        self.statusBar.setStyleSheet("""
+                    QStatusBar {
+                        border-top: 1px solid #444;
+                        background-color: #333;
+                        color: #87CEFA;
+                        font-size: 16px;
+                        font-weight: bold;
+                    }
+                    QStatusBar::item {
+                        border: none;
+                    }
+                    QStatusBar QLabel {
+                        color: #87CEFA;
+                        font-size: 18px;
+                        font-weight: bold;
+                        padding-left: 10px;
+                    }
+                    QStatusBar QLabel#statusMessage {
+                        color: #87CEFA;
+                        font-size: 18px;
+                        font-weight: bold;
+                        padding-left: 10px;
+                    }
+                """)
+
+    def get_instance(self):
+        return self.statusBar
+
+    def show_message(self, message):
+        self.statusBar.showMessage(message)
+        self.timer = QTimer()
+        self.timer.timeout.connect(self.hide_status_message)
+        self.timer.start(5000)  # hide message after 5 seconds
+
+    def hide_status_message(self):
+        self.statusBar.clearMessage()
 
 def show_loading_menu():
     # self.clearLayout()

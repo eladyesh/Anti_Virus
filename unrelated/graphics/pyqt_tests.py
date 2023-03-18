@@ -16,7 +16,7 @@ import PyQt5.QtGui
 from PyQt5.QtCore import QObject, QThread, pyqtSignal
 import shutil
 from poc_start.unrelated.graphics.quarantine import Quarantine
-from poc_start.unrelated.graphics.helpful_widgets import DialWatch, EventViewer, show_loading_menu
+from poc_start.unrelated.graphics.helpful_widgets import DialWatch, EventViewer, show_loading_menu, StatusBar
 from poc_start.send_to_vm.sender import Sender
 from poc_start.unrelated.hash_scan.vt_hash import VTScan, md5, check_hash, sha_256, start_server, RequestHandler, \
     HTTPServer, BaseHTTPRequestHandler
@@ -339,6 +339,12 @@ class AppDemo(QMainWindow):
         self.setWindowIcon(QIcon("images/virus.png"))
 
         self.activate_virus_total = False
+
+        # status bar
+        self.statusBar_instance = StatusBar()
+        self.statusBar = self.statusBar_instance.get_instance()
+        self.setStatusBar(self.statusBar)
+        self.statusBar_instance.show_message("Your file is not ready")
 
         # toolbar
         self.toolbar = QToolBar()
@@ -1027,7 +1033,7 @@ class AppDemo(QMainWindow):
 
         # self.pv = PythonVirus("virus.exe")
         # self.pv.log_for_winapi(self.pv.find_ctypes_calls())
-        if True: # AppDemo.keylogger_found # todo, find out how to know whether it's keylogger or not
+        if False: # AppDemo.keylogger_found # todo, find out how to know whether it's keylogger or not
 
             # todo - this will longer than I thought
             keylogger_style_sheet = """
@@ -1337,17 +1343,17 @@ class AppDemo(QMainWindow):
                 def run(self):
 
                     self.pv = PythonVirus("virus.exe")
-                    # self.pv.log_for_winapi(self.pv.find_ctypes_calls())
+                    self.pv.log_for_winapi(self.pv.find_ctypes_calls())
 
-                    self.keylogger_suspect = self.pv.check_for_keylogger()
-                    AppDemo.keylogger_suspect_imports = self.keylogger_suspect[0]
-                    AppDemo.keylogger_suspect_funcs = self.keylogger_suspect[1]
-                    AppDemo.keylogger_suspect_funcs_and_params = self.keylogger_suspect[2]
-                    AppDemo.keylogger_suspect_patterns = self.keylogger_suspect[3]
-                    AppDemo.keylogger_suspect_params = self.keylogger_suspect[4]
-
-                    if len(AppDemo.keylogger_suspect_imports) > 2 and len(AppDemo.keylogger_suspect_funcs) > 2 and len(AppDemo.keylogger_suspect_funcs_and_params.keys()) > 1 and len(AppDemo.keylogger_suspect_patterns) > 2:
-                        AppDemo.keylogger_found = True
+                    # self.keylogger_suspect = self.pv.check_for_keylogger()
+                    # AppDemo.keylogger_suspect_imports = self.keylogger_suspect[0]
+                    # AppDemo.keylogger_suspect_funcs = self.keylogger_suspect[1]
+                    # AppDemo.keylogger_suspect_funcs_and_params = self.keylogger_suspect[2]
+                    # AppDemo.keylogger_suspect_patterns = self.keylogger_suspect[3]
+                    # AppDemo.keylogger_suspect_params = self.keylogger_suspect[4]
+#
+                    # if len(AppDemo.keylogger_suspect_imports) > 2 and len(AppDemo.keylogger_suspect_funcs) > 2 and len(AppDemo.keylogger_suspect_funcs_and_params.keys()) > 1 and len(AppDemo.keylogger_suspect_patterns) > 2:
+                    #     AppDemo.keylogger_found = True
 
                     # signal the main thread that the task is finished
                     self.finished_signal.emit()

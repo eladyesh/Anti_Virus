@@ -1,32 +1,35 @@
 from PyQt5.QtWidgets import QApplication, QMainWindow, QStatusBar
 from PyQt5.QtCore import QTimer
 
-
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
         self.statusBar = QStatusBar()
         self.statusBar.setStyleSheet("""
-    QStatusBar {
-        border-top: 1px solid #ddd;
-        background-color: #F5F5F5;
-    }
-    
-    QStatusBar::item {
-        border: none;
-    }
-    
-    QStatusBar QLabel {
-        color: #555;
-        font-size: 14px;
-        font-weight: bold;
-        padding-left: 10px;
-    }
-    
-    QStatusBar QLabel#statusMessage {
-        color: #28a745;
-    }
-""")
+            QStatusBar {
+                border-top: 1px solid #444;
+                background-color: #333;
+                color: #87CEFA;
+                font-size: 18px;
+                font-weight: bold;
+            }
+            QStatusBar::item {
+                border: none;
+            }
+            QStatusBar QLabel {
+                color: #87CEFA;
+                font-size: 18px;
+                font-weight: bold;
+                padding-left: 10px;
+            }
+            QStatusBar QLabel#statusMessage {
+                color: #87CEFA;
+                font-size: 18px;
+                font-weight: bold;
+                padding-left: 10px;
+            }
+        """)
+
         self.setStatusBar(self.statusBar)
         self.show_status_message("Your file is ready")
         self.timer = QTimer(self)
@@ -41,6 +44,7 @@ class MainWindow(QMainWindow):
 
 
 if __name__ == "__main__":
+
     app = QApplication([])
     window = MainWindow()
     window.show()
