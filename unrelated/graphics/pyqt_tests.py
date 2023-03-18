@@ -339,7 +339,6 @@ class AppDemo(QMainWindow):
         self.setWindowIcon(QIcon("images/virus.png"))
 
         self.activate_virus_total = False
-        self.keep_in_data_base = False
 
         # toolbar
         self.toolbar = QToolBar()
@@ -364,12 +363,21 @@ class AppDemo(QMainWindow):
         self.settings_action = QAction(QIcon("images/settings.png"), "Change Settings", self)
         self.settings_action.triggered.connect(lambda: self.show_settings())
 
+        self.jump_to_top_action = QAction(QIcon("images/jump_to_top.png"), "Jump to top of the screen", self)
+        self.jump_to_top_action.triggered.connect(lambda: self.scroll.verticalScrollBar().setValue(0))
+
         self.toolbar.addAction(self.main_menu_action)
         # self.toolbar.addAction(self.file_analysis_action)
         self.toolbar.addAction(self.directory_analysis)
         self.toolbar.addAction(self.ip_analysis_action)
         self.toolbar.addAction(self.about_action)
         self.toolbar.addAction(self.settings_action)
+
+        spacer = QWidget(self)
+        spacer.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        self.toolbar.addWidget(spacer)
+
+        self.toolbar.addAction(self.jump_to_top_action)
 
         with open("css_files/toolbar.css") as f:
             self.toolbar.setStyleSheet(f.read())
@@ -471,7 +479,13 @@ class AppDemo(QMainWindow):
         if self.vt_toggel.isChecked():
             print("activate virus total is checked")
         if self.quarantine_toggle.isChecked():
-            print("Quarantining")
+            if not os.path.exists("Q"):
+                new_file_path = Quarantine.quarantine_file("virus.exe", "Q", "1234")
+            else:
+                pass
+        else:
+            if os.path.exists("Q"):
+                Quarantine.restore_file("Q/virus.exe", "Q", "1234")
 
     def run_func_in_thread(self, func_to_run):
 
@@ -1013,7 +1027,7 @@ class AppDemo(QMainWindow):
 
         # self.pv = PythonVirus("virus.exe")
         # self.pv.log_for_winapi(self.pv.find_ctypes_calls())
-        if False: # AppDemo.keylogger_found # todo, find out how to know whether it's keylogger or not
+        if True: # AppDemo.keylogger_found # todo, find out how to know whether it's keylogger or not
 
             # todo - this will longer than I thought
             keylogger_style_sheet = """
@@ -1323,17 +1337,17 @@ class AppDemo(QMainWindow):
                 def run(self):
 
                     self.pv = PythonVirus("virus.exe")
-                    self.pv.log_for_winapi(self.pv.find_ctypes_calls())
+                    # self.pv.log_for_winapi(self.pv.find_ctypes_calls())
 
-                    # self.keylogger_suspect = self.pv.check_for_keylogger()
-                    # AppDemo.keylogger_suspect_imports = self.keylogger_suspect[0]
-                    # AppDemo.keylogger_suspect_funcs = self.keylogger_suspect[1]
-                    # AppDemo.keylogger_suspect_funcs_and_params = self.keylogger_suspect[2]
-                    # AppDemo.keylogger_suspect_patterns = self.keylogger_suspect[3]
-                    # AppDemo.keylogger_suspect_params = self.keylogger_suspect[4]
-#
-                    # if len(AppDemo.keylogger_suspect_imports) > 2 and len(AppDemo.keylogger_suspect_funcs) > 2 and len(AppDemo.keylogger_suspect_funcs_and_params.keys()) > 1 and len(AppDemo.keylogger_suspect_patterns) > 2:
-                    #     AppDemo.keylogger_found = True
+                    self.keylogger_suspect = self.pv.check_for_keylogger()
+                    AppDemo.keylogger_suspect_imports = self.keylogger_suspect[0]
+                    AppDemo.keylogger_suspect_funcs = self.keylogger_suspect[1]
+                    AppDemo.keylogger_suspect_funcs_and_params = self.keylogger_suspect[2]
+                    AppDemo.keylogger_suspect_patterns = self.keylogger_suspect[3]
+                    AppDemo.keylogger_suspect_params = self.keylogger_suspect[4]
+
+                    if len(AppDemo.keylogger_suspect_imports) > 2 and len(AppDemo.keylogger_suspect_funcs) > 2 and len(AppDemo.keylogger_suspect_funcs_and_params.keys()) > 1 and len(AppDemo.keylogger_suspect_patterns) > 2:
+                        AppDemo.keylogger_found = True
 
                     # signal the main thread that the task is finished
                     self.finished_signal.emit()

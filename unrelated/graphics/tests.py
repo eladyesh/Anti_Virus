@@ -1,69 +1,47 @@
-import sys
-from PyQt5.QtWidgets import QApplication, QMainWindow, QPushButton, QVBoxLayout, QWidget
-from qtwidgets import Toggle, AnimatedToggle
+from PyQt5.QtWidgets import QApplication, QMainWindow, QStatusBar
+from PyQt5.QtCore import QTimer
 
 
-class Example(QMainWindow):
+class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
+        self.statusBar = QStatusBar()
+        self.statusBar.setStyleSheet("""
+    QStatusBar {
+        border-top: 1px solid #ddd;
+        background-color: #F5F5F5;
+    }
+    
+    QStatusBar::item {
+        border: none;
+    }
+    
+    QStatusBar QLabel {
+        color: #555;
+        font-size: 14px;
+        font-weight: bold;
+        padding-left: 10px;
+    }
+    
+    QStatusBar QLabel#statusMessage {
+        color: #28a745;
+    }
+""")
+        self.setStatusBar(self.statusBar)
+        self.show_status_message("Your file is ready")
+        self.timer = QTimer(self)
+        self.timer.timeout.connect(self.hide_status_message)
+        self.timer.start(3000)  # hide message after 3 seconds
 
-        # Create a layout for the widgets
-        layout = QVBoxLayout()
+    def show_status_message(self, message):
+        self.statusBar.showMessage(message)
 
-        # Add a Toggle widget to the layout
-        self.toggle = Toggle()
-        layout.addWidget(self.toggle)
-
-        # Add an AnimatedToggle widget to the layout
-        self.animated_toggle = AnimatedToggle(checked_color="green", pulse_checked_color="red")
-        layout.addWidget(self.animated_toggle)
-
-        # Add an "Apply" button to the layout
-        self.apply_button = QPushButton("Apply")
-        self.apply_button.setStyleSheet("""
-            QPushButton {
-                background-color: #E7E7FA;
-                color: #000080;
-                border: 2px solid #9400D3;
-                font: bold 25px;
-                min-width: 80px;
-                margin: 5px;
-                margin-bottom: 10px;
-                padding: 10px;
-            }
-
-            QPushButton:hover {
-                background-color: #D8BFD8;
-                color: #4B0082;
-            }
-
-            QPushButton:pressed {
-                background-color: #DDA0DD;
-                color: #8B008B;
-            }
-        """)
-        self.apply_button.clicked.connect(self.check_toggle)
-        layout.addWidget(self.apply_button)
-
-        # Create a central widget and set the layout
-        central_widget = QWidget()
-        central_widget.setLayout(layout)
-        self.setCentralWidget(central_widget)
-
-    def check_toggle(self):
-        if self.toggle.isChecked():
-            print("Toggle is checked!")
-        else:
-            print("Toggle is not checked!")
-
-        if self.animated_toggle.isChecked():
-            print("Animated toggle is checked!")
-        else:
-            print("Animated toggle is not checked!")
+    def hide_status_message(self):
+        self.statusBar.clearMessage()
 
 
-if __name__ == '__main__':
-    app = QApplication(sys.argv)
-    ex = Example()
-    ex.show()
-    sys.exit(app.exec_())
+if __name__ == "__main__":
+    app = QApplication([])
+    window = MainWindow()
+    window.show()
+    app.exec_()
