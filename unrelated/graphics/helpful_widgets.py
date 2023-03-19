@@ -67,13 +67,12 @@ def show_loading_menu():
             # self.setAttribute(QtCore.Qt.WA_TranslucentBackground)
 
             # Create the label for the gif
-
             self.label_load = QLabel()
             movie = QMovie("loading.gif")
             self.label_load.setMovie(movie)
 
             # Create the label for the text
-            self.text_label = QLabel("Loading your data...")
+            self.text_label = QLabel("Loading your data...\nWhen the data is ready, you will be shown in the Status Bar")
             self.label_load.setAlignment(Qt.AlignCenter)
 
             # Style the text label

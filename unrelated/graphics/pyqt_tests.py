@@ -344,7 +344,6 @@ class AppDemo(QMainWindow):
         self.statusBar_instance = StatusBar()
         self.statusBar = self.statusBar_instance.get_instance()
         self.setStatusBar(self.statusBar)
-        self.statusBar_instance.show_message("Your file is not ready")
 
         # toolbar
         self.toolbar = QToolBar()
@@ -626,7 +625,7 @@ class AppDemo(QMainWindow):
 
         if self.python_visited:
             self.python_label.deleteLater()
-            if True: # AppDemo.keylogger_found
+            if False: # AppDemo.keylogger_found
                 self.keylogger_v_box_imports.deleteLater()
                 self.keylogger_v_box_funcs.deleteLater()
                 self.keylogger_v_box_funcs_params.deleteLater()
@@ -785,7 +784,7 @@ class AppDemo(QMainWindow):
         self.btn_layout = QHBoxLayout()
         self.run_once = 0
         self.activate_btn_layout = QHBoxLayout()
-        self.resize(1200, 600)
+        self.resize(1200, 650)
 
         self.listbox_view = ListBoxWidget(self)
         self.btn = QPushButton('Start Dynamic Scan', self)
@@ -1169,6 +1168,7 @@ class AppDemo(QMainWindow):
             self.python_layout.addLayout(self.second_line_of_lists)
 
         else:
+            self.statusBar_instance.show_message("Your python analysis is ready")
             with open("log_python.txt", "r") as f:
                 python_data = f.read()
                 python_data = python_data.split("\n\n")

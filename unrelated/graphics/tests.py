@@ -1,51 +1,50 @@
-from PyQt5.QtWidgets import QApplication, QMainWindow, QStatusBar
-from PyQt5.QtCore import QTimer
+import sys
+import threading
+import os
+import time
+from PyQt5.QtCore import QObject, pyqtSignal, Qt
+from PyQt5.QtWidgets import QApplication, QMainWindow
 
-class MainWindow(QMainWindow):
+class AppDemo(QMainWindow):
     def __init__(self):
         super().__init__()
-        self.statusBar = QStatusBar()
-        self.statusBar.setStyleSheet("""
-            QStatusBar {
-                border-top: 1px solid #444;
-                background-color: #333;
-                color: #87CEFA;
-                font-size: 18px;
-                font-weight: bold;
-            }
-            QStatusBar::item {
-                border: none;
-            }
-            QStatusBar QLabel {
-                color: #87CEFA;
-                font-size: 18px;
-                font-weight: bold;
-                padding-left: 10px;
-            }
-            QStatusBar QLabel#statusMessage {
-                color: #87CEFA;
-                font-size: 18px;
-                font-weight: bold;
-                padding-left: 10px;
-            }
-        """)
 
-        self.setStatusBar(self.statusBar)
-        self.show_status_message("Your file is ready")
-        self.timer = QTimer(self)
-        self.timer.timeout.connect(self.hide_status_message)
-        self.timer.start(3000)  # hide message after 3 seconds
+        self.statusBar().showMessage('Not ready')
+        self.setWindowTitle('Demo Application')
+        self.resize(400, 300)
 
-    def show_status_message(self, message):
-        self.statusBar.showMessage(message)
+        # Create a worker thread to monitor the file
+        self.worker = Worker()
+        self.worker.file_changed.connect(self.on_file_changed)
+        self.worker.start()
 
-    def hide_status_message(self):
-        self.statusBar.clearMessage()
+    def on_file_changed(self):
+        self.statusBar().showMessage('Ready')
 
+class Worker(QObject, threading.Thread):
+    file_changed = pyqtSignal()
 
-if __name__ == "__main__":
+    def __init__(self):
+        super().__init__()
 
-    app = QApplication([])
-    window = MainWindow()
-    window.show()
-    app.exec_()
+    def run(self):
+
+        # Monitor the file
+        while not os.path.exists('log.txt'):
+            time.sleep(1)
+
+        # File found, emit signal
+        self.file_changed.emit()
+
+if __name__ == '__main__':
+    # Create and run the application
+    app = QApplication(sys.argv)
+    demo = AppDemo()
+    demo.show()
+
+    # Wait 5 seconds and create the empty file
+    time.sleep(5)
+    with open('log.txt', 'w') as f:
+        f.write('This is a test')
+
+    sys.exit(app.exec_())
