@@ -234,6 +234,21 @@ def make_label(text, font_size):
     return label
 
 
+class worker_for_files(QObject, threading.Thread):
+    file_changed = pyqtSignal()
+
+    def __init__(self):
+        super().__init__()
+
+    def run(self):
+        # Monitor the file
+        while not os.path.exists('LOG.txt'):
+            time.sleep(1)
+
+        # File found, emit signal
+        self.file_changed.emit()
+
+
 class Worker(QRunnable):
     def __init__(self, fn, *args, **kwargs):
         super(Worker, self).__init__()
@@ -475,7 +490,6 @@ class AppDemo(QMainWindow):
          """)
         self.apply_for_settings.clicked.connect(self.func_for_settings)
 
-
         self.settings_layout.addLayout(self.vt_hbox)
         self.settings_layout.addWidget(self.apply_for_settings)
         self.settings_visited = True
@@ -625,7 +639,7 @@ class AppDemo(QMainWindow):
 
         if self.python_visited:
             self.python_label.deleteLater()
-            if False: # AppDemo.keylogger_found
+            if False:  # AppDemo.keylogger_found
                 self.keylogger_v_box_imports.deleteLater()
                 self.keylogger_v_box_funcs.deleteLater()
                 self.keylogger_v_box_funcs_params.deleteLater()
@@ -1014,6 +1028,15 @@ class AppDemo(QMainWindow):
         self.hash_button.clicked.connect(lambda: [self.hash_analysis()])
         self.dynamic_button.clicked.connect(lambda: [self.dynamic_analysis()])
 
+        # initiate threads
+        # Create a worker thread to monitor the file
+        self.worker = worker_for_files()
+        self.worker.file_changed.connect(self.on_file_changed)
+        self.worker.start()
+
+    def on_file_changed(self):
+        self.statusBar_instance.show_message('LOG is ready, check Dynamic Analysis')
+
     def python_analysis(self):
 
         self.clearLayout()
@@ -1032,7 +1055,7 @@ class AppDemo(QMainWindow):
 
         # self.pv = PythonVirus("virus.exe")
         # self.pv.log_for_winapi(self.pv.find_ctypes_calls())
-        if False: # AppDemo.keylogger_found # todo, find out how to know whether it's keylogger or not
+        if False:  # AppDemo.keylogger_found # todo, find out how to know whether it's keylogger or not
 
             # todo - this will longer than I thought
             keylogger_style_sheet = """
@@ -1335,13 +1358,11 @@ class AppDemo(QMainWindow):
             # self.show_loading_menu()
 
             class VirusThread(QThread):
-
                 overlay = show_loading_menu()
                 overlay.show()
                 finished_signal = pyqtSignal()
 
                 def run(self):
-
                     self.pv = PythonVirus("virus.exe")
                     self.pv.log_for_winapi(self.pv.find_ctypes_calls())
 
@@ -1351,7 +1372,7 @@ class AppDemo(QMainWindow):
                     # AppDemo.keylogger_suspect_funcs_and_params = self.keylogger_suspect[2]
                     # AppDemo.keylogger_suspect_patterns = self.keylogger_suspect[3]
                     # AppDemo.keylogger_suspect_params = self.keylogger_suspect[4]
-#
+                    #
                     # if len(AppDemo.keylogger_suspect_imports) > 2 and len(AppDemo.keylogger_suspect_funcs) > 2 and len(AppDemo.keylogger_suspect_funcs_and_params.keys()) > 1 and len(AppDemo.keylogger_suspect_patterns) > 2:
                     #     AppDemo.keylogger_found = True
 
