@@ -20,29 +20,67 @@ import logging
 # Configure the logger
 logging.basicConfig(level=logging.INFO)
 
-ip_for_server = socket.gethostbyname_ex(socket.gethostname())[-1][0]
-print(ip_for_server)
-
+ip_for_server = socket.gethostbyname_ex(socket.gethostname())[-1][-1]
 
 class RequestHandler(BaseHTTPRequestHandler):
+    # def do_GET(self):
+    #     self.send_response(200)
+    #     self.send_header('Content-type', 'text/html')
+    #     self.end_headers()
+    #     self.wfile.write(b"<html>")
+    #     self.wfile.write(b"<head><title>My Page</title></head>")
+    #     self.wfile.write(b"<body>")
+    #     self.wfile.write(b"<div style='text-align: center'>")
+    #     self.wfile.write(b"<h1 style='margin-top: 70px;font-size:80px'>Hello User</h1>")
+    #     for i in range(2):
+    #         self.wfile.write(b"</br>")
+    #     self.wfile.write(b"<p style='font-size: 60px;'>You have entered a website that was found suspicious by my "
+    #                      b"AntiVirus</p>")
+    #     self.wfile.write(b"</br>")
+    #     self.wfile.write(b"<p style='font-size: 60px;'>You will now not be able to address this website</p>")
+    #     self.wfile.write(b"</div>")
+    #     self.wfile.write(b"</body>")
+    #     self.wfile.write(b"</html>")
+
     def do_GET(self):
+
         self.send_response(200)
         self.send_header('Content-type', 'text/html')
         self.end_headers()
-        self.wfile.write(b"<html>")
-        self.wfile.write(b"<head><title>My Page</title></head>")
-        self.wfile.write(b"<body>")
-        self.wfile.write(b"<div style='text-align: center'>")
-        self.wfile.write(b"<h1 style='margin-top: 70px;font-size:80px'>Hello User</h1>")
-        for i in range(2):
-            self.wfile.write(b"</br>")
-        self.wfile.write(b"<p style='font-size: 60px;'>You have entered a website that was found suspicious by my "
-                         b"AntiVirus</p>")
-        self.wfile.write(b"</br>")
-        self.wfile.write(b"<p style='font-size: 60px;'>You will now not be able to address this website</p>")
-        self.wfile.write(b"</div>")
-        self.wfile.write(b"</body>")
-        self.wfile.write(b"</html>")
+
+        html = '''
+        <!DOCTYPE html>
+        <html>
+            <head>
+                <meta charset="UTF-8">
+                <title>My Page</title>
+                <style>
+                    body {
+                        background-color: #f2f2f2;
+                        font-family: Arial, sans-serif;
+                        color: #444;
+                    }
+                    h1 {
+                        margin-top: 70px;
+                        font-size: 4em;
+                        text-align: center;
+                        text-shadow: 2px 2px #ccc;
+                    }
+                    p {
+                        font-size: 2em;
+                        text-align: center;
+                        margin: 0.5em 0;
+                    }
+                </style>
+            </head>
+            <body>
+                <h1>Hello User</h1>
+                <p>You have entered a website that was found suspicious by my AntiVirus</p>
+                <p>You will now not be able to access this website</p>
+            </body>
+        </html>
+        '''
+        self.wfile.write(html.encode('utf-8'))
 
 
 def start_server():

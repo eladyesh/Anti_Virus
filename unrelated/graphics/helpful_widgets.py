@@ -5,6 +5,84 @@ from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 
 
+class MessageBox(QDialog):
+    def __init__(self, title, message, message_type='warning', parent=None):
+        super().__init__(parent)
+        self.setWindowTitle(title)
+
+        # Set up the layout
+        layout = QVBoxLayout()
+
+        # Add the message icon and label
+        if message_type == 'warning':
+            self.setWindowIcon(QIcon('images/warning_icon.png'))
+        elif message_type == 'info':
+            self.setWindowIcon(QIcon('images/info_icon.png'))
+        elif message_type == 'error':
+            self.setWindowIcon(QIcon('images/error_icon.png'))
+
+        message_label = QLabel(message)
+        message_label.setAlignment(Qt.AlignCenter)
+        message_label.setStyleSheet('font-size: 28px; font-weight: bold; color: #333; margin-bottom: 15px;')
+        layout.addWidget(message_label)
+
+        # Add some padding
+        layout.setContentsMargins(25, 25, 25, 25)
+
+        # Add the OK button
+        ok_button = QPushButton('OK')
+        ok_button.clicked.connect(self.accept)
+        ok_button.setStyleSheet('''
+            QPushButton {
+                background-color: #2196F3;
+                color: white;
+                border-radius: 5px;
+                padding: 10px 20px;
+                font-size: 20px;
+            }
+            QPushButton:hover {
+                background-color: #1E88E5;
+            }
+            QPushButton:pressed {
+                background-color: #1976D2;
+            }
+        ''')
+        layout.addWidget(ok_button)
+
+        # Set the layout
+        self.setLayout(layout)
+
+        # Set the stylesheet
+        self.setStyleSheet('''
+            QDialog {
+                background-color: #f2f2f2;
+                border: none;
+                border-radius: 10px;
+                font-family: Arial, sans-serif;
+                font-size: 14px;
+            }
+
+            QDialog QLabel {
+                color: #333;
+                font-weight: bold;
+                margin-bottom: 10px;
+            }
+
+            QDialog QPushButton {
+                background-color: #007bff;
+                border: none;
+                border-radius: 5px;
+                color: #fff;
+                padding: 8px 16px;
+            }
+
+            QDialog QPushButton:hover {
+                background-color: #0056b3;
+                cursor: pointer;
+            }
+        ''')
+
+
 class StatusBar:
 
     def __init__(self):
@@ -46,6 +124,7 @@ class StatusBar:
     def hide_status_message(self):
         self.statusBar.clearMessage()
 
+
 def show_loading_menu():
     # self.clearLayout()
 
@@ -73,7 +152,8 @@ def show_loading_menu():
             self.label_load.setMovie(movie)
 
             # Create the label for the text
-            self.text_label = QLabel("Loading your data...\nWhen the data is ready, you will be shown in the Status Bar")
+            self.text_label = QLabel(
+                "Loading your data...\nWhen the data is ready, you will be shown in the Status Bar")
             self.label_load.setAlignment(Qt.AlignCenter)
 
             # Style the text label

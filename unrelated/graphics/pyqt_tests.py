@@ -16,7 +16,7 @@ import PyQt5.QtGui
 from PyQt5.QtCore import QObject, QThread, pyqtSignal
 import shutil
 from poc_start.unrelated.graphics.quarantine import Quarantine
-from poc_start.unrelated.graphics.helpful_widgets import DialWatch, EventViewer, show_loading_menu, StatusBar
+from poc_start.unrelated.graphics.helpful_widgets import DialWatch, EventViewer, show_loading_menu, StatusBar, MessageBox
 from poc_start.send_to_vm.sender import Sender
 from poc_start.unrelated.hash_scan.vt_hash import VTScan, md5, check_hash, sha_256, start_server, RequestHandler, \
     HTTPServer, BaseHTTPRequestHandler
@@ -2137,6 +2137,11 @@ The presence of both means the code itself can be changed dynamically
 
         for path in VTScan.scan_directory(self.dir, self.progress_bar_dir):
             try:
+                if path == "Path doesn't exist":
+                    message_box_error = MessageBox('Warning', 'Path does not exist\nRestart the window to search', 'warning')
+                    message_box_error.exec()
+                    return
+
                 if path == "stop":
                     self.movie_dir.stop()
                     self.description_for_search.setText("All Done !!")
