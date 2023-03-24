@@ -499,7 +499,10 @@ class AppDemo(QMainWindow):
             print("activate virus total is checked")
         if self.quarantine_toggle.isChecked():
             if not os.path.exists("Q"):
-                new_file_path = Quarantine.quarantine_file("virus.exe", "Q", "1234")
+                if self.dial_instance.get_percentage() > 75:
+                    new_file_path = Quarantine.quarantine_file("virus.exe", "Q", "1234")
+                else:
+                    self.statusBar_instance.show_message("")
             else:
                 pass
         else:

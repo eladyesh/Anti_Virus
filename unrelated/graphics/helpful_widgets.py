@@ -89,6 +89,7 @@ class StatusBar:
         self.statusBar = QStatusBar()
         self.statusBar.setStyleSheet("""
                     QStatusBar {
+                        border: 1px solid #ccc;
                         border-top: 1px solid #444;
                         background-color: #333;
                         color: #87CEFA;

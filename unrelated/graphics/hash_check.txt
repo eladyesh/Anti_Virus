@@ -34,16 +34,6 @@ update : 20230323
 
 
 ==================================================
-FireEye
-version : 35.24.1.0
-category : malicious
-result : Generic.mg.5fffd3e69093dc32
-method : blacklist
-update : 20230323
-==================================================
-
-
-==================================================
 McAfee
 version : 6.0.6.653
 category : malicious
@@ -54,22 +44,12 @@ update : 20230323
 
 
 ==================================================
-Malwarebytes
-version : 4.5.5.54
+Cylance
+version : 2.0.0.0
 category : malicious
-result : Malware.AI.4196690213
+result : unsafe
 method : blacklist
-update : 20230323
-==================================================
-
-
-==================================================
-VIPRE
-version : 6.0.0.35
-category : malicious
-result : Gen:Variant.Fugrafa.266878
-method : blacklist
-update : 20230323
+update : 20230316
 ==================================================
 
 
@@ -79,7 +59,7 @@ version : 2.23.0.0
 category : malicious
 result : Suspicious.Win32.Save.a
 method : blacklist
-update : 20230317
+update : 20230323
 ==================================================
 
 
@@ -109,7 +89,7 @@ version : 1.19.0.0
 category : malicious
 result : ML.Attribute.HighConfidence
 method : blacklist
-update : 20230322
+update : 20230323
 ==================================================
 
 
@@ -128,6 +108,16 @@ Paloalto
 version : 0.9.0.1003
 category : malicious
 result : generic.ml
+method : blacklist
+update : 20230323
+==================================================
+
+
+==================================================
+Cynet
+version : 4.0.0.27
+category : malicious
+result : Malicious (score: 100)
 method : blacklist
 update : 20230323
 ==================================================
@@ -154,10 +144,30 @@ update : 20230323
 
 
 ==================================================
+VIPRE
+version : 6.0.0.35
+category : malicious
+result : Gen:Variant.Fugrafa.266878
+method : blacklist
+update : 20230323
+==================================================
+
+
+==================================================
 McAfee-GW-Edition
 version : v2021.2.0+4045
 category : malicious
 result : BehavesLike.Win32.BadFile.ct
+method : blacklist
+update : 20230323
+==================================================
+
+
+==================================================
+FireEye
+version : 35.24.1.0
+category : malicious
+result : Generic.mg.5fffd3e69093dc32
 method : blacklist
 update : 20230323
 ==================================================
@@ -185,29 +195,9 @@ update : 20230323
 
 ==================================================
 GData
-version : A:25.35502B:27.31065
+version : A:25.35505B:27.31069
 category : malicious
 result : Gen:Variant.Fugrafa.266878
-method : blacklist
-update : 20230323
-==================================================
-
-
-==================================================
-Google
-version : 1679572848
-category : malicious
-result : Detected
-method : blacklist
-update : 20230323
-==================================================
-
-
-==================================================
-MAX
-version : 2023.1.4.1
-category : malicious
-result : malware (ai score=80)
 method : blacklist
 update : 20230323
 ==================================================
@@ -225,7 +215,7 @@ update : 20230323
 
 ==================================================
 Gridinsoft
-version : 1.0.110.174
+version : 1.0.111.174
 category : malicious
 result : Ransom.Win32.Wacatac.oa!s2
 method : blacklist
@@ -254,10 +244,10 @@ update : 20230323
 
 
 ==================================================
-Cynet
-version : 4.0.0.27
+Google
+version : 1679590856
 category : malicious
-result : Malicious (score: 100)
+result : Detected
 method : blacklist
 update : 20230323
 ==================================================
@@ -284,12 +274,22 @@ update : 20230323
 
 
 ==================================================
-Cylance
-version : 2.0.0.0
+MAX
+version : 2023.1.4.1
 category : malicious
-result : unsafe
+result : malware (ai score=80)
 method : blacklist
-update : 20230316
+update : 20230323
+==================================================
+
+
+==================================================
+Malwarebytes
+version : 4.5.5.54
+category : malicious
+result : Malware.AI.4196690213
+method : blacklist
+update : 20230323
 ==================================================
 
 
@@ -359,7 +359,7 @@ version : 4.6.4.2
 category : malicious
 result : Trj/Chgt.AD
 method : blacklist
-update : 20230322
+update : 20230323
 ==================================================
 
 
