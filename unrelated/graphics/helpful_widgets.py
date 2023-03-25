@@ -5,7 +5,36 @@ from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 
 
+def show_message_warning_box():
+    message_box_error = QMessageBox()
+    message_box_error.setIcon(QMessageBox.Warning)
+    message_box_error.setWindowTitle("Warning")
+    message_box_error.setText("Path does not exist.")
+    message_box_error.setInformativeText("Restart the window to search.")
+
+    # Set the stylesheet for the message box
+    message_box_error.setStyleSheet("QMessageBox {"
+                                    "background-color: #F7DC6F;"
+                                    "border: 2px solid #F39C12;"
+                                    "}"
+                                    "QMessageBox QPushButton {"
+                                    "color: #fff;"
+                                    "background-color: #E67E22;"
+                                    "border: none;"
+                                    "padding: 5px;"
+                                    "}"
+                                    "QMessageBox QPushButton:hover {"
+                                    "background-color: #D35400;"
+                                    "}")
+
+    # Display the message box
+    message_box_error.setStandardButtons(QMessageBox.Ok | QMessageBox.Cancel)
+    result = message_box_error.exec_()
+    return
+
+
 class MessageBox(QDialog):
+
     def __init__(self, title, message, message_type='warning', parent=None):
         super().__init__(parent)
         self.setWindowTitle(title)
@@ -81,6 +110,9 @@ class MessageBox(QDialog):
                 cursor: pointer;
             }
         ''')
+
+    def show_dialog(self):
+        self.exec_()
 
 
 class StatusBar:
