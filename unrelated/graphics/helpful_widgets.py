@@ -14,22 +14,27 @@ def show_message_warning_box():
 
     # Set the stylesheet for the message box
     message_box_error.setStyleSheet("QMessageBox {"
-                                    "background-color: #F7DC6F;"
-                                    "border: 2px solid #F39C12;"
+                                    "background-color: #333;"
+                                    "border: 2px solid #444;"
+                                    "}"
+                                    "QMessageBox QLabel {"
+                                    "color: #87CEFA;"
+                                    "font-size: 20px;"
+                                    "font-weight: bold;"
                                     "}"
                                     "QMessageBox QPushButton {"
                                     "color: #fff;"
-                                    "background-color: #E67E22;"
+                                    "background-color: #87CEFA;"
                                     "border: none;"
-                                    "padding: 5px;"
+                                    "padding: 10px;"
+                                    "font-size: 18px;"
                                     "}"
                                     "QMessageBox QPushButton:hover {"
-                                    "background-color: #D35400;"
+                                    "background-color: #4682B4;"
                                     "}")
 
     # Display the message box
-    message_box_error.setStandardButtons(QMessageBox.Ok | QMessageBox.Cancel)
-    result = message_box_error.exec_()
+    message_box_error.exec_()
     return
 
 
