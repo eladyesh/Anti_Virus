@@ -1,31 +1,63 @@
-from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QVBoxLayout, QErrorMessage
+import sys
+import random
+from PyQt5.QtGui import *
+from PyQt5.QtCore import *
+from PyQt5.QtWidgets import *
+import pyqtgraph as pg
 
-
-class MyApp(QWidget):
+class PlotWidget(QWidget):
     def __init__(self):
         super().__init__()
 
-        # Create a button to trigger an error
-        self.button = QPushButton("Trigger Error")
-        self.button.clicked.connect(self.trigger_error)
+        # Create a plot widget
+        self.plot = pg.PlotWidget()
 
-        # Create a layout and add the button to it
-        self.layout = QVBoxLayout()
-        self.layout.addWidget(self.button)
+        # Set the plot background color
+        self.plot.setBackground((255, 255, 255))
 
-        # Set the layout for the main window
-        self.setLayout(self.layout)
+        # Add the plot to the layout
+        layout = QVBoxLayout()
+        layout.addWidget(self.plot)
+        self.setLayout(layout)
 
-    def trigger_error(self):
-        # Create an error message object
-        error_message = QErrorMessage(self)
+        # Create a timer to update the plot
+        self.timer = QTimer()
+        self.timer.timeout.connect(self.update_plot)
+        self.timer.start(1000)
 
-        # Set the error message text
-        error_message.setWindowTitle("Error")
-        error_message.showMessage("An error has occurred.")
+        # Create a plot data object
+        self.plot_data = []
+
+    def update_plot(self):
+        # Generate a random data point
+        data_point = random.randint(0, 10)
+
+        # Add the data point to the plot data list
+        self.plot_data.append(data_point)
+
+        # Limit the plot data to the last 100 points
+        if len(self.plot_data) > 100:
+            self.plot_data = self.plot_data[-100:]
+
+        # Update the plot
+        self.plot.clear()
+        self.plot.plot(self.plot_data, pen=(255, 0, 0))
+
+class MainWindow(QMainWindow):
+    def __init__(self):
+        super().__init__()
+
+        # Set the window title
+        self.setWindowTitle('PyQtGraph Example')
+
+        # Create the plot widget
+        self.plot_widget = PlotWidget()
+
+        # Set the central widget of the main window
+        self.setCentralWidget(self.plot_widget)
 
 if __name__ == '__main__':
-    app = QApplication([])
-    window = MyApp()
+    app = QApplication(sys.argv)
+    window = MainWindow()
     window.show()
-    app.exec_()
+    sys.exit(app.exec_())

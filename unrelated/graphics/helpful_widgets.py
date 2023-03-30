@@ -243,7 +243,7 @@ class DialWatch(QWidget):
         self.dial = QDial()
         self.dial.setRange(0, 99)
         self.dial.setFixedSize(100, 100)
-        self.dial.setStyleSheet("border-radius: 25px; margin-left: 20px;")
+        self.dial.setStyleSheet("border-radius: 25px; margin-right: 25px;")
         self.dial.setNotchesVisible(True)
         self.dial.notchSize = 20
         self.dial.valueChanged.connect(self.onDialChanged)
@@ -287,6 +287,10 @@ class EventViewer():
         self.table = QTableWidget()
         self.table.setColumnCount(4)
         self.table.setHorizontalHeaderLabels(["Number", "Event", "Permissions", "Resources"])
+
+        # Left-align the headers
+        header = self.table.horizontalHeader()
+        header.setDefaultAlignment(Qt.AlignLeft)
 
         with open("css_files/handle_table.css", "r") as f:
             self.table.setStyleSheet(f.read())

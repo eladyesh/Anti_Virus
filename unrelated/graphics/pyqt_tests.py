@@ -386,6 +386,7 @@ class AppDemo(QMainWindow):
 
         self.jump_to_top_action = QAction(QIcon("images/jump_to_top.png"), "Jump to top of the screen", self)
         self.jump_to_top_action.triggered.connect(lambda: self.scroll.verticalScrollBar().setValue(0))
+        self.jump_to_top_action.setVisible(False)
 
         self.toolbar.addAction(self.main_menu_action)
         # self.toolbar.addAction(self.file_analysis_action)
@@ -419,6 +420,13 @@ class AppDemo(QMainWindow):
         self.run_for_identifies = 1
 
         self.main_menu_window()
+
+    def updateActionVisibility(self, value):
+        # Determine whether to show or hide the QAction based on the scroll position
+        if value > 0:
+            self.jump_to_top_action.setVisible(True)
+        else:
+            self.jump_to_top_action.setVisible(False)
 
     def update_dial_position(self, event=None):
 
@@ -556,7 +564,9 @@ class AppDemo(QMainWindow):
             self.packers_label.deleteLater()
             self.imports_label.deleteLater()
             self.tree_imports.deleteLater()
-
+            self.v_box_for_imports.deleteLater()
+            self.v_box_for_packers.deleteLater()
+            self.h_box_for_packers_imports.deleteLater()
             self.pe_tests_label.deleteLater()
             self.h_box_for_groupbox.deleteLater()
             self.pe_linker.deleteLater()
@@ -846,7 +856,13 @@ class AppDemo(QMainWindow):
         self.l1 = make_label("YESH SCANNER", 28)
         self.h_box_for_l1_and_dial = QHBoxLayout()
         # self.h_box_for_l1_and_dial.setAlignment(Qt.AlignCenter)
+        spacer = QSpacerItem(300, 20, QSizePolicy.Fixed, QSizePolicy.Fixed)
+        self.h_box_for_l1_and_dial.addSpacerItem(spacer)
         self.h_box_for_l1_and_dial.addWidget(self.l1)
+        spacer = QSpacerItem(200, 20, QSizePolicy.Fixed, QSizePolicy.Fixed)
+        self.h_box_for_l1_and_dial.addSpacerItem(spacer)
+        self.h_box_for_l1_and_dial.setAlignment(Qt.AlignCenter)
+        # self.h_box_for_l1_and_dial.addSpacerItem(QSpacerItem(0, 0, QSizePolicy.Expanding, QSizePolicy.Minimum))
 
         self.dial_instance = DialWatch()
         self.dial = self.dial_instance.get_dial()
@@ -860,7 +876,7 @@ class AppDemo(QMainWindow):
                 self.dial = str(md5("virus.exe"))
                 self.run_for_start = True
 
-        self.l1.setStyleSheet("QLabel { font: bold; margin-bottom: 0px; padding: 10px; margin-left:325px;} ")
+        self.l1.setStyleSheet("QLabel { font: bold; margin-bottom: 0px; padding: 10px;}")
 
         self.start_label_explantion = QLabel("Analyse suspicious files to detect malware\n"
                                              "Automatic, Fast, User Friendly\n")
@@ -907,7 +923,8 @@ class AppDemo(QMainWindow):
 
         # btn_layout.addItem(Qt.SpacerItem(0, 0,QSizePolicy.Expanding, Qt.QSizePolicy.Minimum))
         # self.btn_layout.addStretch(1)
-        self.btn_layout.addWidget(self.dynamic_button, Qt.AlignCenter)
+        self.btn_layout.addWidget(self.dynamic_button,
+                                  Qt.AlignCenter)
         self.btn_layout.addWidget(self.static_button, Qt.AlignCenter)
         self.btn_layout.addWidget(self.hash_button, Qt.AlignCenter)
         self.btn_layout.setAlignment(Qt.AlignCenter)
@@ -934,6 +951,10 @@ class AppDemo(QMainWindow):
         self.settings_visited = False
 
         self.scroll = QScrollArea()  # Scroll Area which contains the widgets, set as the centralWidget
+
+        # connect the scrollbar to the slot
+        self.scroll.verticalScrollBar().valueChanged.connect(lambda value: self.updateActionVisibility(value))
+
         self.widget = QWidget()  # Widget that contains the collection of Vertical Box
         self.scroll.setStyleSheet("""
         QScrollArea {
@@ -1586,7 +1607,9 @@ class AppDemo(QMainWindow):
 
         self.virus_table_label = make_label("The Portable Executable Table", 24)
         self.table_and_strings_layout.addWidget(self.virus_table_label)
-        self.table_and_strings_layout.addWidget(self.virus_table, 0)
+
+        self.virus_table.resizeColumnsToContents()
+        self.table_and_strings_layout.addWidget(self.virus_table)
 
         class bubbleWidget(QWidget):
             def __init__(self, text, parent=None):
@@ -1638,7 +1661,7 @@ class AppDemo(QMainWindow):
 
         # Create a list widget and add some items to it
         self.list_strings_widget = QListWidget()
-        self.list_strings_widget.setMaximumSize(450, 550)
+        # self.list_strings_widget.setMaximumSize(450, 550)
         self.list_strings_widget.setMinimumSize(450, 550)
         # self.list_strings_widget.itemEntered.connect(show_bubble)
 
@@ -1785,7 +1808,7 @@ class AppDemo(QMainWindow):
         self.sys_internals_strings_list = QListWidget()
         self.sys_internals_strings_list.setVerticalScrollBar(self.create_scroll_bar())
         self.sys_internals_strings_list.setHorizontalScrollBar(self.create_scroll_bar())
-        self.sys_internals_strings_list.setMaximumSize(475, 550)
+        # self.sys_internals_strings_list.setMaximumSize(475, 550)
         self.sys_internals_strings_list.setMinimumSize(475, 550)
         self.sys_internals_strings_list.setStyleSheet(self.list_widget_style_sheet)
 
@@ -1802,8 +1825,10 @@ class AppDemo(QMainWindow):
                 self.sys_internals_strings_list.addItem(item)
 
         self.sys_internals_strings_box = QVBoxLayout()
+        self.sys_internals_strings_box.setContentsMargins(30, 0, 0, 0)
         self.sys_internals_strings_box.addWidget(self.sys_internals_strings_label)
         self.sys_internals_strings_box.addWidget(self.sys_internals_strings_list)
+
 
         self.strings_box.addLayout(self.reg_strings_box)
         self.strings_box.addLayout(self.sys_internals_strings_box)
@@ -1811,7 +1836,7 @@ class AppDemo(QMainWindow):
 
         self.packers_label = make_label("Packers And Protectors", 24)
         self.packers_widget = QListWidget()
-        self.packers_widget.setMaximumSize(400, 300)
+        # self.packers_widget.setMaximumSize(400, 300)
         # self.packers_widget.itemEntered.connect(show_bubble)
 
         scrollBarPackers = QScrollBar()
@@ -1862,11 +1887,18 @@ class AppDemo(QMainWindow):
             }
             """)
         self.packers_widget.setVerticalScrollBar(scrollBarPackers)
-        self.table_and_strings_layout.addWidget(self.packers_label)
-        self.table_and_strings_layout.addWidget(self.packers_widget)
+        self.h_box_for_packers_imports = QHBoxLayout()
+        self.v_box_for_packers = QVBoxLayout()
+        self.v_box_for_packers.addWidget(self.packers_label)
+        self.v_box_for_packers.addWidget(self.packers_widget)
+        self.h_box_for_packers_imports.addLayout(self.v_box_for_packers)
+        # self.table_and_strings_layout.addWidget(self.packers_label)
+        # self.table_and_strings_layout.addWidget(self.packers_widget)
 
         self.imports_label = make_label("Imports", 24)
-        self.table_and_strings_layout.addWidget(self.imports_label)
+        self.v_box_for_imports = QVBoxLayout()
+        self.v_box_for_imports.addWidget(self.imports_label)
+        # self.table_and_strings_layout.addWidget(self.imports_label)
 
         pe_scan = ScanPE(os.path.abspath("virus.exe").replace("graphics", "hash_scan"))
         dlls = pe_scan.run_pe_scan_exe()
@@ -1876,7 +1908,7 @@ class AppDemo(QMainWindow):
         self.list_index = dict({})
 
         self.tree_imports = QTreeView()
-        self.tree_imports.setMaximumSize(200, 500)
+        # self.tree_imports.setMaximumSize(200, 500)
         self.tree_imports.setEditTriggers(QAbstractItemView.NoEditTriggers)
         self.tree_imports.setStyleSheet("""
         QTreeView {
@@ -1951,9 +1983,15 @@ class AppDemo(QMainWindow):
 
         model = QStandardItemModel()
         model.appendRow(root)
+        model.setHeaderData(0, QtCore.Qt.Horizontal, "Imported Functions", QtCore.Qt.DisplayRole)
         self.tree_imports.setModel(model)
+        self.tree_imports.header().resizeSections(QHeaderView.ResizeToContents)
         self.tree_imports.setMinimumSize(350, 300)
-        self.table_and_strings_layout.addWidget(self.tree_imports)
+        self.v_box_for_imports.addWidget(self.tree_imports)
+        self.v_box_for_imports.setContentsMargins(30, 0, 0, 0)
+        self.h_box_for_packers_imports.addLayout(self.v_box_for_imports)
+        # self.table_and_strings_layout.addWidget(self.tree_imports)
+        self.table_and_strings_layout.addLayout(self.h_box_for_packers_imports)
 
         # PE TESTS
         self.pe_tests_label = make_label("PE examination", 24)
@@ -1962,6 +2000,7 @@ class AppDemo(QMainWindow):
         self.page_layout.addLayout(self.table_and_strings_layout)
         self.static_visited = True
         self.h_box_for_groupbox = QHBoxLayout()
+        # self.h_box_for_groupbox.setAlignment(Qt.AlignLeft)
 
         fractioned = check_for_fractioned_imports(dlls)
         self.redis_virus.hset(self.md5_hash, "fractioned_imports_test", pickle.dumps(fractioned))
@@ -1986,7 +2025,7 @@ class AppDemo(QMainWindow):
                          "file.")
         self.fractioned.setTitle("")
         self.fractioned.setMinimumSize(300, 200)
-        self.fractioned.setMaximumSize(400, 250)
+        # self.fractioned.setMaximumSize(400, 250)
         self.v_box_for_fractioned = QVBoxLayout()
         self.v_box_for_fractioned.addWidget(title)
         self.list_widget_for_fractioned = QListWidget()
@@ -2023,7 +2062,7 @@ version indicates manipulation of the headers. Since the Rich Header is a means 
 threat actors, malware authors might get the idea to swap the DOS Stub and Rich Header with those of other
 threat actor's samples""")
         self.pe_linker.setTitle("")
-        self.pe_linker.setMaximumSize(300, 200)
+        # self.pe_linker.setMaximumSize(300, 200)
         self.v_box_for_pe_linker = QVBoxLayout()
         self.v_box_for_pe_linker.addWidget(title_linker)
         self.label_for_pe_linker = QLabel(result)
@@ -2055,7 +2094,7 @@ The presence of both means the code itself can be changed dynamically
         """)
         self.suspicious_imports.setTitle("")
         self.suspicious_imports.setMinimumSize(200, 200)
-        self.suspicious_imports.setMaximumSize(400, 250)
+        # self.suspicious_imports.setMaximumSize(400, 250)
         self.v_box_for_suspicious_imports = QVBoxLayout()
         self.v_box_for_suspicious_imports.addWidget(title)
         self.list_widget_for_suspicious_imports = QListWidget()
@@ -2073,6 +2112,7 @@ The presence of both means the code itself can be changed dynamically
                     border-radius: 5px;
                     outline: none;
                     margin: 5px;
+                    margin-left: 10px;
                     color: #87CEFA; 
                     font-size: 20px;
                 }
@@ -2597,6 +2637,7 @@ The presence of both means the code itself can be changed dynamically
 
             self.basic_info.setStyleSheet(style_sheet)
             self.basic_info.setEditTriggers(QTableView.NoEditTriggers)
+            self.basic_info.resizeColumnsToContents()
 
             # Allow the cells to be resized using the mouse
             self.basic_info.horizontalHeader().setSectionsMovable(True)
@@ -3568,6 +3609,7 @@ The presence of both means the code itself can be changed dynamically
         events = EventViewer()
         events.handle_table()
         self.events_table = events.table
+        self.events_table.resizeColumnsToContents()
         self.events_table.setMinimumSize(450, 450)
         self.dynamic_layout.addWidget(self.events_table)
 
