@@ -1,10 +1,32 @@
 import redis
 import pickle
+from flask import Flask, jsonify
+from flask_redis import FlaskRedis
 
 
 class Redis:
     def __init__(self, host='localhost', port=6379, db=0):
         self.redis = redis.Redis(host=host, port=port, db=db)
+        self.app = Flask(__name__)
+        self.app.config['REDIS_URL'] = f'redis://{host}:{port}/{db}'
+        self.redis_client = FlaskRedis(self.app)
+
+        @self.app.route('/redis_data')
+        def show_all():
+            """Show all the contents of the Redis database using Flask-Redis."""
+            all_keys = self.redis_client.keys()
+            result = {}
+            for key in all_keys:
+                key_type = self.redis_client.type(key)
+                if key_type == 'string':
+                    result[key] = self.redis_client.get(key)
+                elif key_type == 'hash':
+                    result[key] = self.redis_client.hgetall(key)
+            return jsonify(result)
+
+    def run(self, debug=False):
+        """Run the Flask app."""
+        self.app.run(debug=debug)
 
     def set(self, key, value):
         """Set a key-value pair in the Redis database."""
@@ -74,8 +96,6 @@ class Redis:
         else:
             return type(self.redis.hgetall(key)[k.encode()])
 
-
-
     def hset(self, key, k, v):
         self.redis.hset(key, k, v)
 
@@ -113,7 +133,4 @@ if __name__ == "__main__":
     # Creating an instance of the Redis class
     r = Redis()
     r.flush()
-
-    # self.redis_virus.print_all()
-
-    # Output: {}
+    pass

@@ -5,6 +5,7 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 import pyqtgraph as pg
 
+
 class PlotWidget(QWidget):
     def __init__(self):
         super().__init__()
@@ -43,6 +44,7 @@ class PlotWidget(QWidget):
         self.plot.clear()
         self.plot.plot(self.plot_data, pen=(255, 0, 0))
 
+
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
@@ -55,6 +57,7 @@ class MainWindow(QMainWindow):
 
         # Set the central widget of the main window
         self.setCentralWidget(self.plot_widget)
+
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
