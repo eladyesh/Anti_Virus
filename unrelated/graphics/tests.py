@@ -1,66 +1,41 @@
-import sys
-import random
-from PyQt5.QtGui import *
-from PyQt5.QtCore import *
-from PyQt5.QtWidgets import *
-import pyqtgraph as pg
+from PyQt5.QtWidgets import QApplication, QMainWindow, QTableWidget, QTableWidgetItem, QAbstractScrollArea
 
-
-class PlotWidget(QWidget):
+class Example(QMainWindow):
     def __init__(self):
         super().__init__()
 
-        # Create a plot widget
-        self.plot = pg.PlotWidget()
+        self.initUI()
 
-        # Set the plot background color
-        self.plot.setBackground((255, 255, 255))
+    def initUI(self):
+        self.setWindowTitle('Example')
+        self.setGeometry(100, 100, 400, 300)
 
-        # Add the plot to the layout
-        layout = QVBoxLayout()
-        layout.addWidget(self.plot)
-        self.setLayout(layout)
+        # Create a QTableWidget
+        self.tableWidget = QTableWidget(self)
+        self.tableWidget.setRowCount(4)
+        self.tableWidget.setColumnCount(3)
+        self.tableWidget.setHorizontalHeaderLabels(['Column 1', 'Column 2', 'Column 3'])
+        self.tableWidget.setSizeAdjustPolicy(QAbstractScrollArea.AdjustToContents) # Set sizeAdjustPolicy
 
-        # Create a timer to update the plot
-        self.timer = QTimer()
-        self.timer.timeout.connect(self.update_plot)
-        self.timer.start(1000)
+        # Add some data to the table
+        for row in range(self.tableWidget.rowCount()):
+            for column in range(self.tableWidget.columnCount()):
+                self.tableWidget.setItem(row, column, QTableWidgetItem(f'({row}, {column})'))
 
-        # Create a plot data object
-        self.plot_data = []
+        # Set the maximum size of the table to its current sizeHint
+        self.tableWidget.setMaximumSize(self.tableWidget.sizeHint())
 
-    def update_plot(self):
-        # Generate a random data point
-        data_point = random.randint(0, 10)
+        # Set the central widget of the QMainWindow
+        self.setCentralWidget(self.tableWidget)
 
-        # Add the data point to the plot data list
-        self.plot_data.append(data_point)
-
-        # Limit the plot data to the last 100 points
-        if len(self.plot_data) > 100:
-            self.plot_data = self.plot_data[-100:]
-
-        # Update the plot
-        self.plot.clear()
-        self.plot.plot(self.plot_data, pen=(255, 0, 0))
-
-
-class MainWindow(QMainWindow):
-    def __init__(self):
-        super().__init__()
-
-        # Set the window title
-        self.setWindowTitle('PyQtGraph Example')
-
-        # Create the plot widget
-        self.plot_widget = PlotWidget()
-
-        # Set the central widget of the main window
-        self.setCentralWidget(self.plot_widget)
-
+    def resizeEvent(self, event):
+        self.tableWidget.resizeColumnsToContents() # Resize the columns to fit their contents
+        constant = 1.5 # Set the constant
+        new_size = self.tableWidget.sizeHint() * constant # Multiply the sizeHint by the constant
+        self.resize(new_size) # Resize the window to fit the table
 
 if __name__ == '__main__':
-    app = QApplication(sys.argv)
-    window = MainWindow()
-    window.show()
-    sys.exit(app.exec_())
+    app = QApplication([])
+    ex = Example()
+    ex.show()
+    app.exec_()

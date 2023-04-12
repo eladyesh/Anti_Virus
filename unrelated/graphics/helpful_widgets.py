@@ -1,16 +1,55 @@
 import os
 import sys
+
+from PyQt5 import QtCore
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 
 
-def show_message_warning_box():
+def stop_timer(time):
+    timer = QTimer()
+    timer.start(time)
+    loop = QEventLoop()
+    timer.timeout.connect(loop.quit)
+    loop.exec_()
+
+
+class my_path_object(QObject):
+    path_not_found = pyqtSignal(str)
+
+    def __init__(self):
+        super().__init__()
+
+    def invoke(self, message):
+        self.path_not_found.emit(message)
+
+
+class invoke_progress_bar_dir(QObject):
+    vt_scan_dir_signal = pyqtSignal(int)
+
+    def __init__(self):
+        super().__init__()
+
+    def invoke(self, value):
+        self.vt_scan_dir_signal.emit(value)
+
+
+class invoke_progress_bar_ip(QObject):
+    vt_scan_ip_signal = pyqtSignal(int)
+
+    def __init__(self):
+        super().__init__()
+
+    def invoke(self, value):
+        self.vt_scan_ip_signal.emit(value)
+
+
+def show_message_warning_box(message, on_close_func=None):
     message_box_error = QMessageBox()
     message_box_error.setIcon(QMessageBox.Warning)
     message_box_error.setWindowTitle("Warning")
-    message_box_error.setText("Path does not exist.")
-    message_box_error.setInformativeText("Restart the window to search.")
+    message_box_error.setText(message)
 
     # Set the stylesheet for the message box
     message_box_error.setStyleSheet("QMessageBox {"
@@ -19,7 +58,7 @@ def show_message_warning_box():
                                     "}"
                                     "QMessageBox QLabel {"
                                     "color: #87CEFA;"
-                                    "font-size: 20px;"
+                                    "font-size: 14px;"
                                     "font-weight: bold;"
                                     "}"
                                     "QMessageBox QPushButton {"
@@ -27,11 +66,16 @@ def show_message_warning_box():
                                     "background-color: #87CEFA;"
                                     "border: none;"
                                     "padding: 10px;"
-                                    "font-size: 18px;"
+                                    "font-size: 14px;"
                                     "}"
                                     "QMessageBox QPushButton:hover {"
                                     "background-color: #4682B4;"
                                     "}")
+
+    # Connect on_close_func to the accepted() and rejected() signals of the message box
+    if on_close_func is not None:
+        message_box_error.accepted.connect(on_close_func)
+        message_box_error.rejected.connect(on_close_func)
 
     # Display the message box
     message_box_error.exec_()
@@ -127,7 +171,6 @@ class StatusBar:
         self.statusBar.setStyleSheet("""
                     QStatusBar {
                         border: 1px solid #ccc;
-                        border-top: 1px solid #444;
                         background-color: #333;
                         color: #87CEFA;
                         font-size: 16px;
@@ -163,7 +206,23 @@ class StatusBar:
         self.statusBar.clearMessage()
 
 
-def show_loading_menu():
+class worker_for_function(QObject):
+    finished_function = pyqtSignal()
+
+    def __init__(self, func, *args, **kwargs):
+        super().__init__()
+        self.func = func
+        self.args = args
+        self.kwargs = kwargs
+
+    @pyqtSlot()
+    def do_work(self):
+        print("got to do work")
+        self.func(*self.args, **self.kwargs)
+        self.finished_function.emit()
+
+
+def show_loading_menu(message):
     # self.clearLayout()
 
     class GifThread(QThread):
@@ -190,14 +249,13 @@ def show_loading_menu():
             self.label_load.setMovie(movie)
 
             # Create the label for the text
-            self.text_label = QLabel(
-                "Loading your data...\nWhen the data is ready, you will be shown in the Status Bar")
+            self.text_label = QLabel(message)
             self.label_load.setAlignment(Qt.AlignCenter)
 
             # Style the text label
             font = QFont()
             font.setFamily("Zapfino")
-            font.setPointSize(20)
+            font.setPointSize(16)
             font.setBold(True)
             self.text_label.setFont(font)
             self.text_label.setStyleSheet("color: #0096FF;")
@@ -231,6 +289,70 @@ def show_loading_menu():
     overlay = OverlayWindow()
     print("got to overlay")
     return overlay
+
+def show_loading_menu_image(message, image_path):
+    # self.clearLayout()
+
+    class OverlayWindow(QMainWindow):
+        def __init__(self):
+            super().__init__()
+            self.initUI()
+
+        def initUI(self):
+            self.setWindowFlags(Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint)
+            # self.setAttribute(QtCore.Qt.WA_TranslucentBackground)
+
+            # Create the label for the image
+            self.label_image = QLabel()
+            pixmap = QPixmap(image_path)
+            self.label_image.setPixmap(pixmap)
+            self.label_image.setAlignment(Qt.AlignCenter)
+
+            # Create the label for the text
+            self.text_label = QLabel(message)
+            self.text_label.setAlignment(Qt.AlignCenter)
+
+            # Style the text label
+            font = QFont()
+            font.setFamily("Zapfino")
+            font.setPointSize(16)
+            font.setBold(True)
+            self.text_label.setFont(font)
+            self.text_label.setStyleSheet("color: #0096FF;")
+
+            # Create the main layout
+            self.layout_load = QVBoxLayout()
+            self.layout_load.addWidget(self.label_image, 0, Qt.AlignCenter)
+            self.layout_load.addWidget(self.text_label, 0, Qt.AlignBottom)
+
+            central_widget = QWidget(self)
+            central_widget.setLayout(self.layout_load)
+            self.setCentralWidget(central_widget)
+
+            # Set the position of the window to the center of the screen
+            frame_geo = self.frameGeometry()
+            screen_center = QDesktopWidget().availableGeometry().center()
+            frame_geo.moveCenter(screen_center)
+            self.move(frame_geo.topLeft())
+
+    overlay = OverlayWindow()
+    return overlay
+
+
+# class Wait_For_Data(QThread):
+#     overlay = show_loading_menu("Uploading your data...\nThis will take just a second")
+#     overlay.show()
+#     finished_signal = pyqtSignal()
+#
+#     def __init__(self, func):
+#         super().__init__()
+#         self.func_to_run = func
+#
+#     def run(self):
+#         self.func_to_run()
+#
+#         # signal the main thread that the task is finished
+#         self.finished_signal.emit()
 
 
 class DialWatch(QWidget):
@@ -371,6 +493,4 @@ class EventViewer():
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
-    dial_watch = DialWatch()
-    dial_watch.setDialPercentage(5)  # set the dial to 25%
     sys.exit(app.exec_())

@@ -56,7 +56,7 @@ class SysInternals:
             with open(r"Z:\E\Cyber\YB_CYBER\project\FinalProject\poc_start\poc_start\unrelated\sys_internals\output_handles.txt", "w") as f:
                 f.write(handle)
                 logging.info('Checking handles...')
-            time.sleep(0.01)
+            time.sleep(0.2)
 
         # Wait for the process to finish and capture its output
         stdout, stderr = process.communicate()
@@ -72,7 +72,7 @@ class SysInternals:
         strings = run_command(f"{SysInternals.strings_path} virus.exe")[0]
         for string in strings.split("\n"):
             res.append(string)
-        return res
+        return res[:200]
 
 
 if __name__ == "__main__":

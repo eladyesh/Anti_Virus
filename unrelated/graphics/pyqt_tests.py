@@ -1,9 +1,15 @@
+import ctypes
 import sys, os
 import random
 import threading
 import socket
+import wmi
+import psutil
 import pydivert
 import pyuac
+import win32api
+import win32con
+import win32file
 from pydivert import WinDivert
 from pyuac import main_requires_admin
 from PyQt5.QtWidgets import *
@@ -11,13 +17,14 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 from PyQt5 import QtCore, QtGui
 from PyQt5.QtCore import Qt, QUrl, pyqtSlot, QRunnable, QThreadPool, QVariant, QAbstractTableModel, QRectF, QTimer, \
-    QEventLoop
+    QEventLoop, QSize, QMetaObject
 import PyQt5.QtGui
 from PyQt5.QtCore import QObject, QThread, pyqtSignal
 import shutil
 from poc_start.unrelated.graphics.quarantine import Quarantine
 from poc_start.unrelated.graphics.helpful_widgets import DialWatch, EventViewer, show_loading_menu, StatusBar, \
-    MessageBox, show_message_warning_box
+    MessageBox, show_message_warning_box, my_path_object, stop_timer, invoke_progress_bar_dir, invoke_progress_bar_ip, \
+    worker_for_function, show_loading_menu_image
 from poc_start.send_to_vm.sender import Sender
 from poc_start.unrelated.hash_scan.vt_hash import VTScan, md5, check_hash, sha_256, start_server, RequestHandler, \
     HTTPServer, BaseHTTPRequestHandler
@@ -210,8 +217,22 @@ bubble_strings_dict = {
                                                                                          "version 8.0 ",
     "Microsoft_Visual_Cpp_80_DLL": "The Microsoft Visual C++ 80 DLL (also known as MSVCR80.dll) is a Dynamic Link "
                                    "Library file that contains a collection of pre-written code and data that can be "
-                                   "used by multiple programs at the same time. "
+                                   "used by multiple programs at the same time. ",
+    "VC8_Microsoft_Corporation": "VC8 is a common abbreviation for Microsoft Visual C++ 2005, which is a set of "
+                                 "tools and libraries used for developing C++ applications on the Windows platform. "
 }
+
+
+def run_as_admin(func):
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
+        if not pyuac.isUserAdmin():
+            print("Re-launching as admin!")
+            pyuac.runAsAdmin()
+        else:
+            func(*args, **kwargs)  # Already an admin here.
+
+    return wrapper
 
 
 def make_label(text, font_size):
@@ -248,6 +269,42 @@ class worker_for_files(QObject, threading.Thread):
 
         # File found, emit signal
         self.file_changed.emit()
+
+
+class worker_for_virus_dial(QObject, threading.Thread):
+    dial_changed = pyqtSignal()
+
+    def __init__(self, dial_instance):
+        super().__init__()
+        self.dial_instance = dial_instance
+
+    def run(self):
+
+        try:
+            # Monitor the dial
+            while not self.dial_instance.get_percentage() > 75:
+                time.sleep(1)
+        except RuntimeError:
+            pass
+
+        # File found, emit signal
+        self.dial_changed.emit()
+
+
+class worker_for_static_analysis(QObject, threading.Thread):
+    static_is_ready = pyqtSignal()
+
+    def run(self):
+
+        try:
+            # Monitor the dial
+            while not worker_for_function.is_emitted:
+                time.sleep(0.5)
+        except RuntimeError:
+            pass
+
+        # File found, emit signal
+        self.static_is_ready.emit()
 
 
 class Worker(QRunnable):
@@ -294,11 +351,27 @@ class ListBoxWidget(QListWidget):
         self.movie = QMovie("images/drag_and_drop.gif")
         self.gif_label = QLabel(self)
         self.gif_label.setMovie(self.movie)
-        self.gif_label.setFixedSize(350, 200)
-        # self.gif_label.move(int((self.rect().width() - self.gif_label.width()) / 2), int((self.rect().height() - self.gif_label.height()) / 2))
-        self.gif_label.move(int(self.width() / 1.8), -int(self.height() / 4.8))
         self.movie.start()
 
+        # create layout
+        layout = QVBoxLayout(self)
+        hlayout = QHBoxLayout()
+        hlayout.addStretch()
+        hlayout.addWidget(self.gif_label, alignment=Qt.AlignCenter)
+        hlayout.addStretch()
+        layout.addLayout(hlayout)
+        layout.addStretch()
+
+        self.clear_icon = QLabel(self)
+        self.clear_icon.setPixmap(QPixmap("images/clean.png"))
+        self.clear_icon.setVisible(False)
+        self.clear_icon.mousePressEvent = self.clearListWidget
+
+        # create layout for clear icon
+        clear_layout = QVBoxLayout()
+        clear_layout.addStretch()
+        clear_layout.addWidget(self.clear_icon, alignment=Qt.AlignBottom | Qt.AlignRight)
+        layout.addLayout(clear_layout)
         # self.move(QApplication.desktop().screen().rect().center()- self.rect().center())
         # self.resize(300, 300)
 
@@ -310,7 +383,7 @@ class ListBoxWidget(QListWidget):
 
     def resizeEvent(self, event):
         super().resizeEvent(event)
-        self.gif_label.move(int(self.width() / 3.3), -int(self.height() / 11))
+        self.clear_icon.move(self.width() - self.clear_icon.width() - 10, self.height() - self.clear_icon.height() - 10)
 
     def dragMoveEvent(self, event):
         if event.mimeData().hasUrls():
@@ -318,6 +391,16 @@ class ListBoxWidget(QListWidget):
             event.accept()
         else:
             event.ignore()
+
+    def clearListWidget(self, event):
+        self.clear()
+        self.clear_icon.setVisible(False)
+
+    def toggleClearIcon(self):
+        if self.count() > 0:
+            self.clear_icon.setVisible(True)
+        else:
+            self.clear_icon.setVisible(False)
 
     def dropEvent(self, event):
         if event.mimeData().hasUrls():
@@ -337,6 +420,8 @@ class ListBoxWidget(QListWidget):
         else:
             event.ignore()
 
+        self.toggleClearIcon()
+
 
 class AppDemo(QMainWindow):
     # define static variables
@@ -355,6 +440,25 @@ class AppDemo(QMainWindow):
         self.setWindowIcon(QIcon("images/virus.png"))
 
         self.activate_virus_total = False
+        self.file_loaded_to_system = False
+        self.vault_file = True
+
+        self.save_in_data_base = True
+        self.redis_virus = Redis()
+        self.redis_virus.print_all()
+
+        self.run_for_static_disable = 1
+        self.run_for_hash_disable = 1
+        self.run_for_dynamic_disable = 1
+        self.run_for_dial_initiative = 0
+
+        # to save imports
+        self.run_for_copy = 1
+        self.copy_imports = {}
+
+        if os.path.exists("virus.exe"):
+            self.file_loaded_to_system = True
+            self.run_for_dial_initiative = 1
 
         # status bar
         self.statusBar_instance = StatusBar()
@@ -449,28 +553,74 @@ class AppDemo(QMainWindow):
         self.settings_layout = QVBoxLayout()
         self.page_layout.addLayout(self.settings_layout)
 
+        self.line_for_start = QLabel()
+        self.line_for_start.setFrameStyle(QFrame.Box | QFrame.Plain)
+        self.line_for_start.setLineWidth(2)
+        self.line_for_start.setFixedHeight(50)
+        self.line_for_start.setStyleSheet("border-color: purple; color: purple;")
+        self.settings_layout.addWidget(self.line_for_start)
+
         self.vt_toggel = AnimatedToggle(
             checked_color="green",
             pulse_checked_color="red"
         )
         self.vt_toggel.setMaximumSize(100, 50)
-        self.vt_message = QLabel("Do you want to activate Virus Total search?")
+        self.vt_message = QLabel("Do you want to turn off Virus Total search?\n(Green means off)")
         self.vt_message.setFont(QFont("Zapfino", 16))
         self.vt_hbox = QHBoxLayout()
         self.vt_hbox.addWidget(self.vt_message)
         self.vt_hbox.addWidget(self.vt_toggel)
+        self.settings_layout.addLayout(self.vt_hbox)
+
+        # Create a vertical line between the toggles
+        self.line_for_vt = QLabel()
+        self.line_for_vt.setFrameStyle(QFrame.Box | QFrame.Plain)
+        self.line_for_vt.setLineWidth(2)
+        self.line_for_vt.setFixedHeight(self.vt_toggel.height())
+        self.line_for_vt.setStyleSheet("border-color: purple; color: purple;")
+
+        self.settings_layout.addWidget(self.line_for_vt)
 
         self.quarantine_toggle = AnimatedToggle(
             checked_color="green",
             pulse_checked_color="red"
         )
         self.quarantine_toggle.setMaximumSize(100, 50)
-        self.quarantine_message = QLabel("Do you want your suspicious file to be quarantined if found malicious?")
+        self.quarantine_message = QLabel("Do you want to turn off vaulting of your file if found malicious?\n(Green "
+                                         "means off)")
         self.quarantine_message.setFont(QFont("Zapfino", 16))
         self.quarantine_hbox = QHBoxLayout()
         self.quarantine_hbox.addWidget(self.quarantine_message)
         self.quarantine_hbox.addWidget(self.quarantine_toggle)
         self.settings_layout.addLayout(self.quarantine_hbox)
+
+        self.line_for_q = QLabel()
+        self.line_for_q.setFrameStyle(QFrame.Box | QFrame.Plain)
+        self.line_for_q.setLineWidth(2)
+        self.line_for_q.setFixedHeight(self.vt_toggel.height())
+        self.line_for_q.setStyleSheet("border-color: purple; color: purple;")
+
+        self.settings_layout.addWidget(self.line_for_q)
+
+        self.data_base_toggle = AnimatedToggle(
+            checked_color="green",
+            pulse_checked_color="red"
+        )
+        self.data_base_toggle.setMaximumSize(100, 50)
+        self.data_base_message = QLabel("Do you want to turn off saving file in data base?\n(Green "
+                                        "means off)")
+        self.data_base_message.setFont(QFont("Zapfino", 16))
+        self.data_base_hbox = QHBoxLayout()
+        self.data_base_hbox.addWidget(self.data_base_message)
+        self.data_base_hbox.addWidget(self.data_base_toggle)
+        self.settings_layout.addLayout(self.data_base_hbox)
+
+        self.line_for_data_base = QLabel()
+        self.line_for_data_base.setFrameStyle(QFrame.Box | QFrame.Plain)
+        self.line_for_data_base.setLineWidth(2)
+        self.line_for_data_base.setFixedHeight(self.vt_toggel.height())
+        self.line_for_data_base.setStyleSheet("border-color: purple; color: purple;")
+        self.settings_layout.addWidget(self.line_for_data_base)
 
         self.apply_for_settings = QPushButton("Apply")
         self.apply_for_settings.setMaximumSize(250, 78)
@@ -498,8 +648,6 @@ class AppDemo(QMainWindow):
              }
          """)
         self.apply_for_settings.clicked.connect(self.func_for_settings)
-
-        self.settings_layout.addLayout(self.vt_hbox)
         self.settings_layout.addWidget(self.apply_for_settings)
         self.settings_visited = True
 
@@ -507,16 +655,23 @@ class AppDemo(QMainWindow):
         if self.vt_toggel.isChecked():
             print("activate virus total is checked")
         if self.quarantine_toggle.isChecked():
-            if not os.path.exists("Q"):
-                if self.dial_instance.get_percentage() > 75:
-                    new_file_path = Quarantine.quarantine_file("virus.exe", "Q", "1234")
-                else:
-                    self.statusBar_instance.show_message("")
-            else:
-                pass
+            # turning the vaulting off --> release the file from vault
+            self.vault_file = False
+            if os.path.exists("Found_Virus"):
+                Quarantine.restore_file("Found_Virus/virus.exe", "Found_Virus", "1234")
+                self.statusBar_instance.show_message("You have turned the vault option off. Your file is restored")
         else:
-            if os.path.exists("Q"):
-                Quarantine.restore_file("Q/virus.exe", "Q", "1234")
+            # leaving the vaulting
+            self.vault_file = True
+            self.statusBar_instance.show_message("You have turned the vault option back on")
+        if self.data_base_toggle.isChecked():
+            self.redis_virus.print_all()
+            if self.redis_virus.exists(md5("virus.exe")):
+                self.redis_virus.delete(md5("virus.exe"))
+                self.save_in_data_base = False
+                self.redis_virus.print_all()
+                self.statusBar_instance.show_message("Your file will now not be saved in data base")
+                self.dial_instance.setDialPercentage(0)
 
     def run_func_in_thread(self, func_to_run):
 
@@ -583,6 +738,7 @@ class AppDemo(QMainWindow):
 
             self.basic_info_label.deleteLater()
             self.basic_info.deleteLater()
+            self.we_are_sorry_label.deleteLater()
 
             self.fuzzy_hash_label.deleteLater()
             self.fuzzy_hash_button.deleteLater()
@@ -622,6 +778,9 @@ class AppDemo(QMainWindow):
                 self.description_progress.deleteLater()
                 self.movie_list.deleteLater()
                 self.suspicious_paths.deleteLater()
+                self.searchButton_for_dir.deleteLater()
+                self.searchBar_for_dir.deleteLater()
+                self.v_box_for_search_dir.deleteLater()
                 self.threadpool_vt.terminate()
                 self.dir_layout.deleteLater()
 
@@ -635,6 +794,9 @@ class AppDemo(QMainWindow):
                 self.description_progress_ip.deleteLater()
                 self.movie_list_ip.deleteLater()
                 self.suspicious_ip.deleteLater()
+                self.searchButton_for_ip.deleteLater()
+                self.searchLayout_for_ip.deleteLater()
+                self.v_box_for_search_ip.deleteLater()
                 self.movie_label_ip.deleteLater()
                 self.ip_thread.terminate()
 
@@ -648,12 +810,15 @@ class AppDemo(QMainWindow):
             self.quarantine_message.deleteLater()
             self.quarantine_hbox.deleteLater()
             self.apply_for_settings.deleteLater()
-
+            self.line_for_start.deleteLater()
+            self.line_for_vt.deleteLater()
+            self.line_for_q.deleteLater()
+            self.line_for_data_base.deleteLater()
             self.settings_layout.deleteLater()
 
         if self.python_visited:
             self.python_label.deleteLater()
-            if False:  # AppDemo.keylogger_found
+            if AppDemo.keylogger_found:  # AppDemo.keylogger_found
                 self.keylogger_v_box_imports.deleteLater()
                 self.keylogger_v_box_funcs.deleteLater()
                 self.keylogger_v_box_funcs_params.deleteLater()
@@ -771,9 +936,6 @@ class AppDemo(QMainWindow):
         # threads for the fuzzy hashing
         self.thread1, self.thread2, self.thread3, self.thread4 = None, None, None, None
 
-        self.redis_virus = Redis()
-        self.redis_virus.print_all()
-
         self.list_widget_style_sheet = """
             QListWidget {
                 background-color: #333;
@@ -833,7 +995,10 @@ class AppDemo(QMainWindow):
         # self.activate_btn_layout.addWidget(self.btn)
 
         self.load_for_static = QPushButton('Load for Static Analysis', self)
+        self.load_for_static.clicked.connect(self.load_for_static_analysis)
+
         self.load_for_hash = QPushButton('Load for Hash Analysis', self)
+        self.load_for_hash.clicked.connect(self.load_for_hash_analysis)
 
         self.static_hash_load = QHBoxLayout()
         self.static_hash_load.addWidget(self.start_vm_btn)
@@ -869,12 +1034,16 @@ class AppDemo(QMainWindow):
         self.h_box_for_l1_and_dial.addWidget(self.dial, alignment=Qt.AlignRight)
 
         # setting after moving to home screen
-        if os.path.exists("virus.exe"):
-            if self.redis_virus.exists(str(md5("virus.exe"))):
-                self.dial_instance.setDialPercentage(
-                    int(self.redis_virus.get_key(str(md5("virus.exe")), "final_assesment", False)))
-                self.dial = str(md5("virus.exe"))
-                self.run_for_start = True
+        if self.save_in_data_base:
+            if os.path.exists("virus.exe"):
+                if self.redis_virus.exists(str(md5("virus.exe"))):
+                    self.dial_instance.setDialPercentage(
+                        int(self.redis_virus.get_key(str(md5("virus.exe")), "final_assesment", False)))
+                    self.dial = str(md5("virus.exe"))
+
+                    if self.run_for_dial_initiative == 1:
+                        self.run_for_start = True
+                        self.run_for_dial_initiative = 0
 
         self.l1.setStyleSheet("QLabel { font: bold; margin-bottom: 0px; padding: 10px;}")
 
@@ -900,7 +1069,9 @@ class AppDemo(QMainWindow):
             "background-color: #DDA0DD; color: #8B008B;}")
         self.dynamic_button.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Expanding)
         self.dynamic_button.setFlat(True)
-        self.dynamic_button.setDisabled(False)
+
+        if self.run_for_dynamic_disable == 1:
+            self.dynamic_button.setDisabled(True)
 
         self.static_button = QPushButton("Static Analysis")
         self.static_button.setStyleSheet(
@@ -911,6 +1082,9 @@ class AppDemo(QMainWindow):
         self.static_button.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Expanding)
         self.static_button.setFlat(True)
 
+        if self.run_for_static_disable == 1:
+            self.static_button.setDisabled(True)
+
         self.hash_button = QPushButton("Hash Analysis")
         self.hash_button.setStyleSheet(
             "QPushButton {background-color: #E6E6FA; color: #000080; border: 2px solid #9400D3; "
@@ -920,6 +1094,9 @@ class AppDemo(QMainWindow):
             "background-color: #DDA0DD; color: #8B008B;}")
         self.hash_button.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Expanding)
         self.hash_button.setFlat(True)
+
+        if self.run_for_hash_disable == 1:
+            self.hash_button.setDisabled(True)
 
         # btn_layout.addItem(Qt.SpacerItem(0, 0,QSizePolicy.Expanding, Qt.QSizePolicy.Minimum))
         # self.btn_layout.addStretch(1)
@@ -1049,8 +1226,8 @@ class AppDemo(QMainWindow):
 
         self.btn.clicked.connect(lambda: self.getSelectedItem())
         self.start_vm_btn.clicked.connect(lambda: self.activate_vm())
-        self.static_button.clicked.connect(lambda: [self.static_analysis()])
-        self.hash_button.clicked.connect(lambda: [self.hash_analysis()])
+        self.static_button.clicked.connect(lambda: [self.activate_static_analysis()])
+        self.hash_button.clicked.connect(lambda: [self.activate_hash_analysis()])
         self.dynamic_button.clicked.connect(lambda: [self.dynamic_analysis()])
 
         # initiate threads
@@ -1059,8 +1236,91 @@ class AppDemo(QMainWindow):
         self.worker.file_changed.connect(self.on_file_changed)
         self.worker.start()
 
+        self.worker_for_dial = worker_for_virus_dial(self.dial_instance)
+        self.worker_for_dial.dial_changed.connect(self.on_probability_changed)
+        self.worker_for_dial.start()
+
     def on_file_changed(self):
         self.statusBar_instance.show_message('LOG is ready, check Dynamic Analysis')
+        self.dynamic_button.setDisabled(False)
+        self.run_for_dynamic_disable = 1
+
+    def on_probability_changed(self):
+        return
+
+        # Create a QTimer object
+        timer = QTimer()
+
+        # Start the timer and set its timeout to 10 seconds
+        timer.start(10000)
+
+        # Enter the local event loop until the timer has finished
+        loop = QEventLoop()
+        timer.timeout.connect(loop.quit)
+        loop.exec_()
+
+        # Check if the boolean variable `self.vault_file` is truthy
+        if self.vault_file:
+            # Display a warning message box to the user
+            show_message_warning_box("Your file has now been quarantined for it is found to be a virus.\n"
+                                     "You will not be able to run the file.\n\n"
+                                     "If you wish to now restore file, you may go the configuration window\n"
+                                     "and turn off the option\n\n"
+                                     "Once you leave this message, the file will be vaulted\n"
+                                     "and the application will be terminated.")
+
+            # Run the Python script `quarantine.py`
+            # The `os.system()` function executes a command in a subshell
+            # In this case, the command is to run the `quarantine.py` script
+            os.system("python quarantine.py")
+
+            # Quit the application
+            # The `QApplication.quit()` function terminates the application
+            QApplication.quit()
+
+    def load_for_static_analysis(self):
+        self.run_for_static_disable = 0
+        if self.file_loaded_to_system:
+            self.static_button.setDisabled(False)
+            self.statusBar_instance.show_message("Static Analysis is ready")
+            return
+        else:
+            item = QListWidgetItem(self.listbox_view.item(0))
+            self.path_for_file = item.text()
+            bytes = b""
+            try:
+                with open(self.path_for_file, "rb") as f:
+                    bytes += f.read()
+                shutil.move(str(self.path_for_file), PATH_TO_MOVE + "\\virus.exe")
+                with open(self.path_for_file, "wb") as f:
+                    f.write(bytes)
+            except Exception as e:
+                print(e)
+            self.file_loaded_to_system = True
+            self.static_button.setDisabled(False)
+            self.statusBar_instance.show_message("Static Analysis is ready")
+
+    def load_for_hash_analysis(self):
+        self.run_for_hash_disable = 0
+        if self.file_loaded_to_system:
+            self.hash_button.setDisabled(False)
+            self.statusBar_instance.show_message("Hash Analysis is ready")
+            return
+        else:
+            item = QListWidgetItem(self.listbox_view.item(0))
+            path = item.text()
+            bytes = b""
+            try:
+                with open(path, "rb") as f:
+                    bytes += f.read()
+                shutil.move(str(path), PATH_TO_MOVE + "\\virus.exe")
+                with open(path, "wb") as f:
+                    f.write(bytes)
+            except Exception as e:
+                print(e)
+            self.file_loaded_to_system = True
+            self.hash_button.setDisabled(False)
+            self.statusBar_instance.show_message("Hash Analysis is ready")
 
     def python_analysis(self):
 
@@ -1080,7 +1340,14 @@ class AppDemo(QMainWindow):
 
         # self.pv = PythonVirus("virus.exe")
         # self.pv.log_for_winapi(self.pv.find_ctypes_calls())
-        if False:  # AppDemo.keylogger_found # todo, find out how to know whether it's keylogger or not
+        # self.keylogger_check = True
+        # if len(AppDemo.keylogger_suspect_imports) == 0 and len(AppDemo.keylogger_suspect_funcs) == 0 \
+        #     and len(AppDemo.keylogger_suspect_funcs_and_params) == 0 \
+        #         and len(AppDemo.keylogger_suspect_patterns) == 0 \
+        #         and len(AppDemo.keylogger_suspect_params) == 0:
+        #             self.keylogger_check = False
+
+        if AppDemo.keylogger_found:  # AppDemo.keylogger_found # todo, find out how to know whether it's keylogger or not
 
             # todo - this will longer than I thought
             keylogger_style_sheet = """
@@ -1090,7 +1357,8 @@ class AppDemo(QMainWindow):
                 border-radius: 5px;
                 outline: none;
                 margin: 7px;
-                font-size: 20ע
+                font-size: 20px;
+                margin: 5px;
             }
             QListWidget::item {
                 border: none;
@@ -1108,12 +1376,6 @@ class AppDemo(QMainWindow):
             }
             """
 
-            # AppDemo.keylogger_suspect_imports = self.keylogger_suspect[0]
-            # AppDemo.keylogger_suspect_funcs = self.keylogger_suspect[1]
-            # AppDemo.keylogger_suspect_funcs_and_params = self.keylogger_suspect[2]
-            # AppDemo.keylogger_suspect_patterns = self.keylogger_suspect[3]
-            # AppDemo.keylogger_suspect_params = self.keylogger_suspect[4]
-
             self.keylogger_imports = QListWidget()
             for imp in AppDemo.keylogger_suspect_imports:
                 item = QListWidgetItem(imp)
@@ -1123,7 +1385,7 @@ class AppDemo(QMainWindow):
                 self.keylogger_imports.addItem(item)
 
             self.keylogger_imports.setStyleSheet(keylogger_style_sheet)
-            self.keylogger_imports.setMaximumSize(275, 250)
+            # self.keylogger_imports.setMaximumSize(275, 250)
             self.keylogger_imports.setMinimumSize(275, 250)
             self.keylogger_imports.setVerticalScrollBar(self.create_scroll_bar())
 
@@ -1136,7 +1398,7 @@ class AppDemo(QMainWindow):
                 self.keylogger_funcs.addItem(item)
 
             self.keylogger_funcs.setStyleSheet(keylogger_style_sheet)
-            self.keylogger_funcs.setMaximumSize(275, 250)
+            # self.keylogger_funcs.setMaximumSize(275, 250)
             self.keylogger_funcs.setMinimumSize(275, 250)
             self.keylogger_funcs.setVerticalScrollBar(self.create_scroll_bar())
 
@@ -1151,7 +1413,7 @@ class AppDemo(QMainWindow):
                 self.keylogger_funcs_params.addItem(item)
 
             self.keylogger_funcs_params.setStyleSheet(keylogger_style_sheet)
-            self.keylogger_funcs_params.setMaximumSize(315, 250)
+            # self.keylogger_funcs_params.setMaximumSize(315, 250)
             self.keylogger_funcs_params.setMinimumSize(275, 250)
             self.keylogger_funcs_params.setVerticalScrollBar(self.create_scroll_bar())
 
@@ -1164,7 +1426,7 @@ class AppDemo(QMainWindow):
                 self.keylogger_patterns.addItem(item)
 
             self.keylogger_patterns.setStyleSheet(keylogger_style_sheet)
-            self.keylogger_patterns.setMaximumSize(275, 250)
+            # self.keylogger_patterns.setMaximumSize(275, 250)
             self.keylogger_patterns.setMinimumSize(275, 250)
             self.keylogger_patterns.setVerticalScrollBar(self.create_scroll_bar())
 
@@ -1177,7 +1439,7 @@ class AppDemo(QMainWindow):
                 self.keylogger_patterns.addItem(item)
 
             self.keylogger_params.setStyleSheet(keylogger_style_sheet)
-            self.keylogger_params.setMaximumSize(275, 250)
+            # self.keylogger_params.setMaximumSize(275, 250)
             self.keylogger_params.setMinimumSize(275, 250)
             self.keylogger_params.setVerticalScrollBar(self.create_scroll_bar())
 
@@ -1214,10 +1476,30 @@ class AppDemo(QMainWindow):
             self.keylogger_v_box_params.addWidget(self.keylogger_params)
             self.second_line_of_lists.addLayout(self.keylogger_v_box_params)
             self.python_layout.addLayout(self.second_line_of_lists)
+            percentage = self.dial_instance.get_percentage()
+            # AppDemo.keylogger_suspect_imports = self.keylogger_suspect[0]
+            # AppDemo.keylogger_suspect_funcs = self.keylogger_suspect[1]
+            # AppDemo.keylogger_suspect_funcs_and_params = self.keylogger_suspect[2]
+            # AppDemo.keylogger_suspect_patterns = self.keylogger_suspect[3]
+            # AppDemo.keylogger_suspect_params = self.keylogger_suspect[4]
+            self.dial_instance.setDialPercentage(percentage + int(len(AppDemo.keylogger_suspect_imports)) * 3 +
+                                                 int(len(AppDemo.keylogger_suspect_funcs)) * 3 +
+                                                 int(len(AppDemo.keylogger_suspect_funcs_and_params)) * 2 +
+                                                 int(len(AppDemo.keylogger_suspect_patterns)) * 2 +
+                                                 int(len(AppDemo.keylogger_suspect_params)) * 2)
+
+            self.redis_virus.hset(self.md5_hash, "final_assesment", percentage +
+                                  int(len(AppDemo.keylogger_suspect_imports)) * 3 +
+                                  int(len(AppDemo.keylogger_suspect_funcs)) * 3 +
+                                  int(len(AppDemo.keylogger_suspect_funcs_and_params)) * 2 +
+                                  int(len(AppDemo.keylogger_suspect_patterns)) * 2 +
+                                  int(len(AppDemo.keylogger_suspect_params)) * 2)
+
+            self.dial = self.dial_instance.get_dial()
 
         else:
-            self.statusBar_instance.show_message("Your python analysis is ready")
             with open("log_python.txt", "r") as f:
+                virus_python_winapi_data_base = 0
                 python_data = f.read()
                 python_data = python_data.split("\n\n")
                 print(python_data)
@@ -1306,6 +1588,7 @@ class AppDemo(QMainWindow):
                             if i == 0:
                                 item = QTreeWidgetItem(self.tree_py, ["REGISTRY CHANGE"])
                                 item.setForeground(0, QBrush(QColor("red")))
+                                virus_python_winapi_data_base += 35
                                 continue
                             # last line
                             if "REGISTRY CHANGE" in line:
@@ -1319,6 +1602,7 @@ class AppDemo(QMainWindow):
                             if i == 0:
                                 item = QTreeWidgetItem(self.tree_py, ["INJECTION"])
                                 item.setForeground(0, QBrush(QColor("red")))
+                                virus_python_winapi_data_base += 35
                                 continue
                             # last line
                             if "INJECTION" in line:
@@ -1332,6 +1616,7 @@ class AppDemo(QMainWindow):
                             if i == 0:
                                 item = QTreeWidgetItem(self.tree_py, ["PORT SCANNING"])
                                 item.setForeground(0, QBrush(QColor("darkorange")))
+                                virus_python_winapi_data_base += 10
                                 continue
                             # last line
                             if "PORT SCANNING" in line:
@@ -1341,34 +1626,46 @@ class AppDemo(QMainWindow):
                             item.addChild(child_item)
 
             self.python_layout.addWidget(self.tree_py)
+            percentage = self.dial_instance.get_percentage()
+            self.dial_instance.setDialPercentage(percentage + virus_python_winapi_data_base)
+            self.redis_virus.hset(self.md5_hash, "final_assesment", percentage + virus_python_winapi_data_base)
+
+            self.dial = self.dial_instance.get_dial()
+        self.statusBar_instance.show_message("Your python analysis is ready")
 
     def getSelectedItem(self):
         print("got here")
         item = QListWidgetItem(self.listbox_view.item(0))
         path = item.text()
 
-        bytes = b""
-
-        try:
-            with open(path, "rb") as f:
-                bytes += f.read()
-            shutil.move(str(path), PATH_TO_MOVE + "\\virus.exe")
-            with open(path, "wb") as f:
-                f.write(bytes)
-        except Exception as e:
-            print(e)
+        if not self.file_loaded_to_system:
+            bytes = b""
+            try:
+                with open(path, "rb") as f:
+                    bytes += f.read()
+                shutil.move(str(path), PATH_TO_MOVE + "\\virus.exe")
+                with open(path, "wb") as f:
+                    f.write(bytes)
+            except Exception as e:
+                print(e)
+            self.file_loaded_to_system = True
+            print(self.file_loaded_to_system)
+        else:
+            path = os.path.abspath("virus.exe")
+            print(path)
 
         self.md5_hash = str(md5("virus.exe"))
-        if not self.redis_virus.exists(self.md5_hash):
-            self.redis_virus.hset_dict(self.md5_hash,
-                                       {"rules": pickle.dumps([0]), "packers": pickle.dumps([0]),
-                                        "entropy_vs_normal": pickle.dumps([0]),
-                                        "fractioned_imports_test": pickle.dumps([0]),
-                                        "rick_optional_linker_test": pickle.dumps([0]),
-                                        "sections_test": pickle.dumps([0]), "suspicious_!": pickle.dumps([0]),
-                                        "identifies": pickle.dumps([0]), "has_passed_cpu": pickle.dumps([0]),
-                                        "num_of_engines:": 0,
-                                        "num_of_fuzzy_found": 0, "final_assesment": 0})
+        if self.save_in_data_base:
+            if not self.redis_virus.exists(self.md5_hash):
+                self.redis_virus.hset_dict(self.md5_hash,
+                                           {"rules": pickle.dumps([0]), "packers": pickle.dumps([0]),
+                                            "entropy_vs_normal": pickle.dumps([0]),
+                                            "fractioned_imports_test": pickle.dumps([0]),
+                                            "rick_optional_linker_test": pickle.dumps([0]),
+                                            "sections_test": pickle.dumps([0]), "suspicious_!": pickle.dumps([0]),
+                                            "identifies": pickle.dumps([0]), "has_passed_cpu": pickle.dumps([0]),
+                                            "num_of_engines:": 0,
+                                            "num_of_fuzzy_found": 0, "final_assesment": 0})
 
         # self.redis_virus.change_to_reg()
         # self.redis_virus.hset(self.md5_hash, "num_of_rules", pickle.dumps(["bad_rule", 5]))
@@ -1383,7 +1680,9 @@ class AppDemo(QMainWindow):
             # self.show_loading_menu()
 
             class VirusThread(QThread):
-                overlay = show_loading_menu()
+                overlay = show_loading_menu("Loading your data...\nIt will maximum of 2 minutes.\nWhen it is ready, "
+                                            "it will be shown in the "
+                                            "status bar")
                 overlay.show()
                 finished_signal = pyqtSignal()
 
@@ -1391,15 +1690,18 @@ class AppDemo(QMainWindow):
                     self.pv = PythonVirus("virus.exe")
                     self.pv.log_for_winapi(self.pv.find_ctypes_calls())
 
-                    # self.keylogger_suspect = self.pv.check_for_keylogger()
-                    # AppDemo.keylogger_suspect_imports = self.keylogger_suspect[0]
-                    # AppDemo.keylogger_suspect_funcs = self.keylogger_suspect[1]
-                    # AppDemo.keylogger_suspect_funcs_and_params = self.keylogger_suspect[2]
-                    # AppDemo.keylogger_suspect_patterns = self.keylogger_suspect[3]
-                    # AppDemo.keylogger_suspect_params = self.keylogger_suspect[4]
-                    #
-                    # if len(AppDemo.keylogger_suspect_imports) > 2 and len(AppDemo.keylogger_suspect_funcs) > 2 and len(AppDemo.keylogger_suspect_funcs_and_params.keys()) > 1 and len(AppDemo.keylogger_suspect_patterns) > 2:
-                    #     AppDemo.keylogger_found = True
+                    self.keylogger_suspect = self.pv.check_for_keylogger()
+                    AppDemo.keylogger_suspect_imports = self.keylogger_suspect[0]
+                    AppDemo.keylogger_suspect_funcs = self.keylogger_suspect[1]
+                    AppDemo.keylogger_suspect_funcs_and_params = self.keylogger_suspect[2]
+                    AppDemo.keylogger_suspect_patterns = self.keylogger_suspect[3]
+                    AppDemo.keylogger_suspect_params = self.keylogger_suspect[4]
+                    AppDemo.keylogger_found = False
+
+                    if len(AppDemo.keylogger_suspect_imports) > 2 and len(AppDemo.keylogger_suspect_funcs) > 2 and len(
+                            AppDemo.keylogger_suspect_funcs_and_params.keys()) > 1 and len(
+                        AppDemo.keylogger_suspect_patterns) > 2:
+                        AppDemo.keylogger_found = True
 
                     # signal the main thread that the task is finished
                     self.finished_signal.emit()
@@ -1417,14 +1719,12 @@ class AppDemo(QMainWindow):
             self.python_analysis()
             return
 
-        # if Packers.programming_language(path) is not True:  # either not exe, or not written in the languages
-        #     msg = QMessageBox()
-        #     msg.setIcon(QMessageBox.Warning)
-        #     msg.setText("This file isn't in EXE format, please be aware of our rules and terms")
-        #     msg.setWindowTitle("Warning")
-        #     msg.setStandardButtons(QMessageBox.Ok | QMessageBox.Cancel)
-        #     result = msg.exec_()
-        #     return
+        if Packers.programming_language(path) is not True:  # either not exe, or not written in the languages
+            show_message_warning_box("Your file is not in the current format.\n"
+                                     "The exe files that can be uploaded are only in:\n"
+                                     "Python, C++, C, C#"
+                                     "Please be aware and try again")
+            return
 
         while not os.path.exists(r"E:\Cyber\YB_CYBER\project\FinalProject\poc_start\poc_start\unrelated\graphics"
                                  r"\virus.exe"):
@@ -1523,6 +1823,89 @@ class AppDemo(QMainWindow):
         scrollBar.setStyleSheet(self.scrollBar_stylesheet)
         return scrollBar
 
+    def resizeEvent(self, event):
+        try:
+            # constant = 1.1  # Set the constant
+            # if self.virus_table:
+            #     self.virus_table.resizeRowsToContents()
+            #     self.virus_table.resizeColumnsToContents()
+            #     self.virus_table.resize(self.virus_table.sizeHint() * constant)  # Resize the window to fit the table
+            pass
+        except AttributeError:
+            pass
+
+    def activate_static_analysis(self):
+
+        class StaticThread(QThread):
+            overlay = show_loading_menu_image("Loading your static data\n It will be short till data arrives", "images/one_second.png")
+            overlay.show()
+            finished_signal = pyqtSignal()
+
+            def __init__(self, func):
+                super().__init__()
+                self.func = func
+
+            def run(self):
+                # execute the function on the main thread
+                QMetaObject.invokeMethod(self, "run_func", Qt.QueuedConnection)
+
+                # signal the main thread that the task is finished
+                self.finished_signal.emit()
+
+            @pyqtSlot()
+            def run_func(self):
+                self.func()
+
+            def __del__(self):
+                self.wait()
+
+        # create an instance of StaticThread and start it
+        static_thread = StaticThread(self.static_analysis)
+        static_thread.start()
+
+        # create a QEventLoop to wait until the task is finished
+        loop = QEventLoop()
+        static_thread.finished_signal.connect(loop.quit)
+        loop.exec_()
+
+        StaticThread.overlay.close()
+
+    def activate_hash_analysis(self):
+
+        class HashThread(QThread):
+            overlay = show_loading_menu_image("Loading your hash data\n It will be short till data arrives", "images/one_second.png")
+            overlay.show()
+            finished_signal = pyqtSignal()
+
+            def __init__(self, func):
+                super().__init__()
+                self.func = func
+
+            def run(self):
+                # execute the function on the main thread
+                QMetaObject.invokeMethod(self, "run_func", Qt.QueuedConnection)
+
+                # signal the main thread that the task is finished
+                self.finished_signal.emit()
+
+            @pyqtSlot()
+            def run_func(self):
+                self.func()
+
+            def __del__(self):
+                self.wait()
+
+        # create an instance of StaticThread and start it
+        hash_thread = HashThread(self.hash_analysis)
+        hash_thread.start()
+
+        # create a QEventLoop to wait until the task is finished
+        loop = QEventLoop()
+        hash_thread.finished_signal.connect(loop.quit)
+        loop.exec_()
+
+        HashThread.overlay.close()
+
     def static_analysis(self):
 
         # self.show_loading_menu()
@@ -1549,6 +1932,9 @@ class AppDemo(QMainWindow):
 
         model = TableModel(sections)
         self.virus_table.setModel(model)
+        self.virus_table.setMaximumSize(int(self.virus_table.width() * 1.59), self.virus_table.height())
+        self.virus_table.setMinimumSize(int(self.virus_table.width() * 1.59), self.virus_table.height())
+
 
         self.virus_table.setStyleSheet("""
         QTableView {
@@ -1576,18 +1962,18 @@ class AppDemo(QMainWindow):
     """)
 
         # Set the column widths
-        self.virus_table.setColumnWidth(4, 200)
-        self.virus_table.setColumnWidth(2, 200)
-        self.virus_table.setColumnWidth(1, 200)
-        self.virus_table.setColumnWidth(0, 170)
-        self.virus_table.setColumnWidth(3, 150)
+        # self.virus_table.setColumnWidth(4, 200)
+        # self.virus_table.setColumnWidth(2, 200)
+        # self.virus_table.setColumnWidth(1, 200)
+        # self.virus_table.setColumnWidth(0, 170)
+        # self.virus_table.setColumnWidth(3, 150)
         # basic_info.setColumnWidth(1, 620)
 
         # Set the row heights
-        for row in range(model.rowCount()):
-            self.virus_table.setRowHeight(row, 40)
+        # for row in range(model.rowCount()):
+        #     self.virus_table.setRowHeight(row, 40)
 
-        self.virus_table.setMinimumSize(100, 430)
+        # self.virus_table.setMinimumSize(100, 430)
 
         self.md5_hash = str(md5("virus.exe"))
         entropy_of_virus_vs_reg = entropy_vs_normal("virus.exe")
@@ -1595,13 +1981,14 @@ class AppDemo(QMainWindow):
         self.redis_entropy = self.redis_virus.get_key(self.md5_hash, "entropy_vs_normal", True)
         reg_entropy = self.redis_entropy.pop()
         percentage = self.dial_instance.get_percentage()
-        if self.run_for_entropy == 1 and not self.run_for_start:
-            if len(self.redis_entropy) >= 1:
-                self.dial_instance.setDialPercentage(percentage + int(len(self.redis_entropy)))
-            self.dial_instance.setDialPercentage(percentage + int(reg_entropy))
-            self.redis_virus.hset(self.md5_hash, "final_assesment", percentage + int(reg_entropy))
-            self.dial = self.dial_instance.get_dial()
-            self.run_for_entropy = 0
+        if self.save_in_data_base:
+            if self.run_for_entropy == 1 and not self.run_for_start:
+                if len(self.redis_entropy) >= 1:
+                    self.dial_instance.setDialPercentage(percentage + int(len(self.redis_entropy)))
+                self.dial_instance.setDialPercentage(percentage + int(reg_entropy))
+                self.redis_virus.hset(self.md5_hash, "final_assesment", percentage + int(reg_entropy))
+                self.dial = self.dial_instance.get_dial()
+                self.run_for_entropy = 0
 
         self.table_and_strings_layout = QVBoxLayout()
 
@@ -1609,6 +1996,8 @@ class AppDemo(QMainWindow):
         self.table_and_strings_layout.addWidget(self.virus_table_label)
 
         self.virus_table.resizeColumnsToContents()
+        self.virus_table.resizeRowsToContents()
+
         self.table_and_strings_layout.addWidget(self.virus_table)
 
         class bubbleWidget(QWidget):
@@ -1669,23 +2058,24 @@ class AppDemo(QMainWindow):
         yara_strings = YaraChecks.check_for_strings("virus.exe")
         yara_packers = YaraChecks.check_for_packer("virus.exe")
 
-        if self.run_for_rules == 1 and not self.run_for_start:
-            self.redis_virus.hset(self.md5_hash, "rules", pickle.dumps([match.rule for match in yara_strings[2]]))
-            self.redis_rules = self.redis_virus.get_key(self.md5_hash, "rules", True)
-            percentage = self.dial_instance.get_percentage()
-            self.dial_instance.setDialPercentage(percentage + len(self.redis_rules) * 5)
-            self.dial = self.dial_instance.get_dial()
-            self.redis_virus.hset(self.md5_hash, "final_assesment", percentage + len(self.redis_rules) * 5)
-            self.run_for_rules = 0
+        if self.save_in_data_base:
+            if self.run_for_rules == 1 and not self.run_for_start:
+                self.redis_virus.hset(self.md5_hash, "rules", pickle.dumps([match.rule for match in yara_strings[2]]))
+                self.redis_rules = self.redis_virus.get_key(self.md5_hash, "rules", True)
+                percentage = self.dial_instance.get_percentage()
+                self.dial_instance.setDialPercentage(percentage + len(self.redis_rules) * 5)
+                self.dial = self.dial_instance.get_dial()
+                self.redis_virus.hset(self.md5_hash, "final_assesment", percentage + len(self.redis_rules) * 5)
+                self.run_for_rules = 0
 
-        if self.run_for_packers == 1 and not self.run_for_start:
-            self.redis_virus.hset(self.md5_hash, "packers", pickle.dumps([match.rule for match in yara_packers]))
-            self.redis_packers = self.redis_virus.get_key(self.md5_hash, "packers", True)
-            percentage = self.dial_instance.get_percentage()
-            self.dial_instance.setDialPercentage(percentage + int(len(self.redis_packers) * 0.5))
-            self.dial = self.dial_instance.get_dial()
-            self.redis_virus.hset(self.md5_hash, "final_assesment", percentage + int(len(self.redis_packers) * 0.5))
-            self.run_for_packers = 0
+            if self.run_for_packers == 1 and not self.run_for_start:
+                self.redis_virus.hset(self.md5_hash, "packers", pickle.dumps([match.rule for match in yara_packers]))
+                self.redis_packers = self.redis_virus.get_key(self.md5_hash, "packers", True)
+                percentage = self.dial_instance.get_percentage()
+                self.dial_instance.setDialPercentage(percentage + int(len(self.redis_packers) * 0.5))
+                self.dial = self.dial_instance.get_dial()
+                self.redis_virus.hset(self.md5_hash, "final_assesment", percentage + int(len(self.redis_packers) * 0.5))
+                self.run_for_packers = 0
 
         for dll in yara_strings[0]:
             item = QListWidgetItem(str(dll))
@@ -1829,7 +2219,6 @@ class AppDemo(QMainWindow):
         self.sys_internals_strings_box.addWidget(self.sys_internals_strings_label)
         self.sys_internals_strings_box.addWidget(self.sys_internals_strings_list)
 
-
         self.strings_box.addLayout(self.reg_strings_box)
         self.strings_box.addLayout(self.sys_internals_strings_box)
         self.table_and_strings_layout.addLayout(self.strings_box)
@@ -1886,6 +2275,7 @@ class AppDemo(QMainWindow):
                 background-color: #555;
             }
             """)
+
         self.packers_widget.setVerticalScrollBar(scrollBarPackers)
         self.h_box_for_packers_imports = QHBoxLayout()
         self.v_box_for_packers = QVBoxLayout()
@@ -1900,9 +2290,22 @@ class AppDemo(QMainWindow):
         self.v_box_for_imports.addWidget(self.imports_label)
         # self.table_and_strings_layout.addWidget(self.imports_label)
 
+        try:
+            shutil.copy("virus.exe", os.path.abspath("graphics").replace("graphics", "hash_scan").replace("\\hash_scan", "",
+                                                                                                          1) + "\\virus.exe")
+        except OSError:
+            pass
+
         pe_scan = ScanPE(os.path.abspath("virus.exe").replace("graphics", "hash_scan"))
         dlls = pe_scan.run_pe_scan_exe()
+        if self.run_for_copy == 1:
+            self.copy_imports = dlls
+            self.run_for_copy = 0
+        self.dlls_empty = False
         print(dlls)  # key = tuple - first key: library, value: list of imports
+        if dlls == {} and self.copy_imports == {}:
+            self.dlls_empty = True
+            print(self.dlls_empty)
 
         self.delete_imports = []
         self.list_index = dict({})
@@ -1972,14 +2375,27 @@ class AppDemo(QMainWindow):
         }""")
 
         root = QStandardItem("See Imports")
-        for library, imps in dlls.items():
+        if self.dlls_empty:
+            root = QStandardItem("There are no imports for this file")
+        else:
+            if self.copy_imports != {}:
+                for library, imps in self.copy_imports.items():
 
-            lib = library[0]
-            dll = QStandardItem(lib)
-            for imp in imps:
-                dll.appendRow(QStandardItem(imp))
+                    lib = library[0]
+                    dll = QStandardItem(lib)
+                    for imp in imps:
+                        dll.appendRow(QStandardItem(imp))
 
-            root.appendRow(dll)
+                    root.appendRow(dll)
+            else:
+                for library, imps in dlls.items():
+
+                    lib = library[0]
+                    dll = QStandardItem(lib)
+                    for imp in imps:
+                        dll.appendRow(QStandardItem(imp))
+
+                    root.appendRow(dll)
 
         model = QStandardItemModel()
         model.appendRow(root)
@@ -2005,13 +2421,14 @@ class AppDemo(QMainWindow):
         fractioned = check_for_fractioned_imports(dlls)
         self.redis_virus.hset(self.md5_hash, "fractioned_imports_test", pickle.dumps(fractioned))
 
-        if self.run_for_fractioned == 1 and not self.run_for_start:
-            self.redis_fractioned = self.redis_virus.get_key(self.md5_hash, "fractioned_imports_test", True)
-            percentage = self.dial_instance.get_percentage()
-            self.dial_instance.setDialPercentage(percentage + int(len(fractioned) * 3))
-            self.dial = self.dial_instance.get_dial()
-            self.redis_virus.hset(self.md5_hash, "final_assesment", percentage + int(len(fractioned) * 3))
-            self.run_for_fractioned = 0
+        if self.save_in_data_base:
+            if self.run_for_fractioned == 1 and not self.run_for_start:
+                self.redis_fractioned = self.redis_virus.get_key(self.md5_hash, "fractioned_imports_test", True)
+                percentage = self.dial_instance.get_percentage()
+                self.dial_instance.setDialPercentage(percentage + int(len(fractioned) * 3))
+                self.dial = self.dial_instance.get_dial()
+                self.redis_virus.hset(self.md5_hash, "final_assesment", percentage + int(len(fractioned) * 3))
+                self.run_for_fractioned = 0
 
         self.fractioned = QGroupBox("Fractioned Imports")
         title = QLabel("Fractioned Imports  <img src='images/info-32.png' width='20' height='20'>")
@@ -2040,13 +2457,14 @@ class AppDemo(QMainWindow):
         result = str(pe_scan.linker_test()).replace("result.", "")
         self.redis_virus.hset(self.md5_hash, "rick_optional_linker_test", pickle.dumps([result]))
         self.redis_invalid = self.redis_virus.get_key(self.md5_hash, "rick_optional_linker_test", True)
-        if self.redis_invalid == ['INVALID']:
-            if self.run_for_linker == 1 and not self.run_for_start:
-                percentage = self.dial_instance.get_percentage()
-                self.dial_instance.setDialPercentage(percentage + 5)
-                self.dial = self.dial_instance.get_dial()
-                self.redis_virus.hset(self.md5_hash, "final_assesment", percentage + 5)
-                self.run_for_linker = 0
+        if self.save_in_data_base:
+            if self.redis_invalid == ['INVALID']:
+                if self.run_for_linker == 1 and not self.run_for_start:
+                    percentage = self.dial_instance.get_percentage()
+                    self.dial_instance.setDialPercentage(percentage + 5)
+                    self.dial = self.dial_instance.get_dial()
+                    self.redis_virus.hset(self.md5_hash, "final_assesment", percentage + 5)
+                    self.run_for_linker = 0
 
         self.pe_linker = QGroupBox("PE Linker")
         title_linker = QLabel("PE Linker  <img src='images/info-32.png' width='20' height='20'>")
@@ -2073,14 +2491,16 @@ threat actor's samples""")
 
         # pe scan sections
         sections = pe_scan.scan_sections()
-        if self.run_for_sections == 1 and not self.run_for_start:
-            self.redis_virus.hset(self.md5_hash, "sections_test", pickle.dumps(sections))
-            self.redis_sections = self.redis_virus.get_key(self.md5_hash, "sections_test", True)
-            percentage = self.dial_instance.get_percentage()
-            self.dial_instance.setDialPercentage(percentage + int(len(self.redis_sections) * 0.5))
-            self.dial = self.dial_instance.get_dial()
-            self.redis_virus.hset(self.md5_hash, "final_assesment", percentage + int(len(self.redis_sections) * 0.5))
-            self.run_for_sections = 0
+        if self.save_in_data_base:
+            if self.run_for_sections == 1 and not self.run_for_start:
+                self.redis_virus.hset(self.md5_hash, "sections_test", pickle.dumps(sections))
+                self.redis_sections = self.redis_virus.get_key(self.md5_hash, "sections_test", True)
+                percentage = self.dial_instance.get_percentage()
+                self.dial_instance.setDialPercentage(percentage + int(len(self.redis_sections) * 0.5))
+                self.dial = self.dial_instance.get_dial()
+                self.redis_virus.hset(self.md5_hash, "final_assesment",
+                                      percentage + int(len(self.redis_sections) * 0.5))
+                self.run_for_sections = 0
 
         self.suspicious_imports = QGroupBox("Suspicious Imports")
         title = QLabel("Suspicious Imports  <img src='images/info-32.png' width='20' height='20'>")
@@ -2182,15 +2602,29 @@ The presence of both means the code itself can be changed dynamically
         for path in VTScan.scan_directory(self.dir, self.progress_bar_dir):
             try:
                 if path == "Path doesn't exist":
+                    stop_timer(500)
+                    self.my_path_object.invoke("Path Does not exists\nPlease Restart the window and choose a true "
+                                               "Directory")
                     return
                 if path == "stop":
+                    stop_timer(500)
+                    self.progress_bar_end.invoke(100)
                     self.movie_dir.stop()
                     self.description_for_search.setText("All Done !!")
                     break
+
+                if isinstance(path, int):
+                    stop_timer(200)
+                    self.progress_bar_end.invoke(path)
+                    continue
+
+                stop_timer(500)
                 self.suspicious_paths.addItem(str(path))
+                stop_timer(500)
             except SystemExit as e:
                 if e.code == -1073741819:
                     print("got this system exit")
+                    continue
 
     def activate_vt_scan_ip(self):
 
@@ -2208,12 +2642,19 @@ The presence of both means the code itself can be changed dynamically
                 result = subprocess.run(['python', 'use_for_block.py'] + block_ip, capture_output=True, text=True)
                 continue
 
+            if isinstance(block_ip, int):
+                stop_timer(200)
+                self.my_ip_object.invoke(block_ip)
+                continue
+
             if block_ip == "1.0.0.127":
                 continue
 
             item = QListWidgetItem(str(block_ip))
             # item.setFlags(item.flags() & ~Qt.ItemIsSelectable)
-            self.suspicious_ip.addItem(item)
+            if not any(item_list.text() == item.text() for item_list in
+                       self.suspicious_ip.findItems(item.text(), QtCore.Qt.MatchExactly)):
+                self.suspicious_ip.addItem(item)
 
     def scan_dir(self):
 
@@ -2229,8 +2670,9 @@ The presence of both means the code itself can be changed dynamically
                 border: 1px solid #ccc;
                 border-radius: 5px;
                 outline: none;
-                margin: 5px;
-                font-size: 20ע
+                margin: 25px;
+                font-size: 14px;
+                border: 5px solid #87CEFA;
             }
             QListWidget::item {
                 border: none;
@@ -2239,12 +2681,12 @@ The presence of both means the code itself can be changed dynamically
                 font-weight: 500;
                 color: #87CEFA;
             }
-            QListWidget::item[role=highlight] {
-                color: red;
-            }
-
+            
             QListWidget::item:hover {
                 background-color: #555;
+            }
+            QListWidget::item:selected {
+                background-color: #777;
             }
             """)
 
@@ -2293,15 +2735,38 @@ The presence of both means the code itself can be changed dynamically
 
         scrollBarPaths.setStyleSheet(scrollBarPaths_stylesheet)
         self.suspicious_paths.setVerticalScrollBar(scrollBarPaths)
-        self.suspicious_paths.setMaximumSize(550, 350)
-        self.movie_list.addWidget(self.suspicious_paths)
+
+        # self.suspicious_ip.setMaximumSize(350, 350)
+        self.v_box_for_search_dir = QVBoxLayout()
+        self.searchBar_for_dir = QLineEdit()
+
+        self.searchButton_for_dir = QPushButton(self)
+        pixmap = QPixmap("images/search.png")
+        self.searchButton_for_dir.setIcon(QIcon(pixmap))
+        self.searchButton_for_dir.setIconSize(QSize(15, 15))
+        self.searchButton_for_dir.setFixedSize(25, 25)
+
+        self.searchLayout_for_dir = QHBoxLayout()
+        self.searchLayout_for_dir.addWidget(self.searchBar_for_dir)
+        self.searchLayout_for_dir.addWidget(self.searchButton_for_dir)
+        self.searchLayout_for_dir.setContentsMargins(20, 10, 5, 0)
+        self.v_box_for_search_dir.addLayout(self.searchLayout_for_dir)
+        self.v_box_for_search_dir.addWidget(self.suspicious_paths)
+
+        # Connect the search bar to the search function
+        self.searchBar_for_dir.textChanged.connect(self.search_for_dir)
+
+        # self.suspicious_paths.setMaximumSize(550, 350)
+        self.movie_list.addLayout(self.v_box_for_search_dir)
         self.dir_layout.insertLayout(self.dir_layout.indexOf(self.description_progress) + 1, self.movie_list)
 
+        self.show_warning = False
         self.threadpool_vt.run = self.activate_vt_scan_dir
+        self.my_path_object = my_path_object()
+        self.my_path_object.path_not_found.connect(show_message_warning_box)
+        self.progress_bar_end = invoke_progress_bar_dir()
+        self.progress_bar_end.vt_scan_dir_signal.connect(self.progress_bar_dir.setValue)
         self.threadpool_vt.start()
-        self.threadpool_vt.wait()
-
-        show_message_warning_box()
 
     def show_movie(self):
 
@@ -2512,8 +2977,10 @@ The presence of both means the code itself can be changed dynamically
                 border: 1px solid #ccc;
                 border-radius: 5px;
                 outline: none;
-                margin: 5px;
-                font-size: 20ע
+                margin: 25px;
+                margin-left: 25px;
+                font-size: 14px;
+                border: 5px solid #87CEFA;
             }
             QListWidget::item {
                 border: none;
@@ -2534,16 +3001,63 @@ The presence of both means the code itself can be changed dynamically
                 background-color: #777;
             }
         """)
-            self.suspicious_ip.setMaximumSize(350, 350)
-            self.movie_list_ip.addWidget(self.suspicious_ip)
+            # self.suspicious_ip.setMaximumSize(350, 350)
+            self.v_box_for_search_ip = QVBoxLayout()
+            self.searchBar_for_ip = QLineEdit()
+
+            self.searchButton_for_ip = QPushButton(self)
+            pixmap = QPixmap("images/search.png")
+            self.searchButton_for_ip.setIcon(QIcon(pixmap))
+            self.searchButton_for_ip.setIconSize(QSize(15, 15))
+            self.searchButton_for_ip.setFixedSize(25, 25)
+
+            self.searchLayout_for_ip = QHBoxLayout()
+            self.searchLayout_for_ip.addWidget(self.searchBar_for_ip)
+            self.searchLayout_for_ip.addWidget(self.searchButton_for_ip)
+            self.searchLayout_for_ip.setContentsMargins(20, 10, 5, 0)
+            self.v_box_for_search_ip.addLayout(self.searchLayout_for_ip)
+            self.v_box_for_search_ip.addWidget(self.suspicious_ip)
+
+            # Connect the search bar to the search function
+            self.searchBar_for_ip.textChanged.connect(self.search_for_ip)
+
+            self.movie_list_ip.addLayout(self.v_box_for_search_ip)
             self.ip_layout.addLayout(self.movie_list_ip)
+
+            self.my_ip_object = invoke_progress_bar_ip()
+            self.my_ip_object.vt_scan_ip_signal.connect(self.progress_bar_ip.setValue)
             self.ip_thread.start()
             self.ip_visited = True
 
-    def quarantine(self):
+    def search_for_ip(self):
 
-        password_to_lock = "1233"
-        new_file_path = Quarantine.quarantine_file("virus.exe", "QURANTINE", password_to_lock)
+        # Get the search string from the QLineEdit
+        searchText = self.searchBar_for_ip.text().lower()
+
+        # Loop through all items in the QListWidget
+        for i in range(self.suspicious_ip.count()):
+            item = self.suspicious_ip.item(i)
+
+            # If the search string is found in the item text, highlight the item
+            if searchText in item.text().lower():
+                item.setSelected(True)
+            else:
+                item.setSelected(False)
+
+    def search_for_dir(self):
+
+        # Get the search string from the QLineEdit
+        searchText = self.searchBar_for_dir.text().lower()
+
+        # Loop through all items in the QListWidget
+        for i in range(self.suspicious_paths.count()):
+            item = self.suspicious_paths.item(i)
+
+            # If the search string is found in the item text, highlight the item
+            if searchText in item.text().lower():
+                item.setSelected(True)
+            else:
+                item.setSelected(False)
 
     def hash_analysis(self):
 
@@ -2570,14 +3084,15 @@ The presence of both means the code itself can be changed dynamically
         show_tree = True
         engines, malicious, undetected = vtscan.info(md5_hash)
 
-        if self.run_for_engines == 1 and not self.run_for_start:
-            self.redis_virus.hset(self.md5_hash, "num_of_engines", malicious)
-            self.redis_engines = self.redis_virus.get_key(self.md5_hash, "num_of_engines", False)
-            percentage = self.dial_instance.get_percentage()
-            self.dial_instance.setDialPercentage(percentage + int(int(self.redis_engines) / 3))
-            self.dial = self.dial_instance.get_dial()
-            self.redis_virus.hset(self.md5_hash, "final_assesment", percentage + int(int(self.redis_engines) / 3))
-            self.run_for_engines = 0
+        if self.save_in_data_base:
+            if self.run_for_engines == 1 and not self.run_for_start:
+                self.redis_virus.hset(self.md5_hash, "num_of_engines", malicious)
+                self.redis_engines = self.redis_virus.get_key(self.md5_hash, "num_of_engines", False)
+                percentage = self.dial_instance.get_percentage()
+                self.dial_instance.setDialPercentage(percentage + int(int(self.redis_engines) / 3))
+                self.dial = self.dial_instance.get_dial()
+                self.redis_virus.hset(self.md5_hash, "final_assesment", percentage + int(int(self.redis_engines) / 3))
+                self.run_for_engines = 0
 
         if engines == 0 and malicious == 0 and undetected == 0:
             show_tree = False
@@ -2602,8 +3117,10 @@ The presence of both means the code itself can be changed dynamically
             self.basic_info.setModel(model)
 
             # Set the column widths
-            self.basic_info.setColumnWidth(0, 300)
-            self.basic_info.setColumnWidth(1, 620)
+            # self.basic_info.setColumnWidth(0, 300)
+            # self.basic_info.setColumnWidth(1, 620)
+            self.basic_info.setMaximumSize(int(self.basic_info.width() * 1.59), self.basic_info.height())
+            self.basic_info.setMinimumSize(int(self.basic_info.width() * 1.59), self.basic_info.height())
 
             # Set the row heights
             for row in range(model.rowCount()):
@@ -2638,16 +3155,18 @@ The presence of both means the code itself can be changed dynamically
             self.basic_info.setStyleSheet(style_sheet)
             self.basic_info.setEditTriggers(QTableView.NoEditTriggers)
             self.basic_info.resizeColumnsToContents()
+            self.basic_info.resizeRowsToContents()
 
             # Allow the cells to be resized using the mouse
             self.basic_info.horizontalHeader().setSectionsMovable(True)
             self.basic_info.horizontalHeader().setSectionResizeMode(QHeaderView.Interactive)
-            self.basic_info.setMinimumSize(480, 240)
+            # self.basic_info.setMinimumSize(480, 240)
             self.hash_layout.addWidget(self.basic_info)
 
             self.virus_total_label = make_label("Virus Total Engine Results", 24)
             self.hash_layout.addWidget(self.virus_total_label)
             self.engine_tree.setVerticalScrollBar(self.create_scroll_bar())
+            self.we_are_sorry_label = make_label("", 20)
 
             # Add a top-level item for each engine
             for engine in engines:
@@ -2766,18 +3285,15 @@ The presence of both means the code itself can be changed dynamically
         else:
 
             # Create the label
-            label = QLabel("We're sorry, we couldn't upload your file to VirusTotal :(")
-
-            # Set the font color to red
-            label.setStyleSheet("color: red")
-
-            # Set the font to a bold italicized serif font
-            font = QFont("Zapfino", 18, QFont.Bold, True)
-            label.setFont(font)
-
-            # Add some padding to the label
-            label.setStyleSheet("QLabel { padding: 20px; }")
-            self.hash_layout.addWidget(label)
+            self.we_are_sorry_label = make_label("We are sorry, Virus total could not accept your file :(", 20)
+            font = QFont()
+            font.setBold(True)
+            font.setPointSize(21)
+            self.we_are_sorry_label.setFont(font)
+            palette = QPalette()
+            palette.setColor(QPalette.WindowText, QColor('red'))
+            self.we_are_sorry_label.setPalette(palette)
+            self.hash_layout.addWidget(self.we_are_sorry_label)
 
         self.page_layout.addLayout(self.hash_layout)
 
@@ -3349,32 +3865,35 @@ The presence of both means the code itself can be changed dynamically
             self.dynamic_layout.addWidget(self.tree_functions)
 
         # data base
-        if self.run_for_suspicious == 1 and not self.run_for_start:
-            self.redis_virus.hset(self.md5_hash, "suspicious_!", pickle.dumps(suspect_functions))
-            self.redis_suspicious = self.redis_virus.get_key(self.md5_hash, "suspicious_!", True)
-            percentage = self.dial_instance.get_percentage()
-            self.dial_instance.setDialPercentage(percentage + len(self.redis_suspicious))
-            self.dial = self.dial_instance.get_dial()
-            self.redis_virus.hset(self.md5_hash, "final_assesment", percentage + len(self.redis_suspicious))
-            self.run_for_suspicious = 0
+        if self.save_in_data_base:
+            if self.run_for_suspicious == 1 and not self.run_for_start:
+                self.redis_virus.hset(self.md5_hash, "suspicious_!", pickle.dumps(suspect_functions))
+                self.redis_suspicious = self.redis_virus.get_key(self.md5_hash, "suspicious_!", True)
+                percentage = self.dial_instance.get_percentage()
+                self.dial_instance.setDialPercentage(percentage + len(self.redis_suspicious))
+                self.dial = self.dial_instance.get_dial()
+                self.redis_virus.hset(self.md5_hash, "final_assesment", percentage + len(self.redis_suspicious))
+                self.run_for_suspicious = 0
 
-        if self.run_for_cpu == 1 and not self.run_for_start:
-            self.redis_virus.hset(self.md5_hash, "has_passed_cpu", pickle.dumps(has_passed_cpu_functions))
-            self.redis_cpu = self.redis_virus.get_key(self.md5_hash, "has_passed_cpu", True)
-            percentage = self.dial_instance.get_percentage()
-            self.dial_instance.setDialPercentage(percentage + len(self.redis_cpu))
-            self.dial = self.dial_instance.get_dial()
-            self.redis_virus.hset(self.md5_hash, "final_assesment", percentage + len(self.redis_cpu))
-            self.run_for_cpu = 0
+        if self.save_in_data_base:
+            if self.run_for_cpu == 1 and not self.run_for_start:
+                self.redis_virus.hset(self.md5_hash, "has_passed_cpu", pickle.dumps(has_passed_cpu_functions))
+                self.redis_cpu = self.redis_virus.get_key(self.md5_hash, "has_passed_cpu", True)
+                percentage = self.dial_instance.get_percentage()
+                self.dial_instance.setDialPercentage(percentage + len(self.redis_cpu))
+                self.dial = self.dial_instance.get_dial()
+                self.redis_virus.hset(self.md5_hash, "final_assesment", percentage + len(self.redis_cpu))
+                self.run_for_cpu = 0
 
-        if self.run_for_identifies == 1 and not self.run_for_start:
-            self.redis_virus.hset(self.md5_hash, "identifies", pickle.dumps(identified_functions))
-            self.redis_identifies = self.redis_virus.get_key(self.md5_hash, "identifies", True)
-            percentage = self.dial_instance.get_percentage()
-            self.dial_instance.setDialPercentage(percentage + len(self.redis_identifies))
-            self.dial = self.dial_instance.get_dial()
-            self.redis_virus.hset(self.md5_hash, "final_assesment", percentage + len(self.redis_identifies))
-            self.run_for_identifies = 0
+        if self.save_in_data_base:
+            if self.run_for_identifies == 1 and not self.run_for_start:
+                self.redis_virus.hset(self.md5_hash, "identifies", pickle.dumps(identified_functions))
+                self.redis_identifies = self.redis_virus.get_key(self.md5_hash, "identifies", True)
+                percentage = self.dial_instance.get_percentage()
+                self.dial_instance.setDialPercentage(percentage + len(self.redis_identifies))
+                self.dial = self.dial_instance.get_dial()
+                self.redis_virus.hset(self.md5_hash, "final_assesment", percentage + len(self.redis_identifies))
+                self.run_for_identifies = 0
 
         # Function Graph
         self.logs = []
@@ -3609,18 +4128,28 @@ The presence of both means the code itself can be changed dynamically
         events = EventViewer()
         events.handle_table()
         self.events_table = events.table
+        self.events_table.setMaximumSize(int(self.events_table.width() * 1.59), self.events_table.height())
+        self.events_table.setMinimumSize(int(self.events_table.width() * 1.59), self.events_table.height())
         self.events_table.resizeColumnsToContents()
-        self.events_table.setMinimumSize(450, 450)
+        self.events_table.resizeRowsToContents()
+        # self.events_table.setMinimumSize(450, 450)
         self.dynamic_layout.addWidget(self.events_table)
 
         # TODO- complete quarantine
+        # TODO- complete data base
         # TODO - complete python analysis - and then I am pretty much done
         # TODO - if wanna - go over log
 
 
 if __name__ == "__main__":
+    def on_exit():
+        print("Application is about to quit")
+        raise SystemExit
+
+
     app = QApplication(sys.argv)
     app.setStyleSheet(qss)
+    app.aboutToQuit.connect(on_exit)
     demo = AppDemo()
     demo.show()
     sys.exit(app.exec())

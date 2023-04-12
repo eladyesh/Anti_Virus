@@ -1,10 +1,22 @@
 import base64
 import os
 import shutil
+import sys
+import time
+
+import psutil
+import win32api
+import win32con
+import win32file
+import win32security
 from cryptography.fernet import Fernet
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 from cryptography.hazmat.primitives import hashes
 import ctypes
+import ntsecuritycon as con
+import stat
+
+from pyuac import main_requires_admin
 
 FILE_ATTRIBUTE_HIDDEN = 0x02
 
@@ -67,9 +79,22 @@ class Quarantine:
 
     @staticmethod
     def quarantine_file(file_path, quarantine_folder, password):
-        """Quarantine the file at the given path in the given quarantine folder and encrypt it with the given password."""
+        """Quarantine the file at the given path in the given quarantine folder and encrypt it with the given
+        password. """
 
-        # Create the quarantine folder if it doesn't exist
+        # Get the current user's SID
+        user = win32api.GetUserName()
+        domain = win32api.GetComputerName()
+        sid, domain, type = win32security.LookupAccountName("", user)
+
+        # create a new ACE
+        ace = win32security.ACL()
+        ace.AddAccessAllowedAce(win32security.ACL_REVISION, win32file.FILE_GENERIC_READ, sid)
+
+        # create a new security descriptor with the ACE
+        sd = win32security.SECURITY_DESCRIPTOR()
+        sd.SetSecurityDescriptorDacl(1, ace, 0)
+
         if not os.path.exists(quarantine_folder):
             os.makedirs(quarantine_folder)
 
@@ -119,5 +144,21 @@ class Quarantine:
 
 
 if __name__ == "__main__":
-    # new_file_path = Quarantine.quarantine_file("virus.exe", "q", "1234")
-    Quarantine.restore_file("q/virus.exe", "q", "1234")
+
+    for process in psutil.process_iter(['pid', 'name', 'cmdline']):
+        try:
+            process_info = process.as_dict(attrs=['pid', 'name', 'cmdline'])
+        except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
+            pass
+        else:
+            process_name = process_info['name']
+            process_cmdline = process_info['cmdline']
+            if process_name == "python.exe" and "quarantine.py" not in process_cmdline:
+                process.terminate()
+                break
+
+    if not os.path.exists("Found_Virus"):
+        new_file_path = Quarantine.quarantine_file("virus.exe", "Found_Virus", "1234")
+        Quarantine.hide("Found_Virus")
+
+    # Quarantine.restore_file("Found_Virus/virus.exe", "Found_virus", "1234")

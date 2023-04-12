@@ -24,12 +24,8 @@ class Packers:
     def programming_language(path):
 
         allow_languages = ["Microsoft Visual C#", ".NET", "C++", "C#"]
-        py_signature = ".py"
 
-        if path.endswith(py_signature):
-            return True
-
-        if os.path.getsize(path) / 1024 > 6000:
+        if os.path.getsize(path) > 6000 * 1024:
             return "py"
 
         packers = []
@@ -42,4 +38,4 @@ class Packers:
 
 
 if __name__ == '__main__':
-    print(Packers.programming_language("exe\\virus.exe"))
+    print(Packers.programming_language(os.path.abspath("exe\\c#_virus.exe")))

@@ -20,7 +20,9 @@ import logging
 # Configure the logger
 logging.basicConfig(level=logging.INFO)
 
-ip_for_server = socket.gethostbyname_ex(socket.gethostname())[-1][-1]
+# ip_for_server = socket.gethostbyname_ex(socket.gethostname())[-1][-1] # --> lab
+ip_for_server = socket.gethostbyname_ex(socket.gethostname())[-1][0]  # --> home
+
 
 class RequestHandler(BaseHTTPRequestHandler):
     # def do_GET(self):
@@ -43,7 +45,6 @@ class RequestHandler(BaseHTTPRequestHandler):
     #     self.wfile.write(b"</html>")
 
     def do_GET(self):
-
         self.send_response(200)
         self.send_header('Content-type', 'text/html')
         self.end_headers()
@@ -53,30 +54,44 @@ class RequestHandler(BaseHTTPRequestHandler):
         <html>
             <head>
                 <meta charset="UTF-8">
-                <title>My Page</title>
+                <title>WARNING: Suspicious Website</title>
                 <style>
                     body {
-                        background-color: #f2f2f2;
+                        background-color: #000000;
                         font-family: Arial, sans-serif;
-                        color: #444;
+                        color: #ffffff;
                     }
                     h1 {
                         margin-top: 70px;
-                        font-size: 4em;
+                        font-size: 6em;
                         text-align: center;
-                        text-shadow: 2px 2px #ccc;
+                        text-shadow: 2px 2px #ff0000;
                     }
                     p {
-                        font-size: 2em;
+                        font-size: 3em;
                         text-align: center;
                         margin: 0.5em 0;
+                        text-shadow: 2px 2px #ff0000;
+                    }
+                    img {
+                        display: block;
+                        margin: 0 auto;
+                        max-width: 100%;
+                        height: auto;
+                        filter: grayscale(100%);
+                        opacity: 0.5;
+                        transition: opacity 0.5s ease-in-out;
+                    }
+                    img:hover {
+                        opacity: 1;
                     }
                 </style>
             </head>
             <body>
-                <h1>Hello User</h1>
+                <h1>WARNING: Suspicious Website</h1>
                 <p>You have entered a website that was found suspicious by my AntiVirus</p>
                 <p>You will now not be able to access this website</p>
+                <img src="https://cdn-icons-png.flaticon.com/512/3786/3786785.png" alt="Warning sign">
             </body>
         </html>
         '''
@@ -90,7 +105,6 @@ def start_server():
 
 @main_requires_admin
 def main():
-
     # Define color codes
     BLUE = 9
     GREEN = 10

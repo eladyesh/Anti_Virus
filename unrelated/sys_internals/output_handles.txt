@@ -3,49 +3,49 @@ Nthandle v5.0 - Handle viewer
 Copyright (C) 1997-2022 Mark Russinovich
 Sysinternals - www.sysinternals.com
 
-    4: Event         
-    8: Event         
-    C: WaitCompletionPacket 
-   10: IoCompletion  
-   14: TpWorkerFactory 
-   18: IRTimer       
+    4: File  (---)   \Device\ConDrv\Reference
+    8: File  (---)   \Device\ConDrv\Input
+    C: File  (---)   \Device\ConDrv\Output
+   10: File  (---)   \Device\ConDrv\Output
+   14: Event         
+   18: Event         
    1C: WaitCompletionPacket 
-   20: IRTimer       
-   24: WaitCompletionPacket 
-   28: EtwRegistration 
-   2C: EtwRegistration 
-   30: EtwRegistration 
-   34: Event         
-   38: Event         
-   3C: Directory     \KnownDlls
-   40: File  (RW-)   C:\Windows
-   44: Event         
-   48: Directory     \KnownDlls32
-   4C: Event         
-   50: WaitCompletionPacket 
-   54: IoCompletion  
-   58: TpWorkerFactory 
-   5C: IRTimer       
-   60: WaitCompletionPacket 
-   64: IRTimer       
+   20: IoCompletion  
+   24: TpWorkerFactory 
+   28: IRTimer       
+   2C: WaitCompletionPacket 
+   30: IRTimer       
+   34: WaitCompletionPacket 
+   38: EtwRegistration 
+   3C: EtwRegistration 
+   40: EtwRegistration 
+   44: Directory     \Sessions\1\BaseNamedObjects
+   48: Mutant        \Sessions\1\BaseNamedObjects\SM0:2224:168:WilStaging_02
+   4C: Directory     \KnownDlls
+   50: Event         
+   54: Event         
+   58: File  (RW-)   C:\Windows
+   5C: Event         
+   60: Directory     \KnownDlls32
+   64: Event         
    68: WaitCompletionPacket 
-   6C: EtwRegistration 
-   70: EtwRegistration 
-   74: EtwRegistration 
-   78: Event         
-   7C: Event         
-   80: Directory     \KnownDlls32
-   84: File  (RW-)   \Device\Mup\;Z:0000000000024fca\vmware-host\Shared Folders\E\Cyber\YB_CYBER\project\FinalProject\poc_start\poc_start
-   88: File  (---)   \Device\ConDrv\Input
-   8C: File  (---)   \Device\ConDrv\Reference
-   90: ALPC Port     
-   94: File  (---)   \Device\ConDrv\Connect
-   98: File  (---)   \Device\ConDrv\Output
-   9C: File  (---)   \Device\ConDrv\Output
-   A0: EtwRegistration 
-   A4: Mutant        \Sessions\1\BaseNamedObjects\SM0:3924:168:WilStaging_02
-   A8: Directory     \Sessions\1\BaseNamedObjects
-   AC: Semaphore     \Sessions\1\BaseNamedObjects\SM0:3924:168:WilStaging_02_p0
+   6C: IoCompletion  
+   70: TpWorkerFactory 
+   74: IRTimer       
+   78: WaitCompletionPacket 
+   7C: IRTimer       
+   80: WaitCompletionPacket 
+   84: EtwRegistration 
+   88: EtwRegistration 
+   8C: EtwRegistration 
+   90: Event         
+   94: Event         
+   98: Directory     \KnownDlls32
+   9C: File  (RW-)   \Device\Mup\;Z:0000000000039e91\vmware-host\Shared Folders\E\Cyber\YB_CYBER\project\FinalProject\poc_start\poc_start
+   A0: File  (---)   \Device\ConDrv\Connect
+   A4: EtwRegistration 
+   A8: ALPC Port     
+   AC: Semaphore     \Sessions\1\BaseNamedObjects\SM0:2224:168:WilStaging_02_p0
    B0: EtwRegistration 
    B4: EtwRegistration 
    B8: EtwRegistration 
@@ -55,31 +55,30 @@ Sysinternals - www.sysinternals.com
    C8: WaitCompletionPacket 
    CC: IRTimer       
    D0: WaitCompletionPacket 
-   D4: EtwRegistration 
-   D8: EtwRegistration 
-   DC: Event         
-   E0: Key           HKLM\SYSTEM\ControlSet001\Control\Session Manager
+   D4: Key           HKLM\SYSTEM\ControlSet001\Control\Session Manager
+   D8: Key           HKLM\SYSTEM\ControlSet001\Control\Nls\Sorting\Versions
+   DC: EtwRegistration 
+   E0: EtwRegistration 
    E4: EtwRegistration 
-   E8: Key           HKLM\SYSTEM\ControlSet001\Control\Nls\Sorting\Versions
+   E8: EtwRegistration 
    EC: EtwRegistration 
    F0: EtwRegistration 
    F4: EtwRegistration 
    F8: EtwRegistration 
-   FC: EtwRegistration 
-  100: Event         
-  104: WaitCompletionPacket 
-  108: Key           HKLM
-  10C: Key           HKLM\SOFTWARE\Policies\Microsoft\Windows Defender
-  110: Key           HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Real-Time Protection
-  114: Key           HKCU
-  118: Key           HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Run
-  11C: Thread        virus.exe(3924): 1436
+   FC: Event         
+  100: WaitCompletionPacket 
+  104: Key           HKLM
+  108: Key           HKLM\SOFTWARE\Policies\Microsoft\Windows Defender
+  10C: Key           HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Real-Time Protection
+  110: Key           HKCU
+  114: Key           HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Run
+  118: File  (---)   \Device\Afd
+  11C: Thread        virus.exe(2224): 2868
   120: Event         
   124: Key           HKLM\SYSTEM\ControlSet001\Services\WinSock2\Parameters\Protocol_Catalog9
-  128: Key           HKLM\SYSTEM\ControlSet001\Services\WinSock2\Parameters\NameSpace_Catalog5
-  12C: File  (---)   \Device\Afd
-  130: File  (---)   \Device\Afd
-  138: EtwRegistration 
-  13C: Event         
-  140: File  (---)   \Device\Afd
-  144: File  (---)   \Device\Afd
+  128: Event         
+  12C: Key           HKLM\SYSTEM\ControlSet001\Services\WinSock2\Parameters\NameSpace_Catalog5
+  130: EtwRegistration 
+  134: Event         
+  138: File  (---)   \Device\Afd
+  13C: File  (---)   \Device\Afd

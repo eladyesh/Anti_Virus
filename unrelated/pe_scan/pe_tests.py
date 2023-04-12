@@ -343,8 +343,11 @@ class ScanPE:
         # Elements in rich_fields at even indices are @Comp.IDs
         # Elements in rich_fields at odd indices are counts
 
-        rich_fields = copy.deepcopy(rich_header.get("values", None))
-        if len(rich_fields) % 2 != 0:
+        try:
+            rich_fields = copy.deepcopy(rich_header.get("values", None))
+            if len(rich_fields) % 2 != 0:
+                return result.UNABLE_TO_PARSE
+        except:
             return result.UNABLE_TO_PARSE
 
         # Get list of ProdIDs from rich_fields
@@ -391,6 +394,11 @@ class ScanPE:
 
         dlls = dict({})
         headers = run_command(os.path.abspath("exe\\peScan.exe").replace("graphics", "pe_scan") + " " + self.path)[0]
+        if headers == "":
+            return {}
+        # headers = run_command(r"D:\Cyber\YB_CYBER\project\FinalProject\poc_start\poc_start\unrelated\pe_scan\exe"
+        #                       r"\peScan.exe "
+        #           r"D:\Cyber\YB_CYBER\project\FinalProject\poc_start\poc_start\unrelated\graphics\virus.exe")
         headers = headers.split("\n\n")[-1].split("\n")[1:]
         headers = [line.replace("\t\t", "") for line in headers]
         headers = " ".join(headers).split("\t")[1:]
@@ -411,24 +419,26 @@ class ScanPE:
 
 
 def check_for_fractioned_imports(dlls):
-    fractioned = []
-    prefix_counter = Counter()
-    for library in dlls.keys():
-        print(library)
-        prefix = library[2][:3]
-        prefix_counter[prefix] += 1
+    try:
+        fractioned = []
+        prefix_counter = Counter()
+        for library in dlls.keys():
+            print(library)
+            prefix = library[2][:3]
+            prefix_counter[prefix] += 1
 
-    most_common_prefix = prefix_counter.most_common(1)[0][0]
-    for library in dlls.keys():
-        if not library[2].startswith(most_common_prefix):
-            fractioned.append(library[0])
+        most_common_prefix = prefix_counter.most_common(1)[0][0]
+        for library in dlls.keys():
+            if not library[2].startswith(most_common_prefix):
+                fractioned.append(library[0])
+    except IndexError:
+        return []
 
     return fractioned
 
 
-
 if __name__ == '__main__':
-    pe_scan = ScanPE("exe\\virus.exe")
+    pe_scan = ScanPE("exe\\nop.exe")
     print(pe_scan.run_pe_scan_exe())
 
     # Scan for write and execute flags

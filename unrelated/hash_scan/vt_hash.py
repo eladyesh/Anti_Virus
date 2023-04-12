@@ -16,10 +16,11 @@ import re
 from http.server import HTTPServer, BaseHTTPRequestHandler
 import socket
 from functools import wraps
-
-from PyQt5.QtCore import QThread
+from poc_start.unrelated.graphics.helpful_widgets import MessageBox, stop_timer
+from PyQt5.QtCore import QThread, QTimer, QEventLoop
 
 ip_for_server = socket.gethostbyname_ex(socket.gethostname())[-1][0]
+
 
 def run_as_admin(func):
     @wraps(func)
@@ -273,7 +274,10 @@ class VTScan:
                     yield ip
 
             try:
-                progress_bar_ip.setValue(int((i + 1) / len_ip * 100))
+                stop_timer(200)
+                # progress_bar_ip.setValue(int((i + 1) / len_ip * 100))
+                yield int((i + 1) / len_ip * 100)
+                stop_timer(200)
                 if int((i + 1) / len_ip * 100) == 100:
                     yield "stop"
             except:
@@ -284,6 +288,11 @@ class VTScan:
 
     @staticmethod
     def scan_directory(path, progress_bar):
+
+        if path == "":
+            yield "Path doesn't exist"
+            return
+
         print("Got here")
         headers = {
             "x_apikey": VT_API_KEY,  # api key
@@ -321,6 +330,7 @@ class VTScan:
                             print("completed")
                             print(analyse_result["data"]["attributes"]["stats"])
                             if analyse_result["data"]["attributes"]["stats"]["malicious"] > 5:
+                                stop_timer(100)
                                 yield os.path.abspath(filename.path)
                         elif status == "queued":
                             print("qoued")
@@ -345,9 +355,16 @@ class VTScan:
                 else:
                     print("Could not upload successfully")
 
-                progress_bar.setValue(int((i + 1) / num_files * 100))
                 if int((i + 1) / num_files * 100) == 100:
+                    stop_timer(500)
+                    print("got to stop")
                     yield "stop"
+                    return
+
+                stop_timer(200)
+                # progress_bar.setValue(int((i + 1) / num_files * 100))
+                yield int((i + 1) / num_files * 100)
+                stop_timer(200)
 
     def info(self, file_hash):
         """

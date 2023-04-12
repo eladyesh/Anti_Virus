@@ -98,7 +98,6 @@ def entropy_vs_normal(path):
     res.append(file_entropy)  # the last elem will be file entropy
     return res
 
-
 if __name__ == "__main__":
     #   print(f"Entropy for virus.exe: {entropy_for_file('exe//virus.exe')}")
     #   print(f"Entropy for virus_encrypted.exe: {entropy_for_file('exe//virus_encrypted.exe')}")

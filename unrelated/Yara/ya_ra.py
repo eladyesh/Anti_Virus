@@ -14,7 +14,7 @@ class YaraChecks:
         packers_virus = packers_rules.match(exe)
         packers = {}
 
-        # packers_upx = packers_rules.match("upx_ADExplorer.exe")
+        # packers_upx = packers_rules.match("virus.exe")
 
         for rule in packers_virus:
             packers[rule] = rule.tags
