@@ -1106,8 +1106,9 @@ struct KeyBoard_HOOKING
         while (cpuUsage > 100.0) cpuUsage -= 70.0;
         if (cpuUsage > cpuPermitted) LOG("Has passed permitted cpu", "");
         LOG("The current cpu usage percantage [%] is ", cpuUsage);
+        LOG("The number of times user is trying to set a hook on a function is ", fnCounter[suspicious_functions[index]]);
 
-        LOG("\n----------Done intercepting call to SetWindowsHookExA----------\n\n", "");
+        LOG("\n----------Done intercepting call to SetWindowsHookExA----------\n\n\n\n\n", "");
 
         WriteProcessMemory(GetCurrentProcess(), (LPVOID)addresses[index], original[index], 6, NULL);
         HHOOK hHook = SetWindowsHookExA(idHook, lpfn, hMod, dwThreadId);
@@ -1137,8 +1138,9 @@ struct KeyBoard_HOOKING
         while (cpuUsage > 100.0) cpuUsage -= 70.0;
         if (cpuUsage > cpuPermitted) LOG("Has passed permitted cpu", "");
         LOG("The current cpu usage percantage [%] is ", cpuUsage);
+        LOG("The number of times user is trying to get the keyboard state is ", fnCounter[suspicious_functions[index]]);
 
-        LOG("\n----------Done intercepting call to GetKeyboardState----------\n\n", "");
+        LOG("\n----------Done intercepting call to GetKeyboardState----------\n\n\n\n\n", "");
 
         WriteProcessMemory(GetCurrentProcess(), (LPVOID)addresses[index], original[index], 6, NULL);
         BOOL b = GetKeyboardState(lpKeyState);
@@ -1178,8 +1180,9 @@ struct KeyBoard_HOOKING
         while (cpuUsage > 100.0) cpuUsage -= 70.0;
         if (cpuUsage > cpuPermitted) LOG("Has passed permitted cpu", "");
         LOG("The current cpu usage percantage [%] is ", cpuUsage);
+        LOG("The number of times user is trying to set a file pointer is ", fnCounter[suspicious_functions[index]]);
 
-        LOG("\n----------Done intercepting call to SetFilePointer----------\n\n", "");
+        LOG("\n----------Done intercepting call to SetFilePointer----------\n\n\n\n\n", "");
 
         WriteProcessMemory(GetCurrentProcess(), (LPVOID)addresses[index], original[index], 6, NULL);
         DWORD d = SetFilePointer(hFile, lDistanceToMove, lpDistanceToMoveHigh, dwMoveMethod);
