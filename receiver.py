@@ -2,6 +2,9 @@ import struct
 from socket import socket, AF_INET, SOCK_STREAM
 import os
 from subprocess import Popen
+
+import psutil
+
 from unrelated.sys_internals.extract import SysInternals
 
 #os.system(r'python D:\\Cyber\\YB_CYBER\\project\\FinalProject\\poc_start\\poc_start\\unrelated\\vt_hash.py')
@@ -36,6 +39,11 @@ os.system('..')
 os.system('Z:\\E\\Cyber\\YB_CYBER\\project\\FinalProject\\poc_start\\poc_start')
 os.startfile('Z:\\E\\Cyber\\YB_CYBER\\project\\FinalProject\\poc_start\\poc_start\\poc_start.exe')
 a = input()
+
+# while "poc_start.exe" in [p.name() for p in psutil.process_iter()]:
+#     pass
+# while "virus.exe" in [p.name() for p in psutil.process_iter()]:
+#     pass
 
 
 while not os.path.exists("LOG.txt") and not os.path.exists("LOG_MEMORY.txt"):

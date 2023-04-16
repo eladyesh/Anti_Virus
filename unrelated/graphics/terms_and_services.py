@@ -133,7 +133,16 @@ If you wish to directly load the file for static and hash analysis, press the "L
 of these features, since they will be locked.
 
 4. Directory Analysis
+If you wish to pick this option, you will choose a directory, and each of the files
+will be sent to Virus Total. If more than 5 engines of the website found any of the files as malicious, 
+You will see them in the list in the right of the screen
+
 5. IP Analysis
+If you wish to pick this option, each of the IP's from your DNS cache will be uploaded to Virus Total,
+and if more than 5 engines found the IP as malicious, the system will block that IP, 
+and the system will present it to the right of the screen. When the scanning is over,
+the system will open a different process to block the IP's that were found malicious. If you agree
+to the opening, these IP's will now be blocked.
 
 6. Further Notice
 Every Analysis done in this application will be deleted COMPLETELY once you move to a new window.

@@ -8,7 +8,7 @@ The requested access to the file or device is 1073741824
 The requested sharing mode of the file or device is 0
 An action to take on a file or device that exists or does not exist is CREATE_NEW
 The Flags and Attributes that user is trying for the file are NORMAL
-Time difference since attachment of hooks in [s] is 2.040892900
+Time difference since attachment of hooks in [s] is 2.038483100
 The current cpu usage percantage [%] is 0
 The number of times user is trying to create a file is 1
 
@@ -27,7 +27,7 @@ The requested access to the file or device is 1073741824
 The requested sharing mode of the file or device is 0
 An action to take on a file or device that exists or does not exist is CREATE_NEW
 The Flags and Attributes that user is trying for the file are NORMAL
-Time difference since attachment of hooks in [s] is 2.042442700
+Time difference since attachment of hooks in [s] is 5.932788900
 The current cpu usage percantage [%] is 0
 The number of times user is trying to create a file is 2
 
@@ -46,7 +46,7 @@ The name of the registry subkey to be opened is SOFTWARE\Policies\Microsoft\Wind
 The option to apply when opening the key is 0
 A mask that specifies the desired access rights to the key to be opened is KEY_ALL_ACCESS
 EXE is trying to access a suspicious registry key!
-Time difference since attachment of hooks in [s] is 2.044149700
+Time difference since attachment of hooks in [s] is 5.933382800
 The current cpu usage percantage [%] is 0
 The number of times user is trying to open a registry key is 1
 
@@ -64,7 +64,7 @@ The key opened is 00000000
 The name of the value to be set is DisableAntiSpyware
 The type of data set is REG_DWORD
 The data to be stored is 
-Time difference since attachment of hooks in [s] is 2.044726500
+Time difference since attachment of hooks in [s] is 5.933799800
 The current cpu usage percantage [%] is 0
 The number of times user is trying to set a registry key is 1
 
@@ -82,7 +82,7 @@ The key opened is 00000000
 The name of a subkey that this function opens or createsReal-Time Protection
 This key is not volatile
 A mask that specifies the desired access rights to the key to be opened is KEY_ALL_ACCESS
-Time difference since attachment of hooks in [s] is 2.045226800
+Time difference since attachment of hooks in [s] is 5.934172400
 The current cpu usage percantage [%] is 0
 The number of times user is trying to create a registry key is 1
 
@@ -101,7 +101,7 @@ The name of the registry subkey to be opened is Software\Microsoft\Windows\Curre
 The option to apply when opening the key is 0
 A mask that specifies the desired access rights to the key to be opened is KEY_ALL_ACCESS
 EXE is trying to access a suspicious registry key!
-Time difference since attachment of hooks in [s] is 2.045817100
+Time difference since attachment of hooks in [s] is 5.934603200
 The current cpu usage percantage [%] is 0
 The number of times user is trying to open a registry key is 2
 
@@ -119,7 +119,7 @@ The key opened is 80000002
 The name of a subkey that this function opens or creates is SOFTWARE\Microsoft\Windows NT\CurrentVersion
 The name of the Registry Value Name this function is trying to reach is SystemRoot
 The specified flags for this questions is RRF_RT_ANY
-Time difference since attachment of hooks in [s] is 2.046398600
+Time difference since attachment of hooks in [s] is 5.935035400
 The current cpu usage percantage [%] is 0
 The Registry Value Data this function was trying to get to is C:\WINDOWS
 The number of times user is trying to get a registry value is 1
@@ -136,7 +136,7 @@ The number of times user is trying to get a registry value is 1
 
 The address family specification is (IPv4) address family - AF_INET
 The type specification for the new socket is TCP SOCK_STREAM
-Time difference since attachment of hooks in [s] is 2.047856400
+Time difference since attachment of hooks in [s] is 5.936103100
 The current cpu usage percantage [%] is 0
 The number of times user is trying to create a socket is 1
 
@@ -153,8 +153,9 @@ The number of times user is trying to create a socket is 1
 EXE is trying to connect through a suspicious port!
 The address socket is trying to connect to is 142.250.186.68
 The port socket is using to connect is 80
-Time difference since attachment of hooks in [s] is 2.049095400
-The current cpu usage percantage [%] is 0
+Time difference since attachment of hooks in [s] is 5.937107800
+Has passed permitted cpu
+The current cpu usage percantage [%] is 60.5347
 The number of times user is trying to connect to another socket is 1
 
 ----------Done intercepting call to connect----------
@@ -169,7 +170,7 @@ The number of times user is trying to connect to another socket is 1
 
 The address family specification is (IPv4) address family - AF_INET
 The type specification for the new socket is TCP SOCK_STREAM
-Time difference since attachment of hooks in [s] is 2.119390900
+Time difference since attachment of hooks in [s] is 6.009191500
 The current cpu usage percantage [%] is 0
 The number of times user is trying to create a socket is 2
 
@@ -185,7 +186,7 @@ The number of times user is trying to create a socket is 2
 
 The address socket is trying to connect to is 142.250.186.68
 The port socket is using to connect is 81
-Time difference since attachment of hooks in [s] is 2.120015500
+Time difference since attachment of hooks in [s] is 6.009863000
 The current cpu usage percantage [%] is 0
 The number of times user is trying to connect to another socket is 2
 
@@ -201,7 +202,7 @@ The number of times user is trying to connect to another socket is 2
 
 The address family specification is (IPv4) address family - AF_INET
 The type specification for the new socket is TCP SOCK_STREAM
-Time difference since attachment of hooks in [s] is 2.3149300000
+Time difference since attachment of hooks in [s] is 2.7032962300
 The current cpu usage percantage [%] is 0
 The number of times user is trying to create a socket is 3
 
@@ -220,7 +221,7 @@ The port socket is using to connect is 82
 
 ----------IDENTIFIED PORT SCANNING----------
 
-Time difference since attachment of hooks in [s] is 2.3152420100
+Time difference since attachment of hooks in [s] is 2.7034731400
 The current cpu usage percantage [%] is 0
 The number of times user is trying to connect to another socket is 3
 
@@ -236,7 +237,7 @@ The number of times user is trying to connect to another socket is 3
 
 The address family specification is (IPv4) address family - AF_INET
 The type specification for the new socket is TCP SOCK_STREAM
-Time difference since attachment of hooks in [s] is 4.4188766600
+Time difference since attachment of hooks in [s] is 4.8069531400
 The current cpu usage percantage [%] is 0
 The number of times user is trying to create a socket is 4
 
@@ -253,7 +254,7 @@ The number of times user is trying to create a socket is 4
 EXE is trying to connect through a suspicious port!
 The address socket is trying to connect to is 142.250.186.68
 The port socket is using to connect is 80
-Time difference since attachment of hooks in [s] is 4.4190247600
+Time difference since attachment of hooks in [s] is 4.8072660700
 The current cpu usage percantage [%] is 0
 The number of times user is trying to connect to another socket is 4
 
@@ -271,7 +272,7 @@ The buffer wanted to be send is GET / HTTP/1.1
 
 
 The length of the buffer is 18
-Time difference since attachment of hooks in [s] is 4.4258370400
+Time difference since attachment of hooks in [s] is 4.8145011100
 The current cpu usage percantage [%] is 0
 The number of times user is trying to send message via socket is 1
 
@@ -288,29 +289,29 @@ The number of times user is trying to send message via socket is 1
 The buffer socket recieved is 
 
 HTTP/1.1 200 OK
-Date: Fri, 14 Apr 2023 17:50:56 GMT
+Date: Sun, 16 Apr 2023 17:14:50 GMT
 Expires: -1
 Cache-Control: private, max-age=0
 Content-Type: text/html; charset=ISO-8859-1
-Content-Security-Policy-Report-Only: object-src 'none';base-uri 'self';script-src 'nonce-BAu4gurVlwemXcSrkuoqHg' 'strict-dynamic' 'report-sample' 'unsafe-eval' 'unsafe-inline' https: http:;report-uri https://csp.withgoogle.com/csp/gws/other-hp
+Content-Security-Policy-Report-Only: object-src 'none';base-uri 'self';script-src 'nonce-8PfudVH8_t4TF56XK9uRaw' 'strict-dynamic' 'report-sample' 'unsafe-eval' 'unsafe-inline' https: http:;report-uri https://csp.withgoogle.com/csp/gws/other-hp
 P3P: CP="This is not a P3P policy! See g.co/p3phelp for more info."
 Server: gws
 X-XSS-Protection: 0
 X-Frame-Options: SAMEORIGIN
-Set-Cookie: 1P_JAR=2023-04-14-17; expires=Sun, 14-May-2023 17:50:56 GMT; path=/; domain=.google.com; Secure
-Set-Cookie: AEC=AUEFqZc-aK147bU_jJ7Z9EXuO3JW4b6kn8CQVkPZR3z9CWuWxQD-telmjQ; expires=Wed, 11-Oct-2023 17:50:56 GMT; path=/; domain=.google.com; Secure; HttpOnly; SameSite=lax
-Set-Cookie: NID=511=hWXCBDrXKcW2o4wqsa5g60ZSyMsXQ_wAVGa08PAKCxMWFKuZ01IFszvKJf1eJJPgVi-YUiq4pQVio244jLxerCQhjZh3ByzeSwM58DFQyC_438rPRQl2ZecmvEOWfvV_FiR8Il1eP4hvUenh4yYLgbzfODOX97f7TwTowV46N94; expires=Sat, 14-Oct-2023 17:50:56 GMT; path=/; domain=.google.com; HttpOnly
+Set-Cookie: 1P_JAR=2023-04-16-17; expires=Tue, 16-May-2023 17:14:50 GMT; path=/; domain=.google.com; Secure
+Set-Cookie: AEC=AUEFqZdh_si2BX6noNjeztzejSr5or0hIQ2mBnVOTEGOoeX4RU2JR5VAp7Q; expires=Fri, 13-Oct-2023 17:14:50 GMT; path=/; domain=.google.com; Secure; HttpOnly; SameSite=lax
+Set-Cookie: NID=511=TTh0IyDLItfymycUJSGMurFOf7gWFdoNOOC4w76slGeRbij-peZqnEsrNZSnH20xhBMYI4PTS0pKwTYst9ljNb65F5BkFNfEDmko2aweS951cnpuJV4GAHBb4M7UkRFrCM3Pm5Jpf52saYApKf2xmjPfJtTIFa12FSF0-9Vyv4Y; expires=Mon, 16-Oct-2023 17:14:50 GMT; path=/; domain=.google.com; HttpOnly
 Accept-Ranges: none
 Vary: Accept-Encoding
 Transfer-Encoding: chunked
 
-564a
-<!doctype html><html dir="rtl" itemscope="" itemtype="http://schema.org/WebPage" lang="iw"><head><meta content="text/html; charset=UTF-8" http-equiv="Content-Type"><meta content="/images/branding/googleg/1x/googleg_standard_color_128dp.png" itemprop="image"><title>Google</title><script nonce="BAu4gurVlwemXcSrkuoqHg">(function(){window.google={kEI:'gJI5ZPQRrdzFzw_935iwBg',kEXPI:'0,1359409,6058,207,4804,2316,383,246,5,1129120,1197709,692,380090,16111,28687,22431,1361,12312,4753,12834,4998,13228,3847,39333,1983,2891,3926,213,7615,606,76446,3,346,230,20583,4,1528,2304,38934,3193,13658,21223,5800,2557,4094,7596,1,42154,2,14022,25739,5679,1020,31123,4568,6258,23418,1252,5835,14968,4332,13,7471,445,2,2,1,26632,8155,7381,3,1,15965,873,19636,5,1922,9779,5864,15526,14764,6305,20199,15605,4531,14,82,20206,1622,1778,4977,1747,19518,2107,991,3
+544e
+<!doctype html><html dir="rtl" itemscope="" itemtype="http://schema.org/WebPage" lang="iw"><head><meta content="text/html; charset=UTF-8" http-equiv="Content-Type"><meta content="/images/branding/googleg/1x/googleg_standard_color_128dp.png" itemprop="image"><title>Google</title><script nonce="8PfudVH8_t4TF56XK9uRaw">(function(){window.google={kEI:'Ci08ZJjzCN_H0PEPtvqDsAg',kEXPI:'0,1303424,55985,6058,207,4804,2316,383,246,5,1129120,1197758,643,380090,16114,19398,9286,22431,1361,12317,17582,4998,13228,3847,38444,885,1987,2891,3926,214,7614,606,60690,2614,13142,3,346,230,20583,4,1528,2304,42127,13658,4437,16786,5806,2551,4094,7596,1,42154,2,14022,25739,5679,1020,31122,4569,6258,17110,6308,1252,5835,14967,4333,13,7471,445,2,2,1,23827,10960,7381,3,1,15965,873,19634,7,1922,9779,20639,752,1508,13255,6305,20198,6050,14087,14,82,20206,162
 
 
 
 The length of the buffer is 2000
-Time difference since attachment of hooks in [s] is 4.4381909300
+Time difference since attachment of hooks in [s] is 4.8438971800
 The current cpu usage percantage [%] is 0
 The number of times user is trying to receive a buffer is 1
 
@@ -325,10 +326,9 @@ The number of times user is trying to receive a buffer is 1
 
 
 The path to the file that is to be deleted is E:\Cyber\YB_CYBER\project\FinalProject\De_Bug\De_Bug\hello.txt
-Time difference since attachment of hooks in [s] is 4.4382914000
+Time difference since attachment of hooks in [s] is 4.8440632700
 The number of times user is trying to delete a file is 1
-Has passed permitted cpu
-The current cpu usage percantage [%] is 60.6263
+The current cpu usage percantage [%] is 0
 
 ----------Done intercepting call to DeleteFileA----------
 
@@ -340,10 +340,10 @@ The current cpu usage percantage [%] is 60.6263
 ----------intercepted call to WriteFileEx----------
 
 
-The handle to this file is 00AB81E0
+The handle to this file is 0103A628
 The buffer being written to the file is Hello World!
 The size of the buffer is 12
-Time difference since attachment of hooks in [s] is 4.4384027500
+Time difference since attachment of hooks in [s] is 4.8442509700
 The current cpu usage percantage [%] is 0
 The number of times user is trying to write to a file is 1
 
@@ -357,10 +357,10 @@ The number of times user is trying to write to a file is 1
 ----------intercepted call to WriteFile----------
 
 
-The handle to this file is 00AB81E0
+The handle to this file is 0103A628
 The buffer being written to the file is Hello World!
 The size of the buffer is 12
-Time difference since attachment of hooks in [s] is 4.4384931500
+Time difference since attachment of hooks in [s] is 4.8444173900
 The current cpu usage percantage [%] is 0
 The number of times user is trying to write to a file is 1
 
@@ -376,10 +376,10 @@ The number of times user is trying to write to a file is 1
 
 The permissions to this process is PROCESS_ALL_ACCESS
 processes created by this process will inherit the handle - 0
-The process id is 15152
+The process id is 11856
 Function is trying to open process mspaint.exe
-Time difference since attachment of hooks in [s] is 4.4408847700
-The current cpu usage percantage [%] is 5.44029
+Time difference since attachment of hooks in [s] is 4.8477554600
+The current cpu usage percantage [%] is 7.91338
 The number of times user is trying to open a process is 1
 
 ----------Done intercepting call to OpenProcess----------
@@ -392,12 +392,12 @@ The number of times user is trying to open a process is 1
 ----------intercepted call to VirtualAllocEx----------
 
 
-The handle to the process is 0000016C
+The handle to the process is 00000184
 The pointer that specifies a desired starting address for the region of pages that function wants to allocate is 00000000
 Size of allocation is 67
 The type of allocation is memory committing and reserving
 The memory protection for the region of pages to be allocated is PAGE_EXECUTE_READWRITE
-Time difference since attachment of hooks in [s] is 4.4409707300
+Time difference since attachment of hooks in [s] is 4.8478431500
 The current cpu usage percantage [%] is 0
 The number of times user is trying to allocate memory is 1
 
@@ -411,14 +411,14 @@ The number of times user is trying to allocate memory is 1
 ----------intercepted call to CreateRemoteThread----------
 
 
-A handle to the process in which the thread is to be created is 0000016C
+A handle to the process in which the thread is to be created is 00000184
 The initial size of the stack, in bytes is 0
-A pointer to a variable to be passed to the thread function is 00C80000
+A pointer to a variable to be passed to the thread function is 00980000
 Thread runs immediately after creation
 
 ----------IDENTIFIED INJECTION into process mspaint.exe----------
 
-Time difference since attachment of hooks in [s] is 4.4410648000
+Time difference since attachment of hooks in [s] is 4.8479345300
 The current cpu usage percantage [%] is 0
 The number of times user is trying to create a remote thread is 1
 
@@ -432,11 +432,10 @@ The number of times user is trying to create a remote thread is 1
 ----------intercepted call to WriteProcessMemory----------
 
 
-A pointer to the base address in the specified process to which data is written is 00C90000
+A pointer to the base address in the specified process to which data is written is 00990000
 A pointer to the buffer that contains data to be written in the address space of the specified process is E:\Cyber\YB_CYBER\project\FinalProject\ExeFiles\ExeFiles\evil.dll
 The number of bytes to be written to the specified process is 67
 
 ----------Done intercepting call to WriteProcessMemory----------
-
 
 

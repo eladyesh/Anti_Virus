@@ -257,6 +257,21 @@ def make_label(text, font_size):
 
     return label
 
+class worker_for_vm(QObject, threading.Thread):
+    vm_changed = pyqtSignal()
+
+    def __init__(self):
+        super().__init__()
+
+    def run(self):
+        # Monitor the file
+        while not "vmware-vmx.exe" in [p.name() for p in psutil.process_iter()]:
+            time.sleep(25)
+        time.sleep(15)
+
+        # File found, emit signal
+        self.vm_changed.emit()
+
 
 class worker_for_files(QObject, threading.Thread):
     file_changed = pyqtSignal()
@@ -416,9 +431,12 @@ class ListBoxWidget(QListWidget):
                 else:  # meaning --> a website or other url
                     links.append(str(url.toString()))
 
-            self.addItems(links)
-            self.movie.stop()
-            self.gif_label.deleteLater()
+            try:
+                self.addItems(links)
+                self.movie.stop()
+                self.gif_label.deleteLater()
+            except RuntimeError:
+                pass
         else:
             event.ignore()
 
@@ -1256,9 +1274,20 @@ class AppDemo(QMainWindow):
         self.worker.file_changed.connect(self.on_file_changed)
         self.worker.start()
 
+        # for quarantine
         self.worker_for_dial = worker_for_virus_dial(self.dial_instance)
         self.worker_for_dial.dial_changed.connect(self.on_probability_changed)
         self.worker_for_dial.start()
+
+        # for vm start
+        self.worker_for_vm = worker_for_vm()
+        self.worker_for_vm.vm_changed.connect(lambda: self.statusBar_instance.show_message("VM is now running, you "
+                                                                                           "can send your file. When "
+                                                                                           "the log is ready, "
+                                                                                           "you wil get a "
+                                                                                           "notification in the "
+                                                                                           "status bar"))
+        self.worker_for_vm.start()
 
     def on_file_changed(self):
         if self.run_for_dynamic_disable == 1:
@@ -1802,9 +1831,11 @@ class AppDemo(QMainWindow):
             self.list_index[button].setVisible(True)
 
     def activate_vm(self):
+
         os.chdir(r"C:\Program Files (x86)\VMware\VMware Workstation")
         os.system(r'vmrun -T ws start "C:\Users\u101040.DESHALIT\Documents\Virtual Machines\Windows 10 and later '
                   r'x64\Windows 10 and later x64.vmx"')
+
 
         # r"C:\Program Files (x86)\VMware\VMware Workstation"
         # r'vmrun -T ws start "C:\\Users\\user\\OneDrive\\Windows 10 and later x64.vmx"'
