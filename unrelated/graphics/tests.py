@@ -1,41 +1,58 @@
-from PyQt5.QtWidgets import QApplication, QMainWindow, QTableWidget, QTableWidgetItem, QAbstractScrollArea
+from PyQt5.QtWidgets import QApplication, QTreeWidget, QTreeWidgetItem, QVBoxLayout, QWidget
+import sys
 
-class Example(QMainWindow):
+
+class TreeDemo(QWidget):
     def __init__(self):
         super().__init__()
 
-        self.initUI()
+        self.tree = QTreeWidget()
+        self.tree.setHeaderLabel("Items")
 
-    def initUI(self):
-        self.setWindowTitle('Example')
-        self.setGeometry(100, 100, 400, 300)
+        for i in range(10):
+            item = QTreeWidgetItem(self.tree, ["Item " + str(i)])
+            for j in range(5):
+                subitem = QTreeWidgetItem(item, ["Subitem " + str(j)])
 
-        # Create a QTableWidget
-        self.tableWidget = QTableWidget(self)
-        self.tableWidget.setRowCount(4)
-        self.tableWidget.setColumnCount(3)
-        self.tableWidget.setHorizontalHeaderLabels(['Column 1', 'Column 2', 'Column 3'])
-        self.tableWidget.setSizeAdjustPolicy(QAbstractScrollArea.AdjustToContents) # Set sizeAdjustPolicy
+        layout = QVBoxLayout()
+        layout.addWidget(self.tree)
+        self.setLayout(layout)
 
-        # Add some data to the table
-        for row in range(self.tableWidget.rowCount()):
-            for column in range(self.tableWidget.columnCount()):
-                self.tableWidget.setItem(row, column, QTableWidgetItem(f'({row}, {column})'))
+        self.calculate_tree_height()
 
-        # Set the maximum size of the table to its current sizeHint
-        self.tableWidget.setMaximumSize(self.tableWidget.sizeHint())
+    def calculate_tree_height(self):
+        num_items = self.tree.topLevelItemCount()
+        item_height = self.tree.sizeHintForRow(0)
+        header_height = self.tree.header().height()
+        scrollbar_height = self.tree.verticalScrollBar().sizeHint().height()
+        total_height = item_height * num_items + header_height + scrollbar_height
+        self.tree.setMinimumHeight(total_height)
 
-        # Set the central widget of the QMainWindow
-        self.setCentralWidget(self.tableWidget)
+    def add_item(self, text):
+        item = QTreeWidgetItem(self.tree, [text])
+        self.calculate_tree_height()
 
-    def resizeEvent(self, event):
-        self.tableWidget.resizeColumnsToContents() # Resize the columns to fit their contents
-        constant = 1.5 # Set the constant
-        new_size = self.tableWidget.sizeHint() * constant # Multiply the sizeHint by the constant
-        self.resize(new_size) # Resize the window to fit the table
+    def remove_item(self, item):
+        parent = item.parent()
+        index = parent.indexOfChild(item)
+        parent.removeChild(item)
+        if parent.childCount() == 0:
+            self.tree.invisibleRootItem().removeChild(parent)
+        self.calculate_tree_height()
+
 
 if __name__ == '__main__':
-    app = QApplication([])
-    ex = Example()
-    ex.show()
-    app.exec_()
+    app = QApplication(sys.argv)
+    window = TreeDemo()
+    window.setGeometry(300, 300, 300, 400)
+    window.show()
+
+    # Add some items
+    window.add_item("New Item 1")
+    window.add_item("New Item 2")
+
+    # Remove an item
+    item = window.tree.invisibleRootItem().child(0).child(1)
+    window.remove_item(item)
+
+    sys.exit(app.exec_())

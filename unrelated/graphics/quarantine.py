@@ -161,4 +161,7 @@ if __name__ == "__main__":
         new_file_path = Quarantine.quarantine_file("virus.exe", "Found_Virus", "1234")
         Quarantine.hide("Found_Virus")
 
+    if os.path.exists("virus.exe"):
+        os.remove("virus.exe")
+
     # Quarantine.restore_file("Found_Virus/virus.exe", "Found_virus", "1234")

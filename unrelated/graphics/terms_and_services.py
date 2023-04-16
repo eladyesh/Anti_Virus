@@ -132,7 +132,10 @@ You will get a notification on the status bar when the report is ready.
 If you wish to directly load the file for static and hash analysis, press the "Load" button for both
 of these features, since they will be locked.
 
-4. Further Notice
+4. Directory Analysis
+5. IP Analysis
+
+6. Further Notice
 Every Analysis done in this application will be deleted COMPLETELY once you move to a new window.
 Please be aware and not upset. 
 That is because once a new window has been shown, Analysis that has been done before is deleted off the screen

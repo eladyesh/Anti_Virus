@@ -219,7 +219,9 @@ bubble_strings_dict = {
                                    "Library file that contains a collection of pre-written code and data that can be "
                                    "used by multiple programs at the same time. ",
     "VC8_Microsoft_Corporation": "VC8 is a common abbreviation for Microsoft Visual C++ 2005, which is a set of "
-                                 "tools and libraries used for developing C++ applications on the Windows platform. "
+                                 "tools and libraries used for developing C++ applications on the Windows platform. ",
+    "SetFilePointer": "This function stores the file pointer in two LONG values",
+    "GetKeyboardState": "Copies the status of the 256 virtual keys to the specified buffer."
 }
 
 
@@ -439,7 +441,7 @@ class AppDemo(QMainWindow):
         self.setWindowTitle("AntiVirus")
         self.setWindowIcon(QIcon("images/virus.png"))
 
-        self.activate_virus_total = False
+        self.activate_virus_total = True
         self.file_loaded_to_system = False
         self.vault_file = True
 
@@ -564,6 +566,7 @@ class AppDemo(QMainWindow):
             checked_color="green",
             pulse_checked_color="red"
         )
+        self.vt_toggel.setChecked(False) if self.activate_virus_total else self.vt_toggel.setChecked(True)
         self.vt_toggel.setMaximumSize(100, 50)
         self.vt_message = QLabel("Do you want to turn off Virus Total search?\n(Green means off)")
         self.vt_message.setFont(QFont("Zapfino", 16))
@@ -585,6 +588,7 @@ class AppDemo(QMainWindow):
             checked_color="green",
             pulse_checked_color="red"
         )
+        self.quarantine_toggle.setChecked(False) if self.vault_file else self.quarantine_toggle.setChecked(True)
         self.quarantine_toggle.setMaximumSize(100, 50)
         self.quarantine_message = QLabel("Do you want to turn off vaulting of your file if found malicious?\n(Green "
                                          "means off)")
@@ -606,6 +610,7 @@ class AppDemo(QMainWindow):
             checked_color="green",
             pulse_checked_color="red"
         )
+        self.data_base_toggle.setChecked(False) if self.save_in_data_base else self.data_base_toggle.setChecked(True)
         self.data_base_toggle.setMaximumSize(100, 50)
         self.data_base_message = QLabel("Do you want to turn off saving file in data base?\n(Green "
                                         "means off)")
@@ -652,26 +657,40 @@ class AppDemo(QMainWindow):
         self.settings_visited = True
 
     def func_for_settings(self):
+        messages = []
         if self.vt_toggel.isChecked():
             print("activate virus total is checked")
+            self.activate_virus_total = False
+            messages.append("You have turned Virus Total interfacing off")
+        else:
+            self.activate_virus_total = True
+            messages.append("You have turned Virus Total interfacing back on")
         if self.quarantine_toggle.isChecked():
             # turning the vaulting off --> release the file from vault
             self.vault_file = False
             if os.path.exists("Found_Virus"):
                 Quarantine.restore_file("Found_Virus/virus.exe", "Found_Virus", "1234")
-                self.statusBar_instance.show_message("You have turned the vault option off. Your file is restored")
+                messages.append("You have turned the vault option off. Your file is restored")
         else:
             # leaving the vaulting
             self.vault_file = True
-            self.statusBar_instance.show_message("You have turned the vault option back on")
+            messages.append("You have turned the vault option back on")
         if self.data_base_toggle.isChecked():
-            self.redis_virus.print_all()
-            if self.redis_virus.exists(md5("virus.exe")):
-                self.redis_virus.delete(md5("virus.exe"))
-                self.save_in_data_base = False
+            if os.path.exists("virus.exe"):
                 self.redis_virus.print_all()
-                self.statusBar_instance.show_message("Your file will now not be saved in data base")
-                self.dial_instance.setDialPercentage(0)
+                if self.redis_virus.exists(md5("virus.exe")):
+                    self.redis_virus.delete(md5("virus.exe"))
+                    self.save_in_data_base = False
+                    self.redis_virus.print_all()
+                    messages.append("Your file will now not be saved in data base")
+                    self.dial_instance.setDialPercentage(0)
+            else:
+                show_message_warning_box("You didn't upload your file onto the system")
+
+        self.main_menu_window()
+        stop_timer(1)
+        self.statusBar_instance.show_few(messages)
+        return
 
     def run_func_in_thread(self, func_to_run):
 
@@ -736,9 +755,10 @@ class AppDemo(QMainWindow):
                 self.virus_total_label.deleteLater()
                 self.engine_tree.deleteLater()
 
-            self.basic_info_label.deleteLater()
-            self.basic_info.deleteLater()
-            self.we_are_sorry_label.deleteLater()
+            if self.activate_virus_total:
+                self.basic_info_label.deleteLater()
+                self.basic_info.deleteLater()
+                self.we_are_sorry_label.deleteLater()
 
             self.fuzzy_hash_label.deleteLater()
             self.fuzzy_hash_button.deleteLater()
@@ -1241,12 +1261,12 @@ class AppDemo(QMainWindow):
         self.worker_for_dial.start()
 
     def on_file_changed(self):
-        self.statusBar_instance.show_message('LOG is ready, check Dynamic Analysis')
-        self.dynamic_button.setDisabled(False)
-        self.run_for_dynamic_disable = 1
+        if self.run_for_dynamic_disable == 1:
+            self.statusBar_instance.show_message('LOG is ready, check Dynamic Analysis')
+            self.dynamic_button.setDisabled(False)
+            self.run_for_dynamic_disable = 0
 
     def on_probability_changed(self):
-        return
 
         # Create a QTimer object
         timer = QTimer()
@@ -1260,7 +1280,7 @@ class AppDemo(QMainWindow):
         loop.exec_()
 
         # Check if the boolean variable `self.vault_file` is truthy
-        if self.vault_file:
+        if self.vault_file and self.dial_instance.get_percentage() > 75:
             # Display a warning message box to the user
             show_message_warning_box("Your file has now been quarantined for it is found to be a virus.\n"
                                      "You will not be able to run the file.\n\n"
@@ -1287,6 +1307,12 @@ class AppDemo(QMainWindow):
         else:
             item = QListWidgetItem(self.listbox_view.item(0))
             self.path_for_file = item.text()
+
+            # show warning message box for no file
+            if self.path_for_file == "" and not os.path.exists("virus.exe"):
+                show_message_warning_box("You have to enter a real path")
+                return
+
             bytes = b""
             try:
                 with open(self.path_for_file, "rb") as f:
@@ -1300,6 +1326,15 @@ class AppDemo(QMainWindow):
             self.static_button.setDisabled(False)
             self.statusBar_instance.show_message("Static Analysis is ready")
 
+            if self.save_in_data_base:
+                if os.path.exists("virus.exe"):
+                    if self.redis_virus.exists(str(md5("virus.exe"))):
+                        self.dial_instance.setDialPercentage(
+                            int(self.redis_virus.get_key(str(md5("virus.exe")), "final_assesment", False)))
+                        self.dial = str(md5("virus.exe"))
+                        self.run_for_start = True
+                        print(self.run_for_start)
+
     def load_for_hash_analysis(self):
         self.run_for_hash_disable = 0
         if self.file_loaded_to_system:
@@ -1309,6 +1344,12 @@ class AppDemo(QMainWindow):
         else:
             item = QListWidgetItem(self.listbox_view.item(0))
             path = item.text()
+
+            # show warning message box for no file
+            if path == "" and not os.path.exists("virus.exe"):
+                show_message_warning_box("You have to enter a real path")
+                return
+
             bytes = b""
             try:
                 with open(path, "rb") as f:
@@ -1321,6 +1362,15 @@ class AppDemo(QMainWindow):
             self.file_loaded_to_system = True
             self.hash_button.setDisabled(False)
             self.statusBar_instance.show_message("Hash Analysis is ready")
+
+            if self.save_in_data_base:
+                if os.path.exists("virus.exe"):
+                    if self.redis_virus.exists(str(md5("virus.exe"))):
+                        self.dial_instance.setDialPercentage(
+                            int(self.redis_virus.get_key(str(md5("virus.exe")), "final_assesment", False)))
+                        self.dial = str(md5("virus.exe"))
+                        self.run_for_start = True
+
 
     def python_analysis(self):
 
@@ -1634,9 +1684,13 @@ class AppDemo(QMainWindow):
         self.statusBar_instance.show_message("Your python analysis is ready")
 
     def getSelectedItem(self):
-        print("got here")
         item = QListWidgetItem(self.listbox_view.item(0))
         path = item.text()
+
+        # show warning message box for no file
+        if path == "":
+            show_message_warning_box("You have to enter a real path")
+            return
 
         if not self.file_loaded_to_system:
             bytes = b""
@@ -1650,6 +1704,7 @@ class AppDemo(QMainWindow):
                 print(e)
             self.file_loaded_to_system = True
             print(self.file_loaded_to_system)
+
         else:
             path = os.path.abspath("virus.exe")
             print(path)
@@ -1825,13 +1880,33 @@ class AppDemo(QMainWindow):
 
     def resizeEvent(self, event):
         try:
-            # constant = 1.1  # Set the constant
-            # if self.virus_table:
-            #     self.virus_table.resizeRowsToContents()
-            #     self.virus_table.resizeColumnsToContents()
-            #     self.virus_table.resize(self.virus_table.sizeHint() * constant)  # Resize the window to fit the table
+            # Set the resize mode of each column to Stretch --> virus pe table
+            header = self.virus_table.horizontalHeader()
+            header.setSectionResizeMode(QHeaderView.Stretch)
+        except (AttributeError, RuntimeError):
             pass
-        except AttributeError:
+
+        try:
+            # Set the resize mode of each column to Stretch --> events table
+            header = self.events_table.horizontalHeader()
+            for i in range(self.events_table.columnCount()):
+                header.setSectionResizeMode(i, QHeaderView.Stretch)
+        except (AttributeError, RuntimeError):
+            pass
+
+        try:
+            # Set the resize mode of each column to Stretch --> basic info hash table
+            header = self.basic_info.horizontalHeader()
+            header.setSectionResizeMode(QHeaderView.Stretch)
+
+            viewport_width = self.engine_tree.viewport().width()
+
+            # Set the width of each column to fit the viewport width evenly
+            column_width = viewport_width // self.engine_tree.columnCount()
+            for i in range(self.engine_tree.columnCount()):
+                self.engine_tree.setColumnWidth(i, column_width)
+
+        except (AttributeError, RuntimeError):
             pass
 
     def activate_static_analysis(self):
@@ -1857,7 +1932,10 @@ class AppDemo(QMainWindow):
                 self.func()
 
             def __del__(self):
-                self.wait()
+                try:
+                    self.wait()
+                except RuntimeError:
+                    pass
 
         # create an instance of StaticThread and start it
         static_thread = StaticThread(self.static_analysis)
@@ -1932,7 +2010,7 @@ class AppDemo(QMainWindow):
 
         model = TableModel(sections)
         self.virus_table.setModel(model)
-        self.virus_table.setMaximumSize(int(self.virus_table.width() * 1.59), self.virus_table.height())
+        # self.virus_table.setMaximumSize(int(self.virus_table.width() * 1.59), self.virus_table.height())
         self.virus_table.setMinimumSize(int(self.virus_table.width() * 1.59), self.virus_table.height())
 
 
@@ -2106,10 +2184,17 @@ class AppDemo(QMainWindow):
             registry_strings = [b'SOFTWARE\\Policies\\Microsoft\\Windows Defender',
                                 b'Software\\Microsoft\\Windows\\CurrentVersion\\Run']
 
+        # check for keyboard hook
+        keyboard_strings = []
+        print("yara strings 1", yara_strings[1])
+        if b'SetWindowsHookEx' in yara_strings[1] and b'SetFilePointer' in yara_strings[1] and b'GetKeyboardState'\
+                in yara_strings[1] and b'CreateFileA' in yara_strings[1]:
+            keyboard_strings = [b'SetWindowsHookEx', b'SetFilePointer', b'GetKeyboardState', b'CreateFileA']
+
         for string in yara_strings[1]:
 
             item = QListWidgetItem(str(string.decode()))
-            if string in injection_funcs or string in registry_strings:
+            if string in injection_funcs or string in registry_strings or string in keyboard_strings:
                 item.setForeground(QBrush(QColor('red')))
             else:
                 color = QColor()
@@ -2433,7 +2518,7 @@ class AppDemo(QMainWindow):
         self.fractioned = QGroupBox("Fractioned Imports")
         title = QLabel("Fractioned Imports  <img src='images/info-32.png' width='20' height='20'>")
         title.setStyleSheet(
-            "QLabel {margin: 0px; margin-left: 5px;}")
+            "QLabel { margin-top: 10px; margin-left: 5px; margin-bottom: 10px;}")
         title.setToolTip("Another virus-typical behaviour is the introduction fractionated imports.\n Generally all "
                          "imports are placed in one section, but if they are spread over different sections, "
                          "they are called fractionated. \nSome viruses add imports deliberately to make sure they can "
@@ -2447,7 +2532,7 @@ class AppDemo(QMainWindow):
         self.v_box_for_fractioned.addWidget(title)
         self.list_widget_for_fractioned = QListWidget()
         self.list_widget_for_fractioned.setVerticalScrollBar(self.create_scroll_bar())
-        self.list_widget_for_fractioned.setMaximumSize(300, 125)
+        # self.list_widget_for_fractioned.setMaximumSize(300, 125)
         self.list_widget_for_fractioned.setMinimumSize(300, 125)
         self.list_widget_for_fractioned.addItems(fractioned)
         self.v_box_for_fractioned.addWidget(self.list_widget_for_fractioned)
@@ -2519,7 +2604,7 @@ The presence of both means the code itself can be changed dynamically
         self.v_box_for_suspicious_imports.addWidget(title)
         self.list_widget_for_suspicious_imports = QListWidget()
         self.list_widget_for_suspicious_imports.setVerticalScrollBar(self.create_scroll_bar())
-        self.list_widget_for_suspicious_imports.setMaximumSize(300, 125)
+        # self.list_widget_for_suspicious_imports.setMaximumSize(300, 125)
         self.list_widget_for_suspicious_imports.setMinimumSize(300, 125)
         self.list_widget_for_suspicious_imports.addItems(sections)
         self.v_box_for_suspicious_imports.addWidget(self.list_widget_for_suspicious_imports)
@@ -2598,7 +2683,7 @@ The presence of both means the code itself can be changed dynamically
         self.table_and_strings_layout.addLayout(self.h_box_for_groupbox)
 
     def activate_vt_scan_dir(self):
-
+        self.scan_dir_button.setDisabled(True)
         for path in VTScan.scan_directory(self.dir, self.progress_bar_dir):
             try:
                 if path == "Path doesn't exist":
@@ -2611,7 +2696,10 @@ The presence of both means the code itself can be changed dynamically
                     self.progress_bar_end.invoke(100)
                     self.movie_dir.stop()
                     self.description_for_search.setText("All Done !!")
-                    break
+                    self.statusBar_instance.show_message("If you wish to start a new scan, re-enter the window")
+                    stop_timer(5000)
+                    self.statusBar_instance.get_instance().clearMessage()
+                    return
 
                 if isinstance(path, int):
                     stop_timer(200)
@@ -2629,12 +2717,16 @@ The presence of both means the code itself can be changed dynamically
     def activate_vt_scan_ip(self):
 
         mutex = threading.Semaphore(1)
+        self.ip_button.setDisabled(True)
 
         for block_ip in VTScan.scan_for_suspicious_cache(self.progress_bar_ip):
 
             if block_ip == "stop":
                 self.movie_ip.stop()
                 self.description_for_ip_analysis.setText("All Done !!")
+                self.statusBar_instance.show_message("If you wish to start a new scan, re-enter the window")
+                stop_timer(5000)
+                self.statusBar_instance.get_instance().clearMessage()
                 continue
 
             if isinstance(block_ip, list):
@@ -2657,6 +2749,10 @@ The presence of both means the code itself can be changed dynamically
                 self.suspicious_ip.addItem(item)
 
     def scan_dir(self):
+
+        if not self.activate_virus_total:
+            show_message_warning_box("You shut down Virus Total Interfacing")
+            return
 
         self.dir = str(QFileDialog.getExistingDirectory(self, "Select Directory"))
         self.threadpool_vt = QThread()
@@ -2930,6 +3026,10 @@ The presence of both means the code itself can be changed dynamically
 
     def ip_analysis(self):
 
+        if not self.activate_virus_total:
+            show_message_warning_box("You shut down Virus Total Interfacing")
+            return
+
         if self.show_analysis_label == 1:
             self.description_progress_ip = QHBoxLayout()
 
@@ -3072,228 +3172,6 @@ The presence of both means the code itself can be changed dynamically
 
         self.hash_button.setDisabled(True)
         self.hash_layout = QVBoxLayout()
-        self.engine_tree = QTreeWidget()
-        self.engine_tree.setHeaderLabels(['Name', 'Version', 'Category', 'Result', 'Method', 'Update'])
-
-        md5_hash = md5("virus.exe")
-        self.md5_hash = md5_hash
-        sha_256_hash = sha_256("virus.exe")
-        entropy_of_file = entropy_for_file("virus.exe")
-        vtscan = VTScan()
-
-        show_tree = True
-        engines, malicious, undetected = vtscan.info(md5_hash)
-
-        if self.save_in_data_base:
-            if self.run_for_engines == 1 and not self.run_for_start:
-                self.redis_virus.hset(self.md5_hash, "num_of_engines", malicious)
-                self.redis_engines = self.redis_virus.get_key(self.md5_hash, "num_of_engines", False)
-                percentage = self.dial_instance.get_percentage()
-                self.dial_instance.setDialPercentage(percentage + int(int(self.redis_engines) / 3))
-                self.dial = self.dial_instance.get_dial()
-                self.redis_virus.hset(self.md5_hash, "final_assesment", percentage + int(int(self.redis_engines) / 3))
-                self.run_for_engines = 0
-
-        if engines == 0 and malicious == 0 and undetected == 0:
-            show_tree = False
-
-        self.basic_info_label = make_label("Basic Information", 24)
-        self.hash_layout.addWidget(self.basic_info_label)
-
-        # Create the QTableView
-        self.basic_info = QTableView()
-
-        if show_tree:
-            # Set the model on the QTableView
-            data = [
-                ['MD5 hash', md5_hash],
-                ['SHA-256 hash', sha_256_hash],
-                ['Entropy of file', entropy_of_file],
-                ['Number of engines detected as Malicious', malicious],
-                ['Number of engines not detected as Malicious', undetected],
-                ['File type', 'Win32 Exe']
-            ]
-            model = TableModel(data)
-            self.basic_info.setModel(model)
-
-            # Set the column widths
-            # self.basic_info.setColumnWidth(0, 300)
-            # self.basic_info.setColumnWidth(1, 620)
-            self.basic_info.setMaximumSize(int(self.basic_info.width() * 1.59), self.basic_info.height())
-            self.basic_info.setMinimumSize(int(self.basic_info.width() * 1.59), self.basic_info.height())
-
-            # Set the row heights
-            for row in range(model.rowCount()):
-                self.basic_info.setRowHeight(row, 35)
-
-            # Set the style sheet and disable editing
-            style_sheet = """
-                QTableView {
-                    font-family: sans-serif;
-                    font-size: 18px;
-                    color: #87CEFA;
-                    background-color: #333;
-                    border: 2px solid #444;
-                    gridline-color: #666;
-                } 
-                QTableView::item {
-                    padding: 20px;
-                    margin: 20px;
-                    min-width: 100px;
-                    min-height: 20px;
-                    font-weight: bold;
-                }
-                QTableView::header {
-                    font-size: 24px;
-                    font-weight: bold;
-                    background-color: #444;
-                    border: 2px solid #555;
-                    min-height: 20px;
-                }
-            """
-
-            self.basic_info.setStyleSheet(style_sheet)
-            self.basic_info.setEditTriggers(QTableView.NoEditTriggers)
-            self.basic_info.resizeColumnsToContents()
-            self.basic_info.resizeRowsToContents()
-
-            # Allow the cells to be resized using the mouse
-            self.basic_info.horizontalHeader().setSectionsMovable(True)
-            self.basic_info.horizontalHeader().setSectionResizeMode(QHeaderView.Interactive)
-            # self.basic_info.setMinimumSize(480, 240)
-            self.hash_layout.addWidget(self.basic_info)
-
-            self.virus_total_label = make_label("Virus Total Engine Results", 24)
-            self.hash_layout.addWidget(self.virus_total_label)
-            self.engine_tree.setVerticalScrollBar(self.create_scroll_bar())
-            self.we_are_sorry_label = make_label("", 20)
-
-            # Add a top-level item for each engine
-            for engine in engines:
-                # Create a QTreeWidgetItem for the engine
-                item = QTreeWidgetItem(
-                    [engine['name'], engine['version'], str(engine['category']), str(engine['result']),
-                     str(engine['method']), str(engine['update'])])
-
-                # # Set additional data for the item using setData
-                # item.setData(0, 0, engine['name'])
-                # item.setData(1, 0, engine['type'])
-                # item.setData(2, 0, engine['thrust'])
-                # item.setData(3, 0, engine['weight'])
-
-                # Add the item to the tree
-                self.engine_tree.addTopLevelItem(item)
-
-            # Set the style sheet for the tree widget
-            self.engine_tree.setStyleSheet('''
-                QTreeWidget {
-                    font-family: sans-serif;
-                    font-size: 14px;
-                    color: white;
-                    background-color: #333;
-                    border: 2px solid #444;
-                    gridline-color: #666;
-                }
-                QTreeWidget::item {
-                    padding: 5px;
-                    margin: 0px;
-                }
-                QTreeWidget::item:hover {
-                    background-color: #555;
-                }
-                QTreeWidget::item:selected {
-                    background-color: #777;
-                }
-                QTreeWidget::item:selected:active {
-                    background-color: #999;
-                }
-                QTreeWidget::item:selected:!active {
-                    background-color: #bbb;
-                }
-                QTreeWidget::indicator {
-                    width: 16px;
-                    height: 16px;
-                }
-                QTreeWidget::indicator:unchecked {
-                    border: 1px solid white;
-                }
-                QTreeWidget::indicator:unchecked:hover {
-                    border: 1px solid #aaa;
-                }
-                QTreeWidget::indicator:unchecked:pressed {
-                    border: 1px solid #555;
-                }
-                QTreeWidget::indicator:checked {
-                    background-color: white;
-                }
-                QTreeWidget::indicator:checked:hover {
-                    background-color: #aaa;
-                }
-                QTreeWidget::indicator:checked:pressed {
-                    background-color: #555;
-                }
-                QTreeWidget::indicator:indeterminate {
-                    background-color: white;
-                    border: 1px dotted white;
-                }
-                QTreeWidget::indicator:indeterminate:hover {
-                    background-color: #aaa;
-                    border: 1px dotted #aaa;
-                }
-                QTreeWidget::indicator:indeterminate:pressed {
-                    background-color: #555;
-                    border: 1px dotted #555;
-                }
-                QTreeWidget::branch {
-                    background: transparent;
-                }
-                QTreeWidget::branch:closed:has-children {
-                    image: none;
-                    border: 0px;
-                }
-                QTreeWidget::branch:open:has-children {
-                    image: none;
-                    border: 0px;
-                }
-                QTreeWidget::branch:has-children:!has-siblings:closed,
-                QTreeWidget::branch:closed:has-children:has-siblings {
-                    image: none;
-                    border: 0px;
-                }
-                QTreeWidget::branch:open:has-children:has-siblings  {
-                    image: none;
-                    border: 0px;
-                }
-                QTreeWidget::header {
-                    font-size: 24px;
-                    font-weight: bold;
-                    background-color: #444;
-                    border: 2px solid #555;
-                    min-height: 20px;
-                }
-                QTreeWidget::item {
-                    min-height: 30px;
-                    min-width: 400px;
-                    width: 200px;
-                    color: #87CEFA; 
-                }
-            ''')
-
-            self.engine_tree.setMinimumSize(550, 550)
-            self.hash_layout.addWidget(self.engine_tree)
-
-        else:
-
-            # Create the label
-            self.we_are_sorry_label = make_label("We are sorry, Virus total could not accept your file :(", 20)
-            font = QFont()
-            font.setBold(True)
-            font.setPointSize(21)
-            self.we_are_sorry_label.setFont(font)
-            palette = QPalette()
-            palette.setColor(QPalette.WindowText, QColor('red'))
-            self.we_are_sorry_label.setPalette(palette)
-            self.hash_layout.addWidget(self.we_are_sorry_label)
 
         self.page_layout.addLayout(self.hash_layout)
 
@@ -3323,6 +3201,242 @@ The presence of both means the code itself can be changed dynamically
                 color: #8B008B;
             }
         """
+
+        if self.activate_virus_total:
+
+            self.engine_tree = QTreeWidget()
+            self.engine_tree.setHeaderLabels(['Name', 'Version', 'Category', 'Result', 'Method', 'Update'])
+
+            md5_hash = md5("virus.exe")
+            self.md5_hash = md5_hash
+            sha_256_hash = sha_256("virus.exe")
+            entropy_of_file = entropy_for_file("virus.exe")
+            vtscan = VTScan()
+
+            show_tree = True
+            engines, malicious, undetected = vtscan.info(md5_hash)
+
+            if self.save_in_data_base:
+                if self.run_for_engines == 1 and not self.run_for_start:
+                    self.redis_virus.hset(self.md5_hash, "num_of_engines", malicious)
+                    self.redis_engines = self.redis_virus.get_key(self.md5_hash, "num_of_engines", False)
+                    percentage = self.dial_instance.get_percentage()
+                    self.dial_instance.setDialPercentage(percentage + int(int(self.redis_engines) / 3))
+                    self.dial = self.dial_instance.get_dial()
+                    self.redis_virus.hset(self.md5_hash, "final_assesment", percentage + int(int(self.redis_engines) / 3))
+                    self.run_for_engines = 0
+
+            if engines == 0 and malicious == 0 and undetected == 0:
+                show_tree = False
+
+            self.basic_info_label = make_label("Basic Information", 24)
+            self.hash_layout.addWidget(self.basic_info_label)
+
+            # Create the QTableView
+            self.basic_info = QTableView()
+
+            if show_tree:
+                # Set the model on the QTableView
+                data = [
+                    ['MD5 hash', md5_hash],
+                    ['SHA-256 hash', sha_256_hash],
+                    ['Entropy of file', entropy_of_file],
+                    ['Number of engines detected as Malicious', malicious],
+                    ['Number of engines not detected as Malicious', undetected],
+                    ['File type', 'Win32 Exe']
+                ]
+                model = TableModel(data)
+                self.basic_info.setModel(model)
+
+                # Set the column widths
+                # self.basic_info.setColumnWidth(0, 300)
+                # self.basic_info.setColumnWidth(1, 620)
+                # self.basic_info.setMaximumSize(int(self.basic_info.width() * 1.59), self.basic_info.height())
+                self.basic_info.setMinimumSize(int(self.basic_info.width() * 1.59), self.basic_info.height())
+
+                # Set the row heights
+                for row in range(model.rowCount()):
+                    self.basic_info.setRowHeight(row, 35)
+
+                # Set the style sheet and disable editing
+                style_sheet = """
+                    QTableView {
+                        font-family: sans-serif;
+                        font-size: 18px;
+                        color: #87CEFA;
+                        background-color: #333;
+                        border: 2px solid #444;
+                        gridline-color: #666;
+                    } 
+                    QTableView::item {
+                        padding: 20px;
+                        margin: 20px;
+                        min-width: 100px;
+                        min-height: 20px;
+                        font-weight: bold;
+                    }
+                    QTableView::header {
+                        font-size: 24px;
+                        font-weight: bold;
+                        background-color: #444;
+                        border: 2px solid #555;
+                        min-height: 20px;
+                    }
+                """
+
+                self.basic_info.setStyleSheet(style_sheet)
+                self.basic_info.setEditTriggers(QTableView.NoEditTriggers)
+                self.basic_info.resizeColumnsToContents()
+                self.basic_info.resizeRowsToContents()
+
+                # Allow the cells to be resized using the mouse
+                self.basic_info.horizontalHeader().setSectionsMovable(True)
+                self.basic_info.horizontalHeader().setSectionResizeMode(QHeaderView.Interactive)
+                # self.basic_info.setMinimumSize(480, 240)
+                self.hash_layout.addWidget(self.basic_info)
+
+                self.virus_total_label = make_label("Virus Total Engine Results", 24)
+                self.hash_layout.addWidget(self.virus_total_label)
+                self.engine_tree.setVerticalScrollBar(self.create_scroll_bar())
+                self.we_are_sorry_label = make_label("", 20)
+
+                # Add a top-level item for each engine
+                for engine in engines:
+                    # Create a QTreeWidgetItem for the engine
+                    item = QTreeWidgetItem(
+                        [engine['name'], engine['version'], str(engine['category']), str(engine['result']),
+                         str(engine['method']), str(engine['update'])])
+
+                    # # Set additional data for the item using setData
+                    # item.setData(0, 0, engine['name'])
+                    # item.setData(1, 0, engine['type'])
+                    # item.setData(2, 0, engine['thrust'])
+                    # item.setData(3, 0, engine['weight'])
+
+                    # Add the item to the tree
+                    self.engine_tree.addTopLevelItem(item)
+
+                # Set the style sheet for the tree widget
+                self.engine_tree.setStyleSheet('''
+                    QTreeWidget {
+                        font-family: sans-serif;
+                        font-size: 14px;
+                        color: white;
+                        background-color: #333;
+                        border: 2px solid #444;
+                        gridline-color: #666;
+                    }
+                    QTreeWidget::item {
+                        padding: 5px;
+                        margin: 0px;
+                    }
+                    QTreeWidget::item:hover {
+                        background-color: #555;
+                    }
+                    QTreeWidget::item:selected {
+                        background-color: #777;
+                    }
+                    QTreeWidget::item:selected:active {
+                        background-color: #999;
+                    }
+                    QTreeWidget::item:selected:!active {
+                        background-color: #bbb;
+                    }
+                    QTreeWidget::indicator {
+                        width: 16px;
+                        height: 16px;
+                    }
+                    QTreeWidget::indicator:unchecked {
+                        border: 1px solid white;
+                    }
+                    QTreeWidget::indicator:unchecked:hover {
+                        border: 1px solid #aaa;
+                    }
+                    QTreeWidget::indicator:unchecked:pressed {
+                        border: 1px solid #555;
+                    }
+                    QTreeWidget::indicator:checked {
+                        background-color: white;
+                    }
+                    QTreeWidget::indicator:checked:hover {
+                        background-color: #aaa;
+                    }
+                    QTreeWidget::indicator:checked:pressed {
+                        background-color: #555;
+                    }
+                    QTreeWidget::indicator:indeterminate {
+                        background-color: white;
+                        border: 1px dotted white;
+                    }
+                    QTreeWidget::indicator:indeterminate:hover {
+                        background-color: #aaa;
+                        border: 1px dotted #aaa;
+                    }
+                    QTreeWidget::indicator:indeterminate:pressed {
+                        background-color: #555;
+                        border: 1px dotted #555;
+                    }
+                    QTreeWidget::branch {
+                        background: transparent;
+                    }
+                    QTreeWidget::branch:closed:has-children {
+                        image: none;
+                        border: 0px;
+                    }
+                    QTreeWidget::branch:open:has-children {
+                        image: none;
+                        border: 0px;
+                    }
+                    QTreeWidget::branch:has-children:!has-siblings:closed,
+                    QTreeWidget::branch:closed:has-children:has-siblings {
+                        image: none;
+                        border: 0px;
+                    }
+                    QTreeWidget::branch:open:has-children:has-siblings  {
+                        image: none;
+                        border: 0px;
+                    }
+                    QTreeWidget::header {
+                        font-size: 24px;
+                        font-weight: bold;
+                        background-color: #444;
+                        border: 2px solid #555;
+                        min-height: 20px;
+                    }
+                    QTreeWidget::item {
+                        min-height: 30px;
+                        min-width: 400px;
+                        width: 200px;
+                        color: #87CEFA; 
+                    }
+                ''')
+
+                self.engine_tree.setMinimumSize(550, 550)
+                self.hash_layout.addWidget(self.engine_tree)
+
+            else:
+
+                # Create the label
+                self.we_are_sorry_label = make_label("We are sorry, Virus total could not accept your file :(", 20)
+                font = QFont()
+                font.setBold(True)
+                font.setPointSize(21)
+                self.we_are_sorry_label.setFont(font)
+                palette = QPalette()
+                palette.setColor(QPalette.WindowText, QColor('red'))
+                self.we_are_sorry_label.setPalette(palette)
+                self.hash_layout.addWidget(self.we_are_sorry_label)
+
+        else:
+            self.we_are_sorry_label = make_label("You shut down Virus Total Interfacing :(", 20)
+            font = QFont()
+            font.setBold(True)
+            font.setPointSize(21)
+            self.we_are_sorry_label.setFont(font)
+            palette = QPalette()
+            palette.setColor(QPalette.WindowText, QColor('red'))
+            self.we_are_sorry_label.setPalette(palette)
+            self.hash_layout.addWidget(self.we_are_sorry_label)
 
         self.fuzzy_hash_label = make_label("Fuzzy Hashing Analysis", 24)
         self.fuzzy_hash_button = QPushButton("Scan Virus With Fuzzy Hashing")
@@ -3654,7 +3768,7 @@ The presence of both means the code itself can be changed dynamically
         has_passed_cpu_functions = []
 
         self.tree_functions = QTreeWidget()
-        self.tree_functions.setMinimumSize(500, 500)
+        # self.tree_functions.setMinimumSize(500, 500)
         self.tree_functions.setStyleSheet("""
         QTreeView {
             font-family: sans-serif;
@@ -3727,7 +3841,7 @@ The presence of both means the code itself can be changed dynamically
                 data = []
                 for line in [line for line in func_data.split("\n") if line != ""]:
 
-                    if "-" in line:
+                    if "-" in line and "The 256-byte array" not in line:
 
                         line = line.replace("-", "")
                         if "IDENTIFIED" in line:
@@ -3740,6 +3854,7 @@ The presence of both means the code itself can be changed dynamically
 
                     # alert
                     if "!" in line and "EXE" in line or "Has passed" in line:
+                        print(line)
                         alerts.append(line)
                         continue
 
@@ -3862,6 +3977,12 @@ The presence of both means the code itself can be changed dynamically
             #    self.delete_funcs.append(button)
 
             # self.dynamic_layout.addLayout(self.grid_button_layout)
+            num_items = self.tree_functions.topLevelItemCount()
+            item_height = self.tree_functions.sizeHintForRow(0)
+            header_height = self.tree_functions.header().height()
+            scrollbar_height = self.tree_functions.verticalScrollBar().sizeHint().height()
+            total_height = item_height * num_items + header_height + scrollbar_height
+            self.tree_functions.setMinimumHeight(total_height + 50)
             self.dynamic_layout.addWidget(self.tree_functions)
 
         # data base
@@ -4128,15 +4249,17 @@ The presence of both means the code itself can be changed dynamically
         events = EventViewer()
         events.handle_table()
         self.events_table = events.table
-        self.events_table.setMaximumSize(int(self.events_table.width() * 1.59), self.events_table.height())
+        # self.events_table.setMaximumSize(int(self.events_table.width() * 1.59), self.events_table.height())
         self.events_table.setMinimumSize(int(self.events_table.width() * 1.59), self.events_table.height())
         self.events_table.resizeColumnsToContents()
         self.events_table.resizeRowsToContents()
+
         # self.events_table.setMinimumSize(450, 450)
         self.dynamic_layout.addWidget(self.events_table)
 
         # TODO- complete quarantine
-        # TODO- complete data base
+        # todo - complete yara keyboard hooking show red
+        # TODO- complete data base --> if user turned off to save his file in data base, you can't analyse it for him.
         # TODO - complete python analysis - and then I am pretty much done
         # TODO - if wanna - go over log
 

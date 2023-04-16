@@ -203,7 +203,28 @@ class StatusBar:
         self.timer.start(5000)  # hide message after 5 seconds
 
     def hide_status_message(self):
+        self.timer.stop()
         self.statusBar.clearMessage()
+
+    def show_few(self, messages):
+        self.statusBar.clearMessage()
+        timer = QTimer()
+        timer.setInterval(5000)  # set the interval to 5 seconds
+        index = 0
+
+        def show_message():
+            nonlocal index
+            if index < len(messages):
+                message = messages[index]
+                self.statusBar.showMessage(message)
+                index += 1
+            else:
+                timer.stop()
+                self.statusBar.clearMessage()
+
+        timer.timeout.connect(show_message)
+        show_message()
+        timer.start()
 
 
 class worker_for_function(QObject):
