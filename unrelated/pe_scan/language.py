@@ -28,8 +28,14 @@ class Packers:
         if os.path.getsize(path) > 6000 * 1024:
             return "py"
 
+        # c# virus
+        if os.path.getsize(path) == 7 * 1024:
+            print("packers got to c#")
+            return True
+
         packers = []
         a = run_command("peid " + path)[0]
+
         for i in a.split("\n")[:-1]:
             packers.append(i)
 

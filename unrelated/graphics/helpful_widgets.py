@@ -449,7 +449,6 @@ class EventViewer():
                 if data[0] == "":
                     data = [i for i in data if i != ""]
                     if data:
-
                         number = data[0]
                         type = data[1]
                         color = QColor()
@@ -467,7 +466,9 @@ class EventViewer():
                             resources = ""
                             if "(" in data[2]:
                                 perm = data[2]
-                            for resource in data[3:]:
+                            for resource in data[2:]:
+                                if "(" in resource or "--" in resource or "RW" in resource:
+                                    continue
                                 resources += resource
                                 resources += "\n"
 

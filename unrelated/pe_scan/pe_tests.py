@@ -26,11 +26,22 @@ def run_command(cmd):
     arg: cmd
     ret: the output of the command
     """
-    return subprocess.Popen(cmd, stdout=subprocess.PIPE,
+    proc = subprocess.Popen(cmd, stdout=subprocess.PIPE,
                             shell=True,
                             stderr=subprocess.PIPE,
-                            stdin=subprocess.PIPE,
-                            encoding="utf-8").communicate()
+                            stdin=subprocess.PIPE)
+
+    # # out, err = proc.communicate()
+    decoded_output = []
+    while True:
+        line = proc.stdout.readline()
+        if not line:
+            break
+        try:
+            decoded_output.append(line.decode().strip("\r"))
+        except UnicodeDecodeError:
+            continue
+    return "".join(decoded_output)
 
 
 KNOWN_PRODUCT_IDS = {
@@ -393,8 +404,8 @@ class ScanPE:
     def run_pe_scan_exe(self):
 
         dlls = dict({})
-        headers = run_command(os.path.abspath("exe\\peScan.exe").replace("graphics", "pe_scan") + " " + self.path)[0]
-        if headers == "":
+        headers = run_command(os.path.abspath("exe\\peScan.exe").replace("graphics", "pe_scan") + " " + self.path)
+        if headers == "" or headers == "None":
             return {}
         # headers = run_command(r"D:\Cyber\YB_CYBER\project\FinalProject\poc_start\poc_start\unrelated\pe_scan\exe"
         #                       r"\peScan.exe "

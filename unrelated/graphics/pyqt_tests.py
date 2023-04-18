@@ -94,6 +94,8 @@ QLabel{
 }
 """
 
+run_for_show_virtual_machine = 1
+
 bubble_strings_dict = {
     'CreateToolhelp32Snapshot': 'Takes a snapshot of the specified processes, as well as '
                                 'the heaps, modules, and threads used by these '
@@ -257,6 +259,7 @@ def make_label(text, font_size):
 
     return label
 
+
 class worker_for_vm(QObject, threading.Thread):
     vm_changed = pyqtSignal()
 
@@ -264,13 +267,16 @@ class worker_for_vm(QObject, threading.Thread):
         super().__init__()
 
     def run(self):
+        global run_for_show_virtual_machine
         # Monitor the file
         while not "vmware-vmx.exe" in [p.name() for p in psutil.process_iter()]:
             time.sleep(25)
         time.sleep(15)
 
-        # File found, emit signal
-        self.vm_changed.emit()
+        if run_for_show_virtual_machine == 1:
+            # File found, emit signal
+            self.vm_changed.emit()
+            run_for_show_virtual_machine = 0
 
 
 class worker_for_files(QObject, threading.Thread):
@@ -409,7 +415,7 @@ class ListBoxWidget(QListWidget):
         else:
             event.ignore()
 
-    def clearListWidget(self, event):
+    def clearListWidget(self, event=None):
         self.clear()
         self.clear_icon.setVisible(False)
 
@@ -675,6 +681,7 @@ class AppDemo(QMainWindow):
         self.settings_visited = True
 
     def func_for_settings(self):
+
         messages = []
         if self.vt_toggel.isChecked():
             print("activate virus total is checked")
@@ -688,7 +695,7 @@ class AppDemo(QMainWindow):
             self.vault_file = False
             if os.path.exists("Found_Virus"):
                 Quarantine.restore_file("Found_Virus/virus.exe", "Found_Virus", "1234")
-                messages.append("You have turned the vault option off. Your file is restored")
+            messages.append("You have turned the vault option off. If your files was in quarantine, it is now restored")
         else:
             # leaving the vaulting
             self.vault_file = True
@@ -777,6 +784,8 @@ class AppDemo(QMainWindow):
                 self.basic_info_label.deleteLater()
                 self.basic_info.deleteLater()
                 self.we_are_sorry_label.deleteLater()
+            else:
+                self.virus_total_shut_down_label.deleteLater()
 
             self.fuzzy_hash_label.deleteLater()
             self.fuzzy_hash_button.deleteLater()
@@ -818,6 +827,7 @@ class AppDemo(QMainWindow):
                 self.suspicious_paths.deleteLater()
                 self.searchButton_for_dir.deleteLater()
                 self.searchBar_for_dir.deleteLater()
+                self.searchLayout_for_dir.deleteLater()
                 self.v_box_for_search_dir.deleteLater()
                 self.threadpool_vt.terminate()
                 self.dir_layout.deleteLater()
@@ -833,6 +843,7 @@ class AppDemo(QMainWindow):
                 self.movie_list_ip.deleteLater()
                 self.suspicious_ip.deleteLater()
                 self.searchButton_for_ip.deleteLater()
+                self.searchBar_for_ip.deleteLater()
                 self.searchLayout_for_ip.deleteLater()
                 self.v_box_for_search_ip.deleteLater()
                 self.movie_label_ip.deleteLater()
@@ -847,6 +858,9 @@ class AppDemo(QMainWindow):
             self.quarantine_toggle.deleteLater()
             self.quarantine_message.deleteLater()
             self.quarantine_hbox.deleteLater()
+            self.data_base_message.deleteLater()
+            self.data_base_hbox.deleteLater()
+            self.data_base_toggle.deleteLater()
             self.apply_for_settings.deleteLater()
             self.line_for_start.deleteLater()
             self.line_for_vt.deleteLater()
@@ -1400,7 +1414,6 @@ class AppDemo(QMainWindow):
                         self.dial = str(md5("virus.exe"))
                         self.run_for_start = True
 
-
     def python_analysis(self):
 
         self.clearLayout()
@@ -1426,9 +1439,8 @@ class AppDemo(QMainWindow):
         #         and len(AppDemo.keylogger_suspect_params) == 0:
         #             self.keylogger_check = False
 
-        if AppDemo.keylogger_found:  # AppDemo.keylogger_found # todo, find out how to know whether it's keylogger or not
+        if AppDemo.keylogger_found:  # AppDemo.keylogger_found
 
-            # todo - this will longer than I thought
             keylogger_style_sheet = """
             QListWidget {
                 background-color: #333;
@@ -1722,6 +1734,7 @@ class AppDemo(QMainWindow):
             return
 
         if not self.file_loaded_to_system:
+            # todo, for some reason now this doesn't consider it to be exe for c#. interesting. check in lab
             bytes = b""
             try:
                 with open(path, "rb") as f:
@@ -1733,12 +1746,17 @@ class AppDemo(QMainWindow):
                 print(e)
             self.file_loaded_to_system = True
             print(self.file_loaded_to_system)
+            print("path is (in not loaded to the system ", path)
 
         else:
             path = os.path.abspath("virus.exe")
-            print(path)
+            print("path is (already loaded to system", path)
 
-        self.md5_hash = str(md5("virus.exe"))
+        # self.md5_hash = str(md5(r"E:\Cyber\YB_CYBER\project\FinalProject\poc_start\poc_start\unrelated\graphics"
+        #                         r"\virus.exe")) --> lab
+        self.md5_hash = str(md5(os.path.abspath("virus.exe")))
+        # print(self.md5_hash, "Taken from ", os.path.abspath("virus.exe"))
+
         if self.save_in_data_base:
             if not self.redis_virus.exists(self.md5_hash):
                 self.redis_virus.hset_dict(self.md5_hash,
@@ -1806,13 +1824,15 @@ class AppDemo(QMainWindow):
         if Packers.programming_language(path) is not True:  # either not exe, or not written in the languages
             show_message_warning_box("Your file is not in the current format.\n"
                                      "The exe files that can be uploaded are only in:\n"
-                                     "Python, C++, C, C#"
+                                     "Python, C++, C, C#\n"
                                      "Please be aware and try again")
+            os.remove("virus.exe")
+            self.file_loaded_to_system = False
+            self.listbox_view.clearListWidget()
             return
 
         while not os.path.exists(r"E:\Cyber\YB_CYBER\project\FinalProject\poc_start\poc_start\unrelated\graphics"
                                  r"\virus.exe"):
-            print('File does not exists')
             pass
 
         self.threadpool_sender = QThreadPool()
@@ -1835,7 +1855,6 @@ class AppDemo(QMainWindow):
         os.chdir(r"C:\Program Files (x86)\VMware\VMware Workstation")
         os.system(r'vmrun -T ws start "C:\Users\u101040.DESHALIT\Documents\Virtual Machines\Windows 10 and later '
                   r'x64\Windows 10 and later x64.vmx"')
-
 
         # r"C:\Program Files (x86)\VMware\VMware Workstation"
         # r'vmrun -T ws start "C:\\Users\\user\\OneDrive\\Windows 10 and later x64.vmx"'
@@ -1943,7 +1962,8 @@ class AppDemo(QMainWindow):
     def activate_static_analysis(self):
 
         class StaticThread(QThread):
-            overlay = show_loading_menu_image("Loading your static data\n It will be short till data arrives", "images/one_second.png")
+            overlay = show_loading_menu_image("Loading your static data\n It will be short till data arrives",
+                                              "images/one_second.png")
             overlay.show()
             finished_signal = pyqtSignal()
 
@@ -1982,7 +2002,8 @@ class AppDemo(QMainWindow):
     def activate_hash_analysis(self):
 
         class HashThread(QThread):
-            overlay = show_loading_menu_image("Loading your hash data\n It will be short till data arrives", "images/one_second.png")
+            overlay = show_loading_menu_image("Loading your hash data\n It will be short till data arrives",
+                                              "images/one_second.png")
             overlay.show()
             finished_signal = pyqtSignal()
 
@@ -2043,7 +2064,6 @@ class AppDemo(QMainWindow):
         self.virus_table.setModel(model)
         # self.virus_table.setMaximumSize(int(self.virus_table.width() * 1.59), self.virus_table.height())
         self.virus_table.setMinimumSize(int(self.virus_table.width() * 1.59), self.virus_table.height())
-
 
         self.virus_table.setStyleSheet("""
         QTableView {
@@ -2218,7 +2238,7 @@ class AppDemo(QMainWindow):
         # check for keyboard hook
         keyboard_strings = []
         print("yara strings 1", yara_strings[1])
-        if b'SetWindowsHookEx' in yara_strings[1] and b'SetFilePointer' in yara_strings[1] and b'GetKeyboardState'\
+        if b'SetWindowsHookEx' in yara_strings[1] and b'SetFilePointer' in yara_strings[1] and b'GetKeyboardState' \
                 in yara_strings[1] and b'CreateFileA' in yara_strings[1]:
             keyboard_strings = [b'SetWindowsHookEx', b'SetFilePointer', b'GetKeyboardState', b'CreateFileA']
 
@@ -2407,8 +2427,9 @@ class AppDemo(QMainWindow):
         # self.table_and_strings_layout.addWidget(self.imports_label)
 
         try:
-            shutil.copy("virus.exe", os.path.abspath("graphics").replace("graphics", "hash_scan").replace("\\hash_scan", "",
-                                                                                                          1) + "\\virus.exe")
+            shutil.copy("virus.exe",
+                        os.path.abspath("graphics").replace("graphics", "hash_scan").replace("\\hash_scan", "",
+                                                                                             1) + "\\virus.exe")
         except OSError:
             pass
 
@@ -2958,6 +2979,7 @@ The presence of both means the code itself can be changed dynamically
 
     def fuzzy_scanning(self):
 
+        self.fuzzy_hash_button.setDisabled(True)
         fuzzy_label = QLabel()
 
         # Set the font color to black
@@ -3202,6 +3224,7 @@ The presence of both means the code itself can be changed dynamically
         self.python_visited = False
 
         self.hash_button.setDisabled(True)
+
         self.hash_layout = QVBoxLayout()
 
         self.page_layout.addLayout(self.hash_layout)
@@ -3254,7 +3277,8 @@ The presence of both means the code itself can be changed dynamically
                     percentage = self.dial_instance.get_percentage()
                     self.dial_instance.setDialPercentage(percentage + int(int(self.redis_engines) / 3))
                     self.dial = self.dial_instance.get_dial()
-                    self.redis_virus.hset(self.md5_hash, "final_assesment", percentage + int(int(self.redis_engines) / 3))
+                    self.redis_virus.hset(self.md5_hash, "final_assesment",
+                                          percentage + int(int(self.redis_engines) / 3))
                     self.run_for_engines = 0
 
             if engines == 0 and malicious == 0 and undetected == 0:
@@ -3442,7 +3466,13 @@ The presence of both means the code itself can be changed dynamically
                     }
                 ''')
 
-                self.engine_tree.setMinimumSize(550, 550)
+                # self.engine_tree.setMinimumSize(550, 550)
+                num_items = self.engine_tree.topLevelItemCount()
+                item_height = self.engine_tree.sizeHintForRow(0)
+                header_height = self.engine_tree.header().height()
+                scrollbar_height = self.engine_tree.verticalScrollBar().sizeHint().height()
+                total_height = item_height * num_items + header_height + scrollbar_height
+                self.engine_tree.setMinimumHeight(total_height // 2)
                 self.hash_layout.addWidget(self.engine_tree)
 
             else:
@@ -3459,15 +3489,15 @@ The presence of both means the code itself can be changed dynamically
                 self.hash_layout.addWidget(self.we_are_sorry_label)
 
         else:
-            self.we_are_sorry_label = make_label("You shut down Virus Total Interfacing :(", 20)
+            self.virus_total_shut_down_label = make_label("You shut down Virus Total Interfacing :(", 20)
             font = QFont()
             font.setBold(True)
             font.setPointSize(21)
-            self.we_are_sorry_label.setFont(font)
+            self.virus_total_shut_down_label.setFont(font)
             palette = QPalette()
             palette.setColor(QPalette.WindowText, QColor('red'))
-            self.we_are_sorry_label.setPalette(palette)
-            self.hash_layout.addWidget(self.we_are_sorry_label)
+            self.virus_total_shut_down_label.setPalette(palette)
+            self.hash_layout.addWidget(self.virus_total_shut_down_label)
 
         self.fuzzy_hash_label = make_label("Fuzzy Hashing Analysis", 24)
         self.fuzzy_hash_button = QPushButton("Scan Virus With Fuzzy Hashing")

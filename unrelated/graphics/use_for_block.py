@@ -20,8 +20,8 @@ import logging
 # Configure the logger
 logging.basicConfig(level=logging.INFO)
 
-# ip_for_server = socket.gethostbyname_ex(socket.gethostname())[-1][-1] # --> lab
-ip_for_server = socket.gethostbyname_ex(socket.gethostname())[-1][0]  # --> home
+ip_for_server = socket.gethostbyname_ex(socket.gethostname())[-1][-1] # --> lab
+# ip_for_server = socket.gethostbyname_ex(socket.gethostname())[-1][0]  # --> home
 
 
 class RequestHandler(BaseHTTPRequestHandler):
