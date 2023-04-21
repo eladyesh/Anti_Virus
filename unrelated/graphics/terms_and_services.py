@@ -132,6 +132,10 @@ You will get a notification on the status bar when the report is ready.
 If you wish to directly load the file for static and hash analysis, press the "Load" button for both
 of these features, since they will be locked.
 
+4. Fuzzy Hashing Analysis
+The file in the system will be compared to close to 50,000,000 fuzzy hashes in order to find
+if the file contains malicious code. if you exit the window, the scan will continue f
+
 4. Directory Analysis
 If you wish to pick this option, you will choose a directory, and each of the files
 will be sent to Virus Total. If more than 5 engines of the website found any of the files as malicious, 

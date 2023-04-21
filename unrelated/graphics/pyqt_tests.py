@@ -95,7 +95,7 @@ QLabel{
 """
 
 run_for_show_virtual_machine = 1
-
+stop_threads_for_fuzzy = False
 bubble_strings_dict = {
     'CreateToolhelp32Snapshot': 'Takes a snapshot of the specified processes, as well as '
                                 'the heaps, modules, and threads used by these '
@@ -490,6 +490,7 @@ class AppDemo(QMainWindow):
         self.statusBar_instance = StatusBar()
         self.statusBar = self.statusBar_instance.get_instance()
         self.setStatusBar(self.statusBar)
+        self.messages = []
 
         # toolbar
         self.toolbar = QToolBar()
@@ -682,24 +683,24 @@ class AppDemo(QMainWindow):
 
     def func_for_settings(self):
 
-        messages = []
         if self.vt_toggel.isChecked():
             print("activate virus total is checked")
             self.activate_virus_total = False
-            messages.append("You have turned Virus Total interfacing off")
+            self.messages.append("You have turned Virus Total interfacing off")
         else:
             self.activate_virus_total = True
-            messages.append("You have turned Virus Total interfacing back on")
+            self.messages.append("You have turned Virus Total interfacing back on")
         if self.quarantine_toggle.isChecked():
             # turning the vaulting off --> release the file from vault
             self.vault_file = False
             if os.path.exists("Found_Virus"):
                 Quarantine.restore_file("Found_Virus/virus.exe", "Found_Virus", "1234")
-            messages.append("You have turned the vault option off. If your files was in quarantine, it is now restored")
+            self.messages.append(
+                "You have turned the vault option off. If your files was in quarantine, it is now restored")
         else:
             # leaving the vaulting
             self.vault_file = True
-            messages.append("You have turned the vault option back on")
+            self.messages.append("You have turned the vault option back on")
         if self.data_base_toggle.isChecked():
             if os.path.exists("virus.exe"):
                 self.redis_virus.print_all()
@@ -707,14 +708,12 @@ class AppDemo(QMainWindow):
                     self.redis_virus.delete(md5("virus.exe"))
                     self.save_in_data_base = False
                     self.redis_virus.print_all()
-                    messages.append("Your file will now not be saved in data base")
+                    self.messages.append("Your file will now not be saved in data base")
                     self.dial_instance.setDialPercentage(0)
             else:
                 show_message_warning_box("You didn't upload your file onto the system")
 
         self.main_menu_window()
-        stop_timer(1)
-        self.statusBar_instance.show_few(messages)
         return
 
     def run_func_in_thread(self, func_to_run):
@@ -790,16 +789,30 @@ class AppDemo(QMainWindow):
             self.fuzzy_hash_label.deleteLater()
             self.fuzzy_hash_button.deleteLater()
             if self.delete_widgets is not None:
-                for widget in self.delete_widgets:
-                    widget.deleteLater()
-            if self.fuzzy_spin is not None:
-                self.fuzzy_spin.deleteLater()
+                try:
+                    for widget in self.delete_widgets:
+                        widget.deleteLater()
+                except RuntimeError:
+                    pass
+            try:
+                if self.fuzzy_spin is not None:
+                    self.fuzzy_spin.deleteLater()
+            except RuntimeError:
+                pass
 
             if self.thread1 is not None and self.thread2 is not None and self.thread3 is not None and self.thread4 is not None:
+                stop_threads_for_fuzzy = True
                 self.thread1.terminate()
+                self.thread1 = None
+
                 self.thread2.terminate()
+                self.thread2 = None
+
                 self.thread3.terminate()
+                self.thread3 = None
+
                 self.thread4.terminate()
+                self.thread4 = None
 
             self.hash_layout.deleteLater()
 
@@ -1302,6 +1315,11 @@ class AppDemo(QMainWindow):
                                                                                            "notification in the "
                                                                                            "status bar"))
         self.worker_for_vm.start()
+
+        # for status bar
+        if self.messages != []:
+            self.statusBar_instance.show_few(self.messages)
+            self.messages = []
 
     def on_file_changed(self):
         if self.run_for_dynamic_disable == 1:
@@ -2114,7 +2132,7 @@ class AppDemo(QMainWindow):
             if self.run_for_entropy == 1 and not self.run_for_start:
                 if len(self.redis_entropy) >= 1:
                     self.dial_instance.setDialPercentage(percentage + int(len(self.redis_entropy)))
-                self.dial_instance.setDialPercentage(percentage + int(reg_entropy))
+                self.dial_instance.setDialPercentage(self.dial_instance.get_percentage() + int(reg_entropy))
                 self.redis_virus.hset(self.md5_hash, "final_assesment", percentage + int(reg_entropy))
                 self.dial = self.dial_instance.get_dial()
                 self.run_for_entropy = 0
@@ -3034,21 +3052,27 @@ The presence of both means the code itself can be changed dynamically
 
         class ThreadTask_49(QRunnable):
             def run(self):
-                search_49_file(h1)
+                search_49_file(h1, stop_threads_for_fuzzy)
 
         class ThreadTask_79(QRunnable):
             def run(self):
-                search_79_file(h1)
+                search_79_file(h1, stop_threads_for_fuzzy)
+
+        my_label = my_label_object()
+        my_label.label_change.connect(fuzzy_label.setText)
 
         class ThreadTask_label(QRunnable):
             def run(self):
-                change_fuzzy_label(fuzzy_label)
+                change_fuzzy_label(fuzzy_label, my_label, stop_threads_for_fuzzy)
+
+        my_spin = my_spin_object()
+        my_spin.spin_change.connect(spin_box.setValue)
 
         class ThreadTask_Spin(QRunnable):
             def run(self):
                 r = Redis()
                 md5_hash = md5("virus.exe")
-                change_spin_counter(spin_box, r, md5_hash)
+                change_spin_counter(spin_box, r, md5_hash, my_spin, stop_threads_for_fuzzy)
 
         class WaitThread(QThread):
             def run(self):
@@ -3064,7 +3088,6 @@ The presence of both means the code itself can be changed dynamically
         self.thread2.run = ThreadTask_79().run
         self.thread2.start()
 
-        # create and start the first thread
         self.thread3 = QThread()
         self.thread3.run = ThreadTask_label().run
         self.thread3.start()
@@ -3523,6 +3546,9 @@ The presence of both means the code itself can be changed dynamically
         self.dynamic_layout = QVBoxLayout()
         self.page_layout.addLayout(self.dynamic_layout)
         self.md5_hash = str(md5("virus.exe"))
+
+        self.static_button.setEnabled(True)
+        self.hash_button.setEnabled(True)
 
         class OverlayWindow(QMainWindow):
             def __init__(self, function, functions_list):
