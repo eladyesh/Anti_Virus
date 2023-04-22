@@ -134,7 +134,8 @@ of these features, since they will be locked.
 
 4. Fuzzy Hashing Analysis
 The file in the system will be compared to close to 50,000,000 fuzzy hashes in order to find
-if the file contains malicious code. if you exit the window, the scan will continue f
+if the file contains malicious code. if you exit the window, the scan will continue.
+And when you return, the scan will be shown again.
 
 4. Directory Analysis
 If you wish to pick this option, you will choose a directory, and each of the files

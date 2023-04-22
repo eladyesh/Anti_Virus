@@ -126,6 +126,8 @@ class Quarantine:
 
         # Construct the original file path outside the quarantine folder
         original_file_path = os.path.join(os.path.dirname(quarantine_folder), file_name)
+        # original_file_path = os.path.join(os.path.dirname(quarantine_folder), file_name) # add another param -->
+        # the real file path, and change the original_file_path to it # todo
 
         # Set the permissions on the file to read, write, and execute for the owner
         os.chmod(file_path, 0o700)
@@ -145,6 +147,7 @@ class Quarantine:
 
 if __name__ == "__main__":
 
+    # path = sys.argv[1:][0]
     for process in psutil.process_iter(['pid', 'name', 'cmdline']):
         try:
             process_info = process.as_dict(attrs=['pid', 'name', 'cmdline'])
@@ -158,6 +161,7 @@ if __name__ == "__main__":
                 break
 
     if not os.path.exists("Found_Virus"):
+        # new_file_path = Quarantine.quarantine_file("virus.exe", "Found_Virus", "1234")
         new_file_path = Quarantine.quarantine_file("virus.exe", "Found_Virus", "1234")
         Quarantine.hide("Found_Virus")
 

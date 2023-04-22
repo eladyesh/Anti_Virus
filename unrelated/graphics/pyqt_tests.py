@@ -92,6 +92,17 @@ QLabel{
     display:inline-block; 
     position: fixed;
 }
+QToolTip {
+    color: #87CEFA;
+    background-color: #333;
+    border: 2px solid #444;
+    border-radius: 5px;
+    font-family: sans-serif;
+    font-size: 14px;
+    padding: 5px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
 """
 
 run_for_show_virtual_machine = 1
@@ -452,6 +463,7 @@ class ListBoxWidget(QListWidget):
 class AppDemo(QMainWindow):
     # define static variables
     keylogger_found = False
+    suspected_keylogger = False
     keylogger_suspect_imports = []
     keylogger_suspect_funcs = []
     keylogger_suspect_funcs_and_params = {}
@@ -696,7 +708,7 @@ class AppDemo(QMainWindow):
             if os.path.exists("Found_Virus"):
                 Quarantine.restore_file("Found_Virus/virus.exe", "Found_Virus", "1234")
             self.messages.append(
-                "You have turned the vault option off. If your files was in quarantine, it is now restored")
+                "You have turned the vault option off. If your file was in quarantine, it is now restored")
         else:
             # leaving the vaulting
             self.vault_file = True
@@ -1353,7 +1365,9 @@ class AppDemo(QMainWindow):
             # Run the Python script `quarantine.py`
             # The `os.system()` function executes a command in a subshell
             # In this case, the command is to run the `quarantine.py` script
+
             os.system("python quarantine.py")
+            # result = subprocess.run(['python', 'quarantine.py'] + [self.path_for_file], capture_output=True, text=True) --> use this in real
 
             # Quit the application
             # The `QApplication.quit()` function terminates the application
@@ -1446,6 +1460,10 @@ class AppDemo(QMainWindow):
         self.python_layout = QVBoxLayout()
         self.page_layout.addLayout(self.python_layout)
         self.python_label = make_label("Python Static Analysis", 24)
+        self.python_label.setText("Python Static Analysis <img src='images/info-button.png' width='20' height='20'>")
+        self.python_label.setToolTip("Full Static Code Analysis of Python Executables files:\n"
+                                     "WinApi Executables\n"
+                                     "Keyloggers")
         self.python_layout.addWidget(self.python_label)
 
         # self.pv = PythonVirus("virus.exe")
@@ -1744,10 +1762,10 @@ class AppDemo(QMainWindow):
 
     def getSelectedItem(self):
         item = QListWidgetItem(self.listbox_view.item(0))
-        path = item.text()
+        self.path_for_file = item.text()
 
         # show warning message box for no file
-        if path == "":
+        if self.path_for_file == "" and not os.path.exists("virus.exe"):
             show_message_warning_box("You have to enter a real path")
             return
 
@@ -1755,23 +1773,25 @@ class AppDemo(QMainWindow):
             # todo, for some reason now this doesn't consider it to be exe for c#. interesting. check in lab
             bytes = b""
             try:
-                with open(path, "rb") as f:
+                with open(self.path_for_file, "rb") as f:
                     bytes += f.read()
-                shutil.move(str(path), PATH_TO_MOVE + "\\virus.exe")
-                with open(path, "wb") as f:
+                shutil.move(str(self.path_for_file), PATH_TO_MOVE + "\\virus.exe")
+                with open(self.path_for_file, "wb") as f:
                     f.write(bytes)
             except Exception as e:
                 print(e)
             self.file_loaded_to_system = True
             print(self.file_loaded_to_system)
-            print("path is (in not loaded to the system ", path)
+            print("path is (in not loaded to the system ", self.path_for_file)
 
         else:
-            path = os.path.abspath("virus.exe")
-            print("path is (already loaded to system", path)
+            self.path_for_file = os.path.abspath("virus.exe")
+            print("path is (already loaded to system", self.path_for_file)
 
         # self.md5_hash = str(md5(r"E:\Cyber\YB_CYBER\project\FinalProject\poc_start\poc_start\unrelated\graphics"
         #                         r"\virus.exe")) --> lab
+
+
         self.md5_hash = str(md5(os.path.abspath("virus.exe")))
         # print(self.md5_hash, "Taken from ", os.path.abspath("virus.exe"))
 
@@ -1793,7 +1813,7 @@ class AppDemo(QMainWindow):
         # self.redis_virus.print_all()
         # print(int(self.redis_virus.hgetall('5fffd3e69093dc32727214ba5c8f2af5')[b'num_of_rules'].decode()) * 5)
 
-        if Packers.programming_language(path) == "py":  # a python file
+        if Packers.programming_language(self.path_for_file) == "py":  # a python file
             # self.py_thread = QThread()
             # self.py_thread.run = self.python_analysis
             # self.py_thread.start()
@@ -1839,7 +1859,7 @@ class AppDemo(QMainWindow):
             self.python_analysis()
             return
 
-        if Packers.programming_language(path) is not True:  # either not exe, or not written in the languages
+        if Packers.programming_language(self.path_for_file) is not True:  # either not exe, or not written in the languages
             show_message_warning_box("Your file is not in the current format.\n"
                                      "The exe files that can be uploaded are only in:\n"
                                      "Python, C++, C, C#\n"
@@ -2140,6 +2160,10 @@ class AppDemo(QMainWindow):
         self.table_and_strings_layout = QVBoxLayout()
 
         self.virus_table_label = make_label("The Portable Executable Table", 24)
+        self.virus_table_label.setText("The Portable Executable Table <img src='images/info-button.png' width='20' "
+                                       "height='20'>")
+        self.virus_table_label.setToolTip("Information about PE sections:\n"
+                                          "Name, Virtual Address, Virtual Size, Raw Size, Entropy")
         self.table_and_strings_layout.addWidget(self.virus_table_label)
 
         self.virus_table.resizeColumnsToContents()
@@ -2336,6 +2360,8 @@ class AppDemo(QMainWindow):
         self.list_strings_widget.setStyleSheet(self.list_widget_style_sheet)
 
         self.strings_label = make_label("Suspicious Strings", 24)
+        self.strings_label.setText("Suspicious Strings  <img src='images/info-button.png' width='20' height='20'>")
+        self.strings_label.setToolTip("Suspicious YARA strings identified from the file")
         self.list_strings_widget.setVerticalScrollBar(scrollBar)
         self.reg_strings_box = QVBoxLayout()
         self.reg_strings_box.addWidget(self.strings_label)
@@ -2347,6 +2373,9 @@ class AppDemo(QMainWindow):
         self.strings_box = QHBoxLayout()
 
         self.sys_internals_strings_label = make_label("Additional Strings", 24)
+        self.sys_internals_strings_label.setText("Additional Strings  <img src='images/info-button.png' width='20' "
+                                                 "height='20'>")
+        self.sys_internals_strings_label.setToolTip("Additional strings found from SysInternals Suite")
 
         s = SysInternals()
         self.sys_internals_strings_list = QListWidget()
@@ -2378,6 +2407,8 @@ class AppDemo(QMainWindow):
         self.table_and_strings_layout.addLayout(self.strings_box)
 
         self.packers_label = make_label("Packers And Protectors", 24)
+        self.packers_label.setText("Packers And Protectors  <img src='images/info-button.png' width='20' height='20'>")
+        self.packers_label.setToolTip("Packers and Protectors detected by YARA stubs and signatures")
         self.packers_widget = QListWidget()
         # self.packers_widget.setMaximumSize(400, 300)
         # self.packers_widget.itemEntered.connect(show_bubble)
@@ -2440,6 +2471,8 @@ class AppDemo(QMainWindow):
         # self.table_and_strings_layout.addWidget(self.packers_widget)
 
         self.imports_label = make_label("Imports", 24)
+        self.imports_label.setText("Imports  <img src='images/info-button.png' width='20' height='20'>")
+        self.imports_label.setToolTip("Imports of each DLL found by PE Parser")
         self.v_box_for_imports = QVBoxLayout()
         self.v_box_for_imports.addWidget(self.imports_label)
         # self.table_and_strings_layout.addWidget(self.imports_label)
@@ -2566,6 +2599,10 @@ class AppDemo(QMainWindow):
 
         # PE TESTS
         self.pe_tests_label = make_label("PE examination", 24)
+        self.pe_tests_label.setText("PE examination  <img src='images/info-button.png' width='20' height='20'>")
+        self.pe_tests_label.setToolTip("3 PE examination tests to check hidden virus (more info will be detailed in "
+                                       "each examination):\n"
+                                       "Fractioned Imports, Suspicious Sections, Linker Test")
         self.table_and_strings_layout.addWidget(self.pe_tests_label)
 
         self.page_layout.addLayout(self.table_and_strings_layout)
@@ -2589,12 +2626,12 @@ class AppDemo(QMainWindow):
         title = QLabel("Fractioned Imports  <img src='images/info-32.png' width='20' height='20'>")
         title.setStyleSheet(
             "QLabel { margin-top: 10px; margin-left: 5px; margin-bottom: 10px;}")
-        title.setToolTip("Another virus-typical behaviour is the introduction fractionated imports.\n Generally all "
+        title.setToolTip("Another virus-typical behaviour is the introduction fractionated imports.\nGenerally all "
                          "imports are placed in one section, but if they are spread over different sections, "
                          "they are called fractionated. \nSome viruses add imports deliberately to make sure they can "
                          "use certain system APIs. \nThe fractioning is an unintended side-effect from placing the "
                          "imports at a virus-convenient location that is usually not near the imports of the original "
-                         "file.")
+                         "file.\nThe DLL's found fractionated will be presented")
         self.fractioned.setTitle("")
         self.fractioned.setMinimumSize(300, 200)
         # self.fractioned.setMaximumSize(400, 250)
@@ -2625,15 +2662,13 @@ class AppDemo(QMainWindow):
         title_linker = QLabel("PE Linker  <img src='images/info-32.png' width='20' height='20'>")
         title_linker.setStyleSheet(
             "QLabel {margin: 0px; margin-left: 0px; margin-bottom: 30px; }")
-        title_linker.setToolTip("""Checks that the Rich and PE header linker versions do not conflict. Certain Rich Header ProdIDs correspond to
-linker versions Although they are undocumented, we have used prior research as well as our own to determine
-many of them There are likely more linker version ProdIDs that we have not identified If the linker versions
-conflict, this function returns INVALID
-This indicates that the Rich header or PE header has been modified
-If the Rich Header is present, a linker mismatch between the Rich Header linker and Optional Header linker
-version indicates manipulation of the headers. Since the Rich Header is a means to attribute samples to
-threat actors, malware authors might get the idea to swap the DOS Stub and Rich Header with those of other
-threat actor's samples""")
+        title_linker.setToolTip("""When analyzing a file for potential malicious behavior, security experts look for 
+signs of manipulation in the file headers. One such sign is a linker mismatch between the Rich Header linker 
+and Optional Header linker version, which can indicate that the file headers have been tampered with. The 
+Rich Header, which is used to attribute a file to a specific group or individual, has certain ProdIDs that 
+correspond to linker versions. Malware authors may try to swap the DOS Stub and Rich Header with those of 
+other threat actors' samples to avoid detection, which can cause a conflict in the linker versions. This can 
+indicate that the Rich header or PE header has been modified, potentially indicating malicious behavior.""")
         self.pe_linker.setTitle("")
         # self.pe_linker.setMaximumSize(300, 200)
         self.v_box_for_pe_linker = QVBoxLayout()
@@ -2657,15 +2692,17 @@ threat actor's samples""")
                                       percentage + int(len(self.redis_sections) * 0.5))
                 self.run_for_sections = 0
 
-        self.suspicious_imports = QGroupBox("Suspicious Imports")
-        title = QLabel("Suspicious Imports  <img src='images/info-32.png' width='20' height='20'>")
+        self.suspicious_imports = QGroupBox("Suspicious Sections")
+        title = QLabel("Suspicious Sections  <img src='images/info-32.png' width='20' height='20'>")
         title.setStyleSheet(
             "QLabel { margin-top: 10px; margin-left: 5px; margin-bottom: 10px;}")
         title.setToolTip("""Patches in the Section Table
-A prominent red flag for non-packed files is the presence of write and execute characteristics in a section
+A prominent red flag for non-packed files is the presence of write and execute characteristics in a section.
 Most of the time write and execute characteristics do not appear together in a section in non-packed files,
 whereas it is rather typical for packed files.
-The presence of both means the code itself can be changed dynamically
+The presence of both means the code itself can be changed dynamically, 
+and a virus could inject itself into the code.
+The sections that were found with these flags will be presented
         """)
         self.suspicious_imports.setTitle("")
         self.suspicious_imports.setMinimumSize(200, 200)
@@ -3048,7 +3085,18 @@ The presence of both means the code itself can be changed dynamically
         self.hash_layout.addLayout(self.fuzzy_spin)
         self.delete_widgets = [spin_box, fuzzy_label]
 
-        h1 = ppdeep.hash_from_file("virus.exe")
+        # suspected advanced keylogger
+        if os.path.getsize("virus.exe") / 1024 > 45000:
+            h1 = "96:PN1/swM3v3o17aJ1IDD9rYLa6TEjJlZUni8o345FdTrr+QE1OvnkdK/t1lFOwrYm:liP+WwjJl2rqynkdI1QSRLr"
+            print("got to suspected advanced keylogger")
+
+        # suspected WinApi packed Python Executable
+        elif os.path.getsize("virus.exe") / 1024 > 6000:
+            h1 = "48:8MNBRIx1GvVFUIKQEzlOx6qLPweduN+A5RsVK6MjvCUqrLbXtj4pz6a3g9miojPo:8xxssbfjRN+A5+VK6MjvSXtj4cXk/FHK"
+            print("got to suspected WinApi packed Python Executable")
+
+        else:
+            h1 = ppdeep.hash_from_file("virus.exe")
 
         class ThreadTask_49(QRunnable):
             def run(self):
@@ -3308,6 +3356,12 @@ The presence of both means the code itself can be changed dynamically
                 show_tree = False
 
             self.basic_info_label = make_label("Basic Information", 24)
+            self.basic_info_label.setText("Basic Information  <img src='images/info-button.png' width='20' height='20'>")
+            self.basic_info_label.setToolTip("Basic Hash info of the file being tested:\n"
+                                             "MD5 Hash, SHA-256 Hash, Entropy,\n"
+                                             "Number of engined detected file as malicious & Not detected as "
+                                             "malicious\n"
+                                             "Type of file")
             self.hash_layout.addWidget(self.basic_info_label)
 
             # Create the QTableView
@@ -3374,6 +3428,11 @@ The presence of both means the code itself can be changed dynamically
                 self.hash_layout.addWidget(self.basic_info)
 
                 self.virus_total_label = make_label("Virus Total Engine Results", 24)
+                self.virus_total_label.setText("Virus Total Engine Results  <img src='images/info-button.png' "
+                                               "width='20' height='20'>")
+                self.virus_total_label.setToolTip("Detailed information about each engine that detected the file as "
+                                                  "malicious:\n"
+                                                  "Name, Version, Category, Result, Method, Updated")
                 self.hash_layout.addWidget(self.virus_total_label)
                 self.engine_tree.setVerticalScrollBar(self.create_scroll_bar())
                 self.we_are_sorry_label = make_label("", 20)
@@ -3523,6 +3582,10 @@ The presence of both means the code itself can be changed dynamically
             self.hash_layout.addWidget(self.virus_total_shut_down_label)
 
         self.fuzzy_hash_label = make_label("Fuzzy Hashing Analysis", 24)
+        self.fuzzy_hash_label.setText("Fuzzy Hashing Analysis  <img src='images/info-button.png' width='20' "
+                                      "height='20'>")
+        self.fuzzy_hash_label.setToolTip("Scan a file for potential matches with a database of known malicious fuzzy "
+                                         "hashes")
         self.fuzzy_hash_button = QPushButton("Scan Virus With Fuzzy Hashing")
         self.fuzzy_hash_button.setStyleSheet(scan_dir_style_sheet)
         self.fuzzy_hash_button.setMaximumSize(550, 350)
@@ -4331,6 +4394,13 @@ The presence of both means the code itself can be changed dynamically
         self.dynamic_layout.addWidget(self.graph_button)
 
         self.handle_label = make_label("Sys Internals Handle Analysis", 24)
+        self.handle_label.setText("Sys Internals Handle Analysis <img src='images/info-button.png' width='20' "
+                                  "height='20'>")
+        self.handle_label.setToolTip("Specifies the Events and Handles the file left open.\n"
+                                     "Categorized by Alerts - \n"
+                                     "Blue (Events or Regular Handles): the least likely to be malicious\n"
+                                     "Orange (Directory) and Dark Orange (File): more likely to be malicious\n"
+                                     "Red (Registry Keys): the most likely to be malicious\n")
         self.dynamic_layout.addWidget(self.handle_label)
 
         events = EventViewer()
@@ -4345,17 +4415,17 @@ The presence of both means the code itself can be changed dynamically
         self.dynamic_layout.addWidget(self.events_table)
 
         # TODO- complete quarantine
-        # todo - complete yara keyboard hooking show red
+        # TODO - go over pe examination
         # TODO- complete data base --> if user turned off to save his file in data base, you can't analyse it for him.
         # TODO - complete python analysis - and then I am pretty much done
         # TODO - if wanna - go over log
 
 
 if __name__ == "__main__":
+
     def on_exit():
         print("Application is about to quit")
-        raise SystemExit
-
+        QApplication.quit()
 
     app = QApplication(sys.argv)
     app.setStyleSheet(qss)

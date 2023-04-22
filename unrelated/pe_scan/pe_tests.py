@@ -347,7 +347,10 @@ class ScanPE:
 
         """
 
+        # Load the PE
         pe = pefile.PE(self.path)
+
+        # Get the Rich Header
         rich_header = pe.parse_rich_header()
 
         # Get list of @Comp.IDs and counts from Rich header
@@ -355,27 +358,33 @@ class ScanPE:
         # Elements in rich_fields at odd indices are counts
 
         try:
+
+            # Deep copy the values to avoid modifying the original
             rich_fields = copy.deepcopy(rich_header.get("values", None))
+
+            # If the number of values is not even, parsing is unsuccessful
             if len(rich_fields) % 2 != 0:
                 return result.UNABLE_TO_PARSE
         except:
+
+            # If the values cannot be obtained, parsing is unsuccessful
             return result.UNABLE_TO_PARSE
 
-        # Get list of ProdIDs from rich_fields
+        # Get a list of ProdIDs from the Rich header values
         prodids = []
         for i in range(len(rich_fields)):
             if i % 2 == 0:
                 prodids.append(rich_fields[i] >> 16)  # / 2 ** 16
 
-        # Parse major and minor linker versions from PE header
+        # Get the linker versions from the PE header
         pe_major = pe.OPTIONAL_HEADER.MajorLinkerVersion
         pe_minor = pe.OPTIONAL_HEADER.MinorLinkerVersion
 
-        # Iterate over Rich header ProdIDs
+        # Iterate over each ProdID in the Rich header
         found_linker = False
         for prodid in prodids:
 
-            # Only interested in ProdIDs that correspond to linker versions
+            # Check if the ProdID corresponds to a linker version
             if KNOWN_PRODUCT_IDS.get(prodid) is None:
                 continue
             prodid_name = KNOWN_PRODUCT_IDS[prodid]
@@ -384,7 +393,7 @@ class ScanPE:
 
             found_linker = True
 
-            # Parse major and minor linker version from ProdID
+            # Parse the major and minor linker versions from the ProdID
             prodid_name = prodid_name[6:]
             if prodid_name.endswith("p"):
                 prodid_name = prodid_name[:-1]
@@ -395,10 +404,11 @@ class ScanPE:
             if pe_major == rich_major and pe_minor == rich_minor:
                 return result.VALID
 
-        # We didn't find a linker
+        # If no linker ProdID is found, parsing is unsuccessful
         if not found_linker:
             return result.UNABLE_TO_PARSE
 
+        # If a linker ProdID is found but the versions don't match, parsing is unsuccessful
         return result.INVALID
 
     def run_pe_scan_exe(self):
