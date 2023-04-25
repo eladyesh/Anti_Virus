@@ -17,7 +17,7 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 from PyQt5 import QtCore, QtGui
 from PyQt5.QtCore import Qt, QUrl, pyqtSlot, QRunnable, QThreadPool, QVariant, QAbstractTableModel, QRectF, QTimer, \
-    QEventLoop, QSize, QMetaObject
+    QEventLoop, QSize, QMetaObject, QEvent
 import PyQt5.QtGui
 from PyQt5.QtCore import QObject, QThread, pyqtSignal
 import shutil
@@ -290,6 +290,20 @@ class worker_for_vm(QObject, threading.Thread):
             run_for_show_virtual_machine = 0
 
 
+class worker_for_upload_remove(QObject, threading.Thread):
+    file_is_loaded = pyqtSignal()
+
+    def __init__(self):
+        super().__init__()
+
+    def run(self):
+        # Monitor the file
+        while not os.path.exists("virus.exe"):
+            time.sleep(1)
+
+        self.file_is_loaded.emit()
+
+
 class worker_for_files(QObject, threading.Thread):
     file_changed = pyqtSignal()
 
@@ -374,12 +388,13 @@ class TableModel(QAbstractTableModel):
 
 
 class ListBoxWidget(QListWidget):
-    def __init__(self, parent=None):
+    def __init__(self, status_bar, parent=None):
         super().__init__(parent)
+        self.status_bar = status_bar
 
         # perform drag and drop
         self.setAcceptDrops(True)
-        self.setGeometry(0, 0, 500, 300)
+        self.setGeometry(0, 0, 600, 500)
         self.move(300, 150)
 
         self.movie = QMovie("images/drag_and_drop.gif")
@@ -396,18 +411,123 @@ class ListBoxWidget(QListWidget):
         layout.addLayout(hlayout)
         layout.addStretch()
 
+        button_clear_layout = QHBoxLayout()
+        self.upload_button = QPushButton("Upload to Box / Remove From System", self)
+        self.upload_button.clicked.connect(self.uploadOrRemoveFile)
+        self.upload_button.setCursor(Qt.PointingHandCursor)
+        self.upload_button.setStyleSheet('''
+            QPushButton {
+                background-color: #E7E7FA;
+                color: #000080;
+                border: 2px solid #9400D3;
+                font: bold 14px;
+                margin: 5px;
+                margin-bottom: 10px;
+                padding: 6px;
+                transition: all 0.5s cubic-bezier(0.25, 0.1, 0.25, 1.0);
+                box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.3);
+            }
+
+            QPushButton::indicator {
+                width: 0;
+                height: 0;
+                padding: 0;
+                margin: 0;
+            }
+
+            QPushButton#upload:checked {
+                background-color: #4CAF50;
+            }
+
+            QPushButton#upload:active {
+                transform: translateY(2px);
+                box-shadow: 0px 0px 0px rgba(0, 0, 0, 0.3);
+            }
+
+            QPushButton#remove {
+                background-color: #FF5252;
+            }
+
+             QPushButton:hover {
+                 background-color: #D8BFD8;
+                 color: #4B0082;
+             }
+
+             QPushButton:pressed {
+                 background-color: #DDA0DD;
+                 color: #8B008B;
+             }
+        ''')
+        self.upload_button.setCheckable(True)
+        self.upload_button.setObjectName('upload')
+        self.upload_button.setChecked(True) if os.path.exists("virus.exe") else ""
+        font = QFont()
+        font.setBold(True)
+        self.upload_button.setFont(font)
+
+        button_clear_layout.addWidget(self.upload_button, alignment=Qt.AlignBottom | Qt.AlignLeft)
+
+        spacer = QSpacerItem(1200, 0, QSizePolicy.Expanding, QSizePolicy.Expanding)
+        button_clear_layout.addSpacerItem(spacer)
+        button_clear_layout.addStretch()  # add spacer item
+
         self.clear_icon = QLabel(self)
         self.clear_icon.setPixmap(QPixmap("images/clean.png"))
         self.clear_icon.setVisible(False)
         self.clear_icon.mousePressEvent = self.clearListWidget
+        button_clear_layout.addWidget(self.clear_icon, alignment=Qt.AlignBottom | Qt.AlignRight)
+        button_clear_layout.addStretch()  # add spacer item
+        layout.addLayout(button_clear_layout)
 
-        # create layout for clear icon
-        clear_layout = QVBoxLayout()
-        clear_layout.addStretch()
-        clear_layout.addWidget(self.clear_icon, alignment=Qt.AlignBottom | Qt.AlignRight)
-        layout.addLayout(clear_layout)
-        # self.move(QApplication.desktop().screen().rect().center()- self.rect().center())
-        # self.resize(300, 300)
+    def uploadOrRemoveFile(self):
+
+        # Add the file to the list widget
+        if self.upload_button.isChecked():
+
+            # Button is not checked, prompt user to select file and add it to list
+            file_dialog = QFileDialog()
+            file_dialog.setFileMode(QFileDialog.ExistingFile)
+            file_dialog.setNameFilter("All Files (*)")
+            file_dialog.setOption(QFileDialog.DontUseNativeDialog)
+            file_dialog.setOption(QFileDialog.DontUseCustomDirectoryIcons)
+            file_dialog.setOption(QFileDialog.ReadOnly)
+            file_dialog.setOption(QFileDialog.HideNameFilterDetails)
+            file_dialog.setOption(QFileDialog.DontResolveSymlinks)
+            file_dialog.setViewMode(QFileDialog.Detail)
+            file_dialog.setOption(QFileDialog.DontUseSheet)
+            file_dialog.setOption(QFileDialog.DontUseNativeDialog)
+            file_dialog.setOption(QFileDialog.ReadOnly)
+            file_dialog.setOption(QFileDialog.DontUseCustomDirectoryIcons)
+            file_dialog.setOption(QFileDialog.DontResolveSymlinks)
+            file_dialog.setOption(QFileDialog.HideNameFilterDetails)
+            if file_dialog.exec_() == QDialog.Accepted:
+                selected_file = file_dialog.selectedFiles()[0]
+                if selected_file:
+                    if self.count():
+                        show_message_warning_box("There is already a file in the drag box")
+                        self.upload_button.setChecked(False)
+                    else:
+                        self.addItem(selected_file)
+                        self.toggleClearIcon()
+                        try:
+                            self.gif_label.deleteLater()
+                        except RuntimeError:
+                            pass
+            else:
+                show_message_warning_box("You must choose a real path")
+                self.upload_button.setChecked(False)
+
+        else:
+            show_message_warning_box("All the relevant analysis files will de deleted, and the application will exit.\n"
+                                     "If you want the file to not be saved in data base you must load it into the "
+                                     "system again\n"
+                                     "and remove it from that data base in the configurations tab")
+            os.system("python delete_files.py")
+            # result = subprocess.run(['python', 'quarantine.py'] + [self.path_for_file], capture_output=True, text=True) --> use this in real
+
+            # Quit the application
+            # The `QApplication.quit()` function terminates the application
+            QApplication.quit()
 
     def dragEnterEvent(self, event):
         if event.mimeData().hasUrls():
@@ -1051,9 +1171,10 @@ class AppDemo(QMainWindow):
         self.btn_layout = QHBoxLayout()
         self.run_once = 0
         self.activate_btn_layout = QHBoxLayout()
-        self.resize(1200, 650)
+        self.resize(1200, 720)
 
-        self.listbox_view = ListBoxWidget(self)
+        self.listbox_view = ListBoxWidget(self.statusBar_instance, self)
+        self.listbox_view.setMinimumSize(300, 247)
         self.btn = QPushButton('Start Dynamic Scan', self)
         self.btn.setStyleSheet("QPushButton {background-color: #E6E6FA; color: #000080; border: 2px solid #9400D3; "
                                "font: bold 18px; min-width: 80px; padding: 6px; margin-top: 20px;} "
@@ -1327,6 +1448,11 @@ class AppDemo(QMainWindow):
                                                                                            "notification in the "
                                                                                            "status bar"))
         self.worker_for_vm.start()
+
+        # for the upload / remove button
+        self.worker_for_upload_remove = worker_for_upload_remove()
+        self.worker_for_upload_remove.file_is_loaded.connect(lambda: self.listbox_view.upload_button.setChecked(True))
+        self.worker_for_upload_remove.start()
 
         # for status bar
         if self.messages != []:
@@ -1791,8 +1917,7 @@ class AppDemo(QMainWindow):
         # self.md5_hash = str(md5(r"E:\Cyber\YB_CYBER\project\FinalProject\poc_start\poc_start\unrelated\graphics"
         #                         r"\virus.exe")) --> lab
 
-
-        self.md5_hash = str(md5(os.path.abspath("virus.exe")))
+        self.md5_hash = str(md5(os.getcwd() + r"\virus.exe"))
         # print(self.md5_hash, "Taken from ", os.path.abspath("virus.exe"))
 
         if self.save_in_data_base:
@@ -1859,7 +1984,8 @@ class AppDemo(QMainWindow):
             self.python_analysis()
             return
 
-        if Packers.programming_language(self.path_for_file) is not True:  # either not exe, or not written in the languages
+        if Packers.programming_language(
+                self.path_for_file) is not True:  # either not exe, or not written in the languages
             show_message_warning_box("Your file is not in the current format.\n"
                                      "The exe files that can be uploaded are only in:\n"
                                      "Python, C++, C, C#\n"
@@ -1890,9 +2016,11 @@ class AppDemo(QMainWindow):
 
     def activate_vm(self):
 
+        current_path = os.getcwd()
         os.chdir(r"C:\Program Files (x86)\VMware\VMware Workstation")
         os.system(r'vmrun -T ws start "C:\Users\u101040.DESHALIT\Documents\Virtual Machines\Windows 10 and later '
                   r'x64\Windows 10 and later x64.vmx"')
+        os.chdir(current_path)
 
         # r"C:\Program Files (x86)\VMware\VMware Workstation"
         # r'vmrun -T ws start "C:\\Users\\user\\OneDrive\\Windows 10 and later x64.vmx"'
@@ -2142,6 +2270,7 @@ class AppDemo(QMainWindow):
 
         # self.virus_table.setMinimumSize(100, 430)
 
+        print(os.path.abspath("virus.exe"))
         self.md5_hash = str(md5("virus.exe"))
         entropy_of_virus_vs_reg = entropy_vs_normal("virus.exe")
         self.redis_virus.hset(self.md5_hash, "entropy_vs_normal", pickle.dumps(entropy_of_virus_vs_reg))
@@ -3356,7 +3485,8 @@ The sections that were found with these flags will be presented
                 show_tree = False
 
             self.basic_info_label = make_label("Basic Information", 24)
-            self.basic_info_label.setText("Basic Information  <img src='images/info-button.png' width='20' height='20'>")
+            self.basic_info_label.setText(
+                "Basic Information  <img src='images/info-button.png' width='20' height='20'>")
             self.basic_info_label.setToolTip("Basic Hash info of the file being tested:\n"
                                              "MD5 Hash, SHA-256 Hash, Entropy,\n"
                                              "Number of engined detected file as malicious & Not detected as "
@@ -4411,6 +4541,12 @@ The sections that were found with these flags will be presented
         self.events_table.resizeColumnsToContents()
         self.events_table.resizeRowsToContents()
 
+        # Set the ItemIsEditable flag to False for each cell
+        for row in range(self.events_table.rowCount()):
+            for col in range(self.events_table.columnCount()):
+                item = self.events_table.item(row, col)
+                item.setFlags(item.flags() & ~Qt.ItemIsEditable)
+
         # self.events_table.setMinimumSize(450, 450)
         self.dynamic_layout.addWidget(self.events_table)
 
@@ -4422,10 +4558,10 @@ The sections that were found with these flags will be presented
 
 
 if __name__ == "__main__":
-
     def on_exit():
         print("Application is about to quit")
         QApplication.quit()
+
 
     app = QApplication(sys.argv)
     app.setStyleSheet(qss)

@@ -121,35 +121,41 @@ class TermsAndServicesDialog(QDialog):
 
 These instructions and services are necessary for the use of this application. Please be aware to accept them at the end
 
-2. Virtual Machine and Dynamic Analysis
+2. Upload To Drag Box / Remove From System:
+When you check the button first, the option that will be activated is "Upload To Drag Box". When you press it again,
+the option that will be activated is "Remove From system".
+Upload To Drag Box: upload a file from any directory to the Drag Box.
+Remove From System: remove any analysis files that are relevant to the suspected file.
+
+3. Virtual Machine and Dynamic Analysis
 
 In order to start the dynamic analysis, you will have to press the 'Start Virtual Machine' button.
 Then, you will have to wait till the machine is fully on.
 Only then, you can drag a file to the application, and press the 'Start Dynamic Analysis' button.
 You will get a notification on the status bar when the report is ready.
 
-3. Static and Hash Analysis
+4. Static and Hash Analysis
 If you wish to directly load the file for static and hash analysis, press the "Load" button for both
 of these features, since they will be locked.
 
-4. Fuzzy Hashing Analysis
+5. Fuzzy Hashing Analysis
 The file in the system will be compared to close to 50,000,000 fuzzy hashes in order to find
 if the file contains malicious code. if you exit the window, the scan will continue.
 And when you return, the scan will be shown again.
 
-4. Directory Analysis
+6. Directory Analysis
 If you wish to pick this option, you will choose a directory, and each of the files
 will be sent to Virus Total. If more than 5 engines of the website found any of the files as malicious, 
 You will see them in the list in the right of the screen
 
-5. IP Analysis
+7. IP Analysis
 If you wish to pick this option, each of the IP's from your DNS cache will be uploaded to Virus Total,
 and if more than 5 engines found the IP as malicious, the system will block that IP, 
 and the system will present it to the right of the screen. When the scanning is over,
 the system will open a different process to block the IP's that were found malicious. If you agree
 to the opening, these IP's will now be blocked.
 
-6. Further Notice
+8. Further Notice
 Every Analysis done in this application will be deleted COMPLETELY once you move to a new window.
 Please be aware and not upset. 
 That is because once a new window has been shown, Analysis that has been done before is deleted off the screen
