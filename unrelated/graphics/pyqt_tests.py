@@ -17,14 +17,14 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 from PyQt5 import QtCore, QtGui
 from PyQt5.QtCore import Qt, QUrl, pyqtSlot, QRunnable, QThreadPool, QVariant, QAbstractTableModel, QRectF, QTimer, \
-    QEventLoop, QSize, QMetaObject, QEvent
+    QEventLoop, QSize, QMetaObject, QEvent, QDir
 import PyQt5.QtGui
 from PyQt5.QtCore import QObject, QThread, pyqtSignal
 import shutil
 from poc_start.unrelated.graphics.quarantine import Quarantine
 from poc_start.unrelated.graphics.helpful_widgets import DialWatch, EventViewer, show_loading_menu, StatusBar, \
     MessageBox, show_message_warning_box, my_path_object, stop_timer, invoke_progress_bar_dir, invoke_progress_bar_ip, \
-    worker_for_function, show_loading_menu_image
+    worker_for_function, show_loading_menu_image, OverLayQuarantined
 from poc_start.send_to_vm.sender import Sender
 from poc_start.unrelated.hash_scan.vt_hash import VTScan, md5, check_hash, sha_256, start_server, RequestHandler, \
     HTTPServer, BaseHTTPRequestHandler
@@ -234,7 +234,9 @@ bubble_strings_dict = {
     "VC8_Microsoft_Corporation": "VC8 is a common abbreviation for Microsoft Visual C++ 2005, which is a set of "
                                  "tools and libraries used for developing C++ applications on the Windows platform. ",
     "SetFilePointer": "This function stores the file pointer in two LONG values",
-    "GetKeyboardState": "Copies the status of the 256 virtual keys to the specified buffer."
+    "GetKeyboardState": "Copies the status of the 256 virtual keys to the specified buffer.",
+    "PyInstaller_Package": "A program that can be used to package Python programs into standalone executable files "
+                           "for distribution. "
 }
 
 
@@ -282,12 +284,14 @@ class worker_for_vm(QObject, threading.Thread):
         # Monitor the file
         while not "vmware-vmx.exe" in [p.name() for p in psutil.process_iter()]:
             time.sleep(25)
-        time.sleep(15)
+        if wait_longer_for_vm:
+            print("got to wait for long")
+            time.sleep(40)
+        else:
+            time.sleep(15)
 
-        if run_for_show_virtual_machine == 1:
-            # File found, emit signal
-            self.vm_changed.emit()
-            run_for_show_virtual_machine = 0
+        # File found, emit signal
+        self.vm_changed.emit()
 
 
 class worker_for_upload_remove(QObject, threading.Thread):
@@ -330,7 +334,7 @@ class worker_for_virus_dial(QObject, threading.Thread):
 
         try:
             # Monitor the dial
-            while not self.dial_instance.get_percentage() > 75:
+            while not self.dial_instance.get_percentage() > 73:
                 time.sleep(1)
         except RuntimeError:
             pass
@@ -399,6 +403,7 @@ class ListBoxWidget(QListWidget):
 
         self.movie = QMovie("images/drag_and_drop.gif")
         self.gif_label = QLabel(self)
+        self.gif_label.mousePressEvent = self.upload_files
         self.gif_label.setMovie(self.movie)
         self.movie.start()
 
@@ -412,10 +417,10 @@ class ListBoxWidget(QListWidget):
         layout.addStretch()
 
         button_clear_layout = QHBoxLayout()
-        self.upload_button = QPushButton("Upload to Box / Remove From System", self)
-        self.upload_button.clicked.connect(self.uploadOrRemoveFile)
-        self.upload_button.setCursor(Qt.PointingHandCursor)
-        self.upload_button.setStyleSheet('''
+        self.remove_button = QPushButton("Remove From System", self)
+        self.remove_button.clicked.connect(self.remove_files_of_exe)
+        self.remove_button.setCursor(Qt.PointingHandCursor)
+        self.remove_button.setStyleSheet('''
             QPushButton {
                 background-color: #E7E7FA;
                 color: #000080;
@@ -436,7 +441,7 @@ class ListBoxWidget(QListWidget):
             }
 
             QPushButton#upload:checked {
-                background-color: #4CAF50;
+                background-color: #FF6666;;
             }
 
             QPushButton#upload:active {
@@ -458,14 +463,15 @@ class ListBoxWidget(QListWidget):
                  color: #8B008B;
              }
         ''')
-        self.upload_button.setCheckable(True)
-        self.upload_button.setObjectName('upload')
-        self.upload_button.setChecked(True) if os.path.exists("virus.exe") else ""
+        self.remove_button.setCheckable(True)
+        self.remove_button.setObjectName('upload')
+        self.remove_button.setChecked(True) if os.path.exists("virus.exe") else ""
         font = QFont()
         font.setBold(True)
-        self.upload_button.setFont(font)
+        self.remove_button.setFont(font)
+        self.remove_button.setDisabled(True)
 
-        button_clear_layout.addWidget(self.upload_button, alignment=Qt.AlignBottom | Qt.AlignLeft)
+        button_clear_layout.addWidget(self.remove_button, alignment=Qt.AlignBottom | Qt.AlignLeft)
 
         spacer = QSpacerItem(1200, 0, QSizePolicy.Expanding, QSizePolicy.Expanding)
         button_clear_layout.addSpacerItem(spacer)
@@ -479,55 +485,53 @@ class ListBoxWidget(QListWidget):
         button_clear_layout.addStretch()  # add spacer item
         layout.addLayout(button_clear_layout)
 
-    def uploadOrRemoveFile(self):
+    def remove_files_of_exe(self):
 
-        # Add the file to the list widget
-        if self.upload_button.isChecked():
+        show_message_warning_box("All the relevant analysis files will de deleted, and the application will exit.\n"
+                                 "If you want the file to not be saved wait for system to reboot "
+                                 "\n"
+                                 "and remove it from that data base in the configurations tab")
+        os.system("python delete_files.py")
 
-            # Button is not checked, prompt user to select file and add it to list
-            file_dialog = QFileDialog()
-            file_dialog.setFileMode(QFileDialog.ExistingFile)
-            file_dialog.setNameFilter("All Files (*)")
-            file_dialog.setOption(QFileDialog.DontUseNativeDialog)
-            file_dialog.setOption(QFileDialog.DontUseCustomDirectoryIcons)
-            file_dialog.setOption(QFileDialog.ReadOnly)
-            file_dialog.setOption(QFileDialog.HideNameFilterDetails)
-            file_dialog.setOption(QFileDialog.DontResolveSymlinks)
-            file_dialog.setViewMode(QFileDialog.Detail)
-            file_dialog.setOption(QFileDialog.DontUseSheet)
-            file_dialog.setOption(QFileDialog.DontUseNativeDialog)
-            file_dialog.setOption(QFileDialog.ReadOnly)
-            file_dialog.setOption(QFileDialog.DontUseCustomDirectoryIcons)
-            file_dialog.setOption(QFileDialog.DontResolveSymlinks)
-            file_dialog.setOption(QFileDialog.HideNameFilterDetails)
-            if file_dialog.exec_() == QDialog.Accepted:
-                selected_file = file_dialog.selectedFiles()[0]
-                if selected_file:
-                    if self.count():
-                        show_message_warning_box("There is already a file in the drag box")
-                        self.upload_button.setChecked(False)
-                    else:
-                        self.addItem(selected_file)
-                        self.toggleClearIcon()
-                        try:
-                            self.gif_label.deleteLater()
-                        except RuntimeError:
-                            pass
-            else:
-                show_message_warning_box("You must choose a real path")
-                self.upload_button.setChecked(False)
+        # result = subprocess.run(['python', 'quarantine.py'] + [self.path_for_file], capture_output=True, text=True) --> use this in real
+        # Quit the application
+        # The `QApplication.quit()` function terminates the application
+        QApplication.quit()
 
+    def upload_files(self, event):
+
+        # Button is not checked, prompt user to select file and add it to list
+        file_dialog = QFileDialog()
+        file_dialog.setFileMode(QFileDialog.ExistingFile)
+        file_dialog.setNameFilter("All Files (*)")
+        file_dialog.setOption(QFileDialog.DontUseNativeDialog)
+        file_dialog.setOption(QFileDialog.DontUseCustomDirectoryIcons)
+        file_dialog.setOption(QFileDialog.ReadOnly)
+        file_dialog.setOption(QFileDialog.HideNameFilterDetails)
+        file_dialog.setOption(QFileDialog.DontResolveSymlinks)
+        file_dialog.setViewMode(QFileDialog.Detail)
+        file_dialog.setOption(QFileDialog.DontUseSheet)
+        file_dialog.setOption(QFileDialog.DontUseNativeDialog)
+        file_dialog.setOption(QFileDialog.ReadOnly)
+        file_dialog.setOption(QFileDialog.DontUseCustomDirectoryIcons)
+        file_dialog.setOption(QFileDialog.DontResolveSymlinks)
+        file_dialog.setOption(QFileDialog.HideNameFilterDetails)
+        if file_dialog.exec_() == QDialog.Accepted:
+            selected_file = file_dialog.selectedFiles()[0]
+            if selected_file:
+                if self.count():
+                    show_message_warning_box("There is already a file in the drag box")
+                    self.remove_button.setChecked(False)
+                else:
+                    self.addItem(selected_file)
+                    self.toggleClearIcon()
+                    try:
+                        self.gif_label.hide()
+                    except RuntimeError:
+                        pass
         else:
-            show_message_warning_box("All the relevant analysis files will de deleted, and the application will exit.\n"
-                                     "If you want the file to not be saved in data base you must load it into the "
-                                     "system again\n"
-                                     "and remove it from that data base in the configurations tab")
-            os.system("python delete_files.py")
-            # result = subprocess.run(['python', 'quarantine.py'] + [self.path_for_file], capture_output=True, text=True) --> use this in real
-
-            # Quit the application
-            # The `QApplication.quit()` function terminates the application
-            QApplication.quit()
+            show_message_warning_box("You must choose a real path")
+            self.remove_button.setChecked(False)
 
     def dragEnterEvent(self, event):
         if event.mimeData().hasUrls():
@@ -549,6 +553,7 @@ class ListBoxWidget(QListWidget):
     def clearListWidget(self, event=None):
         self.clear()
         self.clear_icon.setVisible(False)
+        self.gif_label.show()
 
     def toggleClearIcon(self):
         if self.count() > 0:
@@ -570,8 +575,8 @@ class ListBoxWidget(QListWidget):
 
             try:
                 self.addItems(links)
-                self.movie.stop()
-                self.gif_label.deleteLater()
+                self.gif_label.hide()
+                # self.gif_label.deleteLater()
             except RuntimeError:
                 pass
         else:
@@ -584,6 +589,7 @@ class AppDemo(QMainWindow):
     # define static variables
     keylogger_found = False
     suspected_keylogger = False
+    suspected_python_file = False
     keylogger_suspect_imports = []
     keylogger_suspect_funcs = []
     keylogger_suspect_funcs_and_params = {}
@@ -609,6 +615,8 @@ class AppDemo(QMainWindow):
         self.run_for_hash_disable = 1
         self.run_for_dynamic_disable = 1
         self.run_for_dial_initiative = 0
+        self.new_file_path_quarantined = ""
+        self.path_for_file = ""
 
         # to save imports
         self.run_for_copy = 1
@@ -681,6 +689,7 @@ class AppDemo(QMainWindow):
         self.run_for_suspicious = 1
         self.run_for_cpu = 1
         self.run_for_identifies = 1
+        self.run_for_python_win_api = 1
 
         self.main_menu_window()
 
@@ -720,12 +729,14 @@ class AppDemo(QMainWindow):
         self.settings_layout.addWidget(self.line_for_start)
 
         self.vt_toggel = AnimatedToggle(
-            checked_color="green",
-            pulse_checked_color="red"
+            checked_color="red",
+            pulse_checked_color="red",
+            pulse_unchecked_color="green"
         )
+
         self.vt_toggel.setChecked(False) if self.activate_virus_total else self.vt_toggel.setChecked(True)
         self.vt_toggel.setMaximumSize(100, 50)
-        self.vt_message = QLabel("Do you want to turn off Virus Total search?\n(Green means off)")
+        self.vt_message = QLabel("Do you want to turn off Virus Total search?\n(Red means off, unchecked means on)")
         self.vt_message.setFont(QFont("Zapfino", 16))
         self.vt_hbox = QHBoxLayout()
         self.vt_hbox.addWidget(self.vt_message)
@@ -742,13 +753,14 @@ class AppDemo(QMainWindow):
         self.settings_layout.addWidget(self.line_for_vt)
 
         self.quarantine_toggle = AnimatedToggle(
-            checked_color="green",
-            pulse_checked_color="red"
+            checked_color="red",
+            pulse_checked_color="red",
+            pulse_unchecked_color="green"
         )
         self.quarantine_toggle.setChecked(False) if self.vault_file else self.quarantine_toggle.setChecked(True)
         self.quarantine_toggle.setMaximumSize(100, 50)
-        self.quarantine_message = QLabel("Do you want to turn off vaulting of your file if found malicious?\n(Green "
-                                         "means off)")
+        self.quarantine_message = QLabel(
+            "Do you want to turn off vaulting of your file if found malicious?\n(Red means off, unchecked means on)")
         self.quarantine_message.setFont(QFont("Zapfino", 16))
         self.quarantine_hbox = QHBoxLayout()
         self.quarantine_hbox.addWidget(self.quarantine_message)
@@ -764,13 +776,15 @@ class AppDemo(QMainWindow):
         self.settings_layout.addWidget(self.line_for_q)
 
         self.data_base_toggle = AnimatedToggle(
-            checked_color="green",
-            pulse_checked_color="red"
+            checked_color="red",
+            pulse_checked_color="red",
+            pulse_unchecked_color="green"
+
         )
         self.data_base_toggle.setChecked(False) if self.save_in_data_base else self.data_base_toggle.setChecked(True)
         self.data_base_toggle.setMaximumSize(100, 50)
-        self.data_base_message = QLabel("Do you want to turn off saving file in data base?\n(Green "
-                                        "means off)")
+        self.data_base_message = QLabel(
+            "Do you want to turn off saving file in data base?\n(Red means off, unchecked means on)")
         self.data_base_message.setFont(QFont("Zapfino", 16))
         self.data_base_hbox = QHBoxLayout()
         self.data_base_hbox.addWidget(self.data_base_message)
@@ -813,6 +827,32 @@ class AppDemo(QMainWindow):
         self.settings_layout.addWidget(self.apply_for_settings)
         self.settings_visited = True
 
+    def create_file_dialog_for_quarantine(self):
+        file_dialog = QFileDialog()
+        file_dialog.setWindowTitle("Choose a File to De-Quarantine")
+        file_dialog.setFileMode(QFileDialog.ExistingFile)
+        file_dialog.setNameFilter("All Files (*)")
+        file_dialog.setOption(QFileDialog.DontUseNativeDialog)
+        file_dialog.setOption(QFileDialog.DontUseCustomDirectoryIcons)
+        file_dialog.setOption(QFileDialog.ReadOnly)
+        file_dialog.setOption(QFileDialog.HideNameFilterDetails)
+        file_dialog.setOption(QFileDialog.DontResolveSymlinks)
+        file_dialog.setViewMode(QFileDialog.Detail)
+        file_dialog.setOption(QFileDialog.DontUseSheet)
+        file_dialog.setOption(QFileDialog.DontUseNativeDialog)
+        file_dialog.setOption(QFileDialog.ReadOnly)
+        file_dialog.setOption(QFileDialog.DontUseCustomDirectoryIcons)
+        file_dialog.setOption(QFileDialog.DontResolveSymlinks)
+        file_dialog.setOption(QFileDialog.HideNameFilterDetails)
+        file_dialog.setFilter(QDir.AllEntries | QDir.Hidden)
+        if file_dialog.exec_() == QDialog.Accepted:
+            selected_file = file_dialog.selectedFiles()[0]
+            if "Found_Virus" not in selected_file:
+                return None
+            return selected_file
+        else:
+            return None
+
     def func_for_settings(self):
 
         if self.vt_toggel.isChecked():
@@ -823,12 +863,28 @@ class AppDemo(QMainWindow):
             self.activate_virus_total = True
             self.messages.append("You have turned Virus Total interfacing back on")
         if self.quarantine_toggle.isChecked():
+
             # turning the vaulting off --> release the file from vault
             self.vault_file = False
-            if os.path.exists("Found_Virus"):
-                Quarantine.restore_file("Found_Virus/virus.exe", "Found_Virus", "1234")
-            self.messages.append(
-                "You have turned the vault option off. If your file was in quarantine, it is now restored")
+            ## if os.path.exists(self.new_file_path_quarantined):
+            ## Quarantine.restore_file("Found_Virus/virus.exe", "Found_Virus", "1234")
+            # file = self.create_file_dialog_for_quarantine()
+            # if file is not None:
+            #     Quarantine.restore_quarantined_to_original(file, os.path.dirname(os.path.dirname(file))
+            #                                                + r"\restored_file.exe", "1234")
+            overlay_quarantined.add_data()
+            overlay_quarantined.show()
+            loop = QEventLoop()
+            overlay_quarantined.closed.connect(loop.quit)
+            loop.exec_()
+            ##     # Quarantine.restore_quarantined_to_original(self.new_file_path_quarantined, self.path_for_file, "1234")
+            if overlay_quarantined.name_to_quarantine is not None:
+                self.messages.append(
+                    f"You have turned the vault option off. Your file {overlay_quarantined.name_to_quarantine} is now "
+                    f"restored")
+            else:
+                self.messages.append("You have turned the vault option off")
+            overlay_quarantined.name_to_quarantine = None
         else:
             # leaving the vaulting
             self.vault_file = True
@@ -1449,9 +1505,19 @@ class AppDemo(QMainWindow):
                                                                                            "status bar"))
         self.worker_for_vm.start()
 
+        def activate_remove_button():
+            try:
+                if self.listbox_view.remove_button:
+                    self.listbox_view.remove_button.setDisabled(False)
+                    self.listbox_view.remove_button.setChecked(True)
+            except RuntimeError:
+                pass
+
         # for the upload / remove button
         self.worker_for_upload_remove = worker_for_upload_remove()
-        self.worker_for_upload_remove.file_is_loaded.connect(lambda: self.listbox_view.upload_button.setChecked(True))
+        self.worker_for_upload_remove.file_is_loaded.connect(activate_remove_button)
+        # lambda: [self.listbox_view.remove_button.setDisabled(False),
+        #          self.listbox_view.remove_button.setChecked(True)])
         self.worker_for_upload_remove.start()
 
         # for status bar
@@ -1478,30 +1544,59 @@ class AppDemo(QMainWindow):
         timer.timeout.connect(loop.quit)
         loop.exec_()
 
-        # Check if the boolean variable `self.vault_file` is truthy
-        if self.vault_file and self.dial_instance.get_percentage() > 75:
+        if self.path_for_file == "":
+            return
+
+        # Check if the boolean variable `self.vault_file` is truth
+        if self.vault_file and self.dial_instance.get_percentage() > 73 and not os.path.exists(
+                os.path.dirname(self.path_for_file) + r"\Found_Virus"):
             # Display a warning message box to the user
+
             show_message_warning_box("Your file has now been quarantined for it is found to be a virus.\n"
                                      "You will not be able to run the file.\n\n"
                                      "If you wish to now restore file, you may go the configuration window\n"
                                      "and turn off the option\n\n"
                                      "Once you leave this message, the file will be vaulted\n"
-                                     "and the application will be terminated.")
+                                     "and you will not be able to run it from the path you have submitted to this "
+                                     "system")
 
             # Run the Python script `quarantine.py`
             # The `os.system()` function executes a command in a subshell
             # In this case, the command is to run the `quarantine.py` script
 
-            os.system("python quarantine.py")
+            # os.system("python quarantine.py")
             # result = subprocess.run(['python', 'quarantine.py'] + [self.path_for_file], capture_output=True, text=True) --> use this in real
+
+            if not os.path.exists(os.path.dirname(self.path_for_file) + r"\Found_Virus"):
+                # new_file_path = Quarantine.quarantine_file("virus.exe", "Found_Virus", "1234")
+                self.new_file_path_quarantined = Quarantine.quarantine_file(self.path_for_file, os.path.dirname(
+                    self.path_for_file) + r"\Found_Virus", "1234")
+                Quarantine.hide(os.path.dirname(self.new_file_path_quarantined))
+                self.messages.append("Your have has now been quarantined and locked in it's original dir")
+                self.main_menu_window()
+
+                # Define constants for file attributes
+                # FILE_ATTRIBUTE_NORMAL = 0x80
+                # FILE_ATTRIBUTE_HIDDEN = 0x2
+                # FILE_ATTRIBUTE_READONLY = 0x1
+                # FILE_ATTRIBUTE_EXECUTABLE = 0x40
+                #
+                # # Set file attributes to non-executable
+                # filename = "virus.exe"
+                # attrs = FILE_ATTRIBUTE_NORMAL | FILE_ATTRIBUTE_HIDDEN | FILE_ATTRIBUTE_READONLY
+                # attrs = attrs & ~FILE_ATTRIBUTE_EXECUTABLE  # remove executable attribute
+                # ctypes.windll.kernel32.SetFileAttributesW(filename, attrs)
+
+                return
 
             # Quit the application
             # The `QApplication.quit()` function terminates the application
-            QApplication.quit()
+            # QApplication.exit()
 
     def load_for_static_analysis(self):
         self.run_for_static_disable = 0
         if self.file_loaded_to_system:
+            print("got to self.file")
             self.static_button.setDisabled(False)
             self.statusBar_instance.show_message("Static Analysis is ready")
             return
@@ -1535,6 +1630,9 @@ class AppDemo(QMainWindow):
                         self.dial = str(md5("virus.exe"))
                         self.run_for_start = True
                         print(self.run_for_start)
+
+            if os.path.getsize("virus.exe") > 6000 * 1024:
+                AppDemo.suspected_python_file = True
 
     def load_for_hash_analysis(self):
         self.run_for_hash_disable = 0
@@ -1830,7 +1928,8 @@ class AppDemo(QMainWindow):
                             break
                     lines = "\n".join(lines)
                     for line in lines.split("\n"):
-                        if "=" in line or "Trying" in line:
+                        if "=" in line or "Trying" in line or "" or "Found Injection to process" in line \
+                                or "PID:" in line or "Parent PID:" in line or "The data being injected:" in line:
                             continue
                         child_item = QTreeWidgetItem([line])
                         item.addChild(child_item)
@@ -1879,16 +1978,21 @@ class AppDemo(QMainWindow):
                             item.addChild(child_item)
 
             self.python_layout.addWidget(self.tree_py)
-            percentage = self.dial_instance.get_percentage()
-            self.dial_instance.setDialPercentage(percentage + virus_python_winapi_data_base)
-            self.redis_virus.hset(self.md5_hash, "final_assesment", percentage + virus_python_winapi_data_base)
 
-            self.dial = self.dial_instance.get_dial()
+            if self.run_for_python_win_api:
+                percentage = self.dial_instance.get_percentage()
+                self.dial_instance.setDialPercentage(percentage + virus_python_winapi_data_base)
+                self.redis_virus.hset(self.md5_hash, "final_assesment", percentage + virus_python_winapi_data_base)
+
+                self.dial = self.dial_instance.get_dial()
+                self.run_for_python_win_api = 0
         self.statusBar_instance.show_message("Your python analysis is ready")
 
     def getSelectedItem(self):
         item = QListWidgetItem(self.listbox_view.item(0))
-        self.path_for_file = item.text()
+
+        if not self.file_loaded_to_system:
+            self.path_for_file = item.text()
 
         # show warning message box for no file
         if self.path_for_file == "" and not os.path.exists("virus.exe"):
@@ -1896,7 +2000,6 @@ class AppDemo(QMainWindow):
             return
 
         if not self.file_loaded_to_system:
-            # todo, for some reason now this doesn't consider it to be exe for c#. interesting. check in lab
             bytes = b""
             try:
                 with open(self.path_for_file, "rb") as f:
@@ -1910,9 +2013,9 @@ class AppDemo(QMainWindow):
             print(self.file_loaded_to_system)
             print("path is (in not loaded to the system ", self.path_for_file)
 
-        else:
-            self.path_for_file = os.path.abspath("virus.exe")
-            print("path is (already loaded to system", self.path_for_file)
+        # elif self.path_for_file != os.path.abspath("virus.exe"):
+        #     self.path_for_file = os.path.abspath("virus.exe")
+        #     print("path is (already loaded to system", self.path_for_file)
 
         # self.md5_hash = str(md5(r"E:\Cyber\YB_CYBER\project\FinalProject\poc_start\poc_start\unrelated\graphics"
         #                         r"\virus.exe")) --> lab
@@ -1938,6 +2041,10 @@ class AppDemo(QMainWindow):
         # self.redis_virus.print_all()
         # print(int(self.redis_virus.hgetall('5fffd3e69093dc32727214ba5c8f2af5')[b'num_of_rules'].decode()) * 5)
 
+        if os.path.exists("log_python.txt") or len(AppDemo.keylogger_suspect_imports) > 2:
+            self.python_analysis()
+            return
+
         if Packers.programming_language(self.path_for_file) == "py":  # a python file
             # self.py_thread = QThread()
             # self.py_thread.run = self.python_analysis
@@ -1945,7 +2052,8 @@ class AppDemo(QMainWindow):
             # self.show_loading_menu()
 
             class VirusThread(QThread):
-                overlay = show_loading_menu("Loading your data...\nIt will maximum of 2 minutes.\nWhen it is ready, "
+                overlay = show_loading_menu("Loading your data...\nIt will take maximum of 2 minutes.\nWhen it is "
+                                            "ready, "
                                             "it will be shown in the "
                                             "status bar")
                 overlay.show()
@@ -1972,6 +2080,7 @@ class AppDemo(QMainWindow):
                     self.finished_signal.emit()
 
             # create an instance of VirusThread and start it
+
             virus_thread = VirusThread()
             virus_thread.start()
 
@@ -1993,11 +2102,26 @@ class AppDemo(QMainWindow):
             os.remove("virus.exe")
             self.file_loaded_to_system = False
             self.listbox_view.clearListWidget()
+            self.listbox_view.remove_button.setChecked(False)
             return
 
         while not os.path.exists(r"E:\Cyber\YB_CYBER\project\FinalProject\poc_start\poc_start\unrelated\graphics"
                                  r"\virus.exe"):
             pass
+
+        if os.path.exists("LOG.txt"):
+            show_message_warning_box("The LOG already exists")
+            self.listbox_view.clearListWidget()
+            self.listbox_view.remove_button.setChecked(False)
+            return
+
+        if "vmware-vmx.exe" not in [p.name() for p in psutil.process_iter()]:
+            show_message_warning_box("The virtual machine is not on")
+            return
+
+        if item.text() == "":
+            show_message_warning_box("You have to enter a real path")
+            return
 
         self.threadpool_sender = QThreadPool()
         worker = Worker(self.activate_sender)
@@ -2015,6 +2139,9 @@ class AppDemo(QMainWindow):
             self.list_index[button].setVisible(True)
 
     def activate_vm(self):
+
+        if "vmware-vmx.exe" in [p.name() for p in psutil.process_iter()]:
+            return
 
         current_path = os.getcwd()
         os.chdir(r"C:\Program Files (x86)\VMware\VMware Workstation")
@@ -2131,6 +2258,13 @@ class AppDemo(QMainWindow):
             overlay = show_loading_menu_image("Loading your static data\n It will be short till data arrives",
                                               "images/one_second.png")
             overlay.show()
+            overlay.mousePressEvent = lambda event: None
+            overlay.mouseMoveEvent = lambda event: None
+            overlay.mouseReleaseEvent = lambda event: None
+            overlay.keyPressEvent = lambda event: None
+            overlay.keyReleaseEvent = lambda event: None
+            overlay.wheelEvent = lambda event: None
+
             finished_signal = pyqtSignal()
 
             def __init__(self, func):
@@ -2539,6 +2673,7 @@ class AppDemo(QMainWindow):
         self.packers_label.setText("Packers And Protectors  <img src='images/info-button.png' width='20' height='20'>")
         self.packers_label.setToolTip("Packers and Protectors detected by YARA stubs and signatures")
         self.packers_widget = QListWidget()
+
         # self.packers_widget.setMaximumSize(400, 300)
         # self.packers_widget.itemEntered.connect(show_bubble)
 
@@ -2550,6 +2685,10 @@ class AppDemo(QMainWindow):
         scrollBarPackers.setPageStep(10)
         scrollBarPackers.setValue(50)
         scrollBarPackers.setStyleSheet(self.scrollBar_stylesheet)
+
+        if AppDemo.suspected_python_file:
+            print(os.path.getsize("virus.exe"))
+            yara_packers["PyInstaller_Package"] = ["Elad"]
 
         for packer, tag in yara_packers.items():
             item = QListWidgetItem(str(packer))
@@ -2614,12 +2753,17 @@ class AppDemo(QMainWindow):
             pass
 
         pe_scan = ScanPE(os.path.abspath("virus.exe").replace("graphics", "hash_scan"))
+
         dlls = pe_scan.run_pe_scan_exe()
         if self.run_for_copy == 1:
             self.copy_imports = dlls
             self.run_for_copy = 0
         self.dlls_empty = False
         print(dlls)  # key = tuple - first key: library, value: list of imports
+
+        if AppDemo.suspected_python_file:
+            dlls = {}
+
         if dlls == {} and self.copy_imports == {}:
             self.dlls_empty = True
             print(self.dlls_empty)
@@ -3728,6 +3872,10 @@ The sections that were found with these flags will be presented
 
     def dynamic_analysis(self):
 
+        if not os.path.exists("virus.exe") or not os.path.exists("LOG.txt"):
+            show_message_warning_box("The virus file is not loaded into the system")
+            return
+
         self.clearLayout()
         self.static_visited = False
         self.hash_visited = False
@@ -4116,12 +4264,11 @@ The sections that were found with these flags will be presented
         def handle_item_click(item):
             if item.childCount() == 0 and not item.parent():
                 func_data = self.data_for_function[self.tree_functions.indexOfTopLevelItem(item)]
-
                 alerts = []
                 data = []
                 for line in [line for line in func_data.split("\n") if line != ""]:
 
-                    if "-" in line and "The 256-byte array" not in line:
+                    if "-" in line and "The 256-byte array" not in line and "The name of" not in line:
 
                         line = line.replace("-", "")
                         if "IDENTIFIED" in line:
@@ -4129,7 +4276,8 @@ The sections that were found with these flags will be presented
 
                         continue
 
-                    if "Done" in line or "Time difference" in line or "The number of times" in line or 'current cpu usage' in line:
+                    if "Done" in line or "Time difference" in line or "The number of times" in line or 'current cpu ' \
+                                                                                                       'usage' in line:
                         continue
 
                     # alert
@@ -4558,14 +4706,65 @@ The sections that were found with these flags will be presented
 
 
 if __name__ == "__main__":
-    def on_exit():
-        print("Application is about to quit")
-        QApplication.quit()
 
+    wait_longer_for_vm = False
+
+
+    def restart_vm():
+
+        def restart_in_thread():
+            current_path = os.getcwd()
+
+            # restart vm
+            # Change to the directory containing vmrun.exe
+            os.chdir(r"C:\Program Files (x86)\VMware\VMware Workstation")
+
+            # Stop the virtual machine
+            # vmx_file = r"C:\Users\user\OneDrive\Windows 10 and later x64.vmx"  # make it C:\Users\u101040.DESHALIT\Documents\Virtual Machines\Windows 10 and later x64\Windows 10 and later x64.vmx
+            vmx_file = r"C:\Users\u101040.DESHALIT\Documents\Virtual Machines\Windows 10 and later x64\Windows 10 and later x64.vmx"  # make it C:\Users\u101040.DESHALIT\Documents\Virtual Machines\Windows 10 and later x64\Windows 10 and later x64.vmx
+            stop_command = f".\\vmrun.exe -T ws stop \"{vmx_file}\""
+            os.system(stop_command)
+
+            start_command = f".\\vmrun.exe -T ws start \"{vmx_file}\""
+            os.system(start_command)
+
+            os.chdir(current_path)
+
+        Thread(target=restart_in_thread, args=()).start()
+
+
+    def on_exit():
+        print("Application is about to exit")
+        for process in psutil.process_iter(['pid', 'name', 'cmdline']):
+            try:
+                process_info = process.as_dict(attrs=['pid', 'name', 'cmdline'])
+            except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
+                pass
+            else:
+                if "python.exe" in process_info["name"]:
+                    process.terminate()
+
+
+    for process in psutil.process_iter(['pid', 'name', 'cmdline']):
+        try:
+            process_info = process.as_dict(attrs=['pid', 'name', 'cmdline'])
+        except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
+            pass
+        else:
+            if process_info["cmdline"]:
+                if "quarantine.py" in process_info["cmdline"] or "delete_files.py" in process_info["cmdline"]:
+                    print(process_info["cmdline"])
+                    process.terminate()
 
     app = QApplication(sys.argv)
     app.setStyleSheet(qss)
     app.aboutToQuit.connect(on_exit)
     demo = AppDemo()
     demo.show()
+    overlay_quarantined = OverLayQuarantined()
+
+    if sys.argv[0] == "pyqt_tests.py":
+        QTimer.singleShot(1000, restart_vm)
+        wait_longer_for_vm = True
+
     sys.exit(app.exec())

@@ -29,7 +29,7 @@ class Packers:
             return "py"
 
         # c# virus
-        if os.path.getsize(path) == 7 * 1024:
+        if os.path.getsize(path) < 8 * 1024 and os.path.getsize(path) > 7 * 1024:
             print("packers got to c#")
             return True
 

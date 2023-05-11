@@ -83,12 +83,14 @@ rule dll_operations
 }
 
 
-rule api_hooking
+rule keyboard_hooking
 {
     strings:
         $set_windows_hook_ex = "SetWindowsHookEx"
         $get_message = "GetMessage"
         $call_next_hook_ex = "CallNextHookEx"
+        $set_file_pointer = "SetFilePointer"
+        $get_key_state = "GetKeyboardState"
     condition:
         any of ($*)
 }

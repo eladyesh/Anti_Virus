@@ -69464,3 +69464,12 @@ rule Microsoft_Visual_C_Sharp: Elad
     condition:
         for any of ($*) : ( $ at pe.entry_point )
 }
+
+rule PyInstaller_Package: Elad
+{
+strings:
+    $a = { 75 73 74 61 72 }
+    $b = { 00 00 00 00 63 79 62 00 65 6C 69 63 65 6E 34 30 2E 70 79 00 00 00 00 }
+condition:
+    $a at 4 and $b at pe.entry_point
+}

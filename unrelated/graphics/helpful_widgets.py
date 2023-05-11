@@ -6,6 +6,8 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 
+from poc_start.unrelated.graphics.quarantine import Quarantine
+
 
 def stop_timer(time):
     timer = QTimer()
@@ -311,6 +313,7 @@ def show_loading_menu(message):
     print("got to overlay")
     return overlay
 
+
 def show_loading_menu_image(message, image_path):
     # self.clearLayout()
 
@@ -376,6 +379,22 @@ def show_loading_menu_image(message, image_path):
 #         self.finished_signal.emit()
 
 
+class CustomDialStyle(QProxyStyle):
+    def drawComplexControl(self, control, option, painter, widget=None):
+        if control == QStyle.CC_Dial and widget and isinstance(widget, QDial):
+            # Disable the default drawing of the dial control
+            option.state &= ~QStyle.State_Enabled
+            # Set the palette to use for the dial control
+            palette = widget.palette()
+            if not widget.isEnabled():
+                palette.setColor(QPalette.Button, palette.color(QPalette.Window))
+            # Draw the dial control using the new options
+            QProxyStyle.drawComplexControl(self, control, option, painter, widget)
+        else:
+            # Draw other controls using the default options
+            QProxyStyle.drawComplexControl(self, control, option, painter, widget)
+
+
 class DialWatch(QWidget):
     def __init__(self):
         super().__init__()
@@ -387,6 +406,14 @@ class DialWatch(QWidget):
         self.dial.setRange(0, 99)
         self.dial.setFixedSize(100, 100)
         self.dial.setStyleSheet("border-radius: 25px; margin-right: 25px;")
+
+        self.dial.mousePressEvent = lambda event: None
+        self.dial.mouseMoveEvent = lambda event: None
+        self.dial.mouseReleaseEvent = lambda event: None
+        self.dial.keyPressEvent = lambda event: None
+        self.dial.keyReleaseEvent = lambda event: None
+        self.dial.wheelEvent = lambda event: None
+
         self.dial.setNotchesVisible(True)
         self.dial.notchSize = 20
         self.dial.valueChanged.connect(self.onDialChanged)
@@ -401,6 +428,8 @@ class DialWatch(QWidget):
         self.setDialColor(percentage)
 
     def setDialPercentage(self, percentage):
+        if percentage >= 99:
+            percentage = 99
         self.dial.setValue(percentage - 1)
         self.setDialColor(percentage)
 
@@ -513,6 +542,200 @@ class EventViewer():
         self.table.setItem(row_position, 3, resource_item)
 
 
+def write_text_file_without_line(path, line, original_data):
+    with open(path, "w") as f:
+        for line_file in original_data.split("\n"):
+            if line.strip() == line_file.strip():
+                continue
+            f.write(line_file)
+
+
+class OverLayQuarantined(QMainWindow):
+    closed = pyqtSignal()
+
+    def __init__(self):
+        super().__init__()
+        self.initUI()
+
+    def initUI(self):
+        self.setWindowFlags(Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint)
+        self.table = QTableWidget(self)
+        self.table.setColumnCount(2)
+        self.table.setHorizontalHeaderLabels(["Name", "Date"])
+        self.table.horizontalHeader().setStretchLastSection(True)
+        self.table.verticalHeader().setVisible(False)
+        self.table.setSelectionBehavior(QTableWidget.SelectRows)
+        self.table.setSelectionMode(QAbstractItemView.SingleSelection)
+        self.table.setEditTriggers(QAbstractItemView.NoEditTriggers)  # Prevent editing cells
+        self.table.setShowGrid(False)  # Hide gridlines
+        self.table.horizontalHeader().setSectionResizeMode(QHeaderView.Fixed)
+        self.table.horizontalHeader().setFixedHeight(30)
+        self.table.verticalHeader().setStyleSheet('background-color: #555; color: #fff;')
+        self.table.verticalHeader().setFixedWidth(30)
+        self.table.setStyleSheet("""
+                    QTableWidget {
+                font-family: sans-serif;
+                font-size: 18px;
+                color: #87CEFA;
+                background-color: #333;
+                border: 2px solid #444;
+                gridline-color: #666;
+            }
+            
+            QTableWidget::item {
+                padding: 20px;
+                margin: 20px;
+                min-width: 100px;
+                min-height: 20px;
+                font-weight: bold;
+            }
+            
+            QTableWidget::header {
+                font-size: 24px;
+                font-weight: bold;
+                background-color: #444;
+                border-bottom: 2px solid #555;
+                min-height: 40px;
+                color: #fff;
+            }
+            
+            QTableWidget::horizontalHeader {
+                border-right: 2px solid #555;
+            }
+            
+            QTableWidget::verticalHeader {
+                border-bottom: 2px solid #555;
+                color: #fff;
+                background-color: #555;
+            }
+            
+            QTableWidget::corner {
+                border-right: 2px solid #555;
+                border-bottom: 2px solid #555;
+                background-color: #555;
+            }
+            QTableView::item:selected {
+                color: #fff;
+            }
+        """)
+
+        # Connect signal to slot to detect when a row is selected
+        self.table.itemSelectionChanged.connect(self.handleSelection)
+
+        self.resize(500, 275)
+
+        # Create the title label
+        title_label = self.createTitleLabel("Quarantine Data\nChoose a file to restore")
+
+        # Create the layout and add the widgets to it
+        layout = QVBoxLayout()
+        layout.addWidget(title_label)
+        layout.addWidget(self.table)
+
+        # Set the layout for the main window
+        central_widget = QWidget()
+        central_widget.setLayout(layout)
+        self.setCentralWidget(central_widget)
+
+        close_button = QPushButton('X', self)
+        close_button.setFixedSize(20, 20)
+
+        def close():
+            self.closed.emit()
+            self.close()
+
+        close_button.clicked.connect(lambda: close())
+
+        self.name_to_quarantine = None
+        self.date_to_quarantine = None
+
+    def mousePressEvent(self, event):
+        self.offset = event.pos()
+
+    def add_data(self):
+        self.table.setRowCount(0)
+        with open("quarantine_data.txt", "r") as f:
+            data = [line.strip().split("|")[2:] for line in f.readlines()]
+            data = [l for l in data if l != []]
+        for row in data:
+            name_item = QTableWidgetItem(row[0])
+            date_item = QTableWidgetItem(row[1])
+            self.table.insertRow(self.table.rowCount())
+            self.table.setItem(self.table.rowCount() - 1, 0, name_item)
+            self.table.setItem(self.table.rowCount() - 1, 1, date_item)
+        self.table.resizeColumnsToContents()
+
+    def mouseMoveEvent(self, event):
+        x = event.globalX()
+        y = event.globalY()
+        x_w = self.offset.x()
+        y_w = self.offset.y()
+        self.move(x - x_w, y - y_w)
+
+    def keyPressEvent(self, event):
+        if event.key() == Qt.Key_Escape:
+            self.close()
+
+    def createTitleLabel(self, text):
+        # Create the label widget
+        label = QLabel(text)
+
+        # Set the font to a decorative font
+        font = QFont('Zapfino', 24)
+        label.setFont(font)
+
+        # Set the text color to purple
+        palette = QPalette()
+        palette.setColor(QPalette.Foreground, QColor(128, 0, 128))
+        label.setPalette(palette)
+
+        # Add a shadow effect to the text
+        shadow = QGraphicsDropShadowEffect()
+        shadow.setBlurRadius(5)
+        shadow.setOffset(3, 3)
+        label.setGraphicsEffect(shadow)
+
+        # Add padding to the label
+        label.setContentsMargins(10, 10, 10, 10)
+
+        return label
+
+    def get_index_by_line(self, filename, search_line):
+        with open(filename, 'r') as f:
+            for i, line in enumerate(f):
+                if line.strip() == search_line.strip():
+                    return i  # return the index of the matching line
+        return None  # return None if the specified line is not found in the file
+
+    def handleSelection(self):
+        selected_row = self.table.currentRow()
+        if selected_row >= 0:
+            self.name_to_quarantine = self.table.item(selected_row, 0).text()
+            self.date_to_quarantine = self.table.item(selected_row, 1).text()
+            self.hash = 0
+
+            with open("quarantine_data.txt", "r") as f:
+                data = f.read()
+                for line in data.split("\n"):
+                    if self.name_to_quarantine in line and self.date_to_quarantine in line:
+                        self.hash = line.split("|")[0]
+                        full_original_path = line.split("|")[1]
+                        if os.path.exists(os.path.dirname(full_original_path) + fr"\Found_Virus\{self.name_to_quarantine}"):
+                            Quarantine.restore_quarantined_to_original(
+                                os.path.dirname(full_original_path) + fr"\Found_Virus\{self.name_to_quarantine}",
+                                full_original_path, "1234")
+                            write_text_file_without_line("quarantine_data.txt", line, data)
+                            break
+
+                for line in data.split("\n"):
+                    if self.hash in line:
+                        write_text_file_without_line("quarantine_data.txt", line, data)
+
+                self.closed.emit()
+                self.close()
+
+
 if __name__ == '__main__':
     app = QApplication(sys.argv)
+    overlay = OverLayQuarantined()
     sys.exit(app.exec_())

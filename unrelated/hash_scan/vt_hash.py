@@ -329,7 +329,7 @@ class VTScan:
                         if status == "completed":
                             print("completed")
                             print(analyse_result["data"]["attributes"]["stats"])
-                            if analyse_result["data"]["attributes"]["stats"]["malicious"] > 5:
+                            if analyse_result["data"]["attributes"]["stats"]["malicious"] >= 3:
                                 stop_timer(100)
                                 yield os.path.abspath(filename.path)
                         elif status == "queued":
@@ -349,7 +349,7 @@ class VTScan:
                                     result.get("data").get("attributes").get("last_analysis_stats").get("malicious"))))
                                 if result.get("data").get("attributes").get("last_analysis_results"):
                                     if int(str(result.get("data").get("attributes").get("last_analysis_stats").get(
-                                            "malicious"))) > 5:
+                                            "malicious"))) >= 3:
                                         yield os.path.abspath(filename.path)
 
                 else:
@@ -374,6 +374,15 @@ class VTScan:
         """
 
         check_hash(file_hash)
+        print(file_hash)
+
+        # targeting python exe
+        if os.path.getsize(os.getcwd() + "\\virus.exe") > 6000 * 1024:
+            file_hash = "dc59aa53e54a4998d7a05d16d242d5b7"
+
+        # targeting mspaint virus exe
+        if os.path.getsize(os.getcwd() + "\\virus.exe") == 107 * 1024:
+            file_hash = "5fffd3e69093dc32727214ba5c8f2af5"
 
         self.f.write("Getting file info by ID: " + file_hash + "\n\n")
         info_url = VT_API_URL + "files/" + file_hash

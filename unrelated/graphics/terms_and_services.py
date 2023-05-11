@@ -121,11 +121,9 @@ class TermsAndServicesDialog(QDialog):
 
 These instructions and services are necessary for the use of this application. Please be aware to accept them at the end
 
-2. Upload To Drag Box / Remove From System:
-When you check the button first, the option that will be activated is "Upload To Drag Box". When you press it again,
-the option that will be activated is "Remove From system".
-Upload To Drag Box: upload a file from any directory to the Drag Box.
-Remove From System: remove any analysis files that are relevant to the suspected file.
+2. Remove From System:
+Remove any analysis files that are relevant to the suspected file.
+System will be restarted and you will have to close the virtual machine manually.
 
 3. Virtual Machine and Dynamic Analysis
 
