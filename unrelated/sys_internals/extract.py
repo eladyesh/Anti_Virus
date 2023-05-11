@@ -1,10 +1,12 @@
 import os
+import re
 import subprocess
 import psutil
 import threading
 import time
 import logging
 from dataclasses import dataclass
+import string
 
 
 def run_command(cmd):
@@ -53,6 +55,8 @@ class SysInternals:
             # os.system(f"handle.exe -a -p {pid} > output.txt")
             new_path = SysInternals.handle_path.replace(r"sys_internals", r"poc_start\unrelated\sys_internals")
             handle = run_command(f"{new_path} -a -p {pid}")[0]
+            if "No matching handles found" in handle:
+                continue
             with open(r"Z:\E\Cyber\YB_CYBER\project\FinalProject\poc_start\poc_start\unrelated\sys_internals\output_handles.txt", "w") as f:
                 f.write(handle)
                 logging.info('Checking handles...')
@@ -68,11 +72,23 @@ class SysInternals:
             print("Process failed with return code:", process.returncode)
 
     def run_strings(self):
-        res = []
-        strings = run_command(f"{SysInternals.strings_path} virus.exe")[0]
-        for string in strings.split("\n"):
-            res.append(string)
-        return res[:200]
+        try:
+            res = []
+            strings = run_command(f"{SysInternals.strings_path} virus.exe")[0]
+            for string in strings.split("\n"):
+                # Skip strings with non-printable characters
+                if not string.isprintable():
+                    continue
+                # Skip short strings
+                if len(string) < 5:
+                    continue
+                if not re.match(r'^[\w\d\s.,;:?!()\-\'"]+$', string):
+                    continue
+                res.append(string)
+            return res
+        except Exception as e:
+            print(f"{e} error in strings")
+            return []
 
 
 if __name__ == "__main__":
