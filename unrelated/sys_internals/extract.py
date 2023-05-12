@@ -72,8 +72,40 @@ class SysInternals:
             print("Process failed with return code:", process.returncode)
 
     def run_strings(self):
+        size = os.path.getsize("virus.exe") / 1024
+        py_file = False
+        py_allowed = ["py", "Py", "ctypes", "string", "socket", "pickle", "subprocess",
+                      "get", "copy", "base64", "argparse", "api", "kernel32", "GetProcAddress", 'GetExitCodeProcess',
+                      'CreateProcessW', 'GetStartupInfoW', 'FreeLibrary', 'LoadLibraryExW', 'SetConsoleCtrlHandler',
+                      'FindClose', 'FindFirstFileExW',
+                      'CloseHandle', 'GetCurrentProcess', 'LocalFree', 'FormatMessageW', 'MultiByteToWideChar',
+                      'WideCharToMultiByte', 'KERNEL32.dll',
+                      'OpenProcessToken', 'GetTokenInformation', 'ConvertSidToStringSidW',
+                      'ConvertStringSecurityDescriptorToSecurityDescriptorW',
+                      'ADVAPI32.dll', 'RtlCaptureContext', 'RtlLookupFunctionEntry', 'RtlVirtualUnwind',
+                      'UnhandledExceptionFilter', 'SetUnhandledExceptionFilter',
+                      'TerminateProcess', 'IsProcessorFeaturePresent', 'QueryPerformanceCounter', 'GetCurrentProcessId',
+                      'GetCurrentThreadId', 'GetSystemTimeAsFileTime',
+                      'InitializeSListHead', 'IsDebuggerPresent', 'GetModuleHandleW', 'RtlUnwindEx', 'SetLastError',
+                      'EnterCriticalSection', 'LeaveCriticalSection', 'DeleteCriticalSection',
+                      'InitializeCriticalSectionAndSpinCount', 'TlsAlloc', 'TlsGetValue', 'TlsSetValue', 'TlsFree',
+                      'EncodePointer', 'RaiseException', 'RtlPcToFileHeader', 'GetCommandLineA',
+                      'CreateFileW', 'GetDriveTypeW', 'GetFileInformationByHandle', 'GetFileType', 'PeekNamedPipe',
+                      'SystemTimeToTzSpecificLocalTime', 'FileTimeToSystemTime', 'GetFullPathNameW',
+                      'RemoveDirectoryW', 'FindNextFileW', 'SetStdHandle', 'DeleteFileW', 'ReadFile', 'GetStdHandle',
+                      'WriteFile', 'ExitProcess', 'GetModuleHandleExW', 'HeapFree', 'GetConsoleMode',
+                      'ReadConsoleW', 'SetFilePointerEx', 'GetConsoleOutputCP', 'GetFileSizeEx', 'HeapAlloc',
+                      'FlsAlloc', 'FlsGetValue', 'FlsSetValue', 'FlsFree', 'CompareStringW', 'LCMapStringW',
+                      'GetCurrentDirectoryW', 'FlushFileBuffers', 'HeapReAlloc', 'GetFileAttributesExW',
+                      'GetStringTypeW', 'IsValidCodePage', 'GetACP', 'GetOEMCP', 'GetCPInfo', 'GetEnvironmentStringsW',
+                      'FreeEnvironmentStringsW', 'GetProcessHeap', 'GetTimeZoneInformation', 'HeapSize',
+                      'WriteConsoleW', 'SetEndOfFile']
+        py_not_allowed = ['PyOBX)', 'pyR-E', 'pylqTg', 'pyNsy', 'PyQ.u', 'gAPyKU', 'NYnppPy', 'NpyJ"', 'VPyjA', 'pyZdL', 'py_?7', 'PyaeA', 'PyW:ng', 'EtTpy', 'tlpyp49', '_compat_pickle)', '_py_abc)']
+        if size > 6000:
+            py_file = True
         try:
             res = []
+            res_py = []
             strings = run_command(f"{SysInternals.strings_path} virus.exe")[0]
             for string in strings.split("\n"):
                 # Skip strings with non-printable characters
@@ -84,8 +116,17 @@ class SysInternals:
                     continue
                 if not re.match(r'^[\w\d\s.,;:?!()\-\'"]+$', string):
                     continue
+                if py_file:
+                    if any(s in string for s in py_allowed) and "Failed" not in string \
+                            and "api" not in string and "Fls" not in string and \
+                            "es" not in string and "Tls" not in string and "pyd" not in string\
+                            and "pyz" not in string and string not in py_not_allowed:
+                        res_py.append(string)
                 res.append(string)
-            return res
+            if py_file:
+                return res_py[4:]
+            else:
+                return res[:225]
         except Exception as e:
             print(f"{e} error in strings")
             return []

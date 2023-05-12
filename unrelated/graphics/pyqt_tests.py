@@ -1642,19 +1642,19 @@ class AppDemo(QMainWindow):
             return
         else:
             item = QListWidgetItem(self.listbox_view.item(0))
-            path = item.text()
+            self.path_for_file = item.text()
 
             # show warning message box for no file
-            if path == "" and not os.path.exists("virus.exe"):
+            if self.path_for_file == "" and not os.path.exists("virus.exe"):
                 show_message_warning_box("You have to enter a real path")
                 return
 
             bytes = b""
             try:
-                with open(path, "rb") as f:
+                with open(self.path_for_file, "rb") as f:
                     bytes += f.read()
-                shutil.move(str(path), PATH_TO_MOVE + "\\virus.exe")
-                with open(path, "wb") as f:
+                shutil.move(str(self.path_for_file), PATH_TO_MOVE + "\\virus.exe")
+                with open(self.path_for_file, "wb") as f:
                     f.write(bytes)
             except Exception as e:
                 print(e)
@@ -2686,8 +2686,7 @@ class AppDemo(QMainWindow):
         scrollBarPackers.setValue(50)
         scrollBarPackers.setStyleSheet(self.scrollBar_stylesheet)
 
-        if AppDemo.suspected_python_file:
-            print(os.path.getsize("virus.exe"))
+        if os.path.getsize("virus.exe") / 1024 > 6000:
             yara_packers["PyInstaller_Package"] = ["Elad"]
 
         for packer, tag in yara_packers.items():
@@ -2754,15 +2753,17 @@ class AppDemo(QMainWindow):
 
         pe_scan = ScanPE(os.path.abspath("virus.exe").replace("graphics", "hash_scan"))
 
-        dlls = pe_scan.run_pe_scan_exe()
+        dlls = {}
+        if os.path.getsize("virus.exe") / 1024 > 6000:
+            dlls = {}
+        else:
+            if self.run_for_copy == 1:
+                dlls = pe_scan.run_pe_scan_exe()
         if self.run_for_copy == 1:
             self.copy_imports = dlls
             self.run_for_copy = 0
         self.dlls_empty = False
-        print(dlls)  # key = tuple - first key: library, value: list of imports
-
-        if AppDemo.suspected_python_file:
-            dlls = {}
+        print(dlls if dlls != {} else self.copy_imports)  # key = tuple - first key: library, value: list of imports
 
         if dlls == {} and self.copy_imports == {}:
             self.dlls_empty = True
