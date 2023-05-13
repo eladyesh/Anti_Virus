@@ -1,0 +1,11 @@
+
+----------intercepted call to WriteProcessMemory----------
+
+
+A pointer to the base address in the specified process to which data is written is 00290000
+A pointer to the buffer that contains data to be written in the address space of the specified process is E:\Cyber\YB_CYBER\project\FinalProject\ExeFiles\ExeFiles\evil.dll
+The number of bytes to be written to the specified process is 67
+
+----------Done intercepting call to WriteProcessMemory----------
+
+

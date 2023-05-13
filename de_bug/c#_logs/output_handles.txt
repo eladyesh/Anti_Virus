@@ -1,0 +1,194 @@
+
+Nthandle v5.0 - Handle viewer
+Copyright (C) 1997-2022 Mark Russinovich
+Sysinternals - www.sysinternals.com
+
+    4: File  (---)   \Device\ConDrv\Reference
+    8: File  (---)   \Device\ConDrv\Input
+    C: File  (---)   \Device\ConDrv\Output
+   10: File  (---)   \Device\ConDrv\Output
+   14: Event         
+   18: Event         
+   1C: WaitCompletionPacket 
+   20: IoCompletion  
+   24: TpWorkerFactory 
+   28: IRTimer       
+   2C: WaitCompletionPacket 
+   30: IRTimer       
+   34: WaitCompletionPacket 
+   38: EtwRegistration 
+   3C: EtwRegistration 
+   40: EtwRegistration 
+   44: Directory     \KnownDlls
+   48: Event         
+   4C: Event         
+   50: File  (RW-)   C:\Windows
+   54: Event         
+   58: Directory     \KnownDlls32
+   5C: Event         
+   60: WaitCompletionPacket 
+   64: IoCompletion  
+   68: TpWorkerFactory 
+   6C: IRTimer       
+   70: WaitCompletionPacket 
+   74: IRTimer       
+   78: WaitCompletionPacket 
+   7C: EtwRegistration 
+   80: EtwRegistration 
+   84: EtwRegistration 
+   88: Directory     \KnownDlls32
+   8C: Event         
+   90: Event         
+   94: File  (RW-)   \Device\Mup\;Z:00000000000279cc\vmware-host\Shared Folders\E\Cyber\YB_CYBER\project\FinalProject\poc_start\poc_start
+   98: File  (---)   \Device\ConDrv\Connect
+   9C: EtwRegistration 
+   A0: ALPC Port     
+   A4: Mutant        \Sessions\1\BaseNamedObjects\SM0:2460:168:WilStaging_02
+   A8: Directory     \Sessions\1\BaseNamedObjects
+   AC: Semaphore     \Sessions\1\BaseNamedObjects\SM0:2460:168:WilStaging_02_p0
+   B0: EtwRegistration 
+   B4: EtwRegistration 
+   B8: EtwRegistration 
+   BC: Key           HKLM\SYSTEM\ControlSet001\Control\Nls\Sorting\Versions
+   C0: Mutant        
+   C4: IoCompletion  
+   C8: TpWorkerFactory 
+   CC: IRTimer       
+   D0: WaitCompletionPacket 
+   D4: IRTimer       
+   D8: WaitCompletionPacket 
+   DC: EtwRegistration 
+   E0: EtwRegistration 
+   E4: EtwRegistration 
+   E8: EtwRegistration 
+   EC: EtwRegistration 
+   F0: Key           HKLM
+   F4: EtwRegistration 
+   F8: Mutant        
+   FC: EtwRegistration 
+  100: EtwRegistration 
+  104: Key           HKCU
+  108: EtwRegistration 
+  10C: EtwRegistration 
+  110: EtwRegistration 
+  114: EtwRegistration 
+  118: EtwRegistration 
+  11C: EtwRegistration 
+  120: Key           HKLM\SYSTEM\ControlSet001\Control\Session Manager
+  124: Key           HKLM\SYSTEM\ControlSet001\Control\Nls\CustomLocale
+  128: EtwRegistration 
+  12C: EtwRegistration 
+  130: Desktop       \Default
+  134: Event         
+  138: Key           HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options
+  13C: IoCompletion  
+  140: WindowStation \Sessions\1\Windows\WindowStations\WinSta0
+  144: WindowStation \Sessions\1\Windows\WindowStations\WinSta0
+  148: EtwRegistration 
+  14C: Key           HKLM\SOFTWARE\WOW6432Node\Microsoft\.NETFramework
+  150: Event         
+  154: Event         
+  158: Event         
+  15C: EtwRegistration 
+  160: EtwRegistration 
+  164: EtwRegistration 
+  168: EtwRegistration 
+  16C: Event         
+  170: Section       \BaseNamedObjects\Cor_Private_IPCBlock_v4_2460
+  174: WaitCompletionPacket 
+  178: Section       \...\Cor_SxSPublic_IPCBlock
+  17C: Directory     
+  180: Event         
+  184: Mutant        
+  188: Event         
+  18C: Event         
+  190: Event         
+  194: Event         
+  198: Event         
+  19C: Thread        virus.exe(2460): 6252
+  1A0: Thread        virus.exe(2460): 4964
+  1A4: Event         
+  1A8: Event         
+  1AC: Event         
+  1B0: Event         
+  1B4: Mutant        
+  1B8: Event         
+  1BC: Event         
+  1C0: Event         
+  1C4: Event         
+  1C8: Event         
+  1CC: Event         
+  1D0: Event         
+  1D4: Event         
+  1D8: Event         
+  1DC: Event         
+  1E0: Event         
+  1E4: Event         
+  1E8: Event         
+  1EC: Event         
+  1F0: Event         
+  1F4: Event         
+  1F8: Event         
+  1FC: Event         
+  200: Event         \KernelObjects\LowMemoryCondition
+  204: Event         
+  208: Event         
+  20C: Event         
+  210: Event         
+  214: Event         
+  218: Event         
+  21C: Event         
+  220: Event         
+  224: Thread        virus.exe(2460): 3936
+  228: Key           HKLM\SYSTEM\ControlSet001\Control\Nls\Sorting\Ids
+  22C: Event         
+  230: EtwRegistration 
+  234: EtwRegistration 
+  238: Key           HKLM
+  23C: Key           HKLM\SOFTWARE\Microsoft\Ole
+  240: Event         
+  244: Key           HKCU\Local Settings\Software\Microsoft
+  248: Key           HKCU\Local Settings
+  24C: Event         
+  250: EtwRegistration 
+  254: EtwRegistration 
+  258: EtwRegistration 
+  25C: Event         
+  260: Event         
+  264: Event         
+  268: Event         
+  26C: Event         
+  270: Event         
+  274: EtwRegistration 
+  278: EtwRegistration 
+  27C: EtwRegistration 
+  280: EtwRegistration 
+  284: EtwRegistration 
+  288: EtwRegistration 
+  28C: EtwRegistration 
+  290: EtwRegistration 
+  294: EtwRegistration 
+  298: EtwRegistration 
+  29C: Event         
+  2A0: Event         
+  2A4: Event         
+  2A8: EtwRegistration 
+  2AC: EtwRegistration 
+  2B0: Event         
+  2B4: File  (---)   \Device\CNG
+  2B8: Event         
+  2BC: EtwRegistration 
+  2C0: Event         
+  2C4: Thread        virus.exe(2460): 3936
+  2C8: ALPC Port     
+  2CC: IoCompletion  
+  2D0: TpWorkerFactory 
+  2D4: IRTimer       
+  2D8: WaitCompletionPacket 
+  2DC: IRTimer       
+  2E0: WaitCompletionPacket 
+  2E4: Event         \BaseNamedObjects\CPFATE_2460_v4.0.30319
+  2E8: Event         
+  2EC: Event         
+  2F0: Event         
+  2F4: Key           HKLM\SOFTWARE\Microsoft\Fusion\PublisherPolicy\Default

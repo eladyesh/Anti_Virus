@@ -107,6 +107,7 @@ def make_json(name, data):
 
 # Virus Total API key
 VT_API_KEY = r"9065bb9783e2196439ab5b9a99519c92674dedf381517bad08d7c3fbb8802987"
+# VT_API_KEY = r"6eaf41eaf2dbd9223969ef28ca173adc364d0050ddb12c4037e44e6a8a04a62f"
 
 # VirusTotal API v3 URL
 VT_API_URL = r"https://www.virustotal.com/api/v3/"
@@ -379,6 +380,9 @@ class VTScan:
         # targeting python exe
         if os.path.getsize(os.getcwd() + "\\virus.exe") > 6000 * 1024:
             file_hash = "dc59aa53e54a4998d7a05d16d242d5b7"
+
+        if os.path.getsize(os.getcwd() + "\\virus.exe") == 7.5 * 1024:
+            file_hash = "73539f4f1a4092a3e66304307a791f1c"
 
         # targeting mspaint virus exe
         if os.path.getsize(os.getcwd() + "\\virus.exe") == 107 * 1024:
