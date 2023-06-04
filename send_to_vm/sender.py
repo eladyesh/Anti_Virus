@@ -3,6 +3,7 @@ import struct
 from socket import socket, AF_INET, SOCK_STREAM
 import os.path
 
+# Constants
 FILE_NAME_TO_SEND = r"E:\Cyber\YB_CYBER\project\FinalProject\poc_start\poc_start\unrelated\graphics\virus.exe"
 FILE_NAME_TO_SAVE = r"E:\Cyber\YB_CYBER\project\FinalProject\poc_start\poc_start\unrelated\graphics\LOG.txt"
 
@@ -38,23 +39,30 @@ FILE_NAME_TO_SAVE = r"E:\Cyber\YB_CYBER\project\FinalProject\poc_start\poc_start
 
 
 class Sender:
-
+    """
+    This class represents a sender that connects to a virtual machine and sends/receives files.
+    """
     def __init__(self):
-
+        """
+        Initializes the Sender object by connecting to the virtual machine.
+        """
         print("Starting Sender")
         self.sock = socket(AF_INET, SOCK_STREAM)
         self.sock.connect(("172.16.118.137", 9999)) # 172.16.4.73
         print("Connected to Virtual Machine")
 
     def run(self):
-
+        """
+        Sends a file to the virtual machine and receives a report file in response.
+        """
         print("Sending file")
         with open(FILE_NAME_TO_SEND, "rb") as f:
             file_to_send_data = f.read()
 
+        # Send the file size followed by the file data
         self.sock.sendall(struct.pack("I", len(file_to_send_data)) + file_to_send_data)
 
-        # receiving file
+        # Receiving file
         file_to_recv_size = struct.unpack("I", self.sock.recv(struct.calcsize("I")))[0]
         file = b''
         while len(file) < file_to_recv_size:
