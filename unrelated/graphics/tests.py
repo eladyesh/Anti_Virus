@@ -95,7 +95,19 @@ import subprocess
 #         break
 
 
-
 # Quarantine.restore_quarantined_to_original(r"D:\Cyber\YB_CYBER\project\FinalProject\ExeFiles\Debug\Found_Virus"
 #                                            r"\ExeFiles.exe",
 #                                            "D:\Cyber\YB_CYBER\project\FinalProject\ExeFiles\Debug\ExeFiles.exe", "1234")
+
+# import psutil
+#
+# for process in psutil.process_iter(['pid', 'name', 'cmdline']):
+#     try:
+#         process_info = process.as_dict(attrs=['pid', 'name', 'cmdline'])
+#     except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
+#         pass
+#     else:
+#         if process_info["cmdline"]:
+#             if process_info["name"] == "vmware-vmx.exe":
+#                 print("CPU usage:", process.cpu_percent(interval=1))
+#                 print("Memory usage:", process.memory_info().rss / (1024 ** 2), "MB")

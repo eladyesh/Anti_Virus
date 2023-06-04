@@ -25,6 +25,9 @@ ip_for_server = socket.gethostbyname_ex(socket.gethostname())[-1][-1] # --> lab
 
 
 class RequestHandler(BaseHTTPRequestHandler):
+    """
+    HTTP request handler class for the server.
+    """
     # def do_GET(self):
     #     self.send_response(200)
     #     self.send_header('Content-type', 'text/html')
@@ -45,6 +48,9 @@ class RequestHandler(BaseHTTPRequestHandler):
     #     self.wfile.write(b"</html>")
 
     def do_GET(self):
+        """
+        Handles HTTP GET requests.
+        """
         self.send_response(200)
         self.send_header('Content-type', 'text/html')
         self.end_headers()
@@ -99,12 +105,19 @@ class RequestHandler(BaseHTTPRequestHandler):
 
 
 def start_server():
+    """
+    Starts the HTTP server.
+    """
     httpd = HTTPServer((ip_for_server, 8080), RequestHandler)
     httpd.serve_forever()
 
 
 @main_requires_admin
 def main():
+    """
+    Main entry point of the program.
+    """
+
     # Define color codes
     BLUE = 9
     GREEN = 10

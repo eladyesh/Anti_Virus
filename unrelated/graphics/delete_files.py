@@ -10,12 +10,30 @@ from poc_start.unrelated.graphics.helpful_widgets import stop_timer
 
 
 def delete_file(path):
+    """
+    Delete a file at the specified path, if it exists.
+
+    Args:
+        path (str): The path of the file to be deleted.
+
+    """
     if path is not None:
         if os.path.exists(path):
             os.remove(path)
 
 
 def find_file_by_key_word(dir_path, key_word):
+    """
+    Find a file in the specified directory with a given keyword.
+
+    Args:
+        dir_path (str): The path of the directory to search in.
+        key_word (str): The keyword to search for in the filenames.
+
+    Returns:
+        str: The full path of the found file, or None if no matching file is found.
+
+    """
     for filename in os.listdir(dir_path):
         full_path = os.path.join(dir_path, filename)
         if key_word in filename:

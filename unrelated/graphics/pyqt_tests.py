@@ -56,6 +56,7 @@ import colorcet as cc
 PATH_TO_MOVE = os.getcwd()
 # print(PATH_TO_MOVE) # r"D:\\Cyber\\YB_CYBER\\project\\FinalProject\\poc_start\\poc_start\\unrelated\\graphics"
 
+# Style sheet
 qss = """
 #Window{ 
     background-color: white;
@@ -105,7 +106,9 @@ QToolTip {
 }
 """
 
+# Initializing constants
 run_for_show_virtual_machine = 1
+wait_longer_for_vm = False
 stop_threads_for_fuzzy = False
 bubble_strings_dict = {
     'CreateToolhelp32Snapshot': 'Takes a snapshot of the specified processes, as well as '
@@ -236,11 +239,21 @@ bubble_strings_dict = {
     "SetFilePointer": "This function stores the file pointer in two LONG values",
     "GetKeyboardState": "Copies the status of the 256 virtual keys to the specified buffer.",
     "PyInstaller_Package": "A program that can be used to package Python programs into standalone executable files "
-                           "for distribution. "
+                           "for distribution. ",
+    "Microsoft_Visual_C_Sharp": "Microsoft Visual C# is a modern, object-oriented programming language developed by"
+                                " Microsoft for the .NET framework.",
+    "Armadillo_v2xx_CopyMem_II_additional": "Armadillo is a software protection system that is used to prevent "
+                                            "unauthorized access to or modification of protected software. "
 }
 
 
 def run_as_admin(func):
+    """
+    Decorator function to run a function as an administrator.
+    If the current user is not an administrator, it relaunches the program as an admin.
+    If the current user is already an admin, it executes the function.
+    """
+
     @functools.wraps(func)
     def wrapper(*args, **kwargs):
         if not pyuac.isUserAdmin():
@@ -253,6 +266,12 @@ def run_as_admin(func):
 
 
 def make_label(text, font_size):
+    """
+    Creates a QLabel with customized properties.
+    - `text`: The text to be displayed in the label.
+    - `font_size`: The size of the font for the label.
+    Returns the created QLabel object.
+    """
     label = QLabel(text)
 
     # Set the font to a decorative font
@@ -274,33 +293,74 @@ def make_label(text, font_size):
 
 
 class worker_for_vm(QObject, threading.Thread):
+    """
+    A worker thread that monitors the virtual machine process and emits a signal when it is found.
+    """
     vm_changed = pyqtSignal()
 
     def __init__(self):
         super().__init__()
 
     def run(self):
+        """
+        The main logic of the worker thread.
+        Monitors the virtual machine process and emits a signal when it is found.
+        """
         global run_for_show_virtual_machine
+        global wait_longer_for_vm
+
         # Monitor the file
-        while not "vmware-vmx.exe" in [p.name() for p in psutil.process_iter()]:
-            time.sleep(25)
+        # while not "vmware-vmx.exe" in [p.name() for p in psutil.process_iter()]:
+        #     time.sleep(25)
+        # if wait_longer_for_vm:
+        #     print("got to wait for long")
+        #     time.sleep(40)
+        # else:
+        #     time.sleep(15)
+
         if wait_longer_for_vm:
-            print("got to wait for long")
-            time.sleep(40)
-        else:
-            time.sleep(15)
+            time.sleep(12)
+            wait_longer_for_vm = False
+
+        found = False
+
+        while not found:
+            try:
+                # Find the vmware-vmx.exe process
+                vmware_process = next(p for p in psutil.process_iter() if p.name() == "vmware-vmx.exe")
+            except StopIteration:
+                # Wait a few seconds and try again if vmware-vmx.exe is not found
+                time.sleep(5)
+                # print("in stop iteration")
+                continue
+
+            # Check the memory usage of the vmware-vmx.exe process
+            while vmware_process.memory_info().rss / (1024 ** 2) <= 5500:
+                time.sleep(1)
+                print("waiting for memory ", vmware_process.memory_info().rss / (1024 ** 2))
+
+            found = True
 
         # File found, emit signal
-        self.vm_changed.emit()
+        if run_for_show_virtual_machine == 1:
+            self.vm_changed.emit()
+            run_for_show_virtual_machine = 0
 
 
 class worker_for_upload_remove(QObject, threading.Thread):
+    """
+    Worker thread that monitors the existence of a file and emits a signal when the file is found.
+    """
     file_is_loaded = pyqtSignal()
 
     def __init__(self):
         super().__init__()
 
     def run(self):
+        """
+        The main logic of the worker thread.
+        Monitors whether the virus was uploaded to the system.
+        """
         # Monitor the file
         while not os.path.exists("virus.exe"):
             time.sleep(1)
@@ -309,12 +369,18 @@ class worker_for_upload_remove(QObject, threading.Thread):
 
 
 class worker_for_files(QObject, threading.Thread):
+    """
+    Worker thread that monitors the existence of a file and emits a signal when the file is found.
+    """
     file_changed = pyqtSignal()
 
     def __init__(self):
         super().__init__()
 
     def run(self):
+        """
+        Runs the worker thread.
+        """
         # Monitor the file
         while not os.path.exists('LOG.txt'):
             time.sleep(1)
@@ -324,6 +390,9 @@ class worker_for_files(QObject, threading.Thread):
 
 
 class worker_for_virus_dial(QObject, threading.Thread):
+    """
+    Worker thread that monitors a dial instance and emits a signal when the dial reaches a certain percentage.
+    """
     dial_changed = pyqtSignal()
 
     def __init__(self, dial_instance):
@@ -331,10 +400,12 @@ class worker_for_virus_dial(QObject, threading.Thread):
         self.dial_instance = dial_instance
 
     def run(self):
-
+        """
+        Runs the worker thread.
+        """
         try:
             # Monitor the dial
-            while not self.dial_instance.get_percentage() > 73:
+            while not self.dial_instance.get_percentage() > 71:
                 time.sleep(1)
         except RuntimeError:
             pass
@@ -344,10 +415,15 @@ class worker_for_virus_dial(QObject, threading.Thread):
 
 
 class worker_for_static_analysis(QObject, threading.Thread):
+    """
+    Worker thread that monitors the execution of another worker and emits a signal when the other worker has completed its task.
+    """
     static_is_ready = pyqtSignal()
 
     def run(self):
-
+        """
+        Runs the worker thread.
+        """
         try:
             # Monitor the dial
             while not worker_for_function.is_emitted:
@@ -360,6 +436,10 @@ class worker_for_static_analysis(QObject, threading.Thread):
 
 
 class Worker(QRunnable):
+    """
+    Worker class that can be used with QThreadPool to execute a function in a separate thread.
+    """
+
     def __init__(self, fn, *args, **kwargs):
         super(Worker, self).__init__()
         self.fn = fn
@@ -368,22 +448,38 @@ class Worker(QRunnable):
 
     @pyqtSlot()
     def run(self):
+        """
+        Runs the worker thread and executes the function with the given arguments.
+        """
         self.fn(*self.args, **self.kwargs)
 
 
 # Create a model for the table
 class TableModel(QAbstractTableModel):
+    """
+    Model class for a table view.
+    """
+
     def __init__(self, data):
         super().__init__()
         self._data = data
 
     def rowCount(self, parent=None):
+        """
+        Returns the number of rows in the model.
+        """
         return len(self._data)
 
     def columnCount(self, parent=None):
+        """
+        Returns the number of columns in the model.
+        """
         return len(self._data[0])
 
     def data(self, index, role=Qt.DisplayRole):
+        """
+        Returns the data at the specified index for the given role.
+        """
         if role == Qt.DisplayRole:
             row = index.row()
             col = index.column()
@@ -392,6 +488,10 @@ class TableModel(QAbstractTableModel):
 
 
 class ListBoxWidget(QListWidget):
+    """
+    Custom QListWidget class with drag and drop functionality and additional features.
+    """
+
     def __init__(self, status_bar, parent=None):
         super().__init__(parent)
         self.status_bar = status_bar
@@ -486,7 +586,9 @@ class ListBoxWidget(QListWidget):
         layout.addLayout(button_clear_layout)
 
     def remove_files_of_exe(self):
-
+        """
+        Remove files related to the executable and quit the application.
+        """
         show_message_warning_box("All the relevant analysis files will de deleted, and the application will exit.\n"
                                  "If you want the file to not be saved wait for system to reboot "
                                  "\n"
@@ -499,6 +601,9 @@ class ListBoxWidget(QListWidget):
         QApplication.quit()
 
     def upload_files(self, event):
+        """
+        Event handler for file upload.
+        """
 
         # Button is not checked, prompt user to select file and add it to list
         file_dialog = QFileDialog()
@@ -534,16 +639,25 @@ class ListBoxWidget(QListWidget):
             self.remove_button.setChecked(False)
 
     def dragEnterEvent(self, event):
+        """
+        Event handler for drag enter event. Accepts the event if it contains URLs.
+        """
         if event.mimeData().hasUrls():
             event.accept()
         else:
             event.ignore()
 
     def resizeEvent(self, event):
+        """
+        Event handler for resize event. Adjusts the position of the clear icon.
+        """
         super().resizeEvent(event)
         self.clear_icon.move(self.width() - self.clear_icon.width() - 10, self.height() - self.clear_icon.height() - 10)
 
     def dragMoveEvent(self, event):
+        """
+        Event handler for drag move event. Accepts the event if it contains URLs.
+        """
         if event.mimeData().hasUrls():
             event.setDropAction(Qt.CopyAction)
             event.accept()
@@ -551,17 +665,26 @@ class ListBoxWidget(QListWidget):
             event.ignore()
 
     def clearListWidget(self, event=None):
+        """
+        Clears the list widget and hides the clear icon.
+        """
         self.clear()
         self.clear_icon.setVisible(False)
         self.gif_label.show()
 
     def toggleClearIcon(self):
+        """
+        Toggles the visibility of the clear icon based on the number of items in the list.
+        """
         if self.count() > 0:
             self.clear_icon.setVisible(True)
         else:
             self.clear_icon.setVisible(False)
 
     def dropEvent(self, event):
+        """
+        Event handler for drop event. Adds dropped URLs to the list widget.
+        """
         if event.mimeData().hasUrls():
             event.setDropAction(Qt.CopyAction)
             event.accept()
@@ -586,7 +709,11 @@ class ListBoxWidget(QListWidget):
 
 
 class AppDemo(QMainWindow):
-    # define static variables
+    """
+    Main application window for the AntiVirus program.
+    """
+
+    # Define static variables
     keylogger_found = False
     suspected_keylogger = False
     suspected_python_file = False
@@ -599,6 +726,7 @@ class AppDemo(QMainWindow):
     def __init__(self):
         super().__init__()
 
+        # Initialize variables
         self.flag = False
         self.setWindowTitle("AntiVirus")
         self.setWindowIcon(QIcon("images/virus.png"))
@@ -618,21 +746,22 @@ class AppDemo(QMainWindow):
         self.new_file_path_quarantined = ""
         self.path_for_file = ""
 
-        # to save imports
+        # To save imports
         self.run_for_copy = 1
         self.copy_imports = {}
 
+        # If file exists
         if os.path.exists("virus.exe"):
             self.file_loaded_to_system = True
             self.run_for_dial_initiative = 1
 
-        # status bar
+        # Status bar
         self.statusBar_instance = StatusBar()
         self.statusBar = self.statusBar_instance.get_instance()
         self.setStatusBar(self.statusBar)
         self.messages = []
 
-        # toolbar
+        # Toolbar
         self.toolbar = QToolBar()
         self.toolbar.setMovable(False)
 
@@ -677,7 +806,7 @@ class AppDemo(QMainWindow):
 
         self.addToolBar(Qt.LeftToolBarArea, self.toolbar)
 
-        # for database
+        # For database
         self.run_for_start = False
         self.run_for_entropy = 1
         self.run_for_rules = 1
@@ -694,6 +823,13 @@ class AppDemo(QMainWindow):
         self.main_menu_window()
 
     def updateActionVisibility(self, value):
+        """
+        Update the visibility of the QAction based on the scroll position.
+
+        Args:
+            value (int): The scroll position value.
+
+        """
         # Determine whether to show or hide the QAction based on the scroll position
         if value > 0:
             self.jump_to_top_action.setVisible(True)
@@ -701,7 +837,13 @@ class AppDemo(QMainWindow):
             self.jump_to_top_action.setVisible(False)
 
     def update_dial_position(self, event=None):
+        """
+        Update the position of the label widget based on the size of the window.
 
+        Args:
+            event (object): The event that triggered the update (default: None).
+
+        """
         # Calculate the new position of the label widget based on the size of the window
         label_width = self.dial.sizeHint().width()
         window_width = self.width()
@@ -709,7 +851,10 @@ class AppDemo(QMainWindow):
         self.dial.move(x - 20, 20)
 
     def show_settings(self):
-
+        """
+        Show the settings layout with various toggle options and apply button.
+        """
+        # Clear layout and set visited flags
         self.clearLayout()
         self.dynamic_visited = False
         self.python_visited = False
@@ -828,6 +973,12 @@ class AppDemo(QMainWindow):
         self.settings_visited = True
 
     def create_file_dialog_for_quarantine(self):
+        """
+        Creates a file dialog to choose a file for de-quarantine.
+
+        Returns:
+            str: The path of the selected file if it belongs to the "Found_Virus" directory, None otherwise.
+        """
         file_dialog = QFileDialog()
         file_dialog.setWindowTitle("Choose a File to De-Quarantine")
         file_dialog.setFileMode(QFileDialog.ExistingFile)
@@ -854,7 +1005,11 @@ class AppDemo(QMainWindow):
             return None
 
     def func_for_settings(self):
+        """
+        Handles the settings functionality based on the user's selections.
 
+        Updates the settings values and adds corresponding messages to the message list.
+        """
         if self.vt_toggel.isChecked():
             print("activate virus total is checked")
             self.activate_virus_total = False
@@ -905,13 +1060,26 @@ class AppDemo(QMainWindow):
         return
 
     def run_func_in_thread(self, func_to_run):
+        """
+        Runs a function in a separate thread.
 
+        Args:
+            func_to_run (function): The function to be executed in the separate thread.
+
+        Returns:
+            QThread: The created thread.
+        """
         self.thread = QThread()
         self.thread.run = func_to_run
         return self.thread
 
     def clearLayout(self):
+        """
+        Clears the layout by removing and deleting all widgets.
 
+        Note: This method contains multiple sections for clearing different parts of the layout.
+
+        """
         if self.run_once == 0:
 
             for cnt in reversed(range(self.page_layout.count())):
@@ -921,6 +1089,7 @@ class AppDemo(QMainWindow):
                 if widget is not None:
                     widget.deleteLater()
 
+            # Delete specific widgets
             if self.load_for_hash:
                 self.load_for_hash.deleteLater()
 
@@ -936,6 +1105,7 @@ class AppDemo(QMainWindow):
             self.btn.deleteLater()
             self.run_once = 1
 
+        # Clear widgets for static analysis
         if self.static_visited:
             self.index_table = self.page_layout.indexOf(self.table_and_strings_layout)
             self.page_layout.removeItem(self.page_layout.takeAt(self.index_table))
@@ -960,6 +1130,7 @@ class AppDemo(QMainWindow):
             self.suspicious_imports.deleteLater()
             self.table_and_strings_layout.deleteLater()
 
+        # Clear widgets for hash analysis
         if self.hash_visited:
             self.index = self.page_layout.indexOf(self.hash_layout)
             self.page_layout.removeItem(self.page_layout.takeAt(self.index))
@@ -1004,6 +1175,7 @@ class AppDemo(QMainWindow):
 
             self.hash_layout.deleteLater()
 
+        # Clear widgets for dynamic analysis
         if self.dynamic_visited:
             self.start_dynamic.deleteLater()
             self.tree_functions.deleteLater()
@@ -1015,6 +1187,7 @@ class AppDemo(QMainWindow):
             self.events_table.deleteLater()
             self.dynamic_layout.deleteLater()
 
+        # Clear widgets for directory analysis
         if self.dir_visited:
             self.scan_dir_label.deleteLater()
             self.scan_dir_button.deleteLater()
@@ -1033,6 +1206,7 @@ class AppDemo(QMainWindow):
                 self.threadpool_vt.terminate()
                 self.dir_layout.deleteLater()
 
+        # Clear widgets for IP analysis
         if self.ip_visited:
             self.ip_analysis_label.deleteLater()
             self.ip_button.deleteLater()
@@ -1052,6 +1226,7 @@ class AppDemo(QMainWindow):
 
             self.ip_layout.deleteLater()
 
+        # Clear widgets for settings screen
         if self.settings_visited:
             self.vt_toggel.deleteLater()
             self.vt_message.deleteLater()
@@ -1069,6 +1244,7 @@ class AppDemo(QMainWindow):
             self.line_for_data_base.deleteLater()
             self.settings_layout.deleteLater()
 
+        # Clear widgets for python analysis
         if self.python_visited:
             self.python_label.deleteLater()
             if AppDemo.keylogger_found:  # AppDemo.keylogger_found
@@ -1084,7 +1260,13 @@ class AppDemo(QMainWindow):
             self.python_layout.deleteLater()
 
     def show_ip_analysis(self):
+        """
+        Displays the IP analysis section.
 
+        This method sets the necessary variables and creates the UI components for IP analysis.
+
+        """
+        # Clear layout and set visited flags
         self.clearLayout()
         self.dir_visited = False
         self.static_visited = False
@@ -1133,7 +1315,13 @@ class AppDemo(QMainWindow):
         self.page_layout.addLayout(self.ip_layout)
 
     def show_directory_analysis(self):
+        """
+        Displays the directory analysis section.
 
+        This method sets the necessary variables and creates the UI components for directory analysis.
+
+        """
+        # Clear layout and set visited flags
         self.clearLayout()
         self.hash_visited = False
         self.static_visited = False
@@ -1181,14 +1369,29 @@ class AppDemo(QMainWindow):
         self.dir_visited = True
 
     def main_menu_window(self):
+        """
+        Creates and displays the main menu window of the application.
 
+        The main menu window contains options for different types of analysis and provides a user-friendly interface
+        for interacting with the application.
+
+        This function initializes various GUI elements and connects them to their respective actions.
+
+        Args:
+            self: The object instance.
+
+        Returns:
+            None
+        """
         if self.flag:
+            # Clear layout and set visited flags
             self.clearLayout()
         self.flag = True
 
-        # threads for the fuzzy hashing
+        # Threads for the fuzzy hashing
         self.thread1, self.thread2, self.thread3, self.thread4 = None, None, None, None
 
+        # Styling for QListWidget
         self.list_widget_style_sheet = """
             QListWidget {
                 background-color: #333;
@@ -1229,6 +1432,7 @@ class AppDemo(QMainWindow):
         self.activate_btn_layout = QHBoxLayout()
         self.resize(1200, 720)
 
+        # Create ListBoxWidget instance
         self.listbox_view = ListBoxWidget(self.statusBar_instance, self)
         self.listbox_view.setMinimumSize(300, 247)
         self.btn = QPushButton('Start Dynamic Scan', self)
@@ -1237,6 +1441,7 @@ class AppDemo(QMainWindow):
                                "QPushButton:hover {background-color: #D8BFD8; color: #4B0082;} QPushButton:pressed {"
                                "background-color: #DDA0DD; color: #8B008B;}")
 
+        # Create buttons for different types of analysis
         self.start_vm_btn = QPushButton('Start Virtual Machine', self)
         self.start_vm_btn.setStyleSheet(
             "QPushButton {background-color: #E6E6FA; color: #000080; border: 2px solid #9400D3; "
@@ -1260,6 +1465,7 @@ class AppDemo(QMainWindow):
         self.static_hash_load.addWidget(self.load_for_static)
         self.static_hash_load.addWidget(self.load_for_hash)
 
+        # Set button stylesheets
         self.load_for_static.setStyleSheet(
             "QPushButton {background-color: #E6E6FA; color: #000080; border: 2px solid #9400D3; "
             "font: bold 18px; min-width: 100px; padding: 6px; width: 100px; margin-top: 20px;} "
@@ -1272,6 +1478,7 @@ class AppDemo(QMainWindow):
             "QPushButton:hover {background-color: #D8BFD8; color: #4B0082;} QPushButton:pressed {"
             "background-color: #DDA0DD; color: #8B008B;}")
 
+        # Create main widgets of screen
         self.l1 = make_label("YESH SCANNER", 28)
         self.h_box_for_l1_and_dial = QHBoxLayout()
         # self.h_box_for_l1_and_dial.setAlignment(Qt.AlignCenter)
@@ -1287,7 +1494,7 @@ class AppDemo(QMainWindow):
         self.dial = self.dial_instance.get_dial()
         self.h_box_for_l1_and_dial.addWidget(self.dial, alignment=Qt.AlignRight)
 
-        # setting after moving to home screen
+        # Settings after moving to home screen
         if self.save_in_data_base:
             if os.path.exists("virus.exe"):
                 if self.redis_virus.exists(str(md5("virus.exe"))):
@@ -1299,6 +1506,7 @@ class AppDemo(QMainWindow):
                         self.run_for_start = True
                         self.run_for_dial_initiative = 0
 
+        # Setting more widgets, font, stylesheet, and placement
         self.l1.setStyleSheet("QLabel { font: bold; margin-bottom: 0px; padding: 10px;}")
 
         self.start_label_explantion = QLabel("Analyse suspicious files to detect malware\n"
@@ -1381,12 +1589,14 @@ class AppDemo(QMainWindow):
         self.ip_visited = False
         self.settings_visited = False
 
-        self.scroll = QScrollArea()  # Scroll Area which contains the widgets, set as the centralWidget
+        # Scroll Area which contains the widgets, set as the centralWidget
+        self.scroll = QScrollArea()
 
-        # connect the scrollbar to the slot
+        # Connect the scrollbar to the slot
         self.scroll.verticalScrollBar().valueChanged.connect(lambda value: self.updateActionVisibility(value))
 
-        self.widget = QWidget()  # Widget that contains the collection of Vertical Box
+        # Widget that contains the collection of Vertical Box
+        self.widget = QWidget()
         self.scroll.setStyleSheet("""
         QScrollArea {
           boarder-radius: 20px;
@@ -1484,18 +1694,18 @@ class AppDemo(QMainWindow):
         self.hash_button.clicked.connect(lambda: [self.activate_hash_analysis()])
         self.dynamic_button.clicked.connect(lambda: [self.dynamic_analysis()])
 
-        # initiate threads
+        # Initiate threads
         # Create a worker thread to monitor the file
         self.worker = worker_for_files()
         self.worker.file_changed.connect(self.on_file_changed)
         self.worker.start()
 
-        # for quarantine
+        # For quarantine
         self.worker_for_dial = worker_for_virus_dial(self.dial_instance)
         self.worker_for_dial.dial_changed.connect(self.on_probability_changed)
         self.worker_for_dial.start()
 
-        # for vm start
+        # For vm start
         self.worker_for_vm = worker_for_vm()
         self.worker_for_vm.vm_changed.connect(lambda: self.statusBar_instance.show_message("VM is now running, you "
                                                                                            "can send your file. When "
@@ -1506,6 +1716,15 @@ class AppDemo(QMainWindow):
         self.worker_for_vm.start()
 
         def activate_remove_button():
+            """
+            Activates the remove button in the main menu window.
+
+            If the remove button exists in the listbox_view, it is enabled and set to checked state.
+
+            Raises:
+                RuntimeError: If an error occurs while accessing the remove button.
+
+            """
             try:
                 if self.listbox_view.remove_button:
                     self.listbox_view.remove_button.setDisabled(False)
@@ -1513,14 +1732,14 @@ class AppDemo(QMainWindow):
             except RuntimeError:
                 pass
 
-        # for the upload / remove button
+        # For the upload / remove button
         self.worker_for_upload_remove = worker_for_upload_remove()
         self.worker_for_upload_remove.file_is_loaded.connect(activate_remove_button)
         # lambda: [self.listbox_view.remove_button.setDisabled(False),
         #          self.listbox_view.remove_button.setChecked(True)])
         self.worker_for_upload_remove.start()
 
-        # for status bar
+        # For status bar
         if self.messages != []:
             self.statusBar_instance.show_few(self.messages)
             self.messages = []
@@ -1532,7 +1751,13 @@ class AppDemo(QMainWindow):
             self.run_for_dynamic_disable = 0
 
     def on_probability_changed(self):
+        """
+        Handles the event when the probability is changed.
 
+        This function starts a QTimer and enters a local event loop until the timer has finished.
+        It then performs certain actions based on conditions and executes the `quarantine.py` script if necessary.
+
+        """
         # Create a QTimer object
         timer = QTimer()
 
@@ -1550,8 +1775,8 @@ class AppDemo(QMainWindow):
         # Check if the boolean variable `self.vault_file` is truth
         if self.vault_file and self.dial_instance.get_percentage() > 73 and not os.path.exists(
                 os.path.dirname(self.path_for_file) + r"\Found_Virus"):
-            # Display a warning message box to the user
 
+            # Display a warning message box to the user
             show_message_warning_box("Your file has now been quarantined for it is found to be a virus.\n"
                                      "You will not be able to run the file.\n\n"
                                      "If you wish to now restore file, you may go the configuration window\n"
@@ -1594,6 +1819,13 @@ class AppDemo(QMainWindow):
             # QApplication.exit()
 
     def load_for_static_analysis(self):
+        """
+        Loads a file for static analysis.
+
+        If the file is already loaded, it enables the static button and shows a status message.
+        Otherwise, it retrieves the path of the file, moves it to a specific location, and enables the static button.
+
+        """
         self.run_for_static_disable = 0
         if self.file_loaded_to_system:
             print("got to self.file")
@@ -1604,7 +1836,7 @@ class AppDemo(QMainWindow):
             item = QListWidgetItem(self.listbox_view.item(0))
             self.path_for_file = item.text()
 
-            # show warning message box for no file
+            # Show warning message box for no file
             if self.path_for_file == "" and not os.path.exists("virus.exe"):
                 show_message_warning_box("You have to enter a real path")
                 return
@@ -1622,6 +1854,7 @@ class AppDemo(QMainWindow):
             self.static_button.setDisabled(False)
             self.statusBar_instance.show_message("Static Analysis is ready")
 
+            # If file is in data base, move the dial to it's final percentage assessment
             if self.save_in_data_base:
                 if os.path.exists("virus.exe"):
                     if self.redis_virus.exists(str(md5("virus.exe"))):
@@ -1635,6 +1868,13 @@ class AppDemo(QMainWindow):
                 AppDemo.suspected_python_file = True
 
     def load_for_hash_analysis(self):
+        """
+        Loads a file for hash analysis.
+
+        If the file is already loaded, it enables the hash button and shows a status message.
+        Otherwise, it retrieves the path of the file, moves it to a specific location, and enables the hash button.
+
+        """
         self.run_for_hash_disable = 0
         if self.file_loaded_to_system:
             self.hash_button.setDisabled(False)
@@ -1644,7 +1884,7 @@ class AppDemo(QMainWindow):
             item = QListWidgetItem(self.listbox_view.item(0))
             self.path_for_file = item.text()
 
-            # show warning message box for no file
+            # Show warning message box for no file
             if self.path_for_file == "" and not os.path.exists("virus.exe"):
                 show_message_warning_box("You have to enter a real path")
                 return
@@ -1662,6 +1902,7 @@ class AppDemo(QMainWindow):
             self.hash_button.setDisabled(False)
             self.statusBar_instance.show_message("Hash Analysis is ready")
 
+            # If file is in data base, move the dial to it's final percentage assessment
             if self.save_in_data_base:
                 if os.path.exists("virus.exe"):
                     if self.redis_virus.exists(str(md5("virus.exe"))):
@@ -1671,7 +1912,23 @@ class AppDemo(QMainWindow):
                         self.run_for_start = True
 
     def python_analysis(self):
+        """
+        Perform Python static analysis and display the results.
 
+        This function clears the layout, sets the visited flags, and creates a layout for Python analysis.
+        It displays the Python Static Analysis label with a tooltip explaining the analysis type.
+        If a keylogger is found, it creates QListWidgets to display the suspect imports, functions, function-parameter combinations,
+        patterns, and parameters related to keyloggers. It sets the style sheet and size for the QListWidgets.
+        It adds the QListWidgets to the layout along with their corresponding labels.
+        It updates the dial percentage and saves the assessment in the Redis database.
+        If no keylogger is found, it reads the log from "log_python.txt" and displays the logged functions and related information
+        in a QTreeWidget. It sets the style sheet and header label for the QTreeWidget.
+        It calculates the assessment percentage based on the identified types of analysis (REGISTRY CHANGE, INJECTION, PORT SCANNING).
+        It adds the QTreeWidget to the layout and updates the dial percentage and Redis database.
+        Finally, it shows a status message indicating that the Python analysis is ready.
+        """
+
+        # Clear layout and set visited flags
         self.clearLayout()
         self.dynamic_visited = False
         self.static_visited = False
@@ -1681,6 +1938,7 @@ class AppDemo(QMainWindow):
         self.settings_visited = False
         self.python_visited = True
 
+        # Create layout for Python analysis
         self.python_layout = QVBoxLayout()
         self.page_layout.addLayout(self.python_layout)
         self.python_label = make_label("Python Static Analysis", 24)
@@ -1699,7 +1957,8 @@ class AppDemo(QMainWindow):
         #         and len(AppDemo.keylogger_suspect_params) == 0:
         #             self.keylogger_check = False
 
-        if AppDemo.keylogger_found:  # AppDemo.keylogger_found
+        # If a keylogger was found
+        if AppDemo.keylogger_found:
 
             keylogger_style_sheet = """
             QListWidget {
@@ -1849,6 +2108,8 @@ class AppDemo(QMainWindow):
             self.dial = self.dial_instance.get_dial()
 
         else:
+
+            # If a win32 python virus was found
             with open("log_python.txt", "r") as f:
                 virus_python_winapi_data_base = 0
                 python_data = f.read()
@@ -1918,7 +2179,8 @@ class AppDemo(QMainWindow):
                         }""")
                 self.tree_py.setHeaderLabel("Logged Functions")
                 for func in python_data:
-                    # function name
+
+                    # Function name
                     lines = func.split("\n")
                     for i, line in enumerate(lines):
                         if line.startswith("Function name: "):
@@ -1936,41 +2198,49 @@ class AppDemo(QMainWindow):
                 for func in python_data:
                     if "==============REGISTRY CHANGE==============" in func:
                         for i, line in enumerate(func.split("\n")):
-                            # first line
+
+                            # First line
                             if i == 0:
                                 item = QTreeWidgetItem(self.tree_py, ["REGISTRY CHANGE"])
                                 item.setForeground(0, QBrush(QColor("red")))
                                 virus_python_winapi_data_base += 35
                                 continue
-                            # last line
+
+                            # Last line
                             if "REGISTRY CHANGE" in line:
                                 continue
                             child_item = QTreeWidgetItem([line])
                             child_item.setForeground(0, QBrush(QColor("red")))
                             item.addChild(child_item)
+
                     if "==============INJECTION==============" in func:
                         for i, line in enumerate(func.split("\n")):
-                            # first line
+
+                            # First line
                             if i == 0:
                                 item = QTreeWidgetItem(self.tree_py, ["INJECTION"])
                                 item.setForeground(0, QBrush(QColor("red")))
                                 virus_python_winapi_data_base += 35
                                 continue
-                            # last line
+
+                            # Last line
                             if "INJECTION" in line:
                                 continue
                             child_item = QTreeWidgetItem([line])
                             child_item.setForeground(0, QBrush(QColor("red")))
                             item.addChild(child_item)
+
                     if "==============PORT SCANNING==============" in func:
                         for i, line in enumerate(func.split("\n")):
-                            # first line
+
+                            # First line
                             if i == 0:
                                 item = QTreeWidgetItem(self.tree_py, ["PORT SCANNING"])
                                 item.setForeground(0, QBrush(QColor("darkorange")))
                                 virus_python_winapi_data_base += 10
                                 continue
-                            # last line
+
+                            # Last line
                             if "PORT SCANNING" in line:
                                 continue
                             child_item = QTreeWidgetItem([line])
@@ -1979,6 +2249,7 @@ class AppDemo(QMainWindow):
 
             self.python_layout.addWidget(self.tree_py)
 
+            # Set dial and database data
             if self.run_for_python_win_api:
                 percentage = self.dial_instance.get_percentage()
                 self.dial_instance.setDialPercentage(percentage + virus_python_winapi_data_base)
@@ -1989,16 +2260,24 @@ class AppDemo(QMainWindow):
         self.statusBar_instance.show_message("Your python analysis is ready")
 
     def getSelectedItem(self):
+        """
+        Get the selected item from the listbox view and perform various operations based on the selected item.
+
+        Returns:
+            None
+        """
+        # Get the selected item from the listbox view
         item = QListWidgetItem(self.listbox_view.item(0))
 
         if not self.file_loaded_to_system:
             self.path_for_file = item.text()
 
-        # show warning message box for no file
+        # Show warning message box for no file
         if self.path_for_file == "" and not os.path.exists("virus.exe"):
             show_message_warning_box("You have to enter a real path")
             return
 
+        # Load the file into the system
         if not self.file_loaded_to_system:
             bytes = b""
             try:
@@ -2024,6 +2303,8 @@ class AppDemo(QMainWindow):
         # print(self.md5_hash, "Taken from ", os.path.abspath("virus.exe"))
 
         if self.save_in_data_base:
+
+            # Create a new entry in the database with initial values
             if not self.redis_virus.exists(self.md5_hash):
                 self.redis_virus.hset_dict(self.md5_hash,
                                            {"rules": pickle.dumps([0]), "packers": pickle.dumps([0]),
@@ -2042,59 +2323,78 @@ class AppDemo(QMainWindow):
         # print(int(self.redis_virus.hgetall('5fffd3e69093dc32727214ba5c8f2af5')[b'num_of_rules'].decode()) * 5)
 
         if os.path.exists("log_python.txt") or len(AppDemo.keylogger_suspect_imports) > 2:
+            # Perform Python analysis if log file exists or there are keylogger suspect imports
             self.python_analysis()
             return
 
-        if Packers.programming_language(self.path_for_file) == "py":  # a python file
-            # self.py_thread = QThread()
-            # self.py_thread.run = self.python_analysis
-            # self.py_thread.start()
-            # self.show_loading_menu()
+        try:
 
-            class VirusThread(QThread):
-                overlay = show_loading_menu("Loading your data...\nIt will take maximum of 2 minutes.\nWhen it is "
-                                            "ready, "
-                                            "it will be shown in the "
-                                            "status bar")
-                overlay.show()
-                finished_signal = pyqtSignal()
+            # Create a separate thread for running the virus analysis
+            if Packers.programming_language(self.path_for_file) == "py":  # a python file
+                # self.py_thread = QThread()
+                # self.py_thread.run = self.python_analysis
+                # self.py_thread.start()
+                # self.show_loading_menu()
 
-                def run(self):
-                    self.pv = PythonVirus("virus.exe")
-                    self.pv.log_for_winapi(self.pv.find_ctypes_calls())
+                class VirusThread(QThread):
+                    """
+                    A thread for performing virus analysis on a Python file.
+                    """
+                    overlay = show_loading_menu("Loading your data...\nIt will take maximum of 2 minutes.\nWhen it is "
+                                                "ready, "
+                                                "it will be shown in the "
+                                                "status bar")
+                    overlay.show()
+                    finished_signal = pyqtSignal()
 
-                    self.keylogger_suspect = self.pv.check_for_keylogger()
-                    AppDemo.keylogger_suspect_imports = self.keylogger_suspect[0]
-                    AppDemo.keylogger_suspect_funcs = self.keylogger_suspect[1]
-                    AppDemo.keylogger_suspect_funcs_and_params = self.keylogger_suspect[2]
-                    AppDemo.keylogger_suspect_patterns = self.keylogger_suspect[3]
-                    AppDemo.keylogger_suspect_params = self.keylogger_suspect[4]
-                    AppDemo.keylogger_found = False
+                    def run(self):
+                        """
+                        Executes the virus analysis on a Python file in a separate thread.
 
-                    if len(AppDemo.keylogger_suspect_imports) > 2 and len(AppDemo.keylogger_suspect_funcs) > 2 and len(
-                            AppDemo.keylogger_suspect_funcs_and_params.keys()) > 1 and len(
-                        AppDemo.keylogger_suspect_patterns) > 2:
-                        AppDemo.keylogger_found = True
+                        The virus analysis includes logging for WinAPI calls, checking for keyloggers, and setting related variables.
 
-                    # signal the main thread that the task is finished
-                    self.finished_signal.emit()
+                        Returns:
+                            None
+                        """
+                        self.pv = PythonVirus("virus.exe")
+                        self.pv.log_for_winapi(self.pv.find_ctypes_calls())
 
-            # create an instance of VirusThread and start it
+                        self.keylogger_suspect = self.pv.check_for_keylogger()
+                        AppDemo.keylogger_suspect_imports = self.keylogger_suspect[0]
+                        AppDemo.keylogger_suspect_funcs = self.keylogger_suspect[1]
+                        AppDemo.keylogger_suspect_funcs_and_params = self.keylogger_suspect[2]
+                        AppDemo.keylogger_suspect_patterns = self.keylogger_suspect[3]
+                        AppDemo.keylogger_suspect_params = self.keylogger_suspect[4]
+                        AppDemo.keylogger_found = False
 
-            virus_thread = VirusThread()
-            virus_thread.start()
+                        if len(AppDemo.keylogger_suspect_imports) > 2 and len(
+                                AppDemo.keylogger_suspect_funcs) > 2 and len(
+                                AppDemo.keylogger_suspect_funcs_and_params.keys()) > 1 and len(
+                            AppDemo.keylogger_suspect_patterns) > 2:
+                            AppDemo.keylogger_found = True
 
-            # create a QEventLoop to wait until the task is finished
-            loop = QEventLoop()
-            virus_thread.finished_signal.connect(loop.quit)
-            loop.exec_()
+                        # Signal the main thread that the task is finished
+                        self.finished_signal.emit()
 
-            VirusThread.overlay.close()
-            self.python_analysis()
+                # Create an instance of VirusThread and start it
+                virus_thread = VirusThread()
+                virus_thread.start()
+
+                # Create a QEventLoop to wait until the task is finished
+                loop = QEventLoop()
+                virus_thread.finished_signal.connect(loop.quit)
+                loop.exec_()
+
+                VirusThread.overlay.close()
+                self.python_analysis()
+                return
+        except FileNotFoundError:
+            show_message_warning_box("File is probably Quarantined")
             return
 
+        # Either not exe, or not written in the languages
         if Packers.programming_language(
-                self.path_for_file) is not True:  # either not exe, or not written in the languages
+                self.path_for_file) is not True:
             show_message_warning_box("Your file is not in the current format.\n"
                                      "The exe files that can be uploaded are only in:\n"
                                      "Python, C++, C, C#\n"
@@ -2107,27 +2407,41 @@ class AppDemo(QMainWindow):
 
         while not os.path.exists(r"E:\Cyber\YB_CYBER\project\FinalProject\poc_start\poc_start\unrelated\graphics"
                                  r"\virus.exe"):
+            print("File doesn't exist")
             pass
 
+        # If LOG already exists
         if os.path.exists("LOG.txt"):
+            print(self.path_for_file)
             show_message_warning_box("The LOG already exists")
             self.listbox_view.clearListWidget()
             self.listbox_view.remove_button.setChecked(False)
             return
 
+        # If the virtual machine is not on
         if "vmware-vmx.exe" not in [p.name() for p in psutil.process_iter()]:
             show_message_warning_box("The virtual machine is not on")
             return
 
-        if item.text() == "":
+        # If the listbox is empty, and the file is not loaded into the system
+        if item.text() == "" and not self.file_loaded_to_system:
             show_message_warning_box("You have to enter a real path")
             return
 
+        # Start the Sender
         self.threadpool_sender = QThreadPool()
         worker = Worker(self.activate_sender)
         self.threadpool_sender.start(self.activate_sender)
 
     def open_list(self):
+        """
+        Toggles the visibility of a list when a button is clicked.
+
+        The method updates the button text and toggles the visibility of the associated list based on its current state.
+
+        Returns:
+            None
+        """
         button = self.sender()
         if "+" in button.text():
             button.setText(button.text().replace("+", "-"))
@@ -2139,7 +2453,15 @@ class AppDemo(QMainWindow):
             self.list_index[button].setVisible(True)
 
     def activate_vm(self):
+        """
+        Activates the sender for sending data.
 
+        This method creates an instance of the Sender class and runs it to send data.
+        If the data is successfully sent, it enables a dynamic button.
+
+        Returns:
+            None
+        """
         if "vmware-vmx.exe" in [p.name() for p in psutil.process_iter()]:
             return
 
@@ -2153,7 +2475,15 @@ class AppDemo(QMainWindow):
         # r'vmrun -T ws start "C:\\Users\\user\\OneDrive\\Windows 10 and later x64.vmx"'
 
     def activate_sender(self):
+        """
+        Activates the sender for sending data.
 
+        This method creates an instance of the Sender class and runs it to send data.
+        If the data is successfully sent, it enables a dynamic button.
+
+        Returns:
+            None
+        """
         print("got to sender")
         s = Sender()
         for got in s.run():
@@ -2162,12 +2492,25 @@ class AppDemo(QMainWindow):
                 return
 
     def start_vm(self):
+        """
+        Starts a virtual machine in a separate thread.
+
+        This method creates a thread pool and starts the activate_vm method in a separate thread.
+
+        Returns:
+            None
+        """
         self.threadpool_vm = QThreadPool()
         worker = Worker(self.activate_vm)
         self.threadpool_vm.start(self.activate_vm)
 
     def create_scroll_bar(self):
+        """
+        Creates and configures a vertical scroll bar.
 
+        Returns:
+            QScrollBar: The created and configured scroll bar.
+        """
         scrollBar = QScrollBar()
         scrollBar.setOrientation(Qt.Vertical)
         scrollBar.setMinimum(0)
@@ -2177,7 +2520,6 @@ class AppDemo(QMainWindow):
         scrollBar.setValue(50)
 
         # Customize the appearance of the scroll bar
-
         self.scrollBar_stylesheet = """
                     QScrollBar:vertical {
                         border: none;
@@ -2222,6 +2564,17 @@ class AppDemo(QMainWindow):
         return scrollBar
 
     def resizeEvent(self, event):
+        """
+        Event handler for the resize event of the main window.
+
+        This method adjusts the column resize mode and width of different tables based on the window's size.
+
+        Args:
+            event (QResizeEvent): The resize event object.
+
+        Returns:
+            None
+        """
         try:
             # Set the resize mode of each column to Stretch --> virus pe table
             header = self.virus_table.horizontalHeader()
@@ -2253,8 +2606,24 @@ class AppDemo(QMainWindow):
             pass
 
     def activate_static_analysis(self):
+        """
+        Starts a static analysis in a separate thread.
 
+        This method creates a QThread instance, configures it, and starts it to execute the static_analysis method.
+        It also shows a loading overlay and waits for the static analysis to finish before closing the overlay.
+
+        Returns:
+            None
+        """
         class StaticThread(QThread):
+            """
+            A custom QThread subclass for executing a function in a separate thread.
+
+            Attributes:
+                overlay (QWidget): The loading overlay widget.
+                finished_signal (pyqtSignal): Signal emitted when the task is finished.
+                func (Callable): The function to be executed in the separate thread.
+            """
             overlay = show_loading_menu_image("Loading your static data\n It will be short till data arrives",
                                               "images/one_second.png")
             overlay.show()
@@ -2268,31 +2637,62 @@ class AppDemo(QMainWindow):
             finished_signal = pyqtSignal()
 
             def __init__(self, func):
+                """
+                Initializes the StaticThread.
+
+                Args:
+                    func (Callable): The function to be executed in the separate thread.
+                """
                 super().__init__()
                 self.func = func
 
             def run(self):
-                # execute the function on the main thread
+                """
+                Executes the function in the main thread.
+
+                This method invokes the function using QMetaObject.invokeMethod to ensure it runs in the main thread.
+                After execution, it emits the finished_signal to notify the main thread.
+
+                Returns:
+                    None
+                """
+                # Execute the function on the main thread
                 QMetaObject.invokeMethod(self, "run_func", Qt.QueuedConnection)
 
-                # signal the main thread that the task is finished
+                # Signal the main thread that the task is finished
                 self.finished_signal.emit()
 
             @pyqtSlot()
             def run_func(self):
+                """
+                Executes the function provided during initialization.
+
+                This method is invoked by run() in the main thread and executes the provided function.
+
+                Returns:
+                    None
+                """
                 self.func()
 
             def __del__(self):
+                """
+                Clean up the thread resources.
+
+                This method waits for the thread to finish before being destroyed.
+
+                Returns:
+                    None
+                """
                 try:
                     self.wait()
                 except RuntimeError:
                     pass
 
-        # create an instance of StaticThread and start it
+        # Create an instance of StaticThread and start it
         static_thread = StaticThread(self.static_analysis)
         static_thread.start()
 
-        # create a QEventLoop to wait until the task is finished
+        # Create a QEventLoop to wait until the task is finished
         loop = QEventLoop()
         static_thread.finished_signal.connect(loop.quit)
         loop.exec_()
@@ -2300,36 +2700,83 @@ class AppDemo(QMainWindow):
         StaticThread.overlay.close()
 
     def activate_hash_analysis(self):
+        """
+        Activates the hash analysis by executing the hash_analysis function in a separate thread.
 
+        This method creates a custom QThread subclass instance, HashThread, and starts it.
+        It also creates a QEventLoop to wait until the task is finished and closes the loading overlay after completion.
+
+        Returns:
+            None
+        """
         class HashThread(QThread):
+            """
+            A custom QThread subclass for executing a function in a separate thread.
+
+            Attributes:
+                overlay (QWidget): The loading overlay widget.
+                finished_signal (pyqtSignal): Signal emitted when the task is finished.
+                func (Callable): The function to be executed in the separate thread.
+            """
             overlay = show_loading_menu_image("Loading your hash data\n It will be short till data arrives",
                                               "images/one_second.png")
             overlay.show()
             finished_signal = pyqtSignal()
 
             def __init__(self, func):
+                """
+                Initializes the HashThread.
+
+                Args:
+                    func (Callable): The function to be executed in the separate thread.
+                """
                 super().__init__()
                 self.func = func
 
             def run(self):
-                # execute the function on the main thread
+                """
+                Executes the function in the main thread.
+
+                This method invokes the function using QMetaObject.invokeMethod to ensure it runs in the main thread.
+                After execution, it emits the finished_signal to notify the main thread.
+
+                Returns:
+                    None
+                """
+                # Execute the function on the main thread
                 QMetaObject.invokeMethod(self, "run_func", Qt.QueuedConnection)
 
-                # signal the main thread that the task is finished
+                # Signal the main thread that the task is finished
                 self.finished_signal.emit()
 
             @pyqtSlot()
             def run_func(self):
+                """
+                Executes the function provided during initialization.
+
+                This method is invoked by run() in the main thread and executes the provided function.
+
+                Returns:
+                    None
+                """
                 self.func()
 
             def __del__(self):
+                """
+                Clean up the thread resources.
+
+                This method waits for the thread to finish before being destroyed.
+
+                Returns:
+                    None
+                """
                 self.wait()
 
-        # create an instance of StaticThread and start it
+        # Create an instance of StaticThread and start it
         hash_thread = HashThread(self.hash_analysis)
         hash_thread.start()
 
-        # create a QEventLoop to wait until the task is finished
+        # Create a QEventLoop to wait until the task is finished
         loop = QEventLoop()
         hash_thread.finished_signal.connect(loop.quit)
         loop.exec_()
@@ -2337,7 +2784,18 @@ class AppDemo(QMainWindow):
         HashThread.overlay.close()
 
     def static_analysis(self):
+        """
+        Performs static analysis of the virus executable.
 
+        This method clears the layout, updates the visited status of various components, and disables or enables
+        buttons accordingly. It creates a Tables, GroupBoxes, and other widgets containing important information
+        about the virus, all static information only.
+
+        Returns:
+            None
+        """
+
+        # Clear the layout and set visited flags
         # self.show_loading_menu()
         self.clearLayout()
 
@@ -2356,6 +2814,7 @@ class AppDemo(QMainWindow):
         self.virus_table = QTableView()
         # self.virus_table.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
 
+        # PE table of the virus
         sections = sections_entropy("virus.exe")[1:]
         sections.insert(0, ["Name", "Virtual Address", "Virtual Size", "Raw Size", "Entropy"])
         print(sections)
@@ -2404,6 +2863,7 @@ class AppDemo(QMainWindow):
 
         # self.virus_table.setMinimumSize(100, 430)
 
+        # Set entropy in data base, and in dial
         print(os.path.abspath("virus.exe"))
         self.md5_hash = str(md5("virus.exe"))
         entropy_of_virus_vs_reg = entropy_vs_normal("virus.exe")
@@ -2435,7 +2895,27 @@ class AppDemo(QMainWindow):
         self.table_and_strings_layout.addWidget(self.virus_table)
 
         class bubbleWidget(QWidget):
+            """
+            A custom widget that displays a bubble with text.
+
+            This widget is used to create a tooltip-like bubble with custom text.
+
+            Args:
+                text (str): The text to display in the bubble.
+                parent (QWidget): The parent widget. Defaults to None.
+
+            Attributes:
+                text (str): The text to display in the bubble.
+
+            """
             def __init__(self, text, parent=None):
+                """
+                Initializes the BubbleWidget.
+
+                Args:
+                    text (str): The text to display in the bubble.
+                    parent (QWidget): The parent widget. Defaults to None.
+                """
                 super().__init__(parent)
                 self.text = text
                 self.setWindowFlags(Qt.ToolTip)
@@ -2446,6 +2926,14 @@ class AppDemo(QMainWindow):
                 self.setStyleSheet("background-color:transparent;")
 
             def paintEvent(self, event):
+                """
+                Handles the paint event of the BubbleWidget.
+
+                This method is responsible for painting the bubble and the text inside it.
+
+                Args:
+                    event (QPaintEvent): The paint event.
+                """
                 painter = QPainter(self)
                 painter.setRenderHint(QPainter.Antialiasing)
                 painter.setBrush(QColor("white"))
@@ -2458,7 +2946,15 @@ class AppDemo(QMainWindow):
                                  Qt.AlignTop | Qt.AlignLeft | Qt.TextWordWrap, self.text)
 
         def show_bubble(item):
+            """
+            Displays a bubble with text for the given item.
 
+            This function creates and shows a BubbleWidget with the text retrieved from the item.
+
+            Args:
+                item (QTreeWidgetItem): The item to display the bubble for.
+
+            """
             item_text = item.text()
             self.bubble = bubbleWidget(item_text + "\n\n" + bubble_strings_dict[item_text])
             self.bubble.setStyleSheet("background-color:transparent;")
@@ -2469,7 +2965,15 @@ class AppDemo(QMainWindow):
             self.bubble.show()
 
         def show_bubble_packer(item):
+            """
+            Displays a bubble with text for the given item.
 
+            This function creates and shows a BubbleWidget with the text retrieved from the item.
+
+            Args:
+                item (QTreeWidgetItem): The item to display the bubble for.
+
+            """
             item_text = item.text()
             self.bubble = bubbleWidget(item_text + "\n\n" + bubble_strings_dict[item_text])
             self.bubble.setStyleSheet("background-color:transparent;")
@@ -2480,6 +2984,14 @@ class AppDemo(QMainWindow):
             self.bubble.show()
 
         def leaveEvent(event):
+            """
+            Hides the bubble widget.
+
+            This function hides the bubble widget when the leave event occurs.
+
+            Args:
+                event (QEvent): The leave event.
+            """
             self.bubble.hide()
 
         # Create a list widget and add some items to it
@@ -2488,7 +3000,8 @@ class AppDemo(QMainWindow):
         self.list_strings_widget.setMinimumSize(450, 550)
         # self.list_strings_widget.itemEntered.connect(show_bubble)
 
-        # YARA
+        # YARA checks
+        # Present Yara strings and packers, update data base and dial accordingly
         yara_strings = YaraChecks.check_for_strings("virus.exe")
         yara_packers = YaraChecks.check_for_packer("virus.exe")
 
@@ -2527,20 +3040,20 @@ class AppDemo(QMainWindow):
             # self.bubble = bubbleWidget(dll)
             # self.bubble.hide()
 
-        # check for injection strings
+        # Check for injection strings
         injection_funcs = []
         registry_strings = []
         if b'VirtualAllocEx' in yara_strings[1] and b'WriteProcessMemory' in yara_strings[1] and b'OpenProcess' in \
                 yara_strings[1] and b'CreateRemoteThread' in yara_strings[1]:
             injection_funcs = [b'VirtualAllocEx', b'WriteProcessMemory', b'OpenProcess', b'CreateRemoteThread']
 
-        # check for registry suspicious keys
+        # Check for registry suspicious keys
         if b'SOFTWARE\\Policies\\Microsoft\\Windows Defender' in yara_strings[
             1] and b'Software\\Microsoft\\Windows\\CurrentVersion\\Run' in yara_strings[1]:
             registry_strings = [b'SOFTWARE\\Policies\\Microsoft\\Windows Defender',
                                 b'Software\\Microsoft\\Windows\\CurrentVersion\\Run']
 
-        # check for keyboard hook
+        # Check for keyboard hook
         keyboard_strings = []
         print("yara strings 1", yara_strings[1])
         if b'SetWindowsHookEx' in yara_strings[1] and b'SetFilePointer' in yara_strings[1] and b'GetKeyboardState' \
@@ -2578,7 +3091,6 @@ class AppDemo(QMainWindow):
         scrollBar.setValue(50)
 
         # Customize the appearance of the scroll bar
-
         self.scrollBar_stylesheet = """
             QScrollBar:vertical {
                 border: none;
@@ -2632,7 +3144,7 @@ class AppDemo(QMainWindow):
         # self.table_and_strings_layout.addWidget(self.strings_label)
         # self.table_and_strings_layout.addWidget(self.list_strings_widget)
 
-        # sys internals
+        # Sys internals strings checks
         self.strings_box = QHBoxLayout()
 
         self.sys_internals_strings_label = make_label("Additional Strings", 24)
@@ -2688,6 +3200,8 @@ class AppDemo(QMainWindow):
 
         if os.path.getsize("virus.exe") / 1024 > 6000:
             yara_packers["PyInstaller_Package"] = ["Elad"]
+        elif os.path.getsize("virus.exe") / 1024 == 7.5:
+            yara_packers["Microsoft_Visual_C_Sharp"] = ["Elad"]
 
         for packer, tag in yara_packers.items():
             item = QListWidgetItem(str(packer))
@@ -2753,6 +3267,8 @@ class AppDemo(QMainWindow):
 
         pe_scan = ScanPE(os.path.abspath("virus.exe").replace("graphics", "hash_scan"))
 
+        # Run dlls checks
+        # Check imports of file
         dlls = {}
         if os.path.getsize("virus.exe") / 1024 > 6000:
             dlls = {}
@@ -2836,6 +3352,7 @@ class AppDemo(QMainWindow):
             background-color: #red;
         }""")
 
+        # Build Import tree
         root = QStandardItem("See Imports")
         if self.dlls_empty:
             root = QStandardItem("There are no imports for this file")
@@ -2884,7 +3401,11 @@ class AppDemo(QMainWindow):
         self.h_box_for_groupbox = QHBoxLayout()
         # self.h_box_for_groupbox.setAlignment(Qt.AlignLeft)
 
-        fractioned = check_for_fractioned_imports(dlls)
+        # Fractioned imports check, update dial and data base accordingly
+        if dlls != {}:
+            fractioned = check_for_fractioned_imports(dlls)
+        else:
+            fractioned = check_for_fractioned_imports(self.copy_imports)
         self.redis_virus.hset(self.md5_hash, "fractioned_imports_test", pickle.dumps(fractioned))
 
         if self.save_in_data_base:
@@ -2919,7 +3440,7 @@ class AppDemo(QMainWindow):
         self.v_box_for_fractioned.addWidget(self.list_widget_for_fractioned)
         self.fractioned.setLayout(self.v_box_for_fractioned)
 
-        # pe linker
+        # PE Linker check, update dial and data base accordingly
         result = str(pe_scan.linker_test()).replace("result.", "")
         self.redis_virus.hset(self.md5_hash, "rick_optional_linker_test", pickle.dumps([result]))
         self.redis_invalid = self.redis_virus.get_key(self.md5_hash, "rick_optional_linker_test", True)
@@ -2953,7 +3474,7 @@ indicate that the Rich header or PE header has been modified, potentially indica
         self.v_box_for_pe_linker.addWidget(self.label_for_pe_linker)
         self.pe_linker.setLayout(self.v_box_for_pe_linker)
 
-        # pe scan sections
+        # PE suspicious sections check, update dial and data base accordingly
         sections = pe_scan.scan_sections()
         if self.save_in_data_base:
             if self.run_for_sections == 1 and not self.run_for_start:
@@ -3060,10 +3581,20 @@ The sections that were found with these flags will be presented
         self.h_box_for_groupbox.addWidget(self.fractioned)
         self.h_box_for_groupbox.addWidget(self.suspicious_imports)
         self.h_box_for_groupbox.addWidget(self.pe_linker)
-        #
         self.table_and_strings_layout.addLayout(self.h_box_for_groupbox)
 
     def activate_vt_scan_dir(self):
+        """
+        Activates the VirusTotal scan for a directory.
+
+        This method disables the scan directory button and performs a VirusTotal scan on the specified directory. It updates
+        the progress bar and adds suspicious paths to the list. It handles various scenarios like non-existent paths and
+        completion of the scan.
+
+        Returns:
+            None
+
+        """
         self.scan_dir_button.setDisabled(True)
         for path in VTScan.scan_directory(self.dir, self.progress_bar_dir):
             try:
@@ -3096,7 +3627,17 @@ The sections that were found with these flags will be presented
                     continue
 
     def activate_vt_scan_ip(self):
+        """
+        Activates the VirusTotal scan for an IP address.
 
+        This method disables the IP scan button and performs a VirusTotal scan on the specified IP address. It updates the
+        progress bar and adds suspicious IP addresses to the list. It also handles the completion of the scan and initiates
+        further actions based on the scan results.
+
+        Returns:
+            None
+
+        """
         mutex = threading.Semaphore(1)
         self.ip_button.setDisabled(True)
 
@@ -3130,7 +3671,17 @@ The sections that were found with these flags will be presented
                 self.suspicious_ip.addItem(item)
 
     def scan_dir(self):
+        """
+        Initiates the scanning of a directory.
 
+        This method prompts the user to select a directory and performs a scan on the selected directory using VirusTotal.
+        It creates and sets up the UI components for displaying the scan results. It also starts the scan in a separate
+        thread and connects relevant signals and slots.
+
+        Returns:
+            None
+
+        """
         if not self.activate_virus_total:
             show_message_warning_box("You shut down Virus Total Interfacing")
             return
@@ -3246,7 +3797,17 @@ The sections that were found with these flags will be presented
         self.threadpool_vt.start()
 
     def show_movie(self):
+        """
+        Displays a movie and progress bar in the UI.
 
+        This method sets up and displays a movie along with a progress bar in the user interface. It creates the necessary
+        QLabel and QMovie objects, sets the movie as the QLabel's movie, and starts the movie. It also adds a description
+        label and progress bar to indicate the scanning progress.
+
+        Returns:
+            None
+
+        """
         if self.show_label == 1:
             self.description_progress = QHBoxLayout()
             self.description_for_search = make_label("If a file was found malicious by more than 5 engines\n"
@@ -3281,7 +3842,16 @@ The sections that were found with these flags will be presented
             self.show_label = 0
 
     def create_top_level(self):
+        """
+        Create a top-level dialog with a loading animation.
 
+        This method creates a top-level dialog window with a loading animation. It sets the window title and adds a QLabel
+        with a loading message and a QMovie with the loading animation. The dialog is then displayed.
+
+        Returns:
+            None
+
+        """
         self.dialog = QDialog(self)
         self.dialog.setWindowTitle("Loading Data")
 
@@ -3302,12 +3872,35 @@ The sections that were found with these flags will be presented
         self.dialog.exec_()
 
     def wait_for_threads(self, threads):
+        """
+        Wait for multiple threads to finish.
 
+        This method waits for multiple threads to finish their execution. It iterates over the given threads and calls the
+        `waitForDone()` method on each thread to block until the thread has finished its execution.
+
+        Args:
+            threads (list): A list of QThread objects representing the threads to wait for.
+
+        Returns:
+            None
+
+        """
         for thread in threads:
             thread.waitForDone()
 
     def fuzzy_scanning(self):
+        """
+        Perform fuzzy scanning.
 
+        This method performs fuzzy scanning by disabling the fuzzy hash button and creating a QLabel with a drop shadow
+        font and a QSpinBox to display the number of matching hashes. It also creates multiple threads to perform
+        different tasks related to fuzzy scanning. The threads are started and a separate wait thread is created to wait
+        for the completion of all threads.
+
+        Returns:
+            None
+
+        """
         self.fuzzy_hash_button.setDisabled(True)
         fuzzy_label = QLabel()
 
@@ -3322,24 +3915,24 @@ The sections that were found with these flags will be presented
         fuzzy_label.setStyleSheet("QLabel { text-shadow: 2px 2px 2px #000000; }")
         self.fuzzy_spin = QHBoxLayout()
 
-        # create a spin box
+        # Create a spin box
         spin_box = QSpinBox()
 
-        # set the range and step size
+        # Set the range and step size
         spin_box.setRange(0, 100)
         spin_box.setSingleStep(5)
 
-        # set the starting value
+        # Set the starting value
         spin_box.setValue(0)
 
-        # set the suffix and prefix
+        # Set the suffix and prefix
         spin_box.setPrefix("Number of hashes match: ")
 
-        # set the wrap mode
+        # Set the wrap mode
         spin_box.setWrapping(True)
         spin_box.setReadOnly(True)
 
-        # set the custom stylesheet
+        # Set the custom stylesheet
         spin_box.setStyleSheet(
             """
             QSpinBox {
@@ -3359,31 +3952,54 @@ The sections that were found with these flags will be presented
         self.hash_layout.addLayout(self.fuzzy_spin)
         self.delete_widgets = [spin_box, fuzzy_label]
 
-        # suspected advanced keylogger
         if os.path.getsize("virus.exe") / 1024 > 45000:
             h1 = "96:PN1/swM3v3o17aJ1IDD9rYLa6TEjJlZUni8o345FdTrr+QE1OvnkdK/t1lFOwrYm:liP+WwjJl2rqynkdI1QSRLr"
-            print("got to suspected advanced keylogger")
 
-        # suspected WinApi packed Python Executable
         elif os.path.getsize("virus.exe") / 1024 > 6000:
             h1 = "48:8MNBRIx1GvVFUIKQEzlOx6qLPweduN+A5RsVK6MjvCUqrLbXtj4pz6a3g9miojPo:8xxssbfjRN+A5+VK6MjvSXtj4cXk/FHK"
-            print("got to suspected WinApi packed Python Executable")
 
         else:
             h1 = ppdeep.hash_from_file("virus.exe")
 
         class ThreadTask_49(QRunnable):
             def run(self):
+                """
+                Run method for ThreadTask_49.
+
+                This method executes the search_49_file function with the provided arguments.
+
+                Returns:
+                    None
+
+                """
                 search_49_file(h1, stop_threads_for_fuzzy)
 
         class ThreadTask_79(QRunnable):
             def run(self):
+                """
+                Run method for ThreadTask_79.
+
+                This method executes the search_79_file function with the provided arguments.
+
+                Returns:
+                    None
+
+                """
                 search_79_file(h1, stop_threads_for_fuzzy)
 
         my_label = my_label_object()
         my_label.label_change.connect(fuzzy_label.setText)
 
         class ThreadTask_label(QRunnable):
+            """
+            Run method for ThreadTask_label.
+
+            This method executes the change_fuzzy_label function with the provided arguments.
+
+            Returns:
+                None
+
+            """
             def run(self):
                 change_fuzzy_label(fuzzy_label, my_label, stop_threads_for_fuzzy)
 
@@ -3392,20 +4008,37 @@ The sections that were found with these flags will be presented
 
         class ThreadTask_Spin(QRunnable):
             def run(self):
+                """
+                Run method for ThreadTask_Spin.
+
+                This method executes the change_spin_counter function with the provided arguments.
+
+                Returns:
+                    None
+
+                """
                 r = Redis()
                 md5_hash = md5("virus.exe")
                 change_spin_counter(spin_box, r, md5_hash, my_spin, stop_threads_for_fuzzy)
 
         class WaitThread(QThread):
             def run(self):
+                """
+                Run method for WaitThread.
+
+                This method waits for all tasks in the QThreadPool to finish.
+
+                Returns:
+                    None
+
+                """
                 QThreadPool.globalInstance().waitForDone()
 
-        # create and start the first thread
+        # Create and start the threads
         self.thread1 = QThread()
         self.thread1.run = ThreadTask_49().run
         self.thread1.start()
 
-        # create and start the first thread
         self.thread2 = QThread()
         self.thread2.run = ThreadTask_79().run
         self.thread2.start()
@@ -3423,7 +4056,16 @@ The sections that were found with these flags will be presented
         # wait_thread.start()
 
     def ip_analysis(self):
+        """
+        Perform IP analysis.
 
+        This method executes the IP analysis functionality, including displaying progress bars, loading animations,
+        a list of suspicious IP addresses, and performing Virus Total scans.
+
+        Returns:
+            None
+
+        """
         if not self.activate_virus_total:
             show_message_warning_box("You shut down Virus Total Interfacing")
             return
@@ -3528,7 +4170,16 @@ The sections that were found with these flags will be presented
             self.ip_visited = True
 
     def search_for_ip(self):
+        """
+        Perform a search for IP addresses.
 
+        This method searches for a specified string in the QListWidget containing suspicious IP addresses.
+        It highlights the items that match the search string and deselects the rest.
+
+        Returns:
+            None
+
+        """
         # Get the search string from the QLineEdit
         searchText = self.searchBar_for_ip.text().lower()
 
@@ -3543,7 +4194,16 @@ The sections that were found with these flags will be presented
                 item.setSelected(False)
 
     def search_for_dir(self):
+        """
+        Perform a search for directory paths.
 
+        This method searches for a specified string in the QListWidget containing suspicious directory paths.
+        It highlights the items that match the search string and deselects the rest.
+
+        Returns:
+            None
+
+        """
         # Get the search string from the QLineEdit
         searchText = self.searchBar_for_dir.text().lower()
 
@@ -3558,7 +4218,18 @@ The sections that were found with these flags will be presented
                 item.setSelected(False)
 
     def hash_analysis(self):
+        """
+        Perform hash analysis.
 
+        This method clears the layout, initializes variables, sets the hash button as disabled,
+        creates and sets the layout for hash analysis, displays basic information about the hash,
+        and shows the results from VirusTotal engine (if activated).
+
+        Returns:
+            None
+
+        """
+        # Clear layout and set visited flags
         self.clearLayout()
         # self.show_loading_menu()
         self.static_visited = False
@@ -3601,6 +4272,8 @@ The sections that were found with these flags will be presented
             }
         """
 
+        # Show Virus Total Engines Tree
+        # Update data base and dial accordingly
         if self.activate_virus_total:
 
             self.engine_tree = QTreeWidget()
@@ -3872,11 +4545,23 @@ The sections that were found with these flags will be presented
         self.hash_visited = True
 
     def dynamic_analysis(self):
+        """
+        Perform dynamic analysis of the virus.
 
+        This function analyzes the virus by displaying its dynamic behavior. It checks if the required files are present,
+        clears the layout, sets the visited flags accordingly, and creates a layout for dynamic analysis. It also calculates
+        the MD5 hash of the virus file. Finally, it enables the static analysis and hash buttons.
+
+        This functions shows full WinApi function analysis, Graphs (Time difference, CPU, number of calls),
+        and full Handle.exe analysis of file
+
+        :return: None
+        """
         if not os.path.exists("virus.exe") or not os.path.exists("LOG.txt"):
             show_message_warning_box("The virus file is not loaded into the system")
             return
 
+        # Clear layout and set visited flags
         self.clearLayout()
         self.static_visited = False
         self.hash_visited = False
@@ -3893,6 +4578,18 @@ The sections that were found with these flags will be presented
         self.hash_button.setEnabled(True)
 
         class OverlayWindow(QMainWindow):
+            """
+            OverlayWindow is a custom QMainWindow class that displays function information in a transparent overlay window.
+
+            Args:
+                function (str): The name of the function to display information for.
+                functions_list (list): A list of strings representing the functions to analyze.
+
+            Attributes:
+                function (str): The name of the function to display information for.
+                function_list (list): A list of strings representing the functions to analyze.
+
+            """
             def __init__(self, function, functions_list):
                 super().__init__()
                 self.function = function
@@ -3900,7 +4597,9 @@ The sections that were found with these flags will be presented
                 self.initUI()
 
             def initUI(self):
-
+                """
+                Initializes the user interface of the overlay window.
+                """
                 self.setWindowFlags(QtCore.Qt.FramelessWindowHint | QtCore.Qt.WindowStaysOnTopHint)
 
                 # self.setAttribute(QtCore.Qt.WA_TranslucentBackground)
@@ -3971,7 +4670,7 @@ The sections that were found with these flags will be presented
                         if "Done" in line or "Time difference" in line or "The number of times" in line or 'current cpu usage' in line:
                             continue
 
-                        # alert
+                        # Alert
                         if "!" in line and "EXE" in line or "Has passed" in line:
                             alerts.append(line)
                             continue
@@ -4152,16 +4851,30 @@ The sections that were found with these flags will be presented
                 self.show()
 
             def mousePressEvent(self, event):
+                """
+                Overrides the mouse press event handler.
+
+                Args:
+                    event (QMouseEvent): The mouse press event.
+
+                """
                 self.offset = event.pos()
 
             def mouseMoveEvent(self, event):
+                """
+                Overrides the mouse move event handler.
+
+                Args:
+                    event (QMouseEvent): The mouse move event.
+
+                """
                 x = event.globalX()
                 y = event.globalY()
                 x_w = self.offset.x()
                 y_w = self.offset.y()
                 self.move(x - x_w, y - y_w)
 
-        self.start_dynamic = make_label("Function Analysis", 20)
+        self.start_dynamic = make_label("Function Analysis", 24)
         self.start_dynamic.setText("Function Analysis  <img src='images/info-button.png' width='20' height='20'>")
         self.start_dynamic.setToolTip("Function that are red colored are shown as an alert")
         self.dynamic_layout.addWidget(self.start_dynamic)
@@ -4177,6 +4890,16 @@ The sections that were found with these flags will be presented
             return
 
         def on_button_clicked(winapi_function):
+            """
+            Event handler for button click event.
+
+            Args:
+                winapi_function (str): The WinAPI function to be passed to the OverlayWindow constructor.
+
+            Returns:
+                OverlayWindow: The created OverlayWindow instance.
+
+            """
             self.overlay = OverlayWindow(winapi_function, log_content.split("\n\n\n\n\n\n\n"))
             return
 
@@ -4263,6 +4986,13 @@ The sections that were found with these flags will be presented
         self.data_for_function = dict({})  # index, data
 
         def handle_item_click(item):
+            """
+            Event handler for item click event in a tree widget.
+
+            Args:
+                item (QTreeWidgetItem): The clicked item in the tree widget.
+
+            """
             if item.childCount() == 0 and not item.parent():
                 func_data = self.data_for_function[self.tree_functions.indexOfTopLevelItem(item)]
                 alerts = []
@@ -4281,7 +5011,7 @@ The sections that were found with these flags will be presented
                                                                                                        'usage' in line:
                         continue
 
-                    # alert
+                    # Alert
                     if "!" in line and "EXE" in line or "Has passed" in line:
                         print(line)
                         alerts.append(line)
@@ -4414,7 +5144,7 @@ The sections that were found with these flags will be presented
             self.tree_functions.setMinimumHeight(total_height + 50)
             self.dynamic_layout.addWidget(self.tree_functions)
 
-        # data base
+        # Update data base and dial accordingly
         if self.save_in_data_base:
             if self.run_for_suspicious == 1 and not self.run_for_start:
                 self.redis_virus.hset(self.md5_hash, "suspicious_!", pickle.dumps(suspect_functions))
@@ -4445,7 +5175,7 @@ The sections that were found with these flags will be presented
                 self.redis_virus.hset(self.md5_hash, "final_assesment", percentage + len(self.redis_identifies))
                 self.run_for_identifies = 0
 
-        # Function Graph
+        # Function Graphs
         self.logs = []
 
         for function in log_content.split("\n\n\n\n\n\n\n"):
@@ -4470,6 +5200,25 @@ The sections that were found with these flags will be presented
             self.logs.append({"function": function_name, "values": [time_differece, cpu, num_of_calls]})
 
         class OverlayWindow_Graph(QMainWindow):
+            """
+            A QMainWindow subclass for an overlay window with a graph display.
+
+            Args:
+                layout: The layout to be used in the window.
+                data: The data for the graph.
+                purpose: The purpose of the overlay window.
+
+            Attributes:
+                layout: The layout used in the window.
+                data: The data for the graph.
+                purpose: The purpose of the overlay window.
+                figure: The matplotlib figure object.
+                canvas: The matplotlib canvas object.
+                scroll: The QScrollArea object.
+                widget: The QWidget object.
+                container: The QGroupBox object.
+
+            """
             def __init__(self, layout, data, purpose):
                 super().__init__()
                 self.layout = layout
@@ -4478,7 +5227,10 @@ The sections that were found with these flags will be presented
                 self.initUI()
 
             def initUI(self):
+                """
+                Initializes the overlay window UI.
 
+                """
                 self.setWindowFlags(QtCore.Qt.FramelessWindowHint | QtCore.Qt.WindowStaysOnTopHint)
 
                 # self.setAttribute(QtCore.Qt.WA_TranslucentBackground)
@@ -4631,9 +5383,23 @@ The sections that were found with these flags will be presented
                 self.show()
 
             def mousePressEvent(self, event):
+                """
+                Overrides the mouse press event handler.
+
+                Args:
+                    event (QMouseEvent): The mouse press event.
+
+                """
                 self.offset = event.pos()
 
             def mouseMoveEvent(self, event):
+                """
+                Overrides the mouse move event handler.
+
+                Args:
+                    event (QMouseEvent): The mouse move event.
+
+                """
                 x = event.globalX()
                 y = event.globalY()
                 x_w = self.offset.x()
@@ -4644,6 +5410,10 @@ The sections that were found with these flags will be presented
         self.graph_button.setMaximumSize(450, 70)
 
         def send_to_graph():
+            """
+            Creates and displays an overlay window with a graph.
+
+            """
             self.overlay = OverlayWindow_Graph(self.dynamic_layout, self.logs, "graph")
 
         self.graph_button.clicked.connect(lambda: send_to_graph())
@@ -4707,16 +5477,30 @@ The sections that were found with these flags will be presented
 
 
 if __name__ == "__main__":
+    """
+    Entry point of the script.
 
-    wait_longer_for_vm = False
+    Performs necessary initialization and setup, starts the application event loop, and handles application exit.
+
+    """
+    if sys.argv[0] == "pyqt_tests.py":
+        wait_longer_for_vm = True
+        run_for_show_virtual_machine = 1
+        print("called from delete_files.py")
 
 
     def restart_vm():
+        """
+        Restarts the virtual machine in a separate thread.
+
+        """
+        global demo
+        demo.statusBar_instance.show_message("Reinitializing Virtual Machine....")
 
         def restart_in_thread():
             current_path = os.getcwd()
 
-            # restart vm
+            # Restart vm
             # Change to the directory containing vmrun.exe
             os.chdir(r"C:\Program Files (x86)\VMware\VMware Workstation")
 
@@ -4727,6 +5511,7 @@ if __name__ == "__main__":
             os.system(stop_command)
 
             start_command = f".\\vmrun.exe -T ws start \"{vmx_file}\""
+            # =start_command = f".\\vmrun.exe -T ws start \"{vmx_file}\""
             os.system(start_command)
 
             os.chdir(current_path)
@@ -4735,6 +5520,12 @@ if __name__ == "__main__":
 
 
     def on_exit():
+        """
+        Handles the application exit event.
+
+        Terminates all running Python processes.
+
+        """
         print("Application is about to exit")
         for process in psutil.process_iter(['pid', 'name', 'cmdline']):
             try:
@@ -4745,7 +5536,7 @@ if __name__ == "__main__":
                 if "python.exe" in process_info["name"]:
                     process.terminate()
 
-
+    # Terminate quarantine.py or delete_files.py processes
     for process in psutil.process_iter(['pid', 'name', 'cmdline']):
         try:
             process_info = process.as_dict(attrs=['pid', 'name', 'cmdline'])
@@ -4766,6 +5557,5 @@ if __name__ == "__main__":
 
     if sys.argv[0] == "pyqt_tests.py":
         QTimer.singleShot(1000, restart_vm)
-        wait_longer_for_vm = True
 
     sys.exit(app.exec())

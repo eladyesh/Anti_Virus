@@ -10,6 +10,12 @@ from PyQt5.QtCore import Qt
 
 
 def create_scroll_bar():
+    """
+    Create a customized vertical scroll bar.
+
+    Returns:
+        QScrollBar: The customized vertical scroll bar.
+    """
     scrollBar = QScrollBar()
     scrollBar.setOrientation(Qt.Vertical)
     scrollBar.setMinimum(0)
@@ -65,7 +71,17 @@ def create_scroll_bar():
 
 
 class TermsAndServicesDialog(QDialog):
+    """
+    A dialog box that displays terms and services and allows the user to accept or reject them.
+    """
     def __init__(self, bool, parent=None):
+        """
+        Initialize the TermsAndServicesDialog.
+
+        Args:
+            bool (bool): A boolean value indicating a condition.
+            parent (QWidget, optional): The parent widget. Defaults to None.
+        """
         super().__init__(parent)
         self.bool = bool
         self.setWindowTitle("Services and Instructions Agreement")
@@ -77,21 +93,25 @@ class TermsAndServicesDialog(QDialog):
     def initUI(self):
         vbox = QVBoxLayout()
 
+        # Set up the title label
         label = QLabel("Services and Instructions", self)
         label.setFont(QFont('Arial', 20, QFont.Bold))
         vbox.addWidget(label)
 
+        # Set up the terms text edit
         self.terms_textedit = QPlainTextEdit(self)
         self.terms_textedit.setVerticalScrollBar(create_scroll_bar())
         self.terms_textedit.setReadOnly(True)
         self.terms_textedit.setStyleSheet('background-color: white; color: black; font-size: 12px; border: none')
         vbox.addWidget(self.terms_textedit)
 
+        # Set up the search bar
         hbox_search = QHBoxLayout()
         self.search_textedit = QLineEdit(self)
         self.search_textedit.setPlaceholderText("Search terms and services...")
         self.search_textedit.textChanged.connect(self.search_terms)
 
+        # Set up the acceptance checkbox and button
         search_icon = QIcon("images/search.png")
         search_button = QPushButton()
         search_button.setFixedWidth(35)
@@ -123,7 +143,7 @@ These instructions and services are necessary for the use of this application. P
 
 2. Remove From System:
 Remove any analysis files that are relevant to the suspected file.
-System will be restarted and you will have to close the virtual machine manually.
+System will be restarted and the virtual machine will be restarted.
 
 3. Virtual Machine and Dynamic Analysis
 
@@ -185,6 +205,9 @@ ENJOY !!!!
             self.terms_textedit.setExtraSelections([])
 
     def accept_terms(self):
+        """
+        Accepts the terms and services if the checkbox is checked.
+        """
         if self.checkbox.isChecked():
             print("Terms accepted")
             self.accept()
@@ -192,10 +215,19 @@ ENJOY !!!!
             print("Please accept the services and instructions")
 
     def reject(self):
+        """
+        Rejects the terms and services.
+        """
         if self.bool:
             return None
 
 
 def terms_and_service(bool):
+    """
+    Displays the terms and services dialog.
+
+    Args:
+        bool (bool): A boolean value indicating whether the terms are accepted or not.
+    """
     dialog = TermsAndServicesDialog(bool)
     dialog.exec_()

@@ -24,23 +24,55 @@ from pyuac import main_requires_admin
 
 FILE_ATTRIBUTE_HIDDEN = 0x02
 
+
 def md5(path):
+    """
+    Calculate the MD5 hash of a file.
+
+    Args:
+        path (str): The path to the file.
+
+    Returns:
+        str: The MD5 hash of the file.
+    """
     hash_md5 = hashlib.md5()
     with open(path, "rb") as f:
         for chunk in iter(lambda: f.read(4096), b""):
             hash_md5.update(chunk)
     return hash_md5.hexdigest()
 
+
 class Quarantine:
+    """
+    A class for file quarantine operations.
+    """
 
     @staticmethod
     def hide(path):
+        """
+        Hide the specified file or directory at the given path.
+
+        Args:
+            path (str): The path to the file or directory.
+
+        Returns:
+            None
+        """
         if not os.path.exists(path):
             os.makedirs(path)
         ret = ctypes.windll.kernel32.SetFileAttributesW(path, FILE_ATTRIBUTE_HIDDEN)
 
     @staticmethod
     def create_dir(path):
+        """
+        Create a directory at the specified path.
+
+        Args:
+            path (str): The path to the directory.
+
+        Returns:
+            None
+        """
         try:
             os.makedirs(path)
             print(f"Directory created at path: {path}")
@@ -51,13 +83,31 @@ class Quarantine:
 
     @staticmethod
     def derive_key(password, salt):
+        """
+        Derive a 32-byte key from the password and salt using PBKDF2.
 
-        """Derive a 32-byte key from the password and salt using PBKDF2."""
+        Args:
+            password (str): The password used for key derivation.
+            salt (bytes): The salt value used for key derivation.
+
+        Returns:
+            bytes: The derived key.
+        """
         kdf = PBKDF2HMAC(algorithm=hashes.SHA256(), length=32, salt=salt, iterations=100_000)
         return kdf.derive(password.encode())
 
     @staticmethod
     def encrypt_file(file_path, password):
+        """
+        Encrypt a file at the specified path using the provided password.
+
+        Args:
+            file_path (str): The path to the file to be encrypted.
+            password (str): The password used for encryption.
+
+        Returns:
+            None
+        """
         with open(file_path, "rb") as f:
             data = f.read()
 
@@ -79,6 +129,16 @@ class Quarantine:
 
     @staticmethod
     def decrypt_file(file_path, password):
+        """
+        Decrypt a file at the specified path using the provided password.
+
+        Args:
+            file_path (str): The path to the file to be decrypted.
+            password (str): The password used for decryption.
+
+        Returns:
+            None
+        """
         with open(file_path, "rb") as f:
             salt = f.read(16)
             encrypted_data = f.read()
@@ -99,9 +159,17 @@ class Quarantine:
 
     @staticmethod
     def quarantine_file(file_path, quarantine_folder, password):
-        """Quarantine the file at the given path in the given quarantine folder and encrypt it with the given
-        password. """
+        """
+        Moves a file to a quarantine folder, encrypts it, and sets appropriate permissions.
 
+        Args:
+            file_path (str): The path of the file to be quarantined.
+            quarantine_folder (str): The path of the quarantine folder.
+            password (str): The password to encrypt the file.
+
+        Returns:
+            str: The new file path in the quarantine folder.
+        """
         md5_hash = md5(file_path)
 
         # Get the current user's SID
@@ -142,13 +210,21 @@ class Quarantine:
         mode = "a" if os.path.exists(
             filename) else "w"  # Open in "append" mode if file exists, otherwise "write" mode to create a new file
         with open(filename, mode) as f:
-            f.write(f"\n{md5_hash}|{file_path}|{os.path.basename(file_path)}|{datetime.now().strftime(r'%d/%m/%Y %H:%M:%S')}")
+            f.write(
+                f"\n{md5_hash}|{file_path}|{os.path.basename(file_path)}|{datetime.now().strftime(r'%d/%m/%Y %H:%M:%S')}")
 
         return new_file_path
 
     @staticmethod
     def restore_quarantined_to_original(file_path, original_path, password):
+        """
+        Restores a quarantined file to its original location, decrypts it, and sets appropriate permissions.
 
+        Args:
+            file_path (str): The path of the quarantined file.
+            original_path (str): The original path where the file will be restored.
+            password (str): The password to decrypt the file.
+        """
         # Construct the original file path outside the quarantine folder
         original_file_path = original_path
 
@@ -169,6 +245,21 @@ class Quarantine:
 
     @staticmethod
     def restore_file(file_path, quarantine_folder, password):
+        """
+        Restores a file from the quarantine folder to its original location.
+
+        Args:
+            file_path (str): The path of the file to be restored.
+            quarantine_folder (str): The path of the quarantine folder.
+            password (str): The password used to decrypt the file.
+
+        Raises:
+            FileNotFoundError: If the file to be restored does not exist.
+            PermissionError: If the file or its parent directory cannot be accessed.
+
+        Returns:
+            str: The path of the restored file.
+        """
 
         # Get the file name
         file_name = os.path.basename(file_path)
@@ -195,6 +286,9 @@ class Quarantine:
 
 
 if __name__ == "__main__":
+    """
+    Main entry point of the program.
+    """
 
     app = QApplication([])
 
@@ -203,6 +297,7 @@ if __name__ == "__main__":
     splash = QSplashScreen(splash_pix, Qt.WindowStaysOnTopHint)
     splash.show()
 
+    # Terminate any existing instances of the program
     # path = sys.argv[1:][0]
     for process in psutil.process_iter(['pid', 'name', 'cmdline']):
         try:
