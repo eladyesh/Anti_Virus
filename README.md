@@ -8,4 +8,9 @@ Written in
 - [x] C
 
 The project analyses and finds suspicious behaviour of various exe files.
+## Dynamic Analysis
+## Static Analysis
+## Hash Analysis
+## Directory Analysis
+## IP Analysis
 ### I will complete this README when I finish the project
