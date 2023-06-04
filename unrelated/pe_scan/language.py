@@ -7,9 +7,13 @@ import subprocess
 
 def run_command(cmd):
     """
-    runs cmd command in the command prompt and returns the output
-    arg: cmd
-    ret: the output of the command
+    Runs a command in the command prompt and returns the output.
+
+    Args:
+        cmd (str): The command to be executed.
+
+    Returns:
+        str: The output of the command.
     """
     return subprocess.Popen(cmd, stdout=subprocess.PIPE,
                             shell=True,
@@ -22,15 +26,21 @@ class Packers:
 
     @staticmethod
     def programming_language(path):
+        """
+        Determine the programming language used in a given executable file.
 
+        Args:
+            path (str): The path to the executable file.
+
+        Returns:
+            str: The programming language detected or "py" if the file size exceeds 6000 KB.
+        """
         allow_languages = ["Microsoft Visual C#", ".NET", "C++", "C#"]
 
         if os.path.getsize(path) > 6000 * 1024:
             return "py"
 
-        # c# virus
         if os.path.getsize(path) < 8 * 1024 and os.path.getsize(path) > 7 * 1024:
-            print("packers got to c#")
             return True
 
         packers = []

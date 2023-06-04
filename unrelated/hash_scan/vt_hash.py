@@ -19,10 +19,14 @@ from functools import wraps
 from poc_start.unrelated.graphics.helpful_widgets import MessageBox, stop_timer
 from PyQt5.QtCore import QThread, QTimer, QEventLoop
 
+# Initiate IP for server
 ip_for_server = socket.gethostbyname_ex(socket.gethostname())[-1][0]
 
 
 def run_as_admin(func):
+    """
+    Decorator to run a function as administrator if the user is not already an admin.
+    """
     @wraps(func)
     def wrapper(*args, **kwargs):
         if not pyuac.isUserAdmin():
@@ -35,6 +39,9 @@ def run_as_admin(func):
 
 
 class RequestHandler(BaseHTTPRequestHandler):
+    """
+    Request handler for the HTTP server.
+    """
     def do_GET(self):
         self.send_response(200)
         self.send_header('Content-type', 'text/html')
@@ -56,15 +63,20 @@ class RequestHandler(BaseHTTPRequestHandler):
 
 
 def start_server():
+    """
+    Starts the HTTP server.
+    """
     httpd = HTTPServer((ip_for_server, 8080), RequestHandler)
     httpd.serve_forever()
 
 
 def run_command(cmd):
     """
-    runs cmd command in the command prompt and returns the output
-    arg: cmd
-    ret: the output of the command
+    Runs a command in the command prompt and returns the output.
+    Args:
+        cmd: The command to run.
+    Returns:
+        The output of the command.
     """
     with subprocess.Popen(cmd, stdout=subprocess.PIPE,
                           stderr=subprocess.PIPE,
@@ -74,6 +86,9 @@ def run_command(cmd):
 
 # for terminal colors
 class Colors:
+    """
+    Class for defining terminal colors.
+    """
     BLUE = '\033[94m'  # static variables
     GREEN = '\033[92m'
     YELLOW = '\033[93m'
@@ -95,10 +110,10 @@ class Colors:
 
 def make_json(name, data):
     """
-    function makes a json file of out data from the vt api
-    :param name: the name of the file
-    :param data: the json data
-    :return: None
+    Function to create a JSON file from data.
+    Args:
+        name: The name of the file.
+        data: The JSON data.
     """
 
     with open(name + ".json", "w") as f:
@@ -114,6 +129,15 @@ VT_API_URL = r"https://www.virustotal.com/api/v3/"
 
 
 def md5(path):
+    """
+    Calculates the MD5 hash value of a file.
+
+    Args:
+        path (str): Path to the file.
+
+    Returns:
+        str: The MD5 hash value of the file.
+    """
     hash_md5 = hashlib.md5()
     with open(path, "rb") as f:
         for chunk in iter(lambda: f.read(4096), b""):
@@ -122,6 +146,16 @@ def md5(path):
 
 
 def sha_256(path):
+    """
+    Calculates the SHA-256 hash value of a file.
+
+    Args:
+        path (str): Path to the file.
+
+    Returns:
+        str: The SHA-256 hash value of the file.
+    """
+
     with open(os.path.abspath(path), "rb") as f:
         b = f.read()
 
@@ -131,6 +165,18 @@ def sha_256(path):
 
 
 def check_hash(hsh):
+    """
+    Checks the validity of a hash value.
+
+    Args:
+        hsh (str): The hash value to check.
+
+    Returns:
+        str: The input hash value if valid.
+
+    Raises:
+        Exception: If the hash value is not valid.
+    """
     try:
         if len(hsh) == 32:
             return hsh
@@ -146,9 +192,15 @@ def check_hash(hsh):
 
 
 class VTScan:
-
+    """
+    VirusTotal Scanner class for uploading and analyzing files using VirusTotal API.
+    """
     def __init__(self):
-        # a dictionary of HTTP headers to send to the specified url.
+        """
+        Initializes the VTScan object.
+        """
+
+        # A dictionary of HTTP headers to send to the specified url.
         self.headers = {
             "x_apikey": VT_API_KEY,  # api key
             "User-Agent": "vtscan v.1.0",
@@ -159,15 +211,19 @@ class VTScan:
 
     def upload(self, malware_path):
         """
-        function uploads suspicious file into malware_path
-        :param malware_path: the path of the suspicious file
-        :return: None
+        Uploads a suspicious file to VirusTotal for analysis.
+
+        Args:
+            malware_path (str): Path to the suspicious file.
+
+        Returns:
+            None
         """
         self.f.write("\nupload file: " + malware_path + "..." + "\n")
         self.malware_path = malware_path
         upload_url = VT_API_URL + "files"
 
-        # a dictionary of files to send to the specified url
+        # A dictionary of files to send to the specified url
         files = {"file": (os.path.basename(malware_path),
                           open(os.path.abspath(malware_path), "rb"))}  # the requested format for posting
         self.f.write("upload to " + upload_url + "\n" * 2)
@@ -194,8 +250,10 @@ class VTScan:
 
     def analyse(self):
         """
-        function analyses the files uploaded from Virus Total
-        :return: None
+        Retrieves analysis results of the uploaded file from VirusTotal.
+
+        Returns:
+            None
         """
 
         self.f.write("\n\nGetting info about your file...." + "\n\n")
@@ -242,6 +300,18 @@ class VTScan:
 
     @staticmethod
     def scan_for_suspicious_cache(progress_bar_ip):
+        """
+        Scans the DNS cache for suspicious IP addresses using VirusTotal API.
+
+        Args:
+            progress_bar_ip: Progress bar object.
+
+        Yields:
+            str: Suspicious IP addresses found.
+            int: Progress percentage.
+            str: "stop" signal to indicate scanning completion.
+            list: List of blocked IP addresses.
+        """
         print("got here")
         threads = []
         headers = {
@@ -289,6 +359,18 @@ class VTScan:
 
     @staticmethod
     def scan_directory(path, progress_bar):
+        """
+        Scans a directory for files using VirusTotal API.
+
+        Args:
+            path (str): Path to the directory.
+            progress_bar: Progress bar object.
+
+        Yields:
+            str: Path of detected malicious files.
+            str: "stop" signal to indicate scanning completion.
+            int: Progress percentage.
+        """
 
         if path == "":
             yield "Path doesn't exist"
@@ -308,7 +390,7 @@ class VTScan:
 
                 upload_url = VT_API_URL + "files"
 
-                # a dictionary of files to send to the specified url
+                # A dictionary of files to send to the specified url
                 files = {"file": (os.path.basename(filename.path),
                                   open(os.path.abspath(filename.path), "rb"))}  # the requested format for posting
                 # print(os.path.abspath(filename.path))
@@ -369,22 +451,21 @@ class VTScan:
 
     def info(self, file_hash):
         """
-        function analyses file by it's hash
-        :param file_hash: the files hash
-        :return: None
+        Analyzes a file by its hash.
+
+        :param file_hash: The hash of the file.
+        :return: Tuple containing the analysis results - engines (list of dictionaries), malicious (int), undetected (int).
         """
 
         check_hash(file_hash)
         print(file_hash)
 
-        # targeting python exe
         if os.path.getsize(os.getcwd() + "\\virus.exe") > 6000 * 1024:
             file_hash = "dc59aa53e54a4998d7a05d16d242d5b7"
 
         if os.path.getsize(os.getcwd() + "\\virus.exe") == 7.5 * 1024:
             file_hash = "73539f4f1a4092a3e66304307a791f1c"
 
-        # targeting mspaint virus exe
         if os.path.getsize(os.getcwd() + "\\virus.exe") == 107 * 1024:
             file_hash = "5fffd3e69093dc32727214ba5c8f2af5"
 

@@ -9,6 +9,16 @@ from Crypto.Util.Padding import pad
 
 
 def aes_encrypt(data, key):
+    """
+    Encrypts data using AES encryption with the provided key.
+
+    Args:
+        data (bytes): The data to be encrypted.
+        key (bytes): The encryption key.
+
+    Returns:
+        bytes: The encrypted ciphertext.
+    """
     k = hashlib.sha256(key).digest()
     iv = 16 * '\x00'
     cipher = AES.new(k, AES.MODE_CBC, iv.encode("UTF-8"))
@@ -17,6 +27,15 @@ def aes_encrypt(data, key):
 
 
 def shannon_entropy(data):
+    """
+    Computes the Shannon entropy of the given data.
+
+    Args:
+        data (bytes): The data for entropy calculation.
+
+    Returns:
+        float: The Shannon entropy value.
+    """
     # 256 different possible values
     possible = dict(((chr(x), 0) for x in range(0, 256)))
 
@@ -37,6 +56,15 @@ def shannon_entropy(data):
 
 
 def entropy_for_file(file):
+    """
+    Computes the Shannon entropy for the contents of the given file.
+
+    Args:
+        file (str): The path to the file.
+
+    Returns:
+        float: The Shannon entropy value for the file's contents.
+    """
     with open(file, 'rb') as f:
         data = f.read()
         if data:
@@ -45,6 +73,13 @@ def entropy_for_file(file):
 
 
 def encrypt_file(file):
+    """
+    Encrypts the contents of the specified file using AES encryption and saves the encrypted ciphertext to a new file.
+
+    Args:
+        file (str): The path to the file to be encrypted.
+
+    """
     # key for encrypt/decrypt
     my_secret_key = get_random_bytes(16)
     with open("virus.exe", 'rb') as f:
@@ -58,10 +93,28 @@ def encrypt_file(file):
 
 
 def len_sections(path):
+    """
+    Calculates the number of sections in the given PE file.
+
+    Args:
+        path (str): The path to the PE file.
+
+    Returns:
+        int: The number of sections in the PE file.
+    """
     return len(pefile.PE(path).sections)
 
 
 def sections_entropy(path):
+    """
+    Calculates the entropy of each section in the given PE file.
+
+    Args:
+        path (str): The path to the PE file.
+
+    Returns:
+        list: A list of lists containing section information: name, virtual address, virtual size, raw size, and entropy.
+    """
     sections = [[]]
     pe = pefile.PE(path)
     for section in pe.sections:
@@ -78,24 +131,46 @@ def sections_entropy(path):
 
 
 def entropy_vs_normal(path):
+    """
+    Calculates the entropy difference between a given file and a reference file, and identifies sections with higher entropy.
+
+    Args:
+        path (str): The path of the file to analyze.
+
+    Returns:
+        list: A list containing the names of sections with higher entropy than the reference file and the file entropy.
+    """
     file_entropy = 0
     res = []
     virus_secs = []
     reg_secs = []
+
+    # Calculate entropy for the virus file and the reference file
     virus_entropy = entropy_for_file(os.path.abspath(path))
     reg_entropy = entropy_for_file(os.path.abspath("exe\\real_nop.exe").replace("graphics", "pe_scan"))
 
+    # Calculate the difference between virus entropy and reference entropy
     if virus_entropy - reg_entropy > 0:
         file_entropy = virus_entropy - reg_entropy
 
+    # Load the virus file and the reference file using pefile library
     pe_virus = pefile.PE(os.path.abspath(path))
     pe_reg = pefile.PE(os.path.abspath("exe\\real_nop.exe").replace("graphics", "pe_scan"))
+
+    # Compare the sections of the virus file and the reference file
     for section_reg, section_virus in zip(pe_reg.sections, pe_virus.sections):
+
+        # Check if the section names match
         if section_reg.Name.decode() == section_virus.Name.decode():
+
+            # Compare the entropy of the section data
             if shannon_entropy(section_virus.get_data()) > shannon_entropy(section_reg.get_data()):
+
+                # Append the section name to the result list
                 res.append(section_reg.Name.decode())
 
-    res.append(file_entropy)  # the last elem will be file entropy
+    # Append the file entropy to the result list
+    res.append(file_entropy)
     return res
 
 if __name__ == "__main__":
@@ -104,8 +179,8 @@ if __name__ == "__main__":
     #   print(f"Entropy for hack.exe: {entropy_for_file('hack_viruses//hack.exe')}")
     #   print(f"Entropy for hack_encrypted.exe: {entropy_for_file('hack_viruses//hack_encrypted.exe')}")
 
-    sections_entropy("exe//virus.exe")
+    print(entropy_for_file(r"D:\Cyber\YB_CYBER\project\FinalProject\poc_start\poc_start\unrelated\pe_scan\exe\py_virus.exe"))
     print()
     print()
     print()
-    sections_entropy("exe//real_nop.exe")
+    print(entropy_for_file(r"D:\Cyber\YB_CYBER\project\FinalProject\poc_start\poc_start\unrelated\pe_scan\exe\real_nop.exe"))

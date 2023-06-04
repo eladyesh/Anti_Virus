@@ -18,6 +18,15 @@ logging.basicConfig(level=logging.WARNING)
 
 
 def get_loop_params(path):
+    """
+    Extracts loop parameters from a Python file.
+
+    Args:
+        path (str): Path to the Python file.
+
+    Returns:
+        list: List of loop parameters.
+    """
     with open(path, "r") as f:
         tree = ast.parse(f.read())
         for node in ast.walk(tree):
@@ -33,9 +42,16 @@ def get_loop_params(path):
 
 
 class PythonVirus:
-
+    """
+    PythonVirus class for analyzing and manipulating Python source code.
+    """
     def __init__(self, file):
+        """
+        Initializes the PythonVirus instance.
 
+        Args:
+            file (str): Path to the Python file.
+        """
         self.path = os.path.abspath(file)
         decompyle(self.path)
 
@@ -52,7 +68,9 @@ class PythonVirus:
         self.tree = ast.parse(self.source)
 
     def crawl_for_winapi(self):
-
+        """
+        Crawls web pages to extract WinAPI function names and saves them to a file.
+        """
         # request the page
         # response_file = requests.get("https://docs.microsoft.com/en-us/windows/win32/fileio/file-management-functions")
         # response_sock = requests.get("https://docs.microsoft.com/en-us/windows/win32/fileio/winsock-functions")
@@ -75,7 +93,12 @@ class PythonVirus:
                 file.write(function + "\n")
 
     def get_imports(self):
+        """
+        Extracts import statements from the Python source code.
 
+        Returns:
+            list: List of imported modules.
+        """
         imports = []
         for node in ast.walk(self.tree):
             if isinstance(node, ast.Import):
@@ -88,7 +111,15 @@ class PythonVirus:
 
     @staticmethod
     def scrape_for_info(winap_func):
+        """
+        Scrapes information from web pages based on the WinAPI function name.
 
+        Args:
+            winap_func (str): WinAPI function name.
+
+        Returns:
+            str: Scraped information.
+        """
         def get_first_result(query):
             for url in search(query):
                 return url
@@ -109,7 +140,15 @@ class PythonVirus:
         return p_text.strip()
 
     def find_line_of_variable(self, variable):
+        """
+        Finds the line containing the given variable in the Python source code.
 
+        Args:
+            variable (str): Variable name to search for.
+
+        Returns:
+            str or False: The line containing the variable, or False if not found.
+        """
         with open(self.file, "r") as f:
             source_code = f.read()
             lines = source_code.split("\n")
@@ -121,6 +160,14 @@ class PythonVirus:
         return False
 
     def find_ctypes_calls(self):
+        """
+        Searches for ctypes function calls in the Python source code.
+
+        Returns:
+            list: List of ctypes function calls.
+        """
+        if "ctypes" not in self.get_imports():
+            return []
 
         def find_winapi_calls(code_path, winapi_functions):
             winapi_calls = []
@@ -157,12 +204,29 @@ class PythonVirus:
 
     @staticmethod
     def make_function_dict():
+        """
+        Creates a dictionary of function names and their corresponding search results.
 
+        Returns:
+            dict: Dictionary of function names and search results.
+        """
         def get_first_result(query):
+            """
+            Retrieves the first search result URL for the given query.
+
+            Args:
+                query (str): Query string to search for.
+
+            Returns:
+                str: The URL of the first search result.
+            """
             for url in search(query):
                 return url
 
         def search_for_file_functions():
+            """
+            Searches for file-related functions and adds them to the function_dict.
+            """
             function_dict = {}
             with open("winapi_funcs" + "\\" + "file_functions.txt", "r") as file:
                 for line in file:
@@ -171,6 +235,9 @@ class PythonVirus:
                     print("Done with ", line)
 
         def search_for_keyboard_functions():
+            """
+            Searches for keyboard-related functions and adds them to the function_dict.
+            """
             function_dict = {}
             with open("winapi_funcs" + "\\" + "keboard_functions.txt", "r") as file:
                 for line in file:
@@ -179,6 +246,9 @@ class PythonVirus:
                     print("Done with ", line)
 
         def search_for_memory_functions():
+            """
+            Searches for memory-related functions and adds them to the function_dict.
+            """
             function_dict = {}
             with open("winapi_funcs" + "\\" + "memory_functions.txt", "r") as file:
                 for line in file:
@@ -188,6 +258,9 @@ class PythonVirus:
             print(function_dict)
 
         def search_for_registry_functions():
+            """
+            Searches for registry-related functions and adds them to the function_dict.
+            """
             function_dict = {}
             with open("winapi_funcs" + "\\" + "registry_functions.txt", "r") as file:
                 for line in file:
@@ -197,6 +270,9 @@ class PythonVirus:
             print(function_dict)
 
         def search_for_thread_functions():
+            """
+            Searches for thread-related functions and adds them to the function_dict.
+            """
             function_dict = {}
             with open("winapi_funcs" + "\\" + "thread_functions.txt", "r") as file:
                 for line in file:
@@ -206,6 +282,9 @@ class PythonVirus:
             print(function_dict)
 
         def search_for_winsock_functions():
+            """
+            Searches for winsock-related functions and adds them to the function_dict.
+            """
             function_dict = {}
             with open("winapi_funcs" + "\\" + "winsock_functions.txt", "r") as file:
                 for line in file:
@@ -236,6 +315,20 @@ class PythonVirus:
         thread6.join()
 
     def log_for_winapi(self, calls):
+        """
+        Logs WinAPI function calls and performs analysis.
+
+        Args:
+            calls (str): The string representation of the WinAPI function calls.
+
+        Returns:
+            None
+
+        """
+        if calls == []:
+            with open(os.getcwd() + "\\log_python.txt", "a") as file:
+                file.write("")
+            return
 
         # Use regular expression to match the function names and their parameters
         pattern = re.compile(r"(\w+)\s*=\s*ctypes\.windll\.(\w+)\.(\w+)\((.*)\)|ctypes\.windll\.(\w+)\.(\w+)\((.*)\)")
@@ -243,6 +336,8 @@ class PythonVirus:
         functions_dict = {}
         with open(os.getcwd() + "\\log_python.txt", "a") as file:
             for match in pattern.finditer(calls):
+
+                # Extract the matched groups from the regular expression
                 if match.group(1) is None:
                     variable_name = ""
                 else:
@@ -271,7 +366,7 @@ class PythonVirus:
                 else:
                     functions_dict[function_name] = [param.strip() for param in parameters.split(",")]
 
-            # check for injection
+            # Check for injection
             if 'VirtualAllocEx' in functions_dict.keys() and 'WriteProcessMemory' in functions_dict.keys():
                 if functions_dict['VirtualAllocEx'][0] == functions_dict['WriteProcessMemory'][0]:
 
@@ -292,7 +387,7 @@ class PythonVirus:
                     file.write(f"The data being injected: {data_line.split('=')[1].strip()}\n")
                     file.write("==============INJECTION==============\n\n")
 
-            # port scan
+            # Port scan
             # Use regular expression to match the function names, parameters, and result
             pattern = re.compile(r"(\w+)\s*=\s*winsock\.(\w+)\((.*)\)|winsock\.(\w+)\((.*)\)")
 
@@ -315,12 +410,12 @@ class PythonVirus:
                     file.write("==============PORT SCANNING==============\n")
                     file.write(f"Trying to scan through ports {get_loop_params(self.file)}\n")
 
-                    # website
+                    # Website
                     web_line = self.find_line_of_variable(functions_dict['getaddrinfo'][0])
                     file.write(f"Trying to connect to website {web_line.split('=')[1].strip()}\n")
                     file.write("==============PORT SCANNING==============\n\n")
 
-                # registry virus
+                # Registry virus
                 if 'RegCloseKey' in functions_dict.keys() and 'RegCreateKeyExW' in functions_dict.keys() and 'RegOpenKeyExW' in functions_dict.keys() and 'RegSetValueExW' in functions_dict.keys():
                     file.write("==============REGISTRY CHANGE==============\n")
 
@@ -333,7 +428,17 @@ class PythonVirus:
                     file.write("==============REGISTRY CHANGE==============\n\n")
 
     def check_for_keylogger(self):
+        """
+        Checks for the presence of keylogger-related suspicious activities in Python code.
 
+        Args:
+            tree (ast.Module): The abstract syntax tree (AST) representing the Python code.
+
+        Returns:
+            Tuple: A tuple containing lists of various suspicious findings, including suspicious imports,
+                   suspicious function calls, suspicious function calls with specific parameters,
+                   suspicious regex patterns, and suspicious function parameters.
+        """
         self.keylogger_detected = 0
         self.suspicious_imoprts_for_keylogger = ['PIL', 'requests', 'cryptography.fernet', 'sounddevice', 'scipy.io'
                                                                                                           '.wavfile',

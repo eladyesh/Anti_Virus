@@ -11,9 +11,13 @@ import string
 
 def run_command(cmd):
     """
-    runs cmd command in the command prompt and returns the output
-    arg: cmd
-    ret: the output of the command
+    Runs a command in the command prompt and returns the output.
+
+    Args:
+        cmd (str): The command to run.
+
+    Returns:
+        str: The output of the command.
     """
     return subprocess.Popen(cmd, stdout=subprocess.PIPE,
                             shell=True,
@@ -23,6 +27,15 @@ def run_command(cmd):
 
 
 def get_pid(process_name):
+    """
+    Retrieves the process ID (PID) of a given process name.
+
+    Args:
+        process_name (str): The name of the process.
+
+    Returns:
+        int or None: The PID of the process if found, None otherwise.
+    """
     for proc in psutil.process_iter():
         if proc.name() == process_name:
             return proc.pid
@@ -31,11 +44,22 @@ def get_pid(process_name):
 
 @dataclass
 class SysInternals:
+    """
+    A class representing the SysInternals tools.
+
+    Attributes:
+        handle_path (str): The path to the handle.exe tool.
+        strings_path (str): The path to the strings.exe tool.
+    """
     handle_path: str = os.getcwd()[:os.getcwd().rfind("\\") + 1] + "sys_internals" + "\\handle.exe"
     strings_path: str = os.getcwd()[:os.getcwd().rfind("\\") + 1] + "sys_internals" + "\\strings.exe"
 
     def __init__(self):
+        """
+        Initializes the SysInternals class.
 
+        This method sets up the logging configuration.
+        """
         print(SysInternals.handle_path)
 
         # Set up the logging configuration
@@ -43,7 +67,15 @@ class SysInternals:
                             format='%(asctime)s - %(levelname)s - %(message)s')
 
     def run_handle(self):
+        """
+        Runs the handle.exe tool and captures the output.
 
+        This method starts a subprocess of a hypothetical "virus.exe" program, retrieves its PID,
+        and uses handle.exe to monitor its handles. The output is written to a file.
+
+        Note: The actual implementation of the "virus.exe" program is not provided.
+
+        """
         process = subprocess.Popen(["virus.exe"])
         pid = get_pid("virus.exe")
         print(pid)
@@ -72,6 +104,11 @@ class SysInternals:
             print("Process failed with return code:", process.returncode)
 
     def run_strings(self):
+        """
+        Runs the strings command on the "virus.exe" file and returns a list of printable strings.
+        Returns a filtered list based on file size and allowed string patterns if it's a Python file.
+        Returns an empty list if an error occurs.
+        """
         size = os.path.getsize("virus.exe") / 1024
         py_file = False
         py_allowed = ["py", "Py", "ctypes", "string", "socket", "pickle", "subprocess",

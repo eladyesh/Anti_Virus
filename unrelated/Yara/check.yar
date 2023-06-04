@@ -9,6 +9,7 @@ rule evil_doer
        or cuckoo.filesystem.file_access(/autoexec\.bat/)
 }
 
+// Rule to detect imports from KERNEL32.dll
 rule kernel32_import
 {
     meta:
@@ -20,6 +21,7 @@ rule kernel32_import
         
 }
 
+// Rule to detect imports from ADVAPI32.dll
 rule advapi32_import
 {
     meta:
@@ -31,6 +33,7 @@ rule advapi32_import
         
 }
 
+// Rule to detect imports from WS2_32.dll
 rule Ws2_32_import
 {
     meta:
@@ -42,6 +45,7 @@ rule Ws2_32_import
         
 }
 
+// Rule to detect imports from USER32.dll
 rule USER32_import
 {
     meta:
@@ -53,6 +57,7 @@ rule USER32_import
         
 }
 
+// Rule to detect process enumeration related functions
 rule process_enumeration
 {
     strings:
@@ -60,18 +65,22 @@ rule process_enumeration
         $process_first = "Process32First"
         $process_next = "Process32Next"
     condition:
+        // Check if any of the process enumeration functions are present
         any of ($*)
 }
 
+// Rule to detect API address search related functions
 rule api_address_search
 {
     strings:
         $load_library = "LoadLibrary"
         $get_proc_address = "GetProcAddress"
     condition:
+        // Check if any of the API address search functions are present
         any of ($*)
 }
 
+// Rule to detect DLL operation related functions
 rule dll_operations
 {
     strings:
@@ -79,10 +88,11 @@ rule dll_operations
         $load_library = "LoadLibrary"
         $get_proc_address = "GetProcAddress"
     condition:
+        // Check if any of the DLL operation functions are present
         any of ($*)
 }
 
-
+// Rule to detect keyboard hooking related functions
 rule keyboard_hooking
 {
     strings:
@@ -92,9 +102,11 @@ rule keyboard_hooking
         $set_file_pointer = "SetFilePointer"
         $get_key_state = "GetKeyboardState"
     condition:
+        // Check if any of the keyboard hooking functions are present
         any of ($*)
 }
 
+// Rule to detect clipboard exfiltration related functions
 rule clipboard_exfiltration
 {
     strings:
@@ -102,6 +114,7 @@ rule clipboard_exfiltration
         $get_clipbaord_data = "GetClipboardData"
         $close_clip_board = "CloseClipboard"
     condition:
+        // Check if any of the clipboard exfiltration functions are present
         any of ($*)
 }
 
@@ -115,9 +128,11 @@ rule registry_operations
         $create_registry_key = "RegCreateKeyExA"
         $get_registry_value = "RegGetValueA"
     condition:
+        // Rule to detect registry operation related functions
         any of ($*)
 }
 
+// Rule to detect socket operation related functions
 rule socket_operations
 {
     strings:
@@ -126,9 +141,11 @@ rule socket_operations
         $socket_send = "send" 
         $socket_receive = "recv"
     condition:
+        // Check if any of the socket operation functions are present and if the occurrence of socket_connect is at least 2
         any of ($*) and #socket_connect >= 2 // # is for number of occurrences
 }
 
+// Rule to detect file operation related functions
 rule file_operations
 {
     strings:
@@ -137,9 +154,11 @@ rule file_operations
         $write_file_ex = "WriteFileEx"
         $write_file = "WriteFile"
     condition:
+        // Check if any of the file operation functions are present
         any of ($*)
 }
 
+// Rule to detect injection operation related functions
 rule injection_operations 
 {
     strings:
@@ -151,5 +170,6 @@ rule injection_operations
         $create_remote_thread = "CreateRemoteThread" 
         $close_handle = "CloseHandle"
     condition:
+        // Check if any of the injection operation functions are present and if the index of virtual_alloc is less than the index of write_process_memory
         any of ($*) and @virtual_alloc < @write_process_memory // @ is for index
 }

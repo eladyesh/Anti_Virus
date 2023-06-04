@@ -19,12 +19,21 @@ import subprocess
 #         print("%17s" % sect.Name.decode('utf-8'), end='')
 #         print(("\t\t%5.2f" % sect.get_entropy()))
 #         print(sect)
+import ppdeep
+
 
 def run_command(cmd):
     """
-    runs cmd command in the command prompt and returns the output
-    arg: cmd
-    ret: the output of the command
+    Runs a command in the command prompt and returns the output.
+
+    Args:
+        cmd (str): Command to be executed.
+
+    Returns:
+        str: Output of the command.
+
+    Raises:
+        CalledProcessError: If the command execution fails.
     """
     proc = subprocess.Popen(cmd, stdout=subprocess.PIPE,
                             shell=True,
@@ -299,6 +308,9 @@ class result(Enum):
 
 @dataclass
 class ScanPE:
+    """
+    Class for performing various scans on PE (Portable Executable) files.
+    """
     path: str
     suspicious_flags = ['IMAGE_SCN_MEM_EXECUTE', 'IMAGE_SCN_MEM_READ', 'IMAGE_SCN_MEM_WRITE']
 
@@ -309,6 +321,11 @@ class ScanPE:
         Most of the time write and execute characteristics do not appear together in a section in non-packed files,
         whereas it is rather typical for packed files.
         The presence of both means the code itself can be changed dynamically
+
+        Scan the sections of the PE file for suspicious flags.
+
+        Returns:
+            list: Names of the sections that contain write and execute characteristics.
         """
 
         pe = pereader.PE(self.path, is_entropy=False)
@@ -344,6 +361,11 @@ class ScanPE:
         version indicates manipulation of the headers. Since the Rich Header is a means to attribute samples to
         threat actors, malware authors might get the idea to swap the DOS Stub and Rich Header with those of other
         threat actor's samples
+
+        Check if the linker versions in the Rich header and Optional header of the PE file match.
+
+        Returns:
+            result: Result of the linker test (VALID, INVALID, or UNABLE_TO_PARSE).
 
         """
 
@@ -412,7 +434,12 @@ class ScanPE:
         return result.INVALID
 
     def run_pe_scan_exe(self):
+        """
+        Run peScan.exe tool on the PE file and extract DLL import information.
 
+        Returns:
+            dict: Dictionary containing DLLs and their respective imported functions.
+        """
         dlls = dict({})
         headers = run_command(os.path.abspath("exe\\peScan.exe").replace("graphics", "pe_scan") + " " + self.path)
         if headers == "" or headers == "None":
@@ -440,15 +467,38 @@ class ScanPE:
 
 
 def check_for_fractioned_imports(dlls):
+    """
+    Check for fractioned imports in a dictionary of DLLs.
+
+    Args:
+        dlls (dict): A dictionary where the keys are library names and the values are their corresponding attributes.
+
+    Returns:
+        list: A list of fractioned library names.
+
+    """
     try:
+        # hash = "1536:4NO/n03P372y9Ihkc5N0c+1uqJit98h64:WOcP7f9Ihkc5N05IqJitWh64"
+
         fractioned = []
         prefix_counter = Counter()
-        for library in dlls.keys():
-            print(library)
-            prefix = library[2][:3]
-            prefix_counter[prefix] += 1
 
+        # Count the occurrences of each library prefix
+        if "ucrtbased.dll" in [l[0] for l in dlls.keys()] and len(dlls.keys()) <= 3:
+            for library in dlls.keys():
+                print(library)
+                prefix = library[2][:4]
+                prefix_counter[prefix] += 1
+        else:
+            for library in dlls.keys():
+                print(library)
+                prefix = library[2][:3]
+                prefix_counter[prefix] += 1
+
+        # Find the most common prefix
         most_common_prefix = prefix_counter.most_common(1)[0][0]
+
+        # Check for fractioned libraries based on the most common prefix
         for library in dlls.keys():
             if not library[2].startswith(most_common_prefix):
                 fractioned.append(library[0])

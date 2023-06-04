@@ -9,9 +9,13 @@ import glob
 
 def run_command(cmd):
     """
-    runs cmd command in the command prompt and returns the output
-    arg: cmd
-    ret: the output of the command
+    Runs a command in the command prompt and returns the output.
+
+    Args:
+        cmd (str): Command to be executed.
+
+    Returns:
+        str: Output of the command.
     """
     return subprocess.Popen(cmd, stdout=subprocess.PIPE,
                             shell=True,
@@ -21,6 +25,15 @@ def run_command(cmd):
 
 
 def decompyle(path):
+    """
+    Decompiles a Python compiled file (.pyc) using pydumpck.
+
+    Args:
+        path (str): Path to the Python compiled file (.pyc).
+
+    Returns:
+        None
+    """
     print(path)
     run = run_command(["pydumpck", path])
 
