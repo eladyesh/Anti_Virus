@@ -1,5 +1,4 @@
-/* In order for c# to work, you have to turn off the VirtualAlloc, CreateThread, And OpenProcess Hooks */
-
+// Imoprting the required modules
 #include "pch.h"
 #include "cpu.h"
 #include <Windows.h>
@@ -26,112 +25,114 @@ using std::ends;
 #pragma comment(lib,"ws2_32.lib")
 
 /*
-Defining functions that are being hooked
-  HANDLE CreateFileA(
-  [in]           LPCSTR lpFileName,
-  [in]           DWORD  dwDesiredAccess,
-  [in]           DWORD  dwShareMode,
-  [in, optional] LPSECURITY_ATTRIBUTES lpSecurityAttributes,
-  [in]           DWORD dwCreationDisposition,
-  [in]           DWORD dwFlagsAndAttributes,
-  [in, optional] HANDLE hTemplateFile);
+Defining functions that are being hooked:
 
-  BOOL DeleteFileA(
-  [in] LPCSTR lpFileName
-   );
+  HANDLE CreateFileA(
+        [in]           LPCSTR lpFileName,
+        [in]           DWORD  dwDesiredAccess,
+        [in]           DWORD  dwShareMode,
+        [in, optional] LPSECURITY_ATTRIBUTES lpSecurityAttributes,
+        [in]           DWORD dwCreationDisposition,
+        [in]           DWORD dwFlagsAndAttributes,
+        [in, optional] HANDLE hTemplateFile);
+    );
+
+    BOOL DeleteFileA(
+        [in] LPCSTR lpFileName
+    );
 
    BOOL WriteFileEx(
-  [in]           HANDLE                          hFile,
-  [in, optional] LPCVOID                         lpBuffer,
-  [in]           DWORD                           nNumberOfBytesToWrite,
-  [in, out]      LPOVERLAPPED                    lpOverlapped,
-  [in]           LPOVERLAPPED_COMPLETION_ROUTINE lpCompletionRoutine
-);
+        [in]           HANDLE                          hFile,
+        [in, optional] LPCVOID                         lpBuffer,
+        [in]           DWORD                           nNumberOfBytesToWrite,
+        [in, out]      LPOVERLAPPED                    lpOverlapped,
+        [in]           LPOVERLAPPED_COMPLETION_ROUTINE lpCompletionRoutine
+    );
 
-  LPVOID VirtualAlloc(
-  [in, optional] LPVOID lpAddress,
-  [in]           SIZE_T dwSize,
-  [in]           DWORD  flAllocationType,
-  [in]           DWORD  flProtect
-  );
+     LPVOID VirtualAlloc(
+        [in, optional] LPVOID lpAddress,
+        [in]           SIZE_T dwSize,
+        [in]           DWORD  flAllocationType,
+        [in]           DWORD  flProtect
+    );
 
-  HANDLE CreateThread(
-  [in, optional]  LPSECURITY_ATTRIBUTES   lpThreadAttributes,
-  [in]            SIZE_T                  dwStackSize,
-  [in]            LPTHREAD_START_ROUTINE  lpStartAddress,
-  [in, optional]  __drv_aliasesMem LPVOID lpParameter,
-  [in]            DWORD                   dwCreationFlags,
-  [out, optional] LPDWORD                 lpThreadId
-  );
+    HANDLE CreateThread(
+        [in, optional]  LPSECURITY_ATTRIBUTES   lpThreadAttributes,
+        [in]            SIZE_T                  dwStackSize,
+        [in]            LPTHREAD_START_ROUTINE  lpStartAddress,
+        [in, optional]  __drv_aliasesMem LPVOID lpParameter,
+        [in]            DWORD                   dwCreationFlags,
+        [out, optional] LPDWORD                 lpThreadId
+    );
 
     LSTATUS RegOpenKeyExA(
-    [in]           HKEY   hKey,
-    [in, optional] LPCSTR lpSubKey,
-    [in]           DWORD  ulOptions,
-    [in]           REGSAM samDesired,
-    [out]          PHKEY  phkResult
+        [in]           HKEY   hKey,
+        [in, optional] LPCSTR lpSubKey,
+        [in]           DWORD  ulOptions,
+        [in]           REGSAM samDesired,
+        [out]          PHKEY  phkResult
     );
 
     LSTATUS RegSetValueExA(
-    [in]           HKEY       hKey,
-    [in, optional] LPCSTR     lpValueName,
-                 DWORD      Reserved,
-   [in]           DWORD      dwType,
-   [in]           const BYTE *lpData,
-   [in]           DWORD      cbData
-  );
+        [in]           HKEY       hKey,
+        [in, optional] LPCSTR     lpValueName,
+        DWORD      Reserved,
+        [in]           DWORD      dwType,
+        [in]           const BYTE *lpData,
+        [in]           DWORD      cbData
+    );
 
     LSTATUS RegCreateKeyExA(
-    [in]            HKEY                        hKey,
-    [in]            LPCSTR                      lpSubKey,
-                  DWORD                       Reserved,
-    [in, optional]  LPSTR                       lpClass,
-    [in]            DWORD                       dwOptions,
-    [in]            REGSAM                      samDesired,
-    [in, optional]  const LPSECURITY_ATTRIBUTES lpSecurityAttributes,
-    [out]           PHKEY                       phkResult,
-    [out, optional] LPDWORD                     lpdwDisposition
+        [in]            HKEY                        hKey,
+        [in]            LPCSTR                      lpSubKey,
+        DWORD                       Reserved,
+        [in, optional]  LPSTR                       lpClass,
+        [in]            DWORD                       dwOptions,
+        [in]            REGSAM                      samDesired,
+        [in, optional]  const LPSECURITY_ATTRIBUTES lpSecurityAttributes,
+        [out]           PHKEY                       phkResult,
+        [out, optional] LPDWORD                     lpdwDisposition
     );
 
     LSTATUS RegGetValueA(
-   [in]                HKEY    hkey,
-   [in, optional]      LPCSTR  lpSubKey,
-   [in, optional]      LPCSTR  lpValue,
-   [in, optional]      DWORD   dwFlags,
-   [out, optional]     LPDWORD pdwType,
-   [out, optional]     PVOID   pvData,
-   [in, out, optional] LPDWORD pcbData
+        [in]                HKEY    hkey,
+        [in, optional]      LPCSTR  lpSubKey,
+        [in, optional]      LPCSTR  lpValue,
+        [in, optional]      DWORD   dwFlags,
+        [out, optional]     LPDWORD pdwType,
+        [out, optional]     PVOID   pvData,
+        [in, out, optional] LPDWORD pcbData
     );
 
     SOCKET WSAAPI socket(
-    [in] int af,
-    [in] int type,
-    [in] int protocol
+        [in] int af,
+        [in] int type,
+        [in] int protocol
     );
 
     int WSAAPI connect(
-    [in] SOCKET         s,
-    [in] const sockaddr *name,
-    [in] int            namelen
+        [in] SOCKET         s,
+        [in] const sockaddr *name,
+        [in] int            namelen
     );
 
     int WSAAPI send(
-    [in] SOCKET     s,
-    [in] const char *buf,
-    [in] int        len,
-    [in] int        flags
+        [in] SOCKET     s,
+        [in] const char *buf,
+        [in] int        len,
+        [in] int        flags
     );
 
     int recv(
-    [in]  SOCKET s,
-    [out] char   *buf,
-    [in]  int    len,
-    [in]  int    flags
+        [in]  SOCKET s,
+        [out] char   *buf,
+        [in]  int    len,
+        [in]  int    flags
     );
 
     BOOL CloseHandle(
         [in] HANDLE hObject
-        );
+    );
 
     BOOL WriteFile(
         [in]                HANDLE       hFile,
@@ -140,6 +141,50 @@ Defining functions that are being hooked
         [out, optional]     LPDWORD      lpNumberOfBytesWritten,
         [in, out, optional] LPOVERLAPPED lpOverlapped
     );
+
+        HANDLE OpenProcess(
+        DWORD dwDesiredAccess,
+        BOOL  bInheritHandle,
+        DWORD dwProcessId
+    );
+
+    LPVOID VirtualAllocEx(
+        HANDLE hProcess,
+        LPVOID lpAddress,
+        SIZE_T dwSize,
+        DWORD  flAllocationType,
+        DWORD  flProtect
+    );
+
+    HANDLE CreateRemoteThread(
+        HANDLE                 hProcess,
+        LPSECURITY_ATTRIBUTES  lpThreadAttributes,
+        SIZE_T                 dwStackSize,
+        LPTHREAD_START_ROUTINE lpStartAddress,
+        LPVOID                 lpParameter,
+        DWORD                  dwCreationFlags,
+        LPDWORD                lpThreadId
+    );
+
+    HHOOK SetWindowsHookExA(
+        int       idHook,
+        HOOKPROC  lpfn,
+        HINSTANCE hMod,
+        DWORD     dwThreadId
+    );
+
+    BOOL GetKeyboardState(
+      PBYTE lpKeyState
+    );
+
+    DWORD SetFilePointer(
+        HANDLE hFile,
+        LONG   lDistanceToMove,
+        PLONG  lpDistanceToMoveHigh,
+        DWORD  dwMoveMethod
+    );
+
+
     // std::vector<LPVOID> winapi_functions = { CreateFileA, DeleteFileA, WriteFileEx, WriteFile, VirtualAlloc, CreateThread, OpenProcess, VirtualAllocEx, CreateRemoteThread, CloseHandle, RegOpenKeyExA, RegSetValueExA, RegCreateKeyExA, RegGetValueA, socket, connect, send, recv };
 */
 
@@ -152,32 +197,41 @@ std::vector<char[6]> original(21);
 std::map<HANDLE, int> handle_counter;
 std::map<const char*, int> function_index;
 
-// vectors for the parameters from the parameters file
+// Vectors for the parameters from the parameters file
 std::vector<std::string> files(1);
 std::vector<std::string> ports(1);
 std::vector<std::string> keys(1);
 
+// Declarations
 void SetInlineHook(LPCSTR lpProcName, const char* library, const char* funcName, int index);
 void FreeHook(int index);
 HANDLE hFile;
 int writeFileIndex = 0;
 
-// cpu
+// Cpu
 double cpuPermitted = 0.0;
 double maxCpu = 0;
 
-// port scanning variables
+// Port scanning variables
 const char* remote_ip; std::string injected_process = "";
 int connect_count = 0, run_once = 1; bool portScanner = false;
 
-// keboard hook counter
+// Keboard hook counter
 int keyboard_hook = 0;
 int show_identified = 0;
 
 
 namespace FindProcess {
+    /**
+    * Namespace containing functions to find process ID and process name.
+    */
     DWORD FindProcessId(const std::wstring& processName)
     {
+        /**
+        * Finds the process ID of a given process name.
+        * @param processName The name of the process to find.
+        * @return The process ID if found, otherwise 0.
+        */
         PROCESSENTRY32 processInfo;
         processInfo.dwSize = sizeof(processInfo);
 
@@ -207,6 +261,11 @@ namespace FindProcess {
     }
     const std::wstring FindProcessName(DWORD id)
     {
+        /**
+        * Finds the process name of a given process ID.
+        * @param id The process ID to find.
+        * @return The process name if found, otherwise an empty string.
+        */
         PROCESSENTRY32 processInfo;
         processInfo.dwSize = sizeof(processInfo);
 
@@ -237,7 +296,16 @@ namespace FindProcess {
 }
 
 namespace StringAnalyzer {
+    /**
+    * Namespace containing functions for string analysis.
+    */
     int CountString(std::string s, char a) {
+        /**
+        * Counts the occurrences of a character in a given string.
+        * @param s The input string.
+        * @param a The character to count.
+        * @return The number of occurrences of the character in the string.
+        */
         int count = 0;
         for (size_t i = 0; i < s.length(); i++)
         {
@@ -246,6 +314,12 @@ namespace StringAnalyzer {
         return count;
     }
     bool CompareStrings(std::string s1, std::string s2) {
+        /**
+        * Compares two strings for equality.
+        * @param s1 The first string to compare.
+        * @param s2 The second string to compare.
+        * @return True if the strings are equal, false otherwise.
+        */
 
         for (size_t i = 0; i < s1.length(); i++)
         {
@@ -256,8 +330,18 @@ namespace StringAnalyzer {
 }
 
 namespace CheckContain {
+    /**
+    * Namespace containing functions for checking containment.
+    */
     bool contains(std::vector<std::string> vec, std::string elem, bool Compare)
     {
+        /**
+        * Checks if a vector contains a specified element.
+        * @param vec The input vector of strings.
+        * @param elem The element to search for.
+        * @param Compare True to perform exact string comparison, false to check substring containment.
+        * @return True if the vector contains the element based on the specified comparison mode, false otherwise.
+        */
         bool result = false;
         if (Compare) {
             for (std::string x : vec) {
@@ -277,6 +361,11 @@ namespace CheckContain {
         return result;
     }
     bool ContainsHandle(HANDLE h) {
+        /**
+        * Checks if a given handle exists in the handle_counter.
+        * @param h The handle to check.
+        * @return True if the handle exists in the handle_counter, false otherwise.
+        */
         if (handle_counter.find(h) == handle_counter.end())
             return false;
         return true;
@@ -284,20 +373,26 @@ namespace CheckContain {
 
 }
 
-// clock
+// Clock
 std::chrono::steady_clock::time_point begin;
 
 template<typename T>
 void LOG(const char* message, T parameter) {
-
+    /**
+     * Logs a message with a parameter to a file.
+    * @param message The message to log.
+    * @param parameter The parameter to include in the log.
+    */
     FreeHook(writeFileIndex);
     WriteFile(hFile, message, strlen(message), NULL, nullptr);
     //WriteFile(hFile, "\n", strlen("\n"), NULL, nullptr);
+
+    // Convert the parameter to a string
     ostringstream oss;
     ostringstream oss2;
     oss << parameter << ends;
 
-    // cpu
+    // LOG the parameter
     std::string param = oss.str().c_str();
     if (param == std::string("-nan(ind)")) {
         WriteFile(hFile, "0", strlen("0"), NULL, nullptr);
@@ -312,7 +407,18 @@ void LOG(const char* message, T parameter) {
 
 
 struct REGISTRY_HOOKING {
+    /**
+    * Hook functions for the Registry API.
+    */
     static void __stdcall RegOpenKeyExAHook(HKEY hKey, LPCSTR lpSubKey, DWORD ulOptions, REGSAM samDesired, PHKEY phkResult) {
+        /**
+         * Hook function for the RegOpenKeyExA API. 
+         * @param hKey The handle to the open key or one of the predefined reserved handle values.
+         * @param lpSubKey The name of the registry subkey to be opened.
+         * @param ulOptions The option to apply when opening the key.
+         * @param samDesired A mask that specifies the desired access rights to the key to be opened.
+         * @param phkResult A pointer to a variable that receives a handle to the opened key.
+         */
 
         bool run_key = false;
         LOG("\n----------intercepted call to RegOpenKeyExA----------\n\n", "");
@@ -366,7 +472,15 @@ struct REGISTRY_HOOKING {
 
     }
     static void __stdcall RegSetValueExAHook(HKEY hKey, LPCSTR lpValueName, DWORD Reserved, DWORD dwType, const BYTE* lpData, DWORD cbData) {
-
+        /**
+        * Hook function for the RegSetValueExA API.
+        * @param hKey The handle to the open key or one of the predefined reserved handle values.
+        * @param lpValueName The name of the value to be set.
+        * @param Reserved Reserved; must be zero.
+        * @param dwType The type of data to be stored.
+        * @param lpData A pointer to the data to be stored.
+        * @param cbData The size, in bytes, of the information pointed to by the lpData parameter.
+        */
         LOG("\n----------intercepted call to RegSetValueExA----------\n\n", "");
         LOG("The key opened is ", hKey);
         LOG("The name of the value to be set is ", lpValueName);
@@ -402,10 +516,33 @@ struct REGISTRY_HOOKING {
         return SetInlineHook("RegSetValueExA", "advapi32.dll", "RegSetValueExAHook", function_index["RegSetValueExA"]);
     }
     static void __stdcall RegCreateKeyExAHook(HKEY hKey, LPCSTR lpSubKey, DWORD Reserved, LPSTR lpClass, DWORD dwOptions, REGSAM samDesired, const LPSECURITY_ATTRIBUTES lpSecurityAttributes, PHKEY phkResult, LPDWORD lpdwDisposition) {
-
+        /**
+        * Hook function for the RegCreateKeyExA API.
+        * @param hKey A handle to an open registry key or one of the predefined reserved handle values.
+        * @param lpSubKey The name of a subkey that this function opens or creates.
+        * @param Reserved This parameter is reserved and must be zero.
+        * @param lpClass The user-defined class type of this key.
+        * @param dwOptions This parameter is reserved and must be zero.
+        * @param samDesired A mask that specifies the desired access rights to the key to be opened or created.
+        * @param lpSecurityAttributes A pointer to a SECURITY_ATTRIBUTES structure that determines whether the returned handle can be inherited by child processes.
+        * @param phkResult A pointer to a variable that receives a handle to the opened or created key.
+        * @param lpdwDisposition A pointer to a variable that receives one of the following disposition values.
+        *                        - REG_CREATED_NEW_KEY: The key did not exist and was created.
+        *                        - REG_OPENED_EXISTING_KEY: The key existed and was simply opened without being changed.
+        */
         LOG("\n----------intercepted call to RegCreateKeyExA----------\n\n", "");
-        LOG("The key opened is ", hKey);
-        LOG("The name of a subkey that this function opens or creates", lpSubKey);
+        if (hKey == ((HKEY)(ULONG_PTR)((LONG)0x80000002))) {
+            LOG("The key opened is ", "HKEY_LOCAL_MACHINE");
+        }
+
+        else if (hKey == ((HKEY)(ULONG_PTR)((LONG)0x80000001))) {
+            LOG("The key opened is ", "HKEY_CURRENT_USER");
+        }
+        else {
+            LOG("The key opened is ", hKey);
+        }
+
+        LOG("The name of a subkey that this function opens or creates is ", lpSubKey);
 
         if (dwOptions == 0x00000000L)
             LOG("This key is not volatile", "");
@@ -440,9 +577,25 @@ struct REGISTRY_HOOKING {
 
     }
     static void __stdcall RegGetValueAHook(HKEY hkey, LPCSTR lpSubKey, LPCSTR lpValue, DWORD dwFlags, LPDWORD pdwType, PVOID pvData, LPDWORD pcbData) {
-
+        /**
+        * Hook function for the RegGetValueA API.
+        * @param hkey A handle to an open registry key.
+        * @param lpSubKey The name of the subkey that contains the desired value.
+        * @param lpValue The name of the registry value.
+        * @param dwFlags The flags that restrict the data type of value to be queried.
+        * @param pdwType A pointer to a variable that receives a code indicating the type of data stored in the specified value.
+        * @param pvData A pointer to a buffer that receives the value's data.
+        * @param pcbData A pointer to a variable that specifies the size of the buffer pointed to by the pvData parameter, in bytes.
+        *                When the function returns, this variable contains the size of the data copied to pvData.
+        */
         LOG("\n----------intercepted call to RegGetValueA----------\n\n", "");
-        LOG("The key opened is ", hkey);
+        if (hkey == ((HKEY)(ULONG_PTR)((LONG)0x80000002))) {
+            LOG("The key opened is ", "HKEY_LOCAL_MACHINE");
+        }
+
+        if (hkey == ((HKEY)(ULONG_PTR)((LONG)0x80000001))) {
+            LOG("The key opened is ", "HKEY_CURRENT_USER");
+        }
         LOG("The name of a subkey that this function opens or creates is ", lpSubKey);
         LOG("The name of the Registry Value Name this function is trying to reach is ", lpValue);
 
@@ -481,8 +634,17 @@ struct REGISTRY_HOOKING {
 };
 
 struct SOCKET_HOOKING {
+    /**
+    * Hook functions for the Socket API.
+    */
     static SOCKET __stdcall socketHook(int af, int type, int protocol) {
-
+        /**
+        * Hook function for the socket API.
+        * @param af The address family specification for the new socket.
+        * @param type The type specification for the new socket.
+        * @param protocol The protocol to be used.
+        * @return The newly created socket.
+         */
         LOG("\n----------intercepted call to socket----------\n\n", "");
 
         if (af == 2)
@@ -527,7 +689,13 @@ struct SOCKET_HOOKING {
 
     }
     static int __stdcall connectHook(SOCKET s, const sockaddr* name, int namelen) {
-
+        /**
+        * Hook function for the connect API.
+        * @param s The socket to connect.
+        * @param name The address to connect to.
+        * @param namelen The length of the address structure.
+        * @return The result of the connect operation.
+        */
         struct sockaddr_in* sin = (struct sockaddr_in*)name;
         uint16_t port;
 
@@ -584,7 +752,14 @@ struct SOCKET_HOOKING {
         return r;
     }
     static int __stdcall sendHook(SOCKET s, const char* buff, int len, int flags) {
-
+        /**
+        * Hook function for the send API.
+        * @param s The socket to send data through.
+        * @param buff The buffer containing the data to send.
+        * @param len The length of the buffer.
+        * @param flags Flags specifying the way in which the call is made.
+        * @return The result of the send operation.
+        */
         LOG("\n----------intercepted call to send----------\n\n", "");
         LOG("The buffer wanted to be send is ", std::string(buff));
         LOG("The length of the buffer is ", len);
@@ -615,7 +790,14 @@ struct SOCKET_HOOKING {
         return b;
     }
     static int __stdcall recvHook(SOCKET s, char* buff, int len, int flags) {
-
+        /**
+        * Hook function for the recv API.
+        * @param s The socket to receive data from.
+        * @param buff The buffer to store the received data.
+        * @param len The maximum length of the buffer.
+        * @param flags Flags specifying the way in which the call is made.
+        * @return The result of the recv operation.
+        */
         LOG("\n----------intercepted call to recv----------\n\n", "");
 
         int index = function_index["recv"];
@@ -653,8 +835,20 @@ struct SOCKET_HOOKING {
 };
 
 struct FILE_HOOKING {
+    /**
+    * Hook functions for the File API.
+    */
     static void __stdcall CreateFileAHook(LPCSTR lpFileName, DWORD dwDesiredAccess, DWORD dwShareMode, LPSECURITY_ATTRIBUTES lpSecurityAttributes, DWORD dwCreationDisposition, DWORD dwFlagsAndAttributes, HANDLE hTemplateFile) {
-
+        /**
+        * Hook function for the CreateFileA API.
+        * @param lpFileName The name of the file or device to be created or opened.
+        * @param dwDesiredAccess The requested access to the file or device.
+        * @param dwShareMode The requested sharing mode of the file or device.
+        * @param lpSecurityAttributes A pointer to a SECURITY_ATTRIBUTES structure.
+        * @param dwCreationDisposition An action to take on a file or device that exists or does not exist.
+        * @param dwFlagsAndAttributes The file or device attributes and flags.
+        * @param hTemplateFile A handle to a template file.
+        */
         LOG("\n----------intercepted call to CreateFileA----------\n\n", "");
 
         if (CheckContain::contains(files, std::string(lpFileName), false))
@@ -711,7 +905,11 @@ struct FILE_HOOKING {
         return SetInlineHook("CreateFileA", "kernel32.dll", "CreateFileAHook", index);
     }
     static int __stdcall DeleteFileAHook(LPCSTR lpFileName) {
-
+        /**
+        * Hook function for the DeleteFileA API.
+        * @param lpFileName The path to the file that is to be deleted.
+        * @return Non-zero if the function succeeds, zero otherwise.
+        */
         LOG("\n----------intercepted call to DeleteFileA----------\n\n", "");
         LOG("The path to the file that is to be deleted is ", lpFileName);
 
@@ -741,7 +939,15 @@ struct FILE_HOOKING {
         return success;
     }
     static int __stdcall WriteFileExHook(HANDLE hFile, LPCVOID lpBuffer, DWORD nNumberOfBytesToWrite, LPOVERLAPPED lpOverlapped, LPOVERLAPPED_COMPLETION_ROUTINE lpCompletionRoutine) {
-
+        /**
+        * Hook function for the WriteFileEx API.
+        * @param hFile The handle to the file.
+        * @param lpBuffer The buffer being written to the file.
+        * @param nNumberOfBytesToWrite The size of the buffer.
+        * @param lpOverlapped Pointer to an OVERLAPPED structure.
+        * @param lpCompletionRoutine A pointer to the completion routine to be called when the write operation has been completed.
+        * @return Non-zero if the function succeeds, zero otherwise.
+        */
         LOG("\n----------intercepted call to WriteFileEx----------\n\n", "");
         LOG("The handle to this file is ", hFile);
         LOG("The buffer being written to the file is ", (LPCSTR)lpBuffer);
@@ -773,7 +979,15 @@ struct FILE_HOOKING {
         return b;
     }
     static BOOL __stdcall WriteFileHook(HANDLE hFile, LPCVOID lpBuffer, DWORD nNumberOfBytesToWrite, LPDWORD lpNumberOfBytesWritten, LPOVERLAPPED lpOverlapped) {
-
+        /**
+        * Hook function for the WriteFile API.
+        * @param hFile The handle to the file.
+        * @param lpBuffer The buffer being written to the file.
+        * @param nNumberOfBytesToWrite The size of the buffer.
+        * @param lpNumberOfBytesWritten A pointer to the variable that receives the number of bytes written.
+        * @param lpOverlapped Pointer to an OVERLAPPED structure.
+        * @return Non-zero if the function succeeds, zero otherwise.
+        */
         LOG("\n----------intercepted call to WriteFile----------\n\n", "");
         LOG("The handle to this file is ", hFile);
         LOG("The buffer being written to the file is ", (LPCSTR)lpBuffer);
@@ -815,8 +1029,18 @@ struct FILE_HOOKING {
 };
 
 struct INJECT_HOOKING {
+    /**
+    * Hook functions for the Injection Operation API.
+    */
     static void __stdcall VirtualAllocHook(LPVOID lpAddress, SIZE_T dwSize, DWORD flAllocationType, DWORD flProtect)
     {
+        /**
+        * Hook function for the VirtualAlloc API.
+        * @param lpAddress The address the allocation is starting at.
+        * @param dwSize The size of the allocation.
+        * @param flAllocationType The type of memory allocation.
+        * @param flProtect The memory protection for the region of pages to be allocated.
+        */
         LOG("\n----------intercepted call to VirtualAlloc----------\n\n", "");
 
         LOG("The address the allocation is starting is at ", lpAddress);
@@ -857,6 +1081,15 @@ struct INJECT_HOOKING {
         return SetInlineHook("VirtualAlloc", "kernel32.dll", "VirtualAllocHook", index);
     }
     static void __stdcall CreateThreadHook(LPSECURITY_ATTRIBUTES lpThreadAttributes, SIZE_T dwStackSize, LPTHREAD_START_ROUTINE lpStartAddress, __drv_aliasesMem LPVOID lpParameter, DWORD dwCreationFlags, LPDWORD lpThreadId) {
+        /**
+        * Hook function for the CreateThread API.
+        * @param lpThreadAttributes A pointer to a SECURITY_ATTRIBUTES structure.
+        * @param dwStackSize The initial size of the stack, in bytes.
+        * @param lpStartAddress A pointer to the application-defined function to be executed by the thread.
+        * @param lpParameter A pointer to a variable to be passed to the thread.
+        * @param dwCreationFlags The flags that control the creation of the thread.
+        * @param lpThreadId A pointer to a variable that receives the thread identifier.
+        */
         LOG("\n----------intercepted call to CreateThread----------\n\n", "");
 
         LOG("The initial size of the stack, in bytes is ", dwStackSize);
@@ -895,8 +1128,14 @@ struct INJECT_HOOKING {
         return SetInlineHook("CreateThread", "kernel32.dll", "CreateThreadHook", index);
     }
     static HANDLE __stdcall OpenProcessHook(DWORD dwDesiredAccess, BOOL bInheritHandle, DWORD dwProcessId) {
-
-
+        /**
+        * Hook function for the OpenProcess API.
+        * @param dwDesiredAccess The requested access to the process object.
+        * @param bInheritHandle If TRUE, processes created by this process will inherit the handle.
+        * @param dwProcessId The identifier of the process to open.
+        * @return If the function succeeds, the return value is an open handle to the specified process.
+        *         If the function fails, the return value is NULL.
+        */
         const std::wstring name1 = FindProcess::FindProcessName(dwProcessId);
         std::string str1(name1.begin(), name1.end());
         if (str1 == std::string("VIRUS.EXE") || str1 == std::string("virus.exe")) return NULL;
@@ -942,6 +1181,16 @@ struct INJECT_HOOKING {
         return h;
     }
     static LPVOID __stdcall VirtualAllocExHook(HANDLE hProcess, LPVOID lpAddress, SIZE_T dwSize, DWORD flAllocationType, DWORD flProtect) {
+        /**
+        * Hook function for the VirtualAllocEx API.
+        * @param hProcess A handle to the process to allocate memory within.
+        * @param lpAddress The pointer that specifies the desired starting address for the region of pages to allocate.
+        * @param dwSize The size of the region to allocate, in bytes.
+        * @param flAllocationType The type of memory allocation.
+        * @param flProtect The memory protection for the region of pages to be allocated.
+        * @return If the function succeeds, the return value is the base address of the allocated region of pages.
+        *         If the function fails, the return value is NULL.
+        */
         LOG("\n----------intercepted call to VirtualAllocEx----------\n\n", "");
 
         LOG("The handle to the process is ", hProcess);
@@ -983,6 +1232,18 @@ struct INJECT_HOOKING {
         return rb;
     }
     static HANDLE __stdcall CreateRemoteThreadHook(HANDLE hProcess, LPSECURITY_ATTRIBUTES lpThreadAttributes, SIZE_T dwStackSize, LPTHREAD_START_ROUTINE lpStartAddress, LPVOID lpParameter, DWORD dwCreationFlags, LPDWORD lpThreadId) {
+        /**
+        * Hook function for the CreateRemoteThread API.
+        * @param hProcess A handle to the process in which the thread is to be created.
+        * @param lpThreadAttributes A pointer to the security attributes for the new thread.
+        * @param dwStackSize The initial size of the stack, in bytes.
+        * @param lpStartAddress A pointer to the application-defined function to be executed by the thread.
+        * @param lpParameter A pointer to a variable to be passed to the thread function.
+        * @param dwCreationFlags The flags that control the creation of the thread.
+        * @param lpThreadId A pointer to a variable that receives the thread identifier.
+        * @return If the function succeeds, the return value is a handle to the new thread.
+        *         If the function fails, the return value is NULL.
+        */
         LOG("\n----------intercepted call to CreateRemoteThread----------\n\n", "");
 
         LOG("A handle to the process in which the thread is to be created is ", hProcess);
@@ -1027,7 +1288,12 @@ struct INJECT_HOOKING {
         return h;
     }
     static int __stdcall CloseHandleHook(HANDLE hObject) {
-
+        /**
+        * Hook function for the CloseHandle API.
+        * @param hObject The handle to be closed.
+        * @return If the function succeeds, the return value is nonzero.
+        *         If the function fails, the return value is zero.
+        */
         LOG("\n----------intercepted call to CloseHandle----------\n\n", "");
         LOG("The handle to be closed is ", hObject);
 
@@ -1076,8 +1342,21 @@ struct INJECT_HOOKING {
 
 struct KeyBoard_HOOKING
 {
+    /**
+    * Hook functions for the Keybarod Operations API.
+    */
+
     // start with SetWindowsHookExA, and follow the code in de_bug
     static HHOOK __stdcall SetWindowsHookExAHook(int idHook, HOOKPROC lpfn, HINSTANCE hMod, DWORD dwThreadId) {
+        /**
+        * Hook function for the SetWindowsHookExA API.
+        * @param idHook The type of hook to be installed.
+        * @param lpfn A pointer to the hook procedure.
+        * @param hMod A handle to the DLL containing the hook procedure.
+        * @param dwThreadId The identifier of the thread with which the hook procedure is to be associated.
+        * @return If the function succeeds, the return value is the handle to the hook procedure.
+        *         If the function fails, the return value is NULL.
+        */
 
         LOG("\n----------intercepted call to SetWindowsHookExA----------\n\n", "");
 
@@ -1116,7 +1395,12 @@ struct KeyBoard_HOOKING
         return hHook;
     }
     static BOOL __stdcall GetKeyboardStateHook(PBYTE lpKeyState) {
-
+        /**
+        * Hook function for the GetKeyboardState API.
+        * @param lpKeyState The 256-byte array that receives the status data for each virtual key.
+        * @return If the function succeeds, the return value is nonzero.
+        *         If the function fails, the return value is zero.
+        */
         LOG("\n----------intercepted call to GetKeyboardState----------\n\n", "");
         LOG("The 256-byte array that receives the status data for each virtual key is ", lpKeyState);
         
@@ -1149,7 +1433,15 @@ struct KeyBoard_HOOKING
     }
 
     static DWORD __stdcall SetFilePointerHook(HANDLE hFile, LONG lDistanceToMove, PLONG lpDistanceToMoveHigh, DWORD dwMoveMethod) {
-
+        /**
+        * Hook function for the SetFilePointer API.
+        * @param hFile The handle to the file.
+        * @param lDistanceToMove The number of bytes to move the file pointer.
+        * @param lpDistanceToMoveHigh A pointer to a variable that contains the high-order 32 bits of the new file pointer.
+        * @param dwMoveMethod The starting point for the file pointer move.
+        * @return The low-order DWORD of the new file pointer indicates success.
+        *         If the function fails, the return value is INVALID_SET_FILE_POINTER, and a specific error code can be retrieved by calling GetLastError.
+        */
         LOG("\n----------intercepted call to SetFilePointer----------\n\n", "");
         LOG("The handle to the file is ", hFile);
         LOG("The number of bytes to move the file pointer is ", lDistanceToMove);
@@ -1192,43 +1484,55 @@ struct KeyBoard_HOOKING
     }
 };
 
-// hooking logic
+// Hooking logic
 void SetInlineHook(LPCSTR lpProcName, LPCSTR library, const char* funcName, int index) {
-
+    /**
+    * Sets an inline hook for a specified function in a DLL.
+    * @param lpProcName The name of the function to hook.
+    * @param library The name of the DLL containing the function.
+    * @param funcName The name of the hook function.
+    * @param index The index of the function in the function_index map.
+    */
     HINSTANCE hLib;
     VOID* myFuncAddress;
     CHAR patch[6] = { 0 };
 
-    // get memory address of Hooked function
+    // Get memory address of Hooked function
     hLib = LoadLibraryA(library);
     addresses[index] = (GetProcAddress(hLib, lpProcName));
 
     if (addresses[index] == NULL)
         return;
 
-    // save the first 6 bytes into originalBytes (buffer)
+    // Save the first 6 bytes into originalBytes (buffer)
     ReadProcessMemory(GetCurrentProcess(), (LPCVOID)addresses[index], original[index], 6, NULL);
 
-    // overwrite the first 6 bytes with a jump to myFunc
+    // Overwrite the first 6 bytes with a jump to myFunc
     myFuncAddress = fnMap[funcName];
 
-    // create a patch "push <addr>, retn"
+    // Create a patch "push <addr>, retn"
     // The push instruction pushes a 32bit value on the stack, and the retn instruction pops a 32bit address off the stack into the Instruction Pointer
-    // meaning, when we push a function and return --> the ip will go straight to our function
+    // Meaning, when we push a function and return --> the ip will go straight to our function
     memcpy_s(patch, 1, "\x68", 1); // 0x68 opcode for push
     memcpy_s(patch + 1, 4, &myFuncAddress, 4);
     memcpy_s(patch + 5, 1, "\xC3", 1); // opcode for retn
 
-    // write patch to the hookedAddress --> the Hooked function
+    // Write patch to the hookedAddress --> the Hooked function
     WriteProcessMemory(GetCurrentProcess(), (LPVOID)addresses[index], patch, 6, NULL);
 }
 void FreeHook(int index) {
+    /**
+    * Restores the original bytes of a hooked function, effectively removing the hook.
+    * @param index The index of the function in the function_index map.
+    */
     WriteProcessMemory(GetCurrentProcess(), (LPVOID)addresses[index], original[index], 6, NULL);
 }
 
-// parse
+// Parse parameters
 void ParseParameters() {
-
+    /**
+    Parses the parameters from a text file and populates the relevant data structures.
+    */
     init();
     DWORD nRead;
     HANDLE htxtFile = CreateFile(L"parameters.txt", FILE_SHARE_READ, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
@@ -1275,9 +1579,15 @@ void ParseParameters() {
 }
 
 int main() {
+    /**
+    * Main function that initializes parameters, sets function hooks, and performs other operations.
+    * Returns 0 upon successful execution.
+    */
 
+    // Parse the parameters from a text file
     ParseParameters();
 
+    // Map function names to their corresponding hooking functions
     fnMap["CreateFileAHook"] = (void*)&FILE_HOOKING::CreateFileAHook;
     fnMap["DeleteFileAHook"] = (void*)&FILE_HOOKING::DeleteFileAHook;
     fnMap["WriteFileExHook"] = (void*)&FILE_HOOKING::WriteFileExHook;
@@ -1304,6 +1614,7 @@ int main() {
     fnMap["GetKeyboardStateHook"] = (void*)&KeyBoard_HOOKING::GetKeyboardStateHook;
     fnMap["SetFilePointerHook"] = (void*)&KeyBoard_HOOKING::SetFilePointerHook;
 
+    // Initialize counters and indices for suspicious functions
     for (int i = 0; i < suspicious_functions.size(); i++)
     {
         fnCounter[suspicious_functions[i]] = 0;
@@ -1330,8 +1641,10 @@ int main() {
     //    file = OpenProcess(MAXIMUM_ALLOWED | PROCESS_VM_WRITE | PROCESS_VM_OPERATION, FALSE, dwPid);
     //}
 
+    // Perform additional initialization cpu tasks
     init();
 
+    // Set function hooks using inline hooking
     SetInlineHook("CreateFileA", "kernel32.dll", "CreateFileAHook", function_index["CreateFileA"]);
     SetInlineHook("DeleteFileA", "kernel32.dll", "DeleteFileAHook", function_index["DeleteFileA"]);
     SetInlineHook("WriteFileEx", "kernel32.dll", "WriteFileExHook", function_index["WriteFileEx"]);
@@ -1405,6 +1718,8 @@ int main() {
     return 0;
 }
 
+
+// DLL Entry
 BOOL APIENTRY DllMain(HANDLE hModule,
     DWORD ul_reason_for_call,
     LPVOID lpReserved) // Reserved
