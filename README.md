@@ -8,6 +8,7 @@ Written in
 - [x] C
 
 The project analyses and finds suspicious behaviour of various exe files.
+## Main window
 ## Dynamic Analysis
 ## Static Analysis
 ## Hash Analysis
