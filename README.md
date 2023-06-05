@@ -44,6 +44,11 @@ A few checks run on the file:
 
 
 ## Hash Analysis
+Here, we will interface with virus total, and perform Fuzzy Hashing Analysis
+![image](https://github.com/eladyesh/Anti_Virus/assets/102996033/a3bc969d-7525-4ef9-88d5-1ccb8ea0fa2e)
+![image](https://github.com/eladyesh/Anti_Virus/assets/102996033/dc792c27-8240-46f0-8ae8-f961ac11d2c7)
+![image](https://github.com/eladyesh/Anti_Virus/assets/102996033/ce9ec992-412f-4c33-959b-ea4f9a664da3)
+
 ## Directory Analysis
 ## IP Analysis
 ### I will complete this README when I finish the project
