@@ -9,6 +9,7 @@ Written in
 
 The project analyses and finds suspicious behaviour of various exe files.
 ## Main window
+![image](https://github.com/eladyesh/Anti_Virus/assets/102996033/9465a011-5008-4344-bb99-63d5f83f4bab)
 ## Dynamic Analysis
 ## Static Analysis
 ## Hash Analysis
