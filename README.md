@@ -28,10 +28,20 @@ it injects the dll with the hooks, and then runs SysInternals Handle.exe. The re
 ![image](https://github.com/eladyesh/Anti_Virus/assets/102996033/661b639b-3c60-4d77-a66e-789850ec92fa)
 ![image](https://github.com/eladyesh/Anti_Virus/assets/102996033/610445de-854a-4e6a-b961-0bef2a971dbd)
 
-
-
-
 ## Static Analysis
+A few checks run on the file:
+- Portable Executable info
+- Suspicious Strings (YARA)
+- Additional Strings (Sysinternals)
+- Packers check (YARA)
+- Imports - Done by going into the Import Address table of the IAT <br><br>
+- 3 PE checks - Fractionated Imports, Suspicious sections, and PE Linker test
+![image](https://github.com/eladyesh/Anti_Virus/assets/102996033/e96256fb-438e-46f0-8bcb-30b533cc7436)
+![image](https://github.com/eladyesh/Anti_Virus/assets/102996033/3c23fd2b-12d3-48d6-8b59-0316509bb1f5)
+![image](https://github.com/eladyesh/Anti_Virus/assets/102996033/dd01cea0-a50b-48a3-a385-47e0f19f099c)
+
+
+
 ## Hash Analysis
 ## Directory Analysis
 ## IP Analysis
