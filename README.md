@@ -18,6 +18,7 @@ In the side bar there are 5 options:
 - IP Analysis
 - Terms and Services
 - Configuration
+The clock on the right side is a Dial the will tell the probablity of the file of being a virus <br>
 ## Dynamic Analysis
 VM when turned on:<br>
 ![image](https://github.com/eladyesh/Anti_Virus/assets/102996033/0d255f54-c437-4003-b998-621e2ec2d1fa)<br><br>
@@ -34,8 +35,8 @@ A few checks run on the file:
 - Suspicious Strings (YARA)
 - Additional Strings (Sysinternals)
 - Packers check (YARA)
-- Imports - Done by going into the Import Address table of the IAT <br><br>
-- 3 PE checks - Fractionated Imports, Suspicious sections, and PE Linker test
+- Imports - Done by going into the Import Address table of the IAT
+- 3 PE checks - Fractionated Imports, Suspicious sections, and PE Linker test <br><br>
 ![image](https://github.com/eladyesh/Anti_Virus/assets/102996033/e96256fb-438e-46f0-8bcb-30b533cc7436)
 ![image](https://github.com/eladyesh/Anti_Virus/assets/102996033/3c23fd2b-12d3-48d6-8b59-0316509bb1f5)
 ![image](https://github.com/eladyesh/Anti_Virus/assets/102996033/dd01cea0-a50b-48a3-a385-47e0f19f099c)
