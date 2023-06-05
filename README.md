@@ -17,7 +17,7 @@ In the side bar there are 5 options:
 - Directory Analysis
 - IP Analysis
 - Terms and Services
-- Configuration
+- Configuration <br>
 The clock on the right side is a Dial the will tell the probablity of the file of being a virus <br>
 ## Dynamic Analysis
 VM when turned on:<br>
@@ -53,10 +53,15 @@ Here, we will interface with virus total, and perform Fuzzy Hashing Analysis <br
 Sending each file from Directory to Virus Total: <br><br>
 ![image](https://github.com/eladyesh/Anti_Virus/assets/102996033/9a2f3b65-2621-41e7-9fa4-333f8ed042e3)
 ## IP Analysis
-Using PyDivert to block IP's found suspicious in DNS cache by Virus total:
+Using PyDivert to block IP's found suspicious in DNS cache by Virus total: <br><br>
 ![image](https://github.com/eladyesh/Anti_Virus/assets/102996033/64f31cb2-3a4c-4998-bcc1-8545ea1829f4)
 ![image](https://github.com/eladyesh/Anti_Virus/assets/102996033/64855ec5-17a1-4203-a0c0-2fa83bdb48a4)
 ![image](https://github.com/eladyesh/Anti_Virus/assets/102996033/9478b742-1254-4c0b-901e-2d2b10d3848d)
 ## Configuration
+The user can configure 3 options:
+- Virus Total Search
+- Vaulting
+- Data Base saving (Redis Data Base) <br><br>
+![image](https://github.com/eladyesh/Anti_Virus/assets/102996033/70c26a11-47ee-442f-96ee-c3a1239ad589)
 ## Quarnatine
 ### I will complete this README when I finish the project
