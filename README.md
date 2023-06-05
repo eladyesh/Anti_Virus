@@ -12,13 +12,13 @@ The project analyses and finds suspicious behaviour of various exe files.
 ![image](https://github.com/eladyesh/Anti_Virus/assets/102996033/9465a011-5008-4344-bb99-63d5f83f4bab) 
 ![image](https://github.com/eladyesh/Anti_Virus/assets/102996033/242b11aa-9eeb-48a1-9609-86e5f62d08b6)<br><br>
 Here, you can start the VM for the Dynamic Analysis, move the Static And Hash Analyis Windows.
+The clock on the right side is a Dial the will tell the probablity of the file of being a virus
 In the side bar there are 5 options:
 - Home Screen
 - Directory Analysis
 - IP Analysis
 - Terms and Services
-- Configuration <br>
-The clock on the right side is a Dial the will tell the probablity of the file of being a virus <br>
+- Configuration
 ## Dynamic Analysis
 VM when turned on:<br>
 ![image](https://github.com/eladyesh/Anti_Virus/assets/102996033/0d255f54-c437-4003-b998-621e2ec2d1fa)<br><br>
@@ -64,4 +64,15 @@ The user can configure 3 options:
 - Data Base saving (Redis Data Base) <br><br>
 ![image](https://github.com/eladyesh/Anti_Virus/assets/102996033/70c26a11-47ee-442f-96ee-c3a1239ad589)
 ## Quarnatine
-### I will complete this README when I finish the project
+If the file was found to have a probability of being malicious greater than 75 percent, it will go into quarantine.
+The system will encrypt the file, and put it into a Hidden folder.<br><br>
+![image](https://github.com/eladyesh/Anti_Virus/assets/102996033/83f4ce2f-0bed-4f59-885f-883fb3d2ff7c)
+![image](https://github.com/eladyesh/Anti_Virus/assets/102996033/574689e7-a780-4fa2-be8a-03259051b078) <br><br>
+To release from quarantine, go into the configuration and disable the vaulting: <br><br>
+![image](https://github.com/eladyesh/Anti_Virus/assets/102996033/690a4001-560c-43f4-8514-392e96903b08)
+
+
+## Full Project Book
+This is the full project book (51 pages). Written in Hebrew: <br><br>
+[elad2.docx](https://github.com/eladyesh/Anti_Virus/files/11649876/elad2.docx)
+
