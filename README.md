@@ -44,11 +44,19 @@ A few checks run on the file:
 
 
 ## Hash Analysis
-Here, we will interface with virus total, and perform Fuzzy Hashing Analysis
+Here, we will interface with virus total, and perform Fuzzy Hashing Analysis <br><br>
 ![image](https://github.com/eladyesh/Anti_Virus/assets/102996033/a3bc969d-7525-4ef9-88d5-1ccb8ea0fa2e)
 ![image](https://github.com/eladyesh/Anti_Virus/assets/102996033/dc792c27-8240-46f0-8ae8-f961ac11d2c7)
 ![image](https://github.com/eladyesh/Anti_Virus/assets/102996033/ce9ec992-412f-4c33-959b-ea4f9a664da3)
 
 ## Directory Analysis
+Sending each file from Directory to Virus Total: <br><br>
+![image](https://github.com/eladyesh/Anti_Virus/assets/102996033/9a2f3b65-2621-41e7-9fa4-333f8ed042e3)
 ## IP Analysis
+Using PyDivert to block IP's found suspicious in DNS cache by Virus total:
+![image](https://github.com/eladyesh/Anti_Virus/assets/102996033/64f31cb2-3a4c-4998-bcc1-8545ea1829f4)
+![image](https://github.com/eladyesh/Anti_Virus/assets/102996033/64855ec5-17a1-4203-a0c0-2fa83bdb48a4)
+![image](https://github.com/eladyesh/Anti_Virus/assets/102996033/9478b742-1254-4c0b-901e-2d2b10d3848d)
+## Configuration
+## Quarnatine
 ### I will complete this README when I finish the project
